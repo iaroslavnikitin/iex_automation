@@ -1,0 +1,3 @@
+{
+    "btn_reset":"$$('//button[contains(text(),\"Reset All My Responses\")]')[0]"
+}

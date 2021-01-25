@@ -1,0 +1,187 @@
+//Child less than 19
+
+_include("Signup.sah");
+_include("SignupPreferences.sah");
+_include("global_include.sah");
+
+
+function threeMemberChildLessThan19(){
+ var $count = _suiteInfo()["NumberOfEnrollments"];
+ while($count>0){
+ _log("This is "+$count+" enrollment");
+$signupMode = "Individual";
+_click(_link("START SHOPPINGIndividual"));
+_click(_link("Skip and Sign up"));
+var $fullname = clickSubmitOnSignUpPage();
+clickContinueOnCommunicationPreference("417 S 6th St","","Boise"	,"Idaho",	"83702"	,"","","","","English",	"English");
+verifyRIDP();
+var $currentDate = new Date();
+var $year = $currentDate.getFullYear().toString();
+_click(_link($year));
+_click(_button("/REPORT LIFE EVENT AND SHOP/"))
+_click(_image("maritalstatus.png"));	
+_click(_link("Continue"));
+_click(_submit("Apply without Cost-Savings"))
+	_check(_checkbox("acceptanceCB"));
+_call(_link("Continue").click());
+_call(_link("Continue").click())
+_setValue(_textbox("dateOfBirth"), "01/01/1987")	
+_setValue(_textbox("first_phoneNo"), "(461) 237-8416")
+	
+
+_setValue(_textbox("home_addressLine1"), "417 S 6th St");
+_setValue(_textbox("home_primary_city"),"Boise");
+_setValue(_textbox("home_primary_zip"), "83702");
+_setSelected(_select("home_primary_county"), "Ada");
+
+_click(_checkbox("mailingAddressIndicator"));
+_call(_link("Continue").click())
+_click(_radio("authorizedRepresentativeHelpNo"))
+_call(_link("Continue").click())
+_click(_radio("ApplyingForhouseHoldMember"))	
+_call(_link("Continue").click());
+_check(_checkbox("appscr57checkseekingcoverage1"))
+_call(_link("Continue").click());
+_click(_link("Add Another Person"));
+var $fname = randomFirstName();
+var $lname = $fullname.split(" ")[1]	
+_setValue(_textbox("appscr57FirstName2"), $fname) 
+_setValue(_textbox("appscr57MiddleName2"), "")
+_setValue(_textbox("appscr57LastName2"), $lname) 
+_setSelected(_select("appscr57Suffix2"), "Suffix")
+_setValue(_textbox("appscr57DOB2"), "01/01/1990") 
+_check(_checkbox("appscr57checkseekingcoverage2"));
+_call(_link("Continue").click());
+
+var $fname = randomFirstName();
+_click(_link("Add Another Person"));
+_setValue(_textbox("appscr57FirstName3"), $fname) 
+_setValue(_textbox("appscr57MiddleName3"), "")
+_setValue(_textbox("appscr57LastName3"), $lname) 
+_setSelected(_select("appscr57Suffix3"), "Suffix")
+
+var $date = $currentDate.getDate();
+var $addMonth = 1
+if($date >15){
+	$addMonth =2
+}
+var $month = $currentDate.getMonth()+$addMonth;//>>>15 day rule
+
+
+$month = $month+1 < 10 ? ("0" + $month) : $month;
+_setValue(_textbox("appscr57DOB3"), $month+"/15/2001") 
+_check(_checkbox("appscr57checkseekingcoverage3"));
+_call(_link("Continue").click());
+
+
+
+_call(_link("Continue").click())
+_call(_link("Continue").click())
+_click(_radio("appscr61GenderMaleID"))
+_click(_radio("socialSecurityCardHolderIndicatorYes"))	
+			enterSSN()	;
+_click(_radio("fnlnsSameIndicatorYes"));
+_call(_link("Continue").click());
+_click(_radio("UScitizenIndicatorYes"));//US national
+_call(_link("Continue").click());
+_click(_radio("checkPersonNameLanguage"));
+_click(_checkbox("ethnicity_maxican"));
+_click(_label("Filipino"));
+_call(_link("Continue").click());
+_click(_radio("appscr61GenderFemaleID"))
+	_click(_radio("socialSecurityCardHolderIndicatorYes"));
+enterSSN();
+_click(_radio("fnlnsSameIndicatorYes"))
+_call(_link("Continue").click())				
+				
+_click(_radio("UScitizenIndicatorYes"))		
+_call(_link("Continue").click())
+_check(_checkbox("americanIndianOrAlaskaNative"));	
+_call(_link("Continue").click())
+_click(_radio("appscr61GenderFemaleID"));	
+_click(_radio("socialSecurityCardHolderIndicatorYes"));
+enterSSN();
+_click(_radio("fnlnsSameIndicatorYes"))
+_call(_link("Continue").click())		
+_click(_radio("UScitizenIndicatorYes"))		
+_call(_link("Continue").click())
+_check(_checkbox("americanIndianOrAlaskaNative"));
+_call(_link("Continue").click());
+
+_click(_radio("appscr61GenderFemaleID"));	
+_click(_radio("socialSecurityCardHolderIndicatorYes"));
+enterSSN();
+_click(_radio("fnlnsSameIndicatorYes"))
+_call(_link("Continue").click())		
+_click(_radio("UScitizenIndicatorYes"))		
+_call(_link("Continue").click())
+
+_call(_link("Continue").click());
+_call(_link("Continue").click());
+_call(_link("Continue").click());
+
+_setSelected(_select(0, _in(_listItem("relationshipSelection1"))), "Spouse");
+_setSelected(_select(1, _in(_listItem("relationshipSelection1"))), "Parent of child");
+_setSelected(_select("2to3"), "Parent of child");
+
+					
+						_call(_link("Continue").click())
+							_call(_link("Continue").click())
+								_call(_link("Continue").click())
+									_call(_link("Continue").click())
+										_check(_checkbox("ononeIncarceratedStatus"));
+_click(_radio("useIncomeDataIndicatorYes"))
+	_check(_checkbox("agree_stat4"))
+		_check(_checkbox("agree_stat5"))
+			_setValue(_textbox("appscr85ESignature"), $fullname);
+//_click(_link("Submit Application[2]"));
+clickSubmitSSAP("Marriage", -1);
+
+_click(_link("/" + $year + "/"));
+_click(_button("SHOP FOR PLANS"));
+_click(_link("Save and Continue"));
+_click(_radio("tobaccoUser-no"));
+
+_click(_radio("tobaccoUser-no[1]"));
+_click(_link("Save and Continue"));
+_click(_link("Shop Health Plans (3 Members)"));
+_click(_submit("Skip to View Plans"));
+
+_click(_link("ADD"));
+_click(_button("Continue To Dental Plans"));
+_uncheck(_checkbox("chkSCoverage[1]"));
+_uncheck(_checkbox("chkSCoverage[2]"))
+	//only child is seeking coverage for Dental plan
+_click(_submit("Update Results"));
+//find child only dental plan
+selectChildOnlyDentalPlan($year)
+
+//_click(_link("ADD"));
+_click(_button("Continue To Cart"));
+
+_click(_button("Sign Application"));
+_click(_submit("I AM READY TO ENROLL"));
+_click(_checkbox("terms"));
+_setValue(_textbox("applicant_esig"), $fullname);
+_click(_button("Sign and Enroll"));
+
+_assertVisible(_heading1("Confirmation"));
+_click(_link("Go to Dashboard"));
+_assertVisible(_heading1("Welcome, "+$fullname));
+
+_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+_click(_link("Logout End of dropdown"))
+//_assertVisible(_submit("Log In"));
+var $suiteInfo = _suiteInfo();
+var $baseURL = $suiteInfo["baseURL"];
+_navigateTo($baseURL);
+$count--;
+}
+
+
+		
+
+
+}										
+				
+				

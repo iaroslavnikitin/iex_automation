@@ -1,0 +1,4 @@
+{   
+    "btn_nextRegister":  "$('//a[@title=\"Next: Register\"]')"
+
+}

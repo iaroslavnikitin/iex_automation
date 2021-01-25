@@ -1,0 +1,18 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+"//",,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+"all,CAP,Security,HIX-84536","HIX-84536 Archive Ticket","[Documentation]","Archive Ticket.
+verify Archive Permission is not granted for L2 and supervisor CSR users"
+,,"openBrowser"
+,,"[Keyword]","archiveUserTicket"
+,,"[Data]","[userdata:archive:email]","[userdata:archive:password]","[userdata:archive:role]","[userdata:archive:archivePermission]","[userdata:archive:ticketType]","[userdata:archive:subType]","[userdata:archive:createdForRole]","[userdata:archive:user]","[userdata:archive:expUser]","[userdata:archive:priority]"

@@ -1,0 +1,62 @@
+{
+ "CA":{
+    "address": {
+        "addressLine1":"1305 Terra Bella Avenue",
+        "addressLine2":"",
+        "city":"Mountain View",
+        "state":"California",
+        "county":"Santa Clara",
+        "zip":"94043"
+    }
+ },
+ "PA": {
+    "address": {
+        "addressLine1":"4510 Marketplace Way",
+        "addressLine2":"",
+        "city":"Enola",
+        "state":"Pennsylvania",
+        "county":"Cumberland",
+        "zip":"17025"
+    }
+ },
+ "NV": {
+    "address": {
+        "addressLine1":"750 N Virginia St",
+        "addressLine2":"",
+        "city":"Reno",
+        "state":"Nevada",
+        "county":"Washoe",
+        "zip":"89501"
+    }
+ },
+ "MN": {
+    "address": {
+        "addressLine1":"4110 test Rd East",
+        "addressLine2":"",
+        "city":"Eagan",
+        "state":"Minnesota",
+        "county":"Dakota",
+        "zip":"55121"
+    }
+ },
+ "ID": {
+    "address": {
+        "addressLine1":"315 Falls Ave",
+        "addressLine2":"",
+        "city":"Twin Falls",
+        "state":"Idaho",
+        "county":"Twin Falls (ID)",
+        "zip":"83301"
+    }
+ },
+ "NJ": {
+    "address": {
+        "addressLine1":"75 Liberty Ave",
+        "addressLine2":"",
+        "city":"Jersey City",
+        "state":"New Jersey",
+        "county":"Hudson",
+        "zip":"07306"
+    }
+ }
+}

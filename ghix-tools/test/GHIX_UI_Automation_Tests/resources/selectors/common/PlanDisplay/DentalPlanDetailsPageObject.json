@@ -1,0 +1,18 @@
+{
+    "pageHeader":"$('h1')",
+    "planDetailTile":
+    {
+        "img_company":"$('.cp-tile__img')",
+        "tier":"$('//div[contains(@class,\"cp-tile__metal-tier\")]')",
+        "premium":"$('.cp-tile__premium-amount')"
+     },
+    "planHighlights":
+    {
+        "planHighlightTile":"$('.ps-detail__highlights')",
+        "planHighlight_name":"$$('.cp-tile__value')[0]",
+        "planHighlight_routineDental":"$$('.cp-tile__value')[1]",
+        "planHighlight_dentalCheckup":"$$('.cp-tile__value')[2]",
+        "planHighlight_deductible":"$$('.cp-tile__value')[3]",
+        "planHighlight_oopmax":"$$('.cp-tile__value')[4]"
+    }
+}

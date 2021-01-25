@@ -1,0 +1,22 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"loadSahi","../pagemodels/global_include.sah"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+
+"all,Security,HIX-88035,HIX-88034,HIX-88033,HIX-88032,HIX-88031,HIX-88029,HIX-89453,HIX-88227","HIX-88035 HIX-88034 HIX-88033 HIX-88032 HIX-88031 HIX-88029 HIX-89453 HIX-88227   Verify Override Feature For Different Roles","[Documentation]","Verify Override Feature For Different Roles
+1) HIX-88035-Enable permission for L1 CSR user to view ""CSR OVERRIDES"" (Actions tab).
+2) HIX-88034-Enable permission for L1, L2 and Supervisor user to view ""CANCEL OR TERMINATE PLAN"".
+3) HIX-88033-Enable permission for L2 and Supervisor user to view ""REINSTATE ENROLLMENT"".
+4) HIX-88032-Enable permission for L2 and Supervisor user to view ""OPEN SPECIAL ENROLLMENT"".
+5) HIX-88031-Enable permission for L2 and Supervisor user to view ""EDIT NON FINANCIAL APPLICATION"".
+6) HIX-88029-Enable permission for L2 and Supervisor user to view ""Change Coverage Start Date"".'
+7) HIX-89453-Verify Role-based configurable access management to Enrollment Edit Tool.
+8) HIX-88227-Enable Override Enrollment Status permission to CSR Supervisor and Admin along with 1095 user."
+,,"openBrowser"
+,,"[Documentation]","role","user","password","actionTabPermission","cancelOrTerminatePermission","changeCovDate","reinstatement","openSpecialEnrollment","overrideEnrollmentStatus","editToolPermission","resend","isCSREnabled","aptcAmount","noOfAdults","noOfChildren","showCatastrophic"
+,,"csrModifyingIndividualEnrollment","""SUPERVISOR""","""auto_supervisor@yopmail.com""","""ghix123#""","""Y""","""Y""","""Y""","""Y""","""N""","""Y""","""N""","""Y""","""Y""",,"1","0","""NO"""

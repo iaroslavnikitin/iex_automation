@@ -1,0 +1,58 @@
+{
+   "landingPageHeader":"$('h1')",
+"topNavigation":
+   {
+      "dd_issuers":"$('//a[@title=\"Issuers\"]')",
+      "dd_plans":"$('//a[@title=\"Plans\"]')",
+      "dd_members":"$('//a[@title=\"Members\"]')",
+      "dd_users":"$('//a[@title=\"Users\"]')",
+      "dd_reports":"$('//a[@title=\"Reports\"]')",
+      "dd_tickets":"$('//a[@title=\"Tickets\"]')",
+      "dd_enrollment":"$('//a[@title=\"Enrollment\"]')",
+      "dd_agents":"$('//a[@title=\"Agents\"]')",
+      "dd_enrollmentCounselors":"$('//a[@title=\"Enrollment Counselors\"]')",
+      "dd_entities":"$('//a[@title=\"Entities\"]')"
+   },
+"subNavigation":
+   {
+   "issuers":{
+        "lk_manageIssuerAccounts":"",
+        "lk_newIssuerAccount":""
+       },
+   "plans":{
+       "lk_manageQHPs":"",
+       "lk_manageSADPs":""
+    },
+   "members":{
+      "lk_createNewIndividual":"",
+      "lk_manageMembers":"$('//a[@title=\"Manage Members\"]')",
+      "lk_manageApplicants":"$('//a[@title=\"Manage Applicants\"]')"       
+   },
+   "users":{
+      "lk_addUser":"",
+      "lk_manageUser":""
+   },
+   "reports":{
+   },
+   "tickets":{
+      "lk_manageTickets":"$('//a[contains(text(),\"Manage Tickets\")]')",
+      "lk_manageWrkgrpAssignees":"",
+      "lk_manageWrkgrp":""
+   },
+   "enrollment":{
+      "lk_reconciliationWorkbench":""      
+   },
+   "agents":{
+      "lk_manageAgents":""     
+   },
+   "enrollmentCounselors":{
+      "lk_manageECs":""     
+   },
+   "entities":{
+      "lk_manageEntities":""     
+   }
+}
+
+
+
+}

@@ -1,0 +1,32 @@
+_includeOnce("../../lib/DbDetails.sah");
+
+function getCounselorDataDB($counselor){
+	var $counselorData = [];
+	
+	var $query ="select ID,USER_ID,EE_ENTITY_ID,PRIMARY_ASSISTER_SITE_ID,SECONDARY_ASSISTER_SITE_ID,MAILING_LOCATION_ID,FIRST_NAME,EMAIL_ADDRESS,PRIMARY_PHONE_NUMBER,SECONDARY_PHONE_NUMBER,COMMUNICATION_PREF,STATUS,CERTIFICATION_STATUS,CERTIFICATION_NUMBER,CERTIFICATION_DATE,RECERTIFICATION_DATE,DECERTIFICAITON_DATE,EDUCATION,ASSISTER_NUMBER,COMMENTS,DOCUMENT_ID,CREATION_TIMESTAMP,LAST_UPDATE_TIMESTAMP,CREATED_BY,LAST_UPDATED_BY,STATUS_CHANGE_DATE,DELEGATION_CODE,LAST_NAME,BUSINESS_LEGAL_NAME,ACTIVITY_COMMENTS,ASSISTER_PHOTO_DOCUMENT_ID,POSTAL_MAIL from ee_assisters where FIRST_NAME='"+$counselor.firstName+"' and LAST_NAME='"+$counselor.lastName+"' and EMAIL_ADDRESS='"+$counselor.email+"'";
+	_log($query);
+	$db = getDb();
+	var $counselorDataDB;
+
+	for (var $n = 0; $n < 10; $n++) {
+		 $counselorDataDB = $db.selectWithHeader($query);
+		 if ($counselorDataDB.length > 1) break;
+		 _wait(5000);
+		 _log("waiting..."+$n);
+	}
+	
+	// loop to return data in key:value format --> $counselorData[0].ID
+	for (var $j=1;$j<$counselorDataDB.length;$j++){
+		var $counselorObj={};
+		
+		for (var $i=0;$i<$counselorDataDB[0].length;$i++){
+			$counselorObj[$counselorDataDB[0][$i]]=$counselorDataDB[$j][$i];
+		}
+		
+		$counselorData.push($counselorObj);
+	}
+	
+	var $str = JSON.stringify($counselorData);
+	_log("JSON: "+$str);
+	return $counselorData;
+}

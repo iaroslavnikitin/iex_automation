@@ -1,0 +1,15 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify household is qualify for Medicaid and Next button is disable on preference","[Documentation]","Family of 2 with  income :  15,000 should get Medicaid and should not see the next button to proceed with preferences"
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""10/25/1990""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddSpouse","""01/01/1990""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""15000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","It looks like you and your household may qualify for financial help to pay for your healthcare coverage."
+,"validateSavingDetails","N","N","N","Y","N","N"

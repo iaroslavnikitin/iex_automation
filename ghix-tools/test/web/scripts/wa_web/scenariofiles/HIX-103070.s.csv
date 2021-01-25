@@ -1,0 +1,11 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../lib/common.sah"
+,"loadSahi","../pagemodels/SmartPlanFinder.sah"
+,"loadSahi","../lib/db.sah"
+
+"HIX-103070","[Documentation]","Set the lang query string to es and validate that the elements appear in Spanish language"
+,"$redirectDomain=","""https://www.google.com"""
+,"getHouseholdDataFromDb"
+,"$householdId=getHouseholdIdFromDb"
+,"navigateToSmartPlanfinderWithParameters","es","pre","$redirectDomain","$householdId"
+,"verifySPFPageInOtherLanguage","spanish"

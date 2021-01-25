@@ -1,0 +1,1793 @@
+_includeOnce("Signup.sah");
+_includeOnce("../lib/util.sah");
+_includeOnce("Utils.sah");
+_includeOnce("PlanSelection.sah");
+_includeOnce("ShowCart.sah");
+	
+var $healthEnrollmentId;
+var $dentalEnrollmentId;
+var $healthSponsorName;
+var $healthSubscriberName;
+var $dentalSponsorName;
+var $dentalSubscriberName;
+
+var $mailingAddress;
+var $gender;
+var $grossPremium;
+var $netPremium;
+var $idahoEnvironmentURL;
+var $enrollStatus = false;
+var $ticketId;
+var $url;
+var $isGatedEvent="";
+
+function updateEnrollmentStatusHealthAndDental(){
+	_log(" Creating a request");
+	var $request = new RESTRequest();
+	$request.setHeader("Accept-Encoding", "deflate,sdch");
+	$request.setHeader("Authorization", "Basic Z2lhdXRvbWF0aW9uOmdpYXV0b21hdGlvbg==");
+	$request.setURL("https://jenkins.ghixqa.com/view/4.%20Data/job/UpdateEnrollmentStatusList/");
+	var $response = $request.submit("get");
+	var $responseBody = $response.getBodyAsString();
+	_assertEqual("200",  $response.getResponseCode(),"Verify valid HTTPS status code is received");
+	_log("GET request");
+	_log("Response body: " +$responseBody);
+	var $breadCrumb = _extract($responseBody, "/Jenkins-Crumb\", \"(.*?)\"/",true);
+	$request = new RESTRequest();
+	$request.setHeader("Accept-Encoding", "deflate,sdch");
+	$request.setHeader("Authorization", "Basic Z2lhdXRvbWF0aW9uOmdpYXV0b21hdGlvbg==");
+	$request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+	$request.setURL("https://jenkins.ghixqa.com/job/UpdateEnrollmentStatusList/build");
+	_log("Health Enrollment Id: "+$healthEnrollmentId);
+	_log("Dental Enrollment Id: "+$dentalEnrollmentId);
+	var $json = {
+                "parameter":
+                [{"name": "targetEnv",
+              	   "value": $url[2]+"/hix/"
+				 	
+                },
+                 {"name": "enrollmentIdList",
+                  "value": $healthEnrollmentId+","+$dentalEnrollmentId
+                },
+                 {"name": "action", "value": "CONFIRM"
+                }],
+                "statusCode": "303",
+                "redirectTo": ".",
+                "Jenkins-Crumb": $breadCrumb
+	}
+	var $jsonString = JSON.stringify($json);
+	var $p = new Parameter();
+	$p.add("name", "targetEnv");
+	$p.add("value", $url[2]+"/hix/");
+	$p.add("name", "enrollmentIdList");
+	$p.add("name", "action");
+	$p.add("value", "CONFIRM");
+	$p.add("statusCode", "303");
+	$p.add("redirectTo", ".");
+	$p.add("Jenkins-Crumb", $breadCrumb);
+	$p.add("Submit", "Build");
+	$p.add("json", $jsonString);
+	$request.addToBody($p);
+	_log("$p="+JSON.stringify($p));
+	var $response = $request.submit("post");
+	_wait(250000);
+	_assertEqual("303",  $response.getResponseCode(),"Verify valid HTTPS status code is received");
+	$enrollStatus=true;
+
+}
+
+function updateEnrollmentStatusHealth(){
+	var $request = new RESTRequest();
+	$request.setHeader("Accept-Encoding", "deflate,sdch");
+	$request.setHeader("Authorization", "Basic Z2lhdXRvbWF0aW9uOmdpYXV0b21hdGlvbg==");
+	$request.setURL("https://jenkins.ghixqa.com/job/UpdateEnrollmentStatus/build");
+	var $response = $request.submit("get");
+	var $responseBody = $response.getBodyAsString();
+	_log("GET request: " +$responseBody);
+	var $breadCrumb = _extract($responseBody, "/Jenkins-Crumb\", \"(.*?)\"/",true);
+	$request = new RESTRequest();
+	$request.setHeader("Accept-Encoding", "deflate,sdch");
+	$request.setHeader("Authorization", "Basic Z2lhdXRvbWF0aW9uOmdpYXV0b21hdGlvbg==");
+	$request.setHeader("Content-Type", "application/x-www-form-urlencoded");
+	$request.setURL("https://jenkins.ghixqa.com/job/UpdateEnrollmentStatus/build");
+	var $json = {
+                "parameter":
+                [{"name": "targetEnv",
+                  "value": $url
+                },
+                 {"name": "enrollmentId",
+                  "value": $healthEnrollmentId
+                },
+                 {"name": "action", "value": "CONFIRM"
+                }],
+                "statusCode": "303",
+                "redirectTo": ".",
+                "Jenkins-Crumb": $breadCrumb
+	}
+	var $jsonString = JSON.stringify($json);
+	var $p = new Parameter();
+	$p.add("name", "targetEnv");
+	$p.add("value", $url);
+	$p.add("name", "enrollmentId");
+	$p.add("name", "action");
+	$p.add("value", "CONFIRM");
+	$p.add("statusCode", "303");
+	$p.add("redirectTo", ".");
+	$p.add("Jenkins-Crumb", $breadCrumb);
+	$p.add("Submit", "Build");
+	$p.add("json", $jsonString);
+	$request.addToBody($p);
+	_log("$p="+JSON.stringify($p));
+	var $response = $request.submit("post");
+	_wait(250000);
+	$enrollStatus=true;
+}
+
+function getUpdatedBaseURL($append) {
+	var $suiteInfo = _suiteInfo();
+	var $baseURL = $suiteInfo["baseURL"];
+	var $updatedURL = $baseURL + $append;
+	return $updatedURL;
+}
+
+function setDB(){
+	//getdbdetailsfromJenkins();
+	// getdbconnection();
+	//   _log($db);
+}
+
+function getEventType($event,$eventCategory,$isFinancial){
+	if($event == "Change in Your Dependents")
+		$event = "Birth or Adoption";
+	$event = $event.toUpperCase();
+	_log("select event_type,is_gated from sep_enrollment_events where event_category='"+$eventCategory+"' and is_financial='"+$isFinancial+"' and display_on_ui='Y' and event_name='"+$event+"'");
+	var $eventType = $db.select("select event_type,is_gated from sep_enrollment_events where event_category='"+$eventCategory+"' and is_financial='"+$isFinancial+"' and display_on_ui='Y' and event_name='"+$event+"'");
+	var $selectedEventType = $eventType[0][0];
+	$isGatedEvent = $eventType[0][1];
+	_log("event Type:  "+ $selectedEventType);
+	_log("isGated :"+ $isGatedEvent);
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	var $currentDate = _fetch(window.moment().get('date'));
+	/*if($currentMonth == 12 || ($currentMonth == 11 && $currentDate >15)){
+		if($selectedEventType == "3"|| $selectedEventType == "2" || $event =="DEATH"){
+			_log(" Stopping the test case as event type is "+$selectedEventType+" and the month is  "+$currentMonth,"CUSTOM1");
+			_stop();
+		}
+	}*/
+	if($currentMonth == 12  && $selectedEventType == "2"){
+		_log(" Stopping the test case as event type is "+$selectedEventType+" and the month is  "+$currentMonth,"CUSTOM1");
+		_stop();
+		}
+	if((($currentMonth == 12) || ($currentMonth == 11 && $currentDate >15))&& ($selectedEventType == "3")){
+		_log(" Stopping the test case as event type is "+$selectedEventType+" and the month is  "+$currentMonth,"CUSTOM1");
+		_stop();
+	}
+	if(($currentMonth ==11 || $currentMonth ==12)&& ($selectedEventType == "4")){
+		_log(" Stopping the test case as event type is "+$selectedEventType+" and the month is  "+$currentMonth,"CUSTOM1");
+		_stop();
+	}
+	
+	return $selectedEventType;
+}
+
+function isGatedEvent($event,$eventCategory){
+	if($event == "Change in Your Dependents")
+		$event = "Birth or Adoption";
+	$event = $event.toUpperCase();
+	_log("select event_type,is_gated from sep_enrollment_events where event_category='"+$eventCategory+"' and is_financial='N' and display_on_ui='Y' and event_name='"+$event+"'");
+	var $eventType = $db.select("select event_type,is_gated from sep_enrollment_events where event_category='"+$eventCategory+"' and is_financial='N' and display_on_ui='Y' and event_name='"+$event+"'");
+	var $gatedEvent = $eventType[0][1];
+	return $gatedEvent;
+}
+
+function verifyEnrollment($str,$grossPremium,$eventDate,$event,$caseNumberAfterLCE){
+	if($str == "Name Change"){
+		var $name = $ssapPeople[0].fullName(true);
+		var $subscriberName="";
+		for(i=0;i<$ssapPeople.length;i++){
+			if($ssapPeople[i].$applying){
+				$subscriberName= $ssapPeople[i].fullName(true);
+				break;
+			}
+		}
+		_log("select id,sponsor_name,subscriber_name  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		var $healthRes = $db.select("select id,sponsor_name,subscriber_name  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		$healthEnrollmentId = $healthRes[0][0];
+		$healthSponsorName = $healthRes[0][1];
+		$healthSubscriberName = $healthRes[0][2];
+		
+		_log("Verify Enrollment_aud table");
+		var $query = "select id,sponsor_name,subscriber_name from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131";
+		var $healthRes = $db.select($query);
+		$healthSponsorName = $healthRes[0][1];
+		$healthSubscriberName = $healthRes[0][2];
+		
+		if ($onDentalPage){
+			_log("select id, sponsor_name, subscriber_name from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132");
+			var $dentalRes = $db.select("select id, sponsor_name, subscriber_name from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132");
+			$dentalEnrollmentId = $dentalRes[0][0];
+			$dentalSponsorName  = $dentalRes[0][1];
+			$dentalSubscriberName = $dentalRes[0][2];
+			_assertEqual($name, $dentalSponsorName);
+			_assertEqual($subscriberName, $dentalSubscriberName);
+			
+			_log("Verify enrollment_aud table");
+			_log("select id, sponsor_name, subscriber_name from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132 order by rev desc");
+			var $dentalRes = $db.select("select id, sponsor_name, subscriber_name from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132 order by rev desc");
+			$dentalEnrollmentId = $dentalRes[0][0];
+			$dentalSponsorName  = $dentalRes[0][1];
+			$dentalSubscriberName = $dentalRes[0][2];
+			_assertEqual($name, $dentalSponsorName);
+			_assertEqual($subscriberName, $dentalSubscriberName);
+		}
+
+		_log("select id, native_american_flag from ssap_applicants where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"')order by id");
+		var $native = $db.select("select id, native_american_flag from ssap_applicants where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"')order by id");
+		for(i=0;i<$ssapPeople.length;i++){
+			if($ssapPeople[i].$native == "Yes"){
+				_assertEqual("Y",$native[i][1]);
+			}
+			else  if($ssapPeople[i].$native == "No"){
+				_assertEqual("N",$native[i][1]);
+			}
+		}
+
+		_assertEqual($name, $healthSponsorName);
+		_assertEqual($subscriberName, $healthSubscriberName);
+	}
+
+	if($str == "Name Change For Dental Only Enrollment"){
+		var $name = $ssapPeople[0].fullName(true);
+		var $subscriberName="";
+		for(i=0;i<$ssapPeople.length;i++){
+			if($ssapPeople[i].$applying){
+				$subscriberName= $ssapPeople[i].fullName(true);
+				_log("Is Seeking Coverage Value" +$ssapPeople[i].$applying);
+				_log("Subscriber Name" + $subscriberName);
+				break;
+			}
+		}
+
+		_log("select id, sponsor_name, subscriber_name from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132");
+		var $dentalRes = $db.select("select id, sponsor_name, subscriber_name from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132");
+		$dentalEnrollmentId = $dentalRes[0][0];
+		$dentalSponsorName  = $dentalRes[0][1];
+		$dentalSubscriberName = $dentalRes[0][2];
+		_assertEqual($name, $dentalSponsorName);
+		_assertEqual($subscriberName, $dentalSubscriberName);
+		
+		_log("Verify Enrollment_aud table");
+		_log("select id, sponsor_name, subscriber_name from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132");
+		var $query = "select id, sponsor_name, subscriber_name from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132";
+		var $dentalRes = $db.select($query);
+		$dentalEnrollmentId = $dentalRes[0][0];
+		$dentalSponsorName  = $dentalRes[0][1];
+		$dentalSubscriberName = $dentalRes[0][2];
+		_assertEqual($name, $dentalSponsorName);
+		_assertEqual($subscriberName, $dentalSubscriberName);
+	}
+
+	if($str == "Disenroll From Dental Plan") {
+		_log("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132");
+		var $rs = $db.select("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132");
+		$dentalEnrollmentId = $rs[0][0];
+		_assertEqual($rs[0][2],$rs[0][3]);
+		_assertEqual("123", $rs[0][4]);
+		
+		_log("Verify enrollment_aud table");
+		var $query = "select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc";
+		_log($query);
+		var $rs = $db.select($query);
+		_assertEqual($rs[0][2],$rs[0][3]);
+		_assertEqual("123", $rs[0][4]);
+		
+		_log("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		var $healthrs = $db.select("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		$healthEnrollmentId =$healthrs[0][0];
+		_assertNotEqual($healthrs[0][2],$healthrs[0][3]);
+		_assertNotEqual("123", $healthrs[0][4]);
+		
+		var $query = "select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc";
+		_log($query);
+		var $healthrs = $db.select($query);
+		_assertNotEqual($healthrs[0][2],$healthrs[0][3]);
+		_assertNotEqual("123", $healthrs[0][4]);
+	}
+
+	if($str == "Disenroll From Health And Dental Plan"){
+		_log("select id, sponsor_name ,INSURANCE_TYPE_LKP,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132");
+		var $rs = $db.select("select id, sponsor_name ,INSURANCE_TYPE_LKP,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132");
+		$dentalEnrollmentId = $rs[0][0];
+		_assertEqual($rs[0][4],$rs[0][5]);
+		_assertEqual("123", $rs[0][6]);
+		_log("Verify enrollment_aud table");
+		var $query = "select id, sponsor_name ,INSURANCE_TYPE_LKP,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc";
+		_log($query);
+		var $rs = $db.select($query);
+		_assertEqual($rs[0][4],$rs[0][5]);
+		_assertEqual("123", $rs[0][6]);
+		
+		_log("select id, sponsor_name ,INSURANCE_TYPE_LKP,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		var $healthrs = $db.select("select id, sponsor_name ,INSURANCE_TYPE_LKP,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		$healthEnrollmentId = $healthrs[0][0];
+		_assertEqual($healthrs[0][4],$healthrs[0][5]);
+		_assertEqual("123", $healthrs[0][6]);
+		
+		_log("Verify enrollment_aud table");
+		_log("select id, sponsor_name ,INSURANCE_TYPE_LKP,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		var $healthrs = $db.select("select id, sponsor_name ,INSURANCE_TYPE_LKP,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		
+		_assertEqual($healthrs[0][4],$healthrs[0][5]);
+		_assertEqual("123", $healthrs[0][6]);
+		
+	}
+
+	if($str == "Disenroll From Health Plan"){
+		_log("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		var $healthrs = $db.select("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+		$healthEnrollmentId =$healthrs[0][0];
+		_assertEqual($healthrs[0][2],$healthrs[0][3]);
+		_assertEqual("123", $healthrs[0][4]);
+		
+		_log("Verify enrollment_aud table");
+		_log("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		var $healthrs = $db.select("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		_assertEqual($healthrs[0][2],$healthrs[0][3]);
+		_assertEqual("123", $healthrs[0][4]);
+		
+		_log("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132");
+		var $rs = $db.select("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132");
+		$dentalEnrollmentId = $rs[0][0];
+		_assertNotEqual($rs[0][2],$rs[0][3]);
+		_assertNotEqual("123", $rs[0][4]);
+		
+		_log("Verify enrollment_aud table");
+		_log("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc");
+		var $rs = $db.select("select id,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc");
+		_assertNotEqual($rs[0][2],$rs[0][3]);
+		_assertNotEqual("123", $rs[0][4]);
+		
+	}
+
+	if($str == "Dental Only"){
+		_log("select id,sponsor_name,subscriber_name,Benefit_Effective_Date,Benefit_End_Date,INSURANCE_TYPE_LKP,Enrollment_Status_Lkp,Gross_Premium_Amt,Net_Premium_Amt from enrollment where HOUSEHOLD_CASE_ID in (select CMR_HOUSEOLD_ID from ssap_applications where case_number='"+$caseNumber+"')");
+		var $dentalrs = $db.select("select id,sponsor_name,subscriber_name,Benefit_Effective_Date,Benefit_End_Date,INSURANCE_TYPE_LKP,Enrollment_Status_Lkp,Gross_Premium_Amt,Net_Premium_Amt  from enrollment where HOUSEHOLD_CASE_ID in (select CMR_HOUSEOLD_ID from ssap_applications where case_number='"+$caseNumber+"')");
+		$dentalEnrollmentId = $dentalrs[0][0];
+		$grossPremium = $dentalrs[0][7];
+		$netPremium = $dentalrs[0][8];
+		_assertEqual("1",$dentalrs.length);
+		_assertEqual("132",$dentalrs[0][5]);
+		_assertEqual("128",$dentalrs[0][6]);
+		_log("Verify enrollment_aud table");
+		var $query = "select id,sponsor_name,subscriber_name,Benefit_Effective_Date,Benefit_End_Date,INSURANCE_TYPE_LKP,Enrollment_Status_Lkp,Gross_Premium_Amt,Net_Premium_Amt from enrollment_aud where HOUSEHOLD_CASE_ID in (select CMR_HOUSEOLD_ID from ssap_applications where case_number='"+$caseNumber+"')";
+		_log($query);
+		var $dentalrs = $db.select($query);
+		_assertEqual("1",$dentalrs.length);
+		_assertEqual("132",$dentalrs[0][5]);
+		_assertEqual("128",$dentalrs[0][6]);
+}
+	
+    if($str==null){
+         _log("select id, creation_timestamp, benefit_effective_date, benefit_end_date, gross_premium_amt from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+         var $health=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,gross_premium_amt  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+         $healthEnrollmentId = $health[0][0];
+        $grossPremium = $health[0][4];
+        _log($health[0][2]);
+        var $resEffectivedate = convertDateFromDB($health[0][2]);
+         _assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+        _log("Verify enrollment_aud table");
+        _log("select id, creation_timestamp, benefit_effective_date, benefit_end_date, gross_premium_amt from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+        var $health=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,gross_premium_amt  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+         $grossPremium = $health[0][4];
+        var $resEffectivedate = convertDateFromDB($health[0][2]);
+        _assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+ 
+        if($onDentalPage){
+            _log("select id, creation_timestamp, benefit_effective_date, benefit_end_date  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+            var $dental=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by enrollment.creation_timestamp desc");
+            $dentalEnrollmentId = $dental[0][0];
+            var $dentalEffectivedate = convertDateFromDB($dental[0][2]);
+            _assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+            
+            _log("Verify enrollment_aud table");
+            _log("select id, creation_timestamp, benefit_effective_date, benefit_end_date  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc");
+            var $dental=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc");
+            var $dentalEffectivedate = convertDateFromDB($dental[0][2]);
+            _assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+         }
+ }
+	
+	if($str=="LCE"){
+		 if($caseNumberAfterLCE){
+            var $queryEnrollmentStatus="select enrollment_status_lkp from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumberAfterLCE+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc";
+            _log($queryEnrollmentStatus);
+            $queryEnrollmentStatus=$db.select($queryEnrollmentStatus);
+            var $enrollmentStatus=$queryEnrollmentStatus[0][0];
+			var $inGlobalOEP = inGlobalOEP();
+			 _log("Coverage Date: " +$coverageDate);
+			  var $coverageStartMonth=$coverageDate.split("/")[0];
+			 var $coverageStartDay=$coverageDate.split("/")[1];
+			if($inGlobalOEP != "ON"){
+				if($coverageStartMonth !="01" && $coverageStartDay !="01"){
+					_assertEqual("124", $enrollmentStatus,"Verify if the previous enrollment was terminated");
+				}
+			}
+			else{
+				_assertEqual("123", $enrollmentStatus,"Verify if the previous enrollment was cancelled");
+			}
+        }
+        var $query="select id, creation_timestamp, benefit_effective_date, benefit_end_date,gross_premium_amt,tot_indv_resp_eff_date,tot_prem_eff_date,enrollment_status_lkp from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc";
+        _log($query);
+        var $health=$db.select($query);
+        $healthEnrollmentId = $health[0][0];
+        $dbGrossPremium = $health[0][4];
+        _log($health[0][2]);
+        var $resEffectivedate = convertDateFromDB($health[0][2]);
+        var $totIndvRespEffDate= convertDateFromDB($health[0][5]);
+        var $totPremEffDate= convertDateFromDB($health[0][6]);
+        $dbGrossPremium=parseFloat($dbGrossPremium).toFixed(2);
+        $grossPremium=parseFloat($grossPremium).toFixed(2);
+        _assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate,"Verify benefit_effective_date column in DB");
+//		var $inOEP = inGlobalOEP();
+        if(($eventDate=="midOfLastMonth") && (($event=="Birth")||($event=="Death"))&&($inOEP !="ON")){
+			var $effectiveDate=_fetch(window.moment($coverageDate).add(1, 'months').startOf('month').format('MM/DD/YYYY'));
+            _assertEqual($effectiveDate,$totIndvRespEffDate,"Verify tot_indv_resp_eff column in DB");
+            _assertEqual($effectiveDate,$totPremEffDate,"Verify tot_prem_eff_date column in DB");
+        }
+        else{
+        _assertEqual($coverageDate,$totIndvRespEffDate,"Verify tot_indv_resp_eff column in DB");
+        _assertEqual($coverageDate,$totPremEffDate,"Verify tot_prem_eff_date column in DB");
+        }
+        _assertEqual($grossPremium,$dbGrossPremium,"Verify if the Monthly Price in UI and gross_premium_amt in DB are same");
+        
+        _log("Verify enrollment_aud table");
+        var $query = "select id, creation_timestamp, benefit_effective_date, benefit_end_date,gross_premium_amt  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by creation_timestamp desc";
+        _log($query);
+        var $health=$db.select($query);
+        $grossPremium = $health[0][4];
+        var $resEffectivedate = convertDateFromDB($health[0][2]);
+        _assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+	}
+	
+	
+	
+
+	if($str=="TerminatePlan"){
+		_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date, ENROLLMENT_STATUS_LKP from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+		var $health=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+		$healthEnrollmentId = $health[0][0];
+		$grossPremium = $health[0][4];
+		_log($health[0][2]);
+		var $resEffectivedate = convertDateFromDB($health[0][2]);
+		var $endEffectiveDate = convertDateFromDB($health[0][3]);
+		_assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+		_assertNotEqual($familyCoverageEndDate,$endEffectiveDate);
+		_assertEqual("124", $health[0][4]);
+		
+		_log("Verify enrollment_aud table");
+		_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date, ENROLLMENT_STATUS_LKP from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		var $health=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		var $resEffectivedate = convertDateFromDB($health[0][2]);
+		var $endEffectiveDate = convertDateFromDB($health[0][3]);
+		_assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+		_assertNotEqual($familyCoverageEndDate,$endEffectiveDate);
+		_assertEqual("124", $health[0][4]);
+		
+		
+		if($onDentalPage){
+			_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+			var $dental=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by enrollment.creation_timestamp desc");
+			$dentalEnrollmentId = $dental[0][0];
+			var $dentalEffectivedate = convertDateFromDB($dental[0][2]);
+			var $endDentalEffectiveDate =convertDateFromDB($dental[0][3]);
+			_assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+			_assertNotEqual($familyCoverageEndDate,$endDentalEffectiveDate);
+			_assertEqual("124", $dental[0][4]);
+			
+			_log("Verify enrollment_aud table");
+			_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+			var $dental=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc");
+			var $dentalEffectivedate = convertDateFromDB($dental[0][2]);
+			var $endDentalEffectiveDate =convertDateFromDB($dental[0][3]);
+			_assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+			_assertNotEqual($familyCoverageEndDate,$endDentalEffectiveDate);
+			_assertEqual("124", $dental[0][4]);
+			
+		}
+	}
+
+	if($str=="Reinstatement"){
+		_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date, ENROLLMENT_STATUS_LKP from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+		var $health=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+		$healthEnrollmentId = $health[0][0];
+		$grossPremium = $health[0][4];
+		_log($health[0][2]);
+		var $resEffectivedate = convertDateFromDB($health[0][2]);
+		var $endEffectiveDate =convertDateFromDB($health[0][3]);
+		_assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+		_assertEqual($familyCoverageEndDate,$endEffectiveDate);
+		_assertEqual("128", $health[0][4]);
+		
+		_log("Verify enrollment_aud table");
+		_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date, ENROLLMENT_STATUS_LKP from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		var $health=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+		var $resEffectivedate = convertDateFromDB($health[0][2]);
+		var $endEffectiveDate =convertDateFromDB($health[0][3]);
+		_assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+		_assertEqual($familyCoverageEndDate,$endEffectiveDate);
+		_assertEqual("128", $health[0][4]);
+
+		if($onDentalPage){
+			_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc");
+			var $dental=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by enrollment.creation_timestamp desc");
+			$dentalEnrollmentId = $dental[0][0];
+			var $dentalEffectivedate = convertDateFromDB($dental[0][2]);
+			var $endDentalEffectiveDate =convertDateFromDB($dental[0][3]);
+			_assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+			_assertEqual($familyCoverageEndDate,$endDentalEffectiveDate);
+			_assertEqual("128", $dental[0][4]);
+			
+			_log("Verify enrollment_aud table");
+			_log("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by rev desc");
+			var $dental=$db.select("select id, creation_timestamp, benefit_effective_date, benefit_end_date,ENROLLMENT_STATUS_LKP  from enrollment_aud where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 132 order by rev desc");
+			var $dentalEffectivedate = convertDateFromDB($dental[0][2]);
+			var $endDentalEffectiveDate =convertDateFromDB($dental[0][3]);
+			_assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+			_assertEqual($familyCoverageEndDate,$endDentalEffectiveDate);
+			_assertEqual("128", $dental[0][4]);
+		}
+	}
+}
+
+
+function verifyEnrollee($str){
+	if($str =="Name Change"){
+		_log("select tax_id_number, last_name, first_name, middle_name, suffix, primary_phone_no,secondary_phone_no, gender_lkp, pref_email, race_ethnicity_lkp, relationship_hcp_lkp  from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))order by id desc");
+		var $dbRes = $db.select("select tax_id_number, last_name, first_name, middle_name, suffix, primary_phone_no,secondary_phone_no, gender_lkp, pref_email, race_ethnicity_lkp, relationship_hcp_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id desc");
+		var $res =[[]];
+
+		var $noOfMem = 0;
+		for($i = 0; $i< $dbRes.length;$i++){
+			if($dbRes[$i][10] =="17"){
+				$res[$noOfMem] =$dbRes [$i];
+				$noOfMem++;
+
+			}
+		}
+		for($i = 0; $i< $dbRes.length;$i++){
+			if($dbRes[$i][10]=="1"){
+				$res[$noOfMem]= $dbRes[$i]
+					$noOfMem++;
+			}
+		}
+		for($i = 0; $i< $dbRes.length;$i++){
+			if($dbRes[$i][10]=="18"){
+				$res[$noOfMem] = $dbRes[$i];
+				$noOfMem++;
+			}
+		}
+
+		for(i=0;i<$ssapPeople.length;i++){
+			var $enrolleeFirstName = $res[i][2];
+			_assertEqual($ssapPeople[i].$firstName,$enrolleeFirstName);
+			var $enrolleeMiddleName = $res[i][3];
+			var $expMiddleName = $ssapPeople[i].$middleName;
+			if($expMiddleName==""){
+				$expMiddleName = "null";
+			}
+			_assertEqual($expMiddleName,$enrolleeMiddleName);
+
+			var $enrolleeLastName = $res[i][1];
+			_assertEqual($ssapPeople[i].$lastName,$enrolleeLastName);
+			var $enrolleeSSN = $res[i][0];
+			var $expected = $ssapPeople[i].$SSN;
+			var $expectedRes = $expected.split("-");
+			var $expectedSSN= $expectedRes.join("");
+			if(($expected == "--NA--") || ($expected == "") || ($expected == "NA")){
+				$expectedSSN = "null";
+			}
+			_assertEqual( $expectedSSN, $enrolleeSSN);
+		}
+		var $primaryEnrolleePhoneNumber = $res[0][5];
+		var $expectedPhone = $primaryEnrolleePhoneNumber.replace(/\(|\)|\-|\ /g, "");
+		_assertEqual($expectedPhone, $primaryEnrolleePhoneNumber);
+		_assertEqual($ssapEmail, $res[0][8]);
+
+		if($onDentalPage){
+			_log("select tax_id_number, last_name, first_name, middle_name, suffix, primary_phone_no,secondary_phone_no, gender_lkp, pref_email, race_ethnicity_lkp, relationship_hcp_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))order by id desc");
+			var $dental = $db.select("select tax_id_number, last_name, first_name, middle_name, suffix, primary_phone_no,secondary_phone_no, gender_lkp, pref_email, race_ethnicity_lkp, relationship_hcp_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))order by id desc");
+			var $dentalres =[[]];
+			var $noOfMem = 0;
+			for($i = 0; $i< $dental.length;$i++){
+				if($dental[$i][10] =="17"){
+					$dentalres[$noOfMem] =$dental [$i];
+					$noOfMem++;
+				}
+			}
+			for($i = 0; $i< $dental.length;$i++){
+				if($dental[$i][10]=="1"){
+					$dentalres[$noOfMem]= $dental [$i]
+						$noOfMem++;
+				}
+			}
+			for($i = 0; $i< $dental.length;$i++){
+				if($dental[$i][10]=="18"){
+					$dentalres[$noOfMem] = $dental [$i];
+					$noOfMem++;
+				}
+			}
+			for(i=0;i<$ssapPeople.length;i++){
+				var $enrolleeFirstName = $dentalres[i][2];
+				_assertEqual($ssapPeople[i].$firstName,$enrolleeFirstName);
+				var $enrolleeMiddleName = $dentalres[i][3];
+				var $expMiddleName = $ssapPeople[i].$middleName;
+				if($expMiddleName==""){
+					$expMiddleName = "null";
+				}
+				_assertEqual($expMiddleName,$enrolleeMiddleName);
+				var $enrolleeLastName = $dentalres[i][1];
+				_assertEqual($ssapPeople[i].$lastName,$enrolleeLastName);
+				var $enrolleeSSN = $dentalres[i][0];
+				var $expected = $ssapPeople[i].$SSN;
+				var $expectedRes = $expected.split("-");
+				var $expectedSSN= $expectedRes.join("");
+				if(($expected == "--NA--") || ($expected == "") || ($expected == "NA")){
+					$expectedSSN = "null";
+				}
+				_assertEqual( $expectedSSN, $enrolleeSSN);
+			}
+			var $primaryEnrolleePhoneNumber = $res[0][5];
+			var $expectedPhone = $primaryEnrolleePhoneNumber.replace(/\(|\)|\-|\ /g, "");
+			_assertEqual($expectedPhone , $primaryEnrolleePhoneNumber);
+			_assertEqual($ssapEmail, $res[0][8]);
+		}
+	}
+
+	if($str =="Name Change For Dental Only Enrollment"){
+		_log("select tax_id_number, last_name, first_name, middle_name, suffix, primary_phone_no,secondary_phone_no, gender_lkp, pref_email, race_ethnicity_lkp, relationship_hcp_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id desc");
+		var $dental = $db.select("select tax_id_number, last_name, first_name, middle_name, suffix, primary_phone_no,secondary_phone_no, gender_lkp, pref_email, race_ethnicity_lkp, relationship_hcp_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id desc");
+		var $dentalres =[[]];
+
+		var $noOfMem = 0;
+		for($i = 0; $i< $dental.length;$i++){
+			if($dental[$i][10] =="17"){
+				$dentalres[$noOfMem] =$dental[$i];
+				$noOfMem++;
+			}
+		}
+		for($i = 0; $i< $dental.length;$i++){
+			if($dental[$i][10]=="1"){
+				$dentalres[$noOfMem]= $dental[$i]
+					$noOfMem++;
+			}
+		}
+		for($i = 0; $i< $dental.length;$i++){
+			if($dental[$i][10]=="18"){
+				$dentalres[$noOfMem] = $dental[$i];
+				$noOfMem++;
+			}
+		}
+
+		for(i=0;i<$ssapPeople.length;i++){
+			var $enrolleeFirstName = $dentalres[i][2];
+			_assertEqual($ssapPeople[i].$firstName,$enrolleeFirstName);
+			var $enrolleeMiddleName = $dentalres[i][3];
+			var $expMiddleName = $ssapPeople[i].$middleName;
+			if($expMiddleName==""){
+				$expMiddleName = "null";
+			}
+
+			_assertEqual($expMiddleName,$enrolleeMiddleName);
+			var $enrolleeLastName = $dentalres[i][1];
+			_assertEqual($ssapPeople[i].$lastName,$enrolleeLastName);
+			var $enrolleeSSN = $dentalres[i][0];
+			var $expected = $ssapPeople[i].$SSN;
+			var $expectedRes = $expected.split("-");
+			var $expectedSSN= $expectedRes.join("");
+			if(($expected == "--NA--") || ($expected == "") || ($expected == "NA")){
+				$expectedSSN = "null";
+			}
+			_assertEqual( $expectedSSN, $enrolleeSSN);
+		}
+	}
+
+	if($str == "Disenroll From Dental Plan"){
+		_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $rs =  $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		for(i=0;i<$ssapPeople.length;i++){
+			_assertEqual($rs[i][2],$rs[i][3]);
+			_assertEqual("123",$rs[i][4]);
+		}
+		_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $healthresult = $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		for(i=0;i<$ssapPeople.length;i++){
+			_assertNotEqual($healthresult[i][2],$healthresult[i][3]);
+			_assertNotEqual("123",$healthresult[i][4]);
+		}
+	}
+
+	if($str == "Disenroll From Health And Dental Plan") {
+		_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $rs = $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		for(i=0;i<$ssapPeople.length;i++){
+			_assertEqual($rs[i][2],$rs[i][3]);
+			_assertEqual("123",$rs[i][4]);
+		}
+		_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $healthresult = $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		for(i=0;i<$ssapPeople.length;i++){
+			_assertEqual($healthresult[i][2],$healthresult[i][3]);
+			_assertEqual("123",$healthresult[i][4]);
+		}
+	}
+
+	if($str == "Disenroll From Health Plan") {
+
+		_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $healthresult = $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		for(i=0;i<$ssapPeople.length;i++){
+			_assertEqual($healthresult[i][2],$healthresult[i][3]);
+			_assertEqual("123",$healthresult[i][4]);
+		}
+		_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $rs =  $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		for(i=0;i<$ssapPeople.length;i++){
+			_assertNotEqual($rs[i][2],$rs[i][3]);
+			_assertNotEqual("123",$rs[i][4]);
+		}
+	}
+
+	if($str == "Change In Phone Number"){
+		_log("select Last_Name,First_Name,PRIMARY_PHONE_NO,SECONDARY_PHONE_NO from ENROLLEE where enrollment_id in (select id from enrollment where SSAP_APPLICATION_ID in (select id from ssap_applications where case_number='"+$caseNumber+"')) and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $phoneNumber = $db.select("select Last_Name,First_Name,PRIMARY_PHONE_NO,SECONDARY_PHONE_NO from ENROLLEE where enrollment_id in (select id from enrollment where SSAP_APPLICATION_ID in (select id from ssap_applications where case_number='"+$caseNumber+"')) and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		var $mobile = $ssapPage3PrimaryContactPhoneMobilePhoneNumber;
+		var $mobileNum= $mobile.replace(/\(|\)|\-|\ /g, "");
+		var $home = $ssapPage3PrimaryContactPhoneHomePhoneNumber;
+		var $homeNum= $home.replace(/\(|\)|\-|\ /g, "");
+		for(i=0;i<$ssapPeople.length;i++){
+			_assertEqual($mobileNum,$phoneNumber[0][2]);
+		}
+	}
+
+	if($str==null){
+		_log("select first_name, effective_start_date, effective_end_date, total_indv_responsibility_amt, home_address_id from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER'))");
+		var $res = $db.select("select first_name, effective_start_date, effective_end_date, total_indv_responsibility_amt, home_address_id from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id");
+		var $subscriberRes =  $db.select("select first_name, effective_start_date, effective_end_date, total_indv_responsibility_amt, home_address_id from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER')) order by id");
+		var $resEffectivedate = convertDateFromDB($subscriberRes[0][1]);
+		_assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+
+		for(var i=0;i<$ssapPeople.length;i++){
+			_wait(500);
+			if($ssapPeople[i].$applying == "Yes"){
+				var $locId = $res[i][4];
+				_log("select * from locations where id='"+$locId+"'");
+				var $loc = $db.select("select * from locations where id='"+$locId+"'");
+				_assertEqual($ssapPeople[i].$homeAddress1,$loc[0][2]);
+				if ($ssapPeople[i].$homeAddress2){
+					_assertEqual($ssapPeople[i].$homeAddress2,$loc[0][3]);
+				}
+				_assertEqual($ssapPeople[i].$homeCity,$loc[0][4]);
+				_assertEqual($ssapPeople[i].$homeZip,$loc[0][10]);
+			}
+		}
+
+		if($onDentalPage){
+			_log("select first_name, effective_start_date, effective_end_date, total_indv_responsibility_amt, home_address_id from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+			var dental$result = $db.select("select first_name, effective_start_date, effective_end_date, total_indv_responsibility_amt, home_address_id from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER')) order by id");
+			var $dentalEffectivedate = convertDateFromDB(dental$result[0][1]);
+			_assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+		}
+	}
+
+	if($str=="TerminatePlan"){
+		_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $res = $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+		var $resEffectivedate = convertDateFromDB($res[0][2]);
+		_assertEqual($CoverageStartDate.split("-")[0],$resEffectivedate);
+
+		for(var i=0;i<$ssapPeople.length;i++){
+			_wait(500);
+			if($ssapPeople[i].$applying == "Yes"){
+				_assertEqual("124", $res[i][4]);
+			}
+		}
+
+		if($onDentalPage){
+			_log("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+			var dental$result = $db.select("select id, first_name, effective_start_date, effective_end_date, enrollee_status_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))");
+			var $dentalEffectivedate = convertDateFromDB(dental$result[0][1]);
+			_assertEqual($CoverageStartDate.split("-")[0],$dentalEffectivedate);
+			for(var i=0;i<$ssapPeople.length;i++){
+				_wait(500);
+				if($ssapPeople[i].$applying == "Yes"){
+					_assertEqual("124", dental$result[i][4]);
+				}
+			}
+		}
+	}
+}
+
+function verifyLocationAndGender(){
+	_log("select id,sponsor_name,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131");
+	var $response=$db.select("select id,sponsor_name,subscriber_name,BENEFIT_EFFECTIVE_DATE,BENEFIT_END_DATE,ENROLLMENT_STATUS_LKP  from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by id");
+	var $response1 = $db.select("select id, sponsor_name, subscriber_name from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"')and insurance_type_lkp=131");
+
+	$healthEnrollmentId = $response[0][0];
+
+	_log("select tax_id_number, last_name, first_name, middle_name, gender_lkp, MAILING_ADDRESS_ID, relationship_hcp_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))order by id desc");
+	var $dbRes = $db.select("select tax_id_number, last_name, first_name, middle_name, gender_lkp, MAILING_ADDRESS_ID, relationship_hcp_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id desc");
+
+
+	var $res =[[]];
+	var $noOfMem = 0;
+	for($i = 0; $i< $dbRes.length;$i++){
+		if($dbRes[$i][6] =="17"){
+			$res[$noOfMem] =$dbRes [$i];
+			$noOfMem++;
+
+		}
+	}
+	for($i = 0; $i< $dbRes.length;$i++){
+		if($dbRes[$i][6]=="1"){
+			$res[$noOfMem]= $dbRes[$i]
+				$noOfMem++;
+		}
+	}
+	for($i = 0; $i< $dbRes.length;$i++){
+		if($dbRes[$i][6]=="18"){
+			$res[$noOfMem] = $dbRes[$i];
+			$noOfMem++;
+		}
+	}
+
+	var $loc = $res[0][5];
+	_log("select address1,address2,city,zip from locations where id='"+$loc+"'");
+	$mailingAddress = $db.select("select address1,address2,city,zip from locations where id='"+$loc+"'");
+	var $mailingAdd1 = $mailingAddress[0][0];
+	var $mailingAdd2 = $mailingAddress[0][1];
+	var $mailCity = $mailingAddress[0][2];
+	var $mailZip = $mailingAddress[0][3];
+
+	if($ssapPeople[0].$mailingAddress1 === "Same as home address"){
+		_assertTrue(new RegExp($ssapPeople[0].$homeAddress1).test($mailingAdd1));
+		if ($ssapPeople[0].$homeAddress2) {
+			_assertTrue(new RegExp($ssapPeople[0].$homeAddress2).test($mailingAdd2));
+		}
+		_assertTrue(new RegExp($ssapPeople[0].$homeCity).test($mailCity));
+		_assertTrue(new RegExp($ssapPeople[0].$homeZip).test($mailZip));
+
+	}
+	else {
+		_assertEqual($ssapPeople[0].$mailingAddress1,$mailingAdd1);
+		if ($ssapPeople[0].$mailingAddress2){
+			_assertEqual($ssapPeople[0].$mailingAddress2,$mailingAdd2);
+		}
+		_assertEqual($ssapPeople[0].$mailingCity,$mailCity);
+		_assertEqual($ssapPeople[0].$mailingZip,$mailZip);
+	}
+
+
+	for(var i=0;i<$ssapPeople.length;i++){
+		var    $result = $res[i][4];
+		_log("select lookup_value_label from lookup_value where lookup_value_id='"+$result+"'");
+		var $sex =$db.select("select lookup_value_label from lookup_value where lookup_value_id='"+$result+"'");
+		//_assertEqual("/"+$ssapPeople[i].$gender+"/i",$sex);
+		_assertEqual("/"+$ssapPeople[i].$gender+"/i","/"+$sex+"/i");
+	}
+
+	if ($onDentalPage){
+		_log("select id, sponsor_name, subscriber_name from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132");
+		var $dentalRes = $db.select("select id, sponsor_name, subscriber_name from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and insurance_type_lkp=132");
+		$dentalEnrollmentId = $dentalRes[0][0];
+		_log("select tax_id_number, last_name, first_name, middle_name, gender_lkp, MAILING_ADDRESS_ID,relationship_hcp_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))order by id desc");
+		var $dbRes = $db.select("select tax_id_number, last_name, first_name, middle_name, gender_lkp, MAILING_ADDRESS_ID,relationship_hcp_lkp from enrollee where enrollment_id ='"+$dentalEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id desc");
+
+		var $res =[[]];
+		var $noOfMem = 0;
+		for($i = 0; $i< $dbRes.length;$i++){
+			if($dbRes[$i][6] =="17"){
+				$res[$noOfMem] =$dbRes [$i];
+				$noOfMem++;
+			}
+		}
+		for($i = 0; $i< $dbRes.length;$i++){
+			if($dbRes[$i][6]=="1"){
+				$res[$noOfMem]= $dbRes[$i]
+					$noOfMem++;
+			}
+		}
+		for($i = 0; $i< $dbRes.length;$i++){
+			if($dbRes[$i][6]=="18"){
+				$res[$noOfMem] = $dbRes[$i];
+				$noOfMem++;
+			}
+		}
+
+		var $loc = $res[0][5];
+		_log("select address1,address2,city,zip from locations where id='"+$loc+"'");
+		$mailingAddress = $db.select("select address1,address2,city,zip from locations where id='"+$loc+"'");
+		var $mailingAdd1 = $mailingAddress[0][0];
+		var $mailingAdd2 = $mailingAddress[0][1];
+		var $mailCity = $mailingAddress[0][2];
+		var $mailZip = $mailingAddress[0][3];
+
+		if($ssapPeople[0].$mailingAddress1 === "Same as home address"){
+			_assertTrue(new RegExp($ssapPeople[0].$homeAddress1).test($mailingAdd1));
+			if ($ssapPeople[0].$homeAddress2) {
+				_assertTrue(new RegExp($ssapPeople[0].$homeAddress2).test($mailingAdd2));
+			}
+			_assertTrue(new RegExp($ssapPeople[0].$homeCity).test($mailCity));
+			_assertTrue(new RegExp($ssapPeople[0].$homeZip).test($mailZip));
+		}
+		else {
+			_assertEqual($ssapPeople[0].$mailingAddress1,$mailingAdd1);
+			if ($ssapPeople[0].$mailingAddress2){
+				_assertEqual($ssapPeople[0].$mailingAddress2,$mailingAdd2);
+			}
+			_assertEqual($ssapPeople[0].$mailingCity,$mailCity);
+			_assertEqual($ssapPeople[0].$mailingZip,$mailZip);
+		}
+
+		for(var i=0;i<$ssapPeople.length;i++){
+			var    $result = $res[i][4];
+			_log("select lookup_value_label from lookup_value where lookup_value_id='"+$result+"'");
+			$sex =$db.select("select lookup_value_label from lookup_value where lookup_value_id='"+$result+"'");
+			_assertEqual("/"+$ssapPeople[i].$gender+"/i","/"+$sex+"/i");
+		}
+	}
+}
+
+function verifyReasonForNewTaxDependent(){
+	_log("SELECT * FROM comments WHERE comment_target_id IN  (SELECT id  FROM comment_targets  WHERE target_id IN (SELECT id FROM ssap_applicant_events WHERE ssap_application_event_id IN ( SELECT id FROM ssap_application_events WHERE ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') ) AND SEP_ENROLLMENT_EVENTS_ID IN (SELECT id  FROM sep_enrollment_events  WHERE IS_FINANCIAL='N' AND EVENT_NAME    = 'ADD_DEPENDENT(S)')))");
+	var $comment = $db.select("SELECT * FROM comments WHERE comment_target_id IN  (SELECT id  FROM comment_targets  WHERE target_id IN (SELECT id FROM ssap_applicant_events WHERE ssap_application_event_id IN ( SELECT id FROM ssap_application_events WHERE ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') ) AND SEP_ENROLLMENT_EVENTS_ID IN (SELECT id  FROM sep_enrollment_events  WHERE IS_FINANCIAL='N' AND EVENT_NAME    = 'ADD_DEPENDENT(S)')))");
+	_assertEqual("AddTaxDependentReason : Loss of Catastrophic Coverage" , $comment[0][2]);
+}
+
+
+function getApplicationTimeStampFromDb(){
+	var $timeStamp = $db.select("select CASE_NUMBER,CREATION_TIMESTAMP,LAST_UPDATE_TIMESTAMP from SSAP_APPLICATIONS where CASE_NUMBER = '"+$caseNumber+"'");
+	_log("Timestamp "+$timeStamp);
+	return $timeStamp;
+}
+
+function verifyDependentAdded($str){
+	if($str == "Tax Dependent"){
+		_log("select id,EVENT_DATE,SEP_ENROLLMENT_EVENTS_ID from SSAP_APPLICANT_EVENTS where SSAP_APPLICANT_ID in (select id from SSAP_APPLICANTS where SSAP_APPLICATION_ID = (select id from ssap_applications where case_number='"+$caseNumber+"') and status='LCE_ADD')");
+		var $id = $db.select("select id,EVENT_DATE,SEP_ENROLLMENT_EVENTS_ID from SSAP_APPLICANT_EVENTS where SSAP_APPLICANT_ID in (select id from SSAP_APPLICANTS where SSAP_APPLICATION_ID = (select id from ssap_applications where case_number='"+$caseNumber+"') and status='LCE_ADD')");
+		var $event_id = $id[0][2];
+		_log("select id,event_name,event_label, change_type from sep_enrollment_events where id = '"+$event_id+"'");
+		var $event = $db.select("select id,event_name,event_label, change_type from sep_enrollment_events where id = '"+$event_id+"'");
+		var $eventLookup =$db.select("select id from sep_enrollment_events where event_name ='ADD_DEPENDENT(S)' ");
+		_wait(500);
+		_assertEqual($eventLookup[0][0],$event[0][0]);
+		_assertEqual('ADD_DEPENDENT(S)', $event[0][1]);
+		_assertEqual('Add a Household Member(s)',$event[0][2]);
+		_assertEqual('ADD', $event[0][3]);
+	}
+}
+
+function verifyAnnouncementCreation(){
+	_log("select Name,ANNOUNCEMENT_TEXT,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,STATUS from ANNOUNCEMENTS order by 1 desc");
+	var $announcementData = $db.select("select Name,ANNOUNCEMENT_TEXT,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,STATUS from ANNOUNCEMENTS order by 1 desc");
+	_log($announcementData);
+	return $announcementData;
+}
+
+function verifyHouseholdOutSideIdaho(){
+	_log("select id,EVENT_DATE,SEP_ENROLLMENT_EVENTS_ID from SSAP_APPLICANT_EVENTS where SSAP_APPLICANT_ID in (select id from SSAP_APPLICANTS where SSAP_APPLICATION_ID = (select id from ssap_applications where case_number='"+$caseNumber+"') and status='LCE_UPDATE')");
+	var $id = $db.select("select id,EVENT_DATE,SEP_ENROLLMENT_EVENTS_ID from SSAP_APPLICANT_EVENTS where SSAP_APPLICANT_ID in (select id from SSAP_APPLICANTS where SSAP_APPLICATION_ID = (select id from ssap_applications where case_number='"+$caseNumber+"') and status='LCE_UPDATE')");
+	var $event_id = $id[0][2];
+	_log("select id,event_name,event_label, change_type from sep_enrollment_events where id = '"+$event_id+"'");
+	var $event = $db.select("select id,event_name,event_label, change_type from sep_enrollment_events where id = '"+$event_id+"'");
+	_wait(500);
+	var $eventLookUp = $db.select("select id from sep_enrollment_events where event_name ='MOVED_OUT_OF_STATE_DEPENDENTS' ");
+	_assertEqual($eventLookUp[0][0],$event[0][0]);
+	_assertEqual('MOVED_OUT_OF_STATE_DEPENDENTS', $event[0][1]);
+	_assertEqual('Moved out of State(Dependent)',$event[0][2]);
+	_assertEqual('REMOVE', $event[0][3]);
+}
+
+function NoticeDBVerify($str){
+
+	var $Email=  $signupEmail.toLowerCase();
+	$mailingAddress = $db.select("select address1,address2,city,zip from locations where id=(select LOCATION_ID from CMR_HOUSEHOLD where id = (select CMR_HOUSEOLD_ID from ssap_applications where case_number='"+$caseNumber+"'))");
+	_log("select address1,address2,city,zip from locations where id=(select LOCATION_ID from CMR_HOUSEHOLD where id = (select CMR_HOUSEOLD_ID from ssap_applications where case_number='"+$caseNumber+"'))");
+	var $mailingAdd1 = $mailingAddress[0][0];
+	_log($mailingAdd1);
+	var $mailingAdd2 = $mailingAddress[0][1];
+	var $mailCity = $mailingAddress[0][2];
+	var $mailZip = $mailingAddress[0][3];
+	if($ssapPeople[0].$mailingAddress1 === "Same as home address"){
+		_assertEqual($ssapPeople[0].$homeAddress1,$mailingAdd1);
+		if ($ssapPeople[0].$homeAddress2) {
+			_assertEqual($ssapPeople[0].$homeAddress2,$mailingAdd2);
+		}
+		_assertEqual($ssapPeople[0].$homeCity,$mailCity);
+		_assertEqual($ssapPeople[0].$homeZip,$mailZip);
+	}
+	else {
+		_assertEqual($ssapPeople[0].$mailingAddress1,$mailingAdd1);
+		if ($ssapPeople[0].$mailingAddress2){
+			_assertEqual($ssapPeople[0].$mailingAddress2,$mailingAdd2);
+		}
+		_assertEqual($ssapPeople[0].$mailingCity,$mailCity);
+		_assertEqual($ssapPeople[0].$mailingZip,$mailZip);
+	}
+	var $cmr_household=$db.select("select id, pref_contact_method from cmr_household where id = (select CMR_HOUSEOLD_ID from ssap_applications where case_number='"+$caseNumber+"')");
+	_log("select id, pref_contact_method from cmr_household where id = (select CMR_HOUSEOLD_ID from ssap_applications where case_number='"+$caseNumber+"')");
+	_wait(500);
+	var  $contactMethod = $db.select("select lookup_value_label from lookup_value where lookup_value_id='"+$cmr_household[0][1]+"'");
+	_log("select lookup_value_label from lookup_value where lookup_value_id='"+$cmr_household[0][1]+"'");
+	_wait(500);
+
+	var  $is_printable = $db.select("select PRINTABLE from notices where key_id='"+ $cmr_household[0][0]+"' and key_name='INDIVIDUAL' and notice_type_id= (select id from notice_types where email_class = '"+$str+"' and user_type ='INDIVIDUAL') order by creation_timestamp desc");
+	_log("select PRINTABLE from notices where key_id='"+ $cmr_household[0][0]+"' and key_name='INDIVIDUAL' and notice_type_id= (select id from notice_types where email_class = '"+$str+"' and user_type ='INDIVIDUAL'  and external_id is not null) order by creation_timestamp desc");
+	if($contactMethod[0][0] == "Email"){
+		_assertEqual('N', $is_printable[0][0]);
+	}
+	else if ($contactMethod[0][0] == "Mail"){
+		_assertEqual('Y',$is_printable[0][0]);
+	}
+}
+
+var $paymentURL="";
+function getIssuerPaymentURL($str){
+	var $URL = $db.select("select PAYMENT_URL from issuers where NAME like '%"+$str+"%'");
+	$paymentURL =$URL[0][0];
+	_log("Payment URL" + $paymentURL);
+}
+
+function validAccessCode($accessCode){
+	_log("select * from ssap_applicants where APPLICANT_GUID='"+$accessCode+"'");
+	$accessCode =  $db.select("select * from ssap_applicants where APPLICANT_GUID='"+$accessCode+"'");
+	return ($accessCode.length);
+}
+
+function getTicketId($str){
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (!isProductionEnvironment()) {
+		_log("select ticket_number from tkm_tickets where subject ='"+$str+"' and status='UnClaimed'");
+		$ticketId=$db.select("select ticket_number from tkm_tickets where subject ='"+$str+"' and status='UnClaimed'");
+		_wait(1000);
+		_log($ticketId);
+		return $ticketId;
+	}
+}
+
+var $ticketCountFromDB="";
+function getTicketCount($workgroup,$priority){
+	var $splitWrkgrp ="'"+$workgroup.replace(",", "','")+"'";
+	var $splitPriority ="'"+$priority.replace(",", "','")+"'";
+	_log("select count(DISTINCT tkt.tkm_ticket_id) FROM tkm_tickets tkt, users au, users req, tkm_ticket_tasks tkttask, tkm_queues queues WHERE (tkt.tkm_ticket_id = tkttask.tkm_ticket_id AND tkt.user_id = au.id AND tkt.created_by = req.id AND tkt.assigned_queue  =queues.tkm_queue_id) and queues.queue_name in("+$splitWrkgrp+") and tkt.priority in  ("+$splitPriority+") and ARCHIVE_FLAG='N'");
+	$ticketCountFromDB=$db.select("select count(DISTINCT tkt.tkm_ticket_id) FROM tkm_tickets tkt, users au, users req, tkm_ticket_tasks tkttask, tkm_queues queues WHERE (tkt.tkm_ticket_id = tkttask.tkm_ticket_id AND tkt.user_id = au.id AND tkt.created_by  = req.id AND tkt.assigned_queue  =queues.tkm_queue_id) and queues.queue_name in("+$splitWrkgrp+") and tkt.priority in  ("+$splitPriority+") and ARCHIVE_FLAG='N'");
+	_wait(1000);
+	_log($ticketCountFromDB);
+	if($ticketCountFromDB>1000){
+		_assertEqual("1000",$size);
+	}
+	else {
+		_assertEqual($ticketCountFromDB,$size);
+	}
+}
+
+function getActivationlink(){
+	$signupEmail = $signupEmail.toLowerCase();
+	_log("Select TOKEN From account_activation Where JSON_STRING Like '%"+$signupEmail+"%' Order By TOKEN_EXPIRATION Desc");
+	var $token = $db.select("Select TOKEN From account_activation Where JSON_STRING Like '%"+$signupEmail+"%' Order By TOKEN_EXPIRATION Desc");
+	_log("Token from DB   " +$token);
+	var $url = getUpdatedBaseURL("account/user/activation/"+$token[0][0]);
+	_navigateTo($url);
+	_assertVisible(_heading2("New Account Set-Up"));
+	_assertVisible(_paragraph("In order to verify your identity, we will send you a verification code to the selected number, using a voice call or text message"));
+	_click(_submit("submitBtn"));
+	_assertVisible(_label("Verification Code"));
+	_assertVisible(_submit("Verify"));
+	var $activationCode =$db.select("select ACTIVATION_CODE from account_activation where JSON_STRING like '%"+$signupEmail+"%' order by SENT_DATE desc");
+	_setValue(_textbox("verificationCode"), $activationCode);
+	_click(_submit("verifycode-btn"));
+	verifyElementsOnSignUpPage();
+}
+
+function getActivationLinkFromEmail($email) {
+	$signupEmail = $email.toLowerCase();
+	var $token = $db.select("select token from account_activation where json_string ::jsonb-> 'createdObject' ->> 'emailId' = '" + $email + "' order by sent_date desc");
+	_log("Token from DB   " +$token);
+	var $url = getUpdatedBaseURL("/hix/account/user/activation/"+$token[0][0]);
+	_navigateTo($url);
+}
+
+function activateAccountWithEmail($email) {
+	getActivationLinkFromEmail($email);
+	_wait(1000);
+	_click(_submit("Send code"));
+	_wait(10000);
+	_log("select activation_code from account_activation where json_string ::jsonb-> 'createdObject' ->> 'emailId' = '" + $email + "' order by sent_date desc");
+	var $verificationCode = $db.select("select activation_code from account_activation where json_string ::jsonb-> 'createdObject' ->> 'emailId' = '" + $email + "' order by sent_date desc");
+	_log("Verification Code: " + $verificationCode);
+	_setValue(_textbox("Verification Code"), $verificationCode);
+	_click(_submit("Verify"));
+	_log(_isVisible(_paragraph("Unknown error occured. Please try re-sending...")));
+	_assertNotVisible(_paragraph("Unknown error occured. Please try re-sending..."));
+}
+
+function verifyEntityDetailsAfterCreation($entityInfo) {
+	var $email = $entityInfo.entityEmail;
+	_log("select * from ee_entities where primary_email_address =" + $email + " order by 1 desc ;");
+	var $id = $db.select("select id from ee_entities where primary_email_address = '" + $email + "' order by 1 desc ;");
+	_log("Id: " + $id);
+	var $businessName = $db.select("select business_legal_name from ee_entities where primary_email_address = '" + $email + "' order by 1 desc ;");
+	var $primaryPhone = $db.select("select primary_phone_number from ee_entities where primary_email_address = '" + $email + "' order by 1 desc ;");
+	var $secondaryPhone = $db.select("select secondary_phone_number from ee_entities where primary_email_address = '" + $email + "' order by 1 desc ;");
+	var $fax = $db.select("select fax_number from ee_entities where primary_email_address = '" + $email + "' order by 1 desc ;");
+	var $registrationStatus = $db.select("select registration_status from ee_entities where primary_email_address = '" + $email + "' order by 1 desc ;");
+	_assertEqual($businessName, $entityInfo.businessName);
+	_assertEqual($primaryPhone, $entityInfo.entityPrimaryPhone.join(''));
+	_assertEqual($secondaryPhone, $entityInfo.entitySecondaryPhone.join(''));
+	_assertEqual($fax, $entityInfo.entityFax.join(""));
+	_assertEqual($registrationStatus, $entityInfo.status);
+	
+	_log("select * from ee_population_ethnicities where ee_entity_id = '" + $id + "' order by 1 desc;");
+	var $ethinicityInfo = $db.select("select * from ee_population_ethnicities where ee_entity_id = " + $id + " order by 1 desc;");
+	var $langInfo =  $db.select("select * from ee_population_languages where ee_entity_id = '" + $id + "' order by 1 desc;");;
+	var $industryInfo =  $db.select("select * from ee_population_industries where ee_entity_id = '" + $id + "' order by 1 desc;");;
+	_log($ethinicityInfo);
+	_log("Eth Info: " + $ethinicityInfo);
+	_log($ethinicityInfo[0]);
+	for (var $i = 0; $i < $ethinicityInfo.length; $i++) {
+		_assertEqual($entityInfo.ethnicities[$i], $ethinicityInfo[$i][2]);
+		_assertEqual($entityInfo.ethnicityPercents[$i], $ethinicityInfo[$i][3]);
+	}
+	
+	for (var $i = 0; $i < $langInfo.length; $i++) {
+		_assertEqual($entityInfo.langs[$i], $langInfo[$i][2]);
+		_assertEqual($entityInfo.langPercents[$i], $langInfo[$i][3]);
+		_assertEqual($entityInfo.langStaff[$i], $langInfo[$i][4]);
+	}
+
+	for (var $i = 0; $i < $industryInfo.length; $i++) {
+		_assertEqual($entityInfo.industries[$i], $industryInfo[$i][2]);
+		_assertEqual($entityInfo.industryPercents[$i], $industryInfo[$i][3]);
+		
+	}
+	
+	var $siteName = $db.select("select site_location_name from ee_sites where ee_entity_id = " + $id + " order by 1 desc;");
+	var $siteEmail = $db.select("select primary_email_address from ee_sites where ee_entity_id = " + $id + " order by 1 desc;");
+	var $sitePhone = $db.select("select primary_phone_number from ee_sites where ee_entity_id = " + $id + " order by 1 desc;");
+	var $siteSecondaryPhone = $db.select("select secondary_phone_number from ee_sites where ee_entity_id = " + $id + " order by 1 desc;");
+	_assertEqual($siteName, $entityInfo.siteName);
+	_assertEqual($siteEmail, $entityInfo.siteEmail);
+	_assertEqual($sitePhone, $entityInfo.sitePhone.join(''));
+	_assertEqual($siteSecondaryPhone, $entityInfo.siteSecondaryPhone.join(''));
+}
+
+function getSEPIsGatedEvent(){
+	_log("select event_name,event_type,event_label,event_category,is_financial,is_gated from sep_enrollment_events where id in(select sep_enrollment_events_id from ssap_Applicant_events where ssap_Application_event_id in (select id from ssap_application_events where ssap_application_id in (select id from ssap_Applications where id = (select id from ssap_Applications where case_number ='"+$caseNumber+"')))) and event_name in ( select event_name from sep_enrollment_events where id in (select sep_enrollment_events_id from ssap_Applicant_events where ssap_Application_event_id in (select id from ssap_application_events where ssap_application_id in (select id from ssap_Applications where id = (select id from ssap_Applications where case_number ='"+$caseNumber+"')))))");
+	$isGatedEvent="";
+	var $sepEvent = $db.select("select event_name,event_type,event_label,event_category,is_financial,is_gated from sep_enrollment_events where id in(select sep_enrollment_events_id from ssap_Applicant_events where ssap_Application_event_id in (select id from ssap_application_events where ssap_application_id in (select id from ssap_Applications where id = (select id from ssap_Applications where case_number ='"+$caseNumber+"')))) and event_name in ( select event_name from sep_enrollment_events where id in (select sep_enrollment_events_id from ssap_Applicant_events where ssap_Application_event_id in (select id from ssap_application_events where ssap_application_id in (select id from ssap_Applications where id = (select id from ssap_Applications where case_number ='"+$caseNumber+"')))))");
+	_log("Length of sep array "+ $sepEvent.length)
+		for(var $i=0;$i<$sepEvent.length;$i++){
+			if($isGatedEvent !="Y"){
+				$isGatedEvent  = $sepEvent[$i][5];
+				_log("If event Is Gated    " + $isGatedEvent);
+			}
+		}
+	_log("If event Is Gated     " + $isGatedEvent);
+}
+
+function getSizeOfHousehold($email){
+	var $query = "select count(*) as sizeof_Household from ssap_applicants where ssap_application_id=(select id from ssap_applications where cmr_houseold_id=(select id from cmr_household where email_address='"+$email+"'))";
+	_log($query);
+	var $size = $db.select($query);
+	return $size;
+}
+
+function getNoticesForPasswordReset($email){
+	var $query = "select * from notices where to_address='"+$email+"' and notice_type_id=2 order by sent_date desc;";
+	_log($query);
+	var $notices = $db.select($query);
+	return $notices;
+}
+
+function getCaseNumberFromDB($email){
+	// and application_type='SEP'
+	var $query = "select case_number from ssap_applications where cmr_houseold_id=(select id from cmr_household where email_address like '%"+$email+"%') order by creation_timestamp desc;";
+	_log($query);
+	return $db.select($query)[0]["case_number"];
+}
+
+function verifySecQueRetryCount($email, $expCount){
+	var $query = "select sec_que_retry_count from users where email = '" + $email +"'";
+	_log($query);
+	var $actCount = $db.select($query)[0]["sec_que_retry_count"];
+	_assertEqual($expCount, $actCount, "The sec_que_retry_count did not match.");
+}
+
+function getCmsPlanId($caseNumber){
+	var $query = "select cms_plan_id from enrollment where ssap_application_id =(select id from ssap_applications where case_number='"+$caseNumber+"')";
+	_log($query);
+	var $cms_plan_id =  $db.select($query)[0]["cms_plan_id"];
+	return $cms_plan_id;
+}
+
+function getPlans($issuePlanNumber){
+	var $query = "select * from plan where issuer_plan_number = '"+$issuePlanNumber+"'";
+	_log($query);
+	var $plans = $db.select($query);
+	return $plans;
+}
+
+function getEnrollments($planId, $caseNumber){
+	var $query = "select * from enrollment where plan_id in (select id from plan where issuer_plan_number = '"+$planId+"') and ssap_application_id =(select id from ssap_applications where case_number='"+$caseNumber+"')";
+	_log($query);
+	var $enrollments = $db.select($query);
+	return $enrollments;
+}
+
+function getPreScreenerShowCurrentYear(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.prescreener.show_current_year%'";
+	_log($query);
+	var $prescreenerValue = $db.select($query);
+	return $prescreenerValue;
+}
+
+function getCurrentCoverageYear(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage%'";
+	_log($query);
+	var $currentCoverageYear = $db.select($query);
+	_log("Coverage Year = "+ $currentCoverageYear);
+	return $currentCoverageYear;
+}
+
+function getPreviousCoverageYear(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.prev_coverage_year%'";
+	_log($query);
+	var $previousCoverageYear = $db.select($query);
+	return $previousCoverageYear;
+}
+
+function updateRolesMFA($label, $isMfaEnabled){
+	var $query = "update roles set mfa_enabled = '"+$isMfaEnabled+"' where label = '"+$label+"'";
+	_log($query);
+	$db.update($query);
+}
+
+var $inGlobalOEP;
+function inGlobalOEP(){
+	//if (!$inGlobalOEP) {
+	
+		var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'";
+		_log($query);
+		var $endDate = $db.select($query)[0];
+		$endDate = _call(window.moment($endDate, "MM/DD/YYYY"));
+		
+		var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_start_date%'";
+		_log($query);
+		var $startDate = $db.select($query)[0];
+		$startDate = _call(window.moment($startDate, "MM/DD/YYYY"));
+		_log($startDate);
+		
+		var $isAfter = _fetch(window.moment().isAfter($startDate));
+		var $isBefore = _fetch(window.moment().isBefore($endDate));
+		var $dbCurrentCoverageYear = getCurrentCoverageYear();
+			
+		_log(" Start date = "+ $startDate+"   end date = "+$endDate+ $isAfter +"    "+$isBefore);
+		_log("Selected Year is:" +$selectedYear);
+		if( $isBefore && $isAfter) {
+			$inGlobalOEP = "ON";
+		} else
+			$inGlobalOEP = "OFF";
+		_log($inGlobalOEP);
+	
+	return $inGlobalOEP;
+}
+
+function getEnrollmentDetailsFromCaseNumber(){
+	var $query = "select id, benefit_effective_date, benefit_end_date, ENROLLMENT_STATUS_LKP from enrollment where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"') and INSURANCE_TYPE_LKP = 131 order by enrollment.creation_timestamp desc";
+	_log($query);
+	var $result = $db.select($query);
+	_log(" Result = "+ $result);
+	return $result;
+}
+
+
+function getEnrolleStatus($enrollmentId){
+	var $query = "select enrollee_status_lkp from enrollee where enrollment_id ='"+$enrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id";
+	_log($query);
+	var $status = $db.select($query);
+	return $status;
+
+}
+
+function isPlanSelectedForCurrentYear(){
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	var $currentDate = _fetch(window.moment().get('date'));
+	var $query = "select id from users where email = '"+$signupEmail+"'";
+	_log("check if the user is created");
+	var $userCreated = $db.select($query);
+	_log($userCreated);
+	var $planSelected = false;
+	if($userCreated !=""){
+		var $query = "select stage,coverage_start_date from elig_lead where id in (select elig_lead_id from cmr_household where user_id in (select id from users where email = '"+$signupEmail+"'))";
+		_log($query);
+		var $status = $db.select($query);
+		_log("The stage and coverage start date is "+$status);
+		var $currentCoverageYear = $status[0]["coverage_start_date"].split("-")[0];
+		var $currentYear = _fetch(window.moment().get("year"))
+		
+		if($status[0]["stage"] == "PRE_SHOPPING_COMPLETE" && $currentCoverageYear == $currentYear ) {
+			$planSelected =true;
+			}
+		else if($currentMonth == 12 && $currentDate < 15 || ($currentMonth == 11 && $currentDate >15)){//chk this step
+			$planSelected =true;
+		}
+	}
+	return $planSelected;
+}
+
+function getCompanyNameforCurrentYear(){
+	var $currentYear =_fetch(window.moment($now).get('year'));
+	var $query = "select name from issuers where id in (select distinct issuer_id from plan where status='CERTIFIED' and issuer_verification_status='VERIFIED' and is_deleted='N' and applicable_year="+$currentYear+")";
+	_log($query);
+	var $companyName = $db.select($query);
+	return $companyName;
+}
+
+function getPlanType(){
+	var $currentYear =_fetch(window.moment($now).get('year'));
+	var $query = "select distinct network_type from plan where status='CERTIFIED' and issuer_verification_status='VERIFIED' and is_deleted='N' and applicable_year=" +$currentYear;
+	var $planType = $db.select($query);
+	return $planType;
+}
+
+function providerDirectory($plan){
+	var $id = $plan.Id;
+	var $query = "select eoc_doc_id from plan where id = "+$id;
+	_log($query);
+	var $providerDirectoryPresent = $db.select($query);
+	_log("Provider Directory doc is " +$providerDirectoryPresent);
+	if($providerDirectoryPresent == "null"){
+		return false;
+	}
+	else 
+		return true;
+	
+}
+
+function getHouseholdId($email){
+	
+	var $email = $email.toLowerCase();
+	var $query = "select id from cmr_household where email_address = '"+$email+"'";
+	_log($query);
+	var $householdId = $db.select($query);
+	_log(" HouseholdId for email address "+$email+" is "+$householdId);
+	return $householdId;
+	
+	
+}
+
+function getBrokerDetailsFromEnrollment($email){
+	var $query = "select broker_tpa_flag, agent_broker_name,broker_tpa_account_number_1,assister_broker_id,broker_role,broker_fed_tax_payer_id from enrollment where household_case_id =(select id from cmr_household where email_address ='"+$email+"')";
+	_log($query);
+	var $brokerRecords = $db.select($query);
+	_log($brokerRecords);
+	return $brokerRecords;
+
+} 
+
+function getBrokerDetailsFromBroker($agentEmail){
+	var $query = "select license_number, id, federal_ein from brokers where your_public_email = '"+$agentEmail+"'";
+	_log($query);
+	var $brokerInfo= $db.select($query);
+	_log($brokerInfo);
+	return $brokerInfo;
+}
+
+function getEnrollmentId($userEmail){
+	$userEmail = $userEmail.toLowerCase();
+	var $query = "select id,insurance_type_lkp from enrollment where household_case_id = (select id from cmr_household where email_address = '"+$userEmail+"')";
+	_log($query);
+	var $enrollmentId = $db.select($query);
+	_log(" Enrollment Id  = "+$enrollmentId);
+	return $enrollmentId;
+
+}
+
+function getBrokerDetailsFromEnrollmentAud($enrollmentId){
+	var $query = "select revtype,benefit_effective_date,benefit_end_date,insurance_type_lkp,broker_tpa_flag, agent_broker_name,broker_tpa_account_number_1,assister_broker_id,broker_role,broker_fed_tax_payer_id, creation_timestamp,last_update_timestamp from enrollment_aud where id = "+$enrollmentId+" order by last_update_timestamp desc ";
+	_log($query);
+	var $enrollmentAud = $db.select($query);
+	_log(" From enrollment Aud table ==== "+$enrollmentAud);
+	return $enrollmentAud;
+}
+
+function getTaxIdentifierFromEnrollmentEvent($enrollmentId){
+
+	var $query = "select txn_identifier from enrollment_event where enrollment_id =" +$enrollmentId;
+	_log($query);
+	var $taxIdentifier = $db.select($query);
+	_log(" From enrollment event table ==== "+$taxIdentifier);
+	return $taxIdentifier;
+
+}
+
+function getBrokerDetailsFromDesinateBroker($enrollmentId){
+	var $query = "select id, brokerid, status, esign_by, esign_date from designate_broker where brokerid = (select assister_broker_id from enrollment where id ="+$enrollmentId+")order by esign_date desc";
+	_log($query);
+	var $designateBroker = $db.select($query);
+	_log(" From enrollment event table ==== "+$designateBroker);
+	return $designateBroker;
+
+}
+
+function isSSNAlreadyPresent($SSN){
+	$SSN = $SSN.replace(/\(|\)|\-|\ /g, "");
+	var $query ="select * from cmr_household where ssn = '"+$SSN+"'";
+	_log($query);
+	var $SSNPresent = $db.select($query);
+	_log("SSN From cmr_household  table ==== "+$SSNPresent);
+	return $SSNPresent;
+}
+
+function getIndividualDetailsFromCmrHousehold($email){
+	var $email = $email.toLowerCase();
+	var $query = "select first_name, last_name, birth_date, ssn, ssn_not_provided_reason from cmr_household where email_address ='"+$email+"'";
+	_log($query);
+	var $dateOfBirthSSNDetails = $db.select($query);
+	_log("From cmr_household table ==== "+$dateOfBirthSSNDetails);
+	return $dateOfBirthSSNDetails;
+	}
+
+function getExistingSSNFromCmrHousehold(){
+	var $query = "select ssn from cmr_household where ssn !='' and rownum=1";
+	_log($query);
+	var $existingSSN = $db.select($query);
+	_log("From cmr_household table ==== "+$existingSSN);
+	return $existingSSN;
+}
+
+function getConfirmedStatusFromUsers($email){
+	var $email = $email.toLowerCase();
+	var $query = "select id, confirmed, status from users where email ='"+$email+"'";
+	_log($query);
+	var $ConfirmedStatus = $db.select($query);
+	_log("From users table ==== "+$ConfirmedStatus);
+	return $ConfirmedStatus;
+		}
+	
+function getIdFromRoles($name){
+	var $name= $name.toUpperCase();
+	var $query = "select id from roles where name='"+$name+"'";
+	_log($query);
+	var $id = $db.select($query);
+	_log("From roles table ==== "+$id);
+	return $id;
+}
+
+function getRoleIdFromUserRoles($email){
+	var $email = $email.toLowerCase();
+	var $query ="select role_id from user_roles where user_id in ( select id from users where  email ='"+$email+"')";
+	_log($query);
+	var $roleId = $db.select($query);
+	_log("From user_roles table ==== "+$roleId);
+	return $roleId;
+}
+
+function getTextMeFromCmrHousehold($email){
+	var $email = $email.toLowerCase();
+	var $query ="select text_me from cmr_household where email_address = '"+$email+"'";
+	_log($query);
+	var $textMe = $db.select($query);
+	_log("From cmr_household table ==== "+$textMe);
+	return $textMe;
+}
+
+function getSubscriberTotalIndvResponsibilityAmtFromEnrollee(){
+	var $query = "select total_indv_responsibility_amt from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER'))";
+	_log($query);
+	var $totalIndvResponsibilityAmt = $db.select($query);
+	_log("From enrollee table ==== "+$totalIndvResponsibilityAmt);
+	return $totalIndvResponsibilityAmt;
+}
+
+function getPasswordfromDb($email){
+	$email = $email.toLowerCase();
+	var $query = "select password from users where email = '"+$email+"'";
+	_log($query);
+	var $result = $db.select($query);
+	_log(" Password returned from Database is "+$result);
+	return $result;
+}
+
+function getPreScreenerIndportalShowPreviousYearTabUntil(){ 
+	var $query = "select property_value from gi_app_config where property_key like '%iex.indportal.show_previous_year_tab_until%'"; 
+	_log($query); 
+	var $PreScreenerShowPrevYearTab = $db.select($query); 
+	_log("PreScreener Show PrevYear Tab until "+$PreScreenerShowPrevYearTab); 
+	return $PreScreenerShowPrevYearTab; 
+} 
+
+function getMembersCountFromEnrollee(){ 
+	var $query = "select count(*) from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE'))";
+	_log($query);
+	var $membersCount = $db.select($query);
+	_log("From enrollee table ==== " +$membersCount);
+	return $membersCount;
+}
+
+function nvGetEnrolleeDetailsFromEnrollee(){ 
+	var $query = "select first_name, effective_start_date, effective_end_date, total_indv_responsibility_amt,enrollment_reason,enrollee_status_lkp from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id";
+	_log($query);
+	var $enrolleeDetails = $db.select($query);
+	_log("From enrollee table ==== " +$enrolleeDetails);
+	return $enrolleeDetails;
+}
+
+function getGrossPremiumDetailsFromEnrollmentPremium(){ 
+	var $query = "select month,gross_prem_amt from enrollment_premium where enrollment_id ='"+$healthEnrollmentId+"' order by month";
+	_log($query);
+	var $grossPremiumDetails = $db.select($query);
+	_log("From enrollment_premium table ==== " +$grossPremiumDetails);
+	return $grossPremiumDetails;
+}
+
+function getChildTotalIndvResponsibilityAmtFromEnrollee(){
+	var $query = "select total_indv_responsibility_amt from enrollee where enrollment_id ='"+$healthEnrollmentId+"' and relationship_hcp_lkp in (select lookup_value_id from lookup_value where lookup_value_label='Child')";
+	_log($query);
+	var $amount = $db.select($query);
+	_log("From enrollee table ==== "+$amount);
+	return $amount;
+}
+
+function getPlanRateFromDB($planId,$zipCode,$county,$toDate,$applicableYear,$age,$insuranceType){
+    var $planRateQuery = "SELECT round( CAST(prate.rate as numeric),2) "+
+	" AS pre,prate.rate_option AS rate_option,childtable.plan_id AS "+
+	"plan_id,p2.name AS plan_name,childtable.cost_sharing AS "+
+	"cost_sharing,childtable.plan_level AS plan_level FROM plan_health "+
+	"childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE "+
+	"p2.id = childtable.plan_id AND p2.service_area_id ="+
+	"psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id ="+
+	"prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND "+
+	"psarea.is_deleted = 'N' AND prate.rating_area_id in(SELECT "+
+	"pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE "+
+	"pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip ="+
+	$zipCode+" OR pzcrarea.zip IS NULL)) AND (prate.tobacco = 'N' OR "+
+	"prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+""+
+	"<= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age)"+
+	") AND prate.rate     > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') "+
+	"BETWEEN prate.effective_start_date AND prate.effective_end_date AND "+
+	"psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') "+
+	"BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type"+
+	"='"+$insuranceType+"' AND p2.market = 'INDIVIDUAL' AND "+
+	"p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status ="+
+	"'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND "+
+	"P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year"+
+	"="+$applicableYear+" AND p2.id="+$planId;
+
+    _log("query: "+$planRateQuery);
+    var $planRate=$db.select($planRateQuery);
+    _log("Results from Db"+$planRate+"    Plan Rate for this Plan is"+$planRate[0][0]);
+    return $planRate;
+}
+
+// This function returns county code
+function getCountyCodeByZipFromDb($zip){
+    var $countyQuery = "select state_fips,county_fips from zipcodes where zipcode= '"+$zip+"'";
+    _log("query: "+$countyQuery);
+    var $county=$db.select($countyQuery);
+    _log("county: "+$county);
+    var $countyCode = $county[0][0]+$county[0][1];
+    _log("county code: "+$countyCode);
+    return $countyCode;
+}
+
+
+ 
+function getIssuerDetailsfromDB($issuerName){
+    
+    var $query = "select short_name, naic_company_code, naic_group_code, federal_ein, hios_issuer_id from issuers where name like '"+$issuerName+"'";
+    _log($query);
+    var $issuerDetails = $db.select($query);
+    _log(" Issuer Details returned from Database is "+$issuerDetails);
+    return $issuerDetails;
+}
+ 
+function getIssuerAddressFromDB($issuerName){
+    var $query ="select address_line1, city, state, zip from issuers where name like '"+$issuerName+"'";
+    _log($query);
+    var $issuerAddress = $db.select($query);
+    _log(" Issuer Address returned from Database is "+$issuerAddress);
+    return $issuerAddress;
+}
+ 
+function getCompanyProfileFromDb($issuerName){
+    var $query ="select company_legal_name, state_of_domicile from issuers where name like '"+$issuerName+"'";
+    _log($query);
+    var $companyProfile = $db.select($query);
+    _log(" Company profile returned from Database is "+$companyProfile);
+    return $companyProfile;
+}
+ 
+function getIndividualMarketProfileFromDb($issuerName){
+    var $query ="select shop_cust_service_phone, indv_cust_service_toll_free,indv_cust_service_tty,indv_site_url from issuers where name like '"+$issuerName+"'";
+    _log($query);
+    var $indMarketProfile = $db.select($query);
+    _log(" Individual Market Profile returned from Database is "+$indMarketProfile);
+    return $indMarketProfile;
+}
+ 
+ 
+function getCertificationStatusOfIssuerFromDb($issuerName){
+    
+    var $query = "select certification_status from issuers where name like '"+$issuerName+"'";
+    _log($query);
+    var $status = $db.select($query);
+    _log(" Issuer Details returned from Database is "+$status);
+    return $status;
+  
+}
+ 
+function getRepresentativeInfoFromDb($issuerName){ 
+     var $query = "select title,phone, email,primary_contact from issuer_representative where first_name like'%"+$issuerName+"%'";
+    _log($query);
+    var $repInfo = $db.select($query);
+    _log("Representative Information returned from Database is "+$repInfo);
+    return $repInfo;
+}
+ 
+function updateExpiredPassword($signedEmail){
+	var $previousDay=_fetch(window.moment().subtract(1, 'days').format('YYYY-MM-DD hh:mm:ss.SSS'));
+	var $query = "update users set pwd_last_updated = '"+$previousDay+"' , lastlogin='"+$previousDay+"' where  email ='"+$signedEmail+"'";
+    _log($query);
+	$db.update($query);
+    _log("Updated expired password");
+}
+ 
+////////////// new functions for Nevada//////////
+
+function getIndShowPreviousYearTabUntil(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.indportal.show_previous_year_tab_until%'"; 
+	_log($query); 
+	var $showPrevYearTab = $db.select($query); 
+	_log("show PrevYear Tab until "+$showPrevYearTab);
+	return	$showPrevYearTab
+}
+
+function getIndShowCurrentYearTabFrom(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.indportal.show_current_year_tab_from%'"; 
+	_log($query); 
+	var $showCurrentYearTab = $db.select($query); 
+	_log("show PrevYear Tab until "+$showCurrentYearTab); 
+	return $showCurrentYearTab;
+}
+
+function getEnrollmentDetailsFromEnrollment($enrollmentId){
+	var $query = "select id,enrollment_status_lkp,enrollment_confirmation_date,benefit_effective_date,benefit_end_date,gross_premium_amt,aptc_amt,csr_amt,net_premium_amt,cms_plan_id,payment_txn_id from enrollment where id="+$enrollmentId;
+	_log($query); 
+	var $enrollmentStatus = $db.select($query); 
+	_log("Enrollment status "+$enrollmentStatus); 
+	return $enrollmentStatus;
+}
+
+
+function getAccessCode($email){
+	var $query = "select json_string from account_activation where json_string like '%"+$email+"%'";
+	_log($query); 
+	var $accessCode = $db.select($query); 
+	_log("Access Code "+$accessCode); 
+	return $accessCode;
+}
+
+function getAgentBrokerNumberAndCertificationNumberFromDB($email){
+	var $email = $email.toLowerCase();		
+	var $query ="select broker_number, certification_number from brokers where your_public_email = '"+$email+"'";		
+	_log($query);		
+	var $brokerInfo= $db.select($query);
+	_log($brokerInfo);		
+	return $brokerInfo;
+}
+function getAgentInfoFromdb($email){		
+	var $email = $email.toLowerCase();		
+	var $query ="select certification_status, company_name, contactnumber, education, languages_spoken, license_number, product_expertise,about_me,federal_ein, business_contact_phone_number,alternate_phone_number, fax_number, your_web_site,your_public_email from brokers where your_public_email = '"+$email+"'";		
+	//var $query = "select * from brokers where your_public_email = '"+$email+"'";		
+	_log($query);		
+	var $brokerInfo= $db.select($query);		
+	_log($brokerInfo);		
+	return $brokerInfo;		
+}
+
+function getEnrolleeDetailsFromEnrollee($enrollmentId){ 
+	var $query = "select first_name,last_name,gender_lkp,birth_date,tobacco_usage_lkp,effective_start_date, effective_end_date,exchg_indiv_identifier,rating_area,rating_area_eff_date from enrollee where enrollment_id ='"+$enrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id desc";
+	_log($query);
+	var $enrolleeDetails = $db.select($query);
+	_log("From enrollee table ==== " +$enrolleeDetails);
+	return $enrolleeDetails;
+}
+
+function getEnrollDetailsFromEnrollmentEvent($enrollmentId){ 
+	var $query = "select event_type_lkp,event_reason_lkp,txn_identifier,extraction_status from enrollment_event where enrollment_id ='"+$enrollmentId+"' and enrollee_id in (select id from enrollee where enrollment_id ='"+$enrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id) order by creation_timestamp desc";
+	_log($query);
+	var $enrollmentEventDetails = $db.select($query);
+	_log("From enrollment_event table ==== " +$enrollmentEventDetails);
+	return $enrollmentEventDetails;
+}
+
+function getEnrollmentEventCountFromEnrollmentEvent($enrollmentId){ 
+	var $query = "select count(*) from enrollment_event where enrollment_id ='"+$enrollmentId+"' and enrollee_id in (select id from enrollee where enrollment_id ='"+$enrollmentId+"' and person_type_lkp in (select lookup_value_id from lookup_value where lookup_value_code in ('SUBSCRIBER', 'ENROLLEE')) order by id)";
+	_log($query);
+	var $enrollmentEventsCount = $db.select($query);
+	_log("From enrollment_event table ==== " +$enrollmentEventsCount);
+	return $enrollmentEventsCount;
+}
+
+function getBrokerConnectInfoFromDb($email){
+
+    var $query = "select * from broker_connect where broker_id =(select id from brokers where your_public_email = LOWER('"+$email+"'))";
+    _log($query);
+    var $brokerConnectInfo = $db.select($query);
+    _log("Broker Connect info  "+$brokerConnectInfo);
+    return $brokerConnectInfo;
+
+}
+
+function getBrokerConnectHoursFromDb($Id){
+    var $query = "select * from broker_connect_hours where broker_connect_id ='"+$Id+"'";
+    _log($query);
+    var $brokerConnectHours = $db.select($query);
+    _log("Broker Connect info  "+$brokerConnectHours);
+    return $brokerConnectHours;
+
+}
+
+function getGracePeriodFromDb(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.lce.enrollmentEndDate.gracePeriod%'"; 
+	_log($query);
+	var $timePeriod = $db.select($query); 
+	$timePeriod = parseInt($timePeriod)
+	return $timePeriod
+}
+
+
+function getOverridenCovStartDateFromDb($caseNumber){
+	var $query = "select id, overwritten_coverage_date from ssap_application_events where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"')";
+    _log($query);
+    var $overridenCoverageDate = $db.select($query);
+    _log("Overridden Coverage Date:  "+$overridenCoverageDate);
+    return $overridenCoverageDate;
+}
+
+function getEventLabelFromDb($caseNumber){
+	var $query = "select event_label from sep_enrollment_events where id in (select sep_enrollment_events_id from ssap_applicant_events where ssap_applicant_id in (select id from ssap_applicants where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"')))";
+    _log($query);
+    var $eventLabel = $db.select($query);
+    _log("EventLabel:  "+$eventLabel);
+    return $eventLabel;
+}
+
+function getEnrollmentStartEndDatesFromDb($caseNumber){
+	var $query = "select enrollment_start_date,enrollment_end_date from ssap_application_events where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"')";
+    _log($query);
+    var $enrollmentStartEndDates = $db.select($query);
+    _log("Enrollment Start and End Date:  "+$enrollmentStartEndDates);
+    return $enrollmentStartEndDates;
+}
+
+function getAgentAddressDetailsFromDb($email){
+	var $query = "select id,address1,city,state,zip from locations where id in (select location_id from brokers where your_public_email = LOWER('"+$email+"'))";
+    _log($query);
+    var $agentAddressDetails = $db.select($query);
+    _log("Agent Address Details  "+$agentAddressDetails);
+    return $agentAddressDetails;
+}
+
+function getOEPEndDate(){
+    var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'"; 
+    _log($query);
+    var $oepEndDate = $db.select($query); 
+    return $oepEndDate;
+ 
+}
+
+
+
+
+

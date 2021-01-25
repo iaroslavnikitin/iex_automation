@@ -1,0 +1,16 @@
+{
+    "description": "3adults APTC household",
+    "hhFamily": {"size": 3, "singleParent": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "csrEligibilityIndicator": false
+        },
+        {
+            "csrEligibilityIndicator": false
+        },
+        {
+            "csrEligibilityIndicator": false
+        }
+    ]
+}

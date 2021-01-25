@@ -1,0 +1,29 @@
+{
+    "description": "2adults/2 kids household CS4 ",
+    "hhFamily": {"size": 4, "singleParent": false},
+    "hhLastName": true,
+    "aptcMaximumAmount": 250,
+    "people": [
+        {
+            "middleName": "Bar",
+            "personSex": "Male",
+            "csrLevel": "CS4"
+        },
+        {
+            "personSex": "Female",
+            "csrLevel": "CS4",
+            "exchangeEligibilityIndicator": false,
+            "aptcEligibilityIndicator": false
+        },
+        {
+            "personSex": "Female",
+            "csrLevel": "CS4",
+            "aptcEligibilityIndicator": false
+        },
+        {
+            "personSex": "Male",
+            "csrLevel": "CS4",
+            "exchangeEligibilityIndicator": false
+        }
+    ]
+}

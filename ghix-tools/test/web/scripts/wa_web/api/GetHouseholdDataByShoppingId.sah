@@ -1,0 +1,71 @@
+var $householdData, $pdPreferencesDTOFromAPI;
+
+function getHouseholdDataByShoppingId($householdId){
+	var $url = $getHouseholdDataURL + $householdId;
+	_log($url);
+	var $request = new RESTRequest();
+	$request.setURL($url);
+	var $response = $request.submit("get");
+	var $responseBody = $response.getBodyAsString();
+	$responseBody = JSON.parse($responseBody);
+	$householdData = JSON.parse($responseBody.householdData);
+	$pdPreferencesDTOFromAPI = $responseBody.pdPreferencesDTO;
+}
+
+function getHouseholdDataFromAPI(){
+	return $householdData;
+}
+
+function getZipCodeFromHouseholdDataByShoppingIdAPI(){
+	return $householdData.zipCode;
+}
+
+function getMedicalUseLevel(){
+	return $pdPreferencesDTOFromAPI.medicalUse;
+}
+
+function getPrescriptionUseLevel(){
+	return $pdPreferencesDTOFromAPI.prescriptionUse;
+}
+
+function getProviders(){
+	if ($pdPreferencesDTOFromAPI.providers == null || $pdPreferencesDTOFromAPI.providers.length == 0) {
+		$pdPreferencesDTOFromAPI.providers = {};
+		return {};
+	}
+	return JSON.parse($pdPreferencesDTOFromAPI.providers);
+}
+
+function getDrugs(){
+	if ($pdPreferencesDTOFromAPI.prescriptions == null || $pdPreferencesDTOFromAPI.prescriptions == "") {
+		$pdPreferencesDTOFromAPI.prescriptions = {};
+		return {};
+	}
+	return JSON.parse($pdPreferencesDTOFromAPI.prescriptions);
+}
+
+function verifyHouseholdDataFromAPI($medicalUseLevel, $prescriptionUseLevel, $providers, $drugs){
+	_assertEqual($medicalUseLevel, $pdPreferencesDTOFromAPI.medicalUse);
+	_assertEqual($prescriptionUseLevel, $pdPreferencesDTOFromAPI.prescriptionUse);
+
+	if ($pdPreferencesDTOFromAPI.providers != null && $pdPreferencesDTOFromAPI.providers != "") {
+		$providersFromAPI = JSON.parse($pdPreferencesDTOFromAPI.providers);
+		for (var $i = 0; $i < $providers.length; $i++) {
+			var $provider = $providers[$i];
+			_assertEqual($provider.providerType, $providersFromAPI[$i].providerType);
+			_assertEqual($provider.name, $providersFromAPI[$i].name);
+		}
+	} else {
+		_assert($providers.length == 0, "No Providers retreived through the API.");
+	}
+	
+	if ($pdPreferencesDTOFromAPI.prescriptions != null && $pdPreferencesDTOFromAPI.prescriptions != "") {
+		$drugsFromAPI = JSON.parse($pdPreferencesDTOFromAPI.prescriptions);
+		for (var $i = 0; $i < $drugs.length; $i++){
+			var $drug = $drugs[$i];
+			_assertEqual($drug.drugDosage.toLowerCase(), $drugsFromAPI[$i].drugDosage.toLowerCase());
+		}
+	} else {
+		_assert($drugs.length == 0, "No Prescriptions retreived through the API.");
+	}
+}

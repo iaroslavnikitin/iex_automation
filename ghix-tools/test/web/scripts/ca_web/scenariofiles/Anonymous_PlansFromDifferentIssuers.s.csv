@@ -1,0 +1,81 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../lib/DB.sah"
+,,"loadSahi","../pagemodels/Preferences.sah"
+,,"loadSahi","../pagemodels/PlanSelection.sah"
+
+
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+,,"createDbObj"
+
+,,"$zip =","""94043"""
+,,"$coverageDate=","""01/01/2018"""
+,,"$noOfAdults =","1"
+,,"$noOfChildren =","2"
+,,"$showCatastrophic =","""NO"""
+,,"$aptc =","20.22"
+
+"all","CA Anonymous Shopping","[Documentation]",,,"1. One Adult + 2 kids + CSR eligibile (CS2) + APTC
+2. Add 2 doctors and  1 dentist
+3. Verify Plan Display page 
+4. Select bcbs from filter, add health plan and for Dental, select Anthem plan
+5. Go till cart page
+6. Click Back to shopping,  remove health plan, select different issuer and add health plan
+7. Continue to Dental, remove dental Plan, select different issuer and add Dental plan
+8. Continue to  Cart"
+,,"[Documentation]","Zipcode","County","Date of Birth","aptc Amount","CSR","Coverage Date"
+,,"navigateToPreferencePage","$zip","""06085""","""01011985,01012014,01012015""","$aptc","""CS2""","""01012018"""
+
+,,"[Documentation]","Provider","Name","Miles","Zipcode","No. of Providers"
+"//",,"selectprovider","""Doctor""",,"""10""","$zip","2"
+"//",,"selectprovider","""Dentist""",,"""10""","$zip","1"
+,,"clickNextPreferences"
+,,"$option1 =selectRandomOptionOnPreference"
+,,"clickNextPreferences"
+,,"$option2 =selectRandomOptionOnPreference"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickViewPlans","""Y""","""$""+$aptc","$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic","""Y"""
+
+,,"[Documentation]","Filter By"
+,,"verifyCompanyFilterOnPlanPage","""bcbs"""
+,,"$healthPlan=clickAddPlanFromPlanSelection"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickContinueToDentalPlans",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren"
+
+,,"[Documentation]","Issuer name"
+,,"verifyCompanyFilterOnPlanPage","""Anthem"""
+,,"$dentalPlan=clickAddPlanFromPlanSelection"
+
+,,"[Documentation]","Health plan selected","Dental Plan Selected","Coverage Date"
+,,"clickContinueToCart","$healthPlan","$dentalPlan","$coverageDate"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickBackToShopping","""Y""","""$""+$aptc","$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic","""Y"""
+
+,,"[Documentation]","Issuer name"
+,,"verifyCompanyFilterOnPlanPage","""bcbs"""
+
+,,"[Documentation]","Plan to be removed"
+,,"clickRemoveOnPlanDisplay","$healthPlan"
+
+,,"[Documentation]","Issuer name"
+,,"unCheckFilter","""bcbs"""
+
+,,"[Documentation]","Issuer name"
+,,"verifyCompanyFilterOnPlanPage","""Kaiser permanente"""
+,,"$healthPlan=clickAddPlanFromPlanSelection"
+,,"closeFantasticPopup"
+,,"[Documentation]","Zipcode","Coverage Date","noOfAdults","noOfChildren"
+,,"clickDentalPlansTab","$zip","$coverageDate","$noOfAdults","$noOfChildren"
+,,"[Documentation]","Issuer name"
+,,"verifyCompanyFilterOnPlanPage","""Anthem"""
+,,"clickRemoveOnPlanDisplay","$dentalPlan"
+,,"unCheckFilter","""Anthem"""
+,,"verifyCompanyFilterOnPlanPage","""Delta dental"""
+,,"$dentalPlan=clickAddPlanFromPlanSelection"
+
+,,"[Documentation]","Health plan selected","Dental Plan Selected","Coverage Date"
+,,"clickContinueToCart","$healthPlan","$dentalPlan","$coverageDate"

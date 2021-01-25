@@ -1,0 +1,51 @@
+{
+    "otherHealthCoverage": {
+    "otherHealthCoverageHeading": "$('h1')",
+    "rb_healthCoverageYes": "$('[id*=healthCoverage_currentlyHasHealthInsuranceIndicator_label0]')",
+    "cb_otherHealthCoverage": "$('[id*=healthCoverage_OTHER_HEALTH_REPLACE_label]')",
+    "rb_healthCoverageNo": "$('[id*=healthCoverage_currentlyHasHealthInsuranceIndicator_label1]')",
+    "lbl_chip": "$('#aiOtherInsurance label[id*=healthCoverage_CHIP_label]')",
+    "lbl_cobraCoverage": "$('#aiOtherInsurance label[id*=healthCoverage_COBRA_COVERAGE_label]')",
+    "lbl_medicaid": "$('#aiOtherInsurance label[id*=healthCoverage_MEDICAID_label]')",
+    "lbl_medicare": "$('#aiOtherInsurance label[id*=healthCoverage_MEDICARE_label]')",
+    "lbl_none": "$('#aiOtherInsurance label[id*=healthCoverage_NONE_label]')",
+    "lbl_otherCoverage": "$('#aiOtherInsurance label[id*=healthCoverage_OTHER_COVERAGE_label]')",
+    "tb_insuranceName": "$('#aiOtherInsurance input[id*=insuranceName]')",
+    "tb_policyNumber": "$('#aiOtherInsurance input[id*=policyNumber]')",
+    "lbl_limitBenefitCoverageYes": "$('#aiOtherInsurance label[id*=limitedBenefit_label0]')",
+    "lbl_limitBenefitCoverageNo": "$('#aiOtherInsurance label[id*=limitedBenefit_label1]')",
+    "lbl_peaceCorps": "$('#aiOtherInsurance label[id*=healthCoverage_PEACE_CORPS_label]')",
+    "lbl_retireHealthBenefits": "$('#aiOtherInsurance label[id*=healthCoverage_RETIRE_HEALTH_BENEFITS_label]')",
+    "lbl_tricare": "$('#aiOtherInsurance label[id*=healthCoverage_TRICARE_label]')",
+    "lbl_veteransAffairsHCP": "$('#aiOtherInsurance label[id*=healthCoverage_VETERANS_AFFAIRS_HCP_label]')",
+    "lbl_marketplaceCoverage": "$('#aiOtherInsurance label[id*=healthCoverage_MARKETPLACE_COVERAGE_label]')"
+  },
+  "reconcilationOfAPTC": {
+    "reconcilationOfAPTCHeading": "$('h1=Reconciliation of APTC')",
+    "rb_reconcileAptcOptionYes": "$('[id *= reconcileAptcOption_label0]')",
+    "rb_reconcileAptcOptionNo": "$('[id *= reconcileAptcOption_label1]')",
+    "rb_reconcileAptcOptionNever": "$('[id *= reconcileAptcOption_label2]')"
+  },
+  "employerCoverageDetail": {
+    "employerCoverageDetailHeading": "$('h1')",
+    "rb_employerWillOfferInsuranceYes":"$('[id *= healthCoverage_employerWillOfferInsuranceIndicator_label0]')",
+    "rb_employerWillOfferInsuranceNo": "$('[id *= healthCoverage_employerWillOfferInsuranceIndicator_label1]')"
+  },
+  "stateEmployeeHealthBenefit": {
+    "stateEmployeeHealthBenefitHeading": "$('h1')",
+    "rb_stateHealthBenefitYes": "$('[id *= healthCoverage_stateHealthBenefit_label0]')",
+    "rb_stateHealthBenefitNo": "$('[id *= healthCoverage_stateHealthBenefit_label1]')"
+  },
+  "additionalInformation": {
+    "additionalInformationHeading": "$('h1')",
+    "rb_eligibleForHealthServiceYes": "$('#aiStateHealthBenefit label[id*=healthCoverage_eligibleITU_label0]')",
+    "rb_eligibleForHealthServiceNo": "$('#aiStateHealthBenefit label[id*=healthCoverage_eligibleITU_label1]')",
+    "rb_receivedHealthServiceYes": "$('#aiStateHealthBenefit label[id*=healthCoverage_receivedITU_label0]')",
+    "rb_receivedHealthServiceNo": "$('#aiStateHealthBenefit label[id*=healthCoverage_receivedITU_label1]')",
+    "rb_helpWithUnpaidBillYes": "$('[id *= healthCoverage_unpaidBill_label0]')",
+    "rb_helpWithUnpaidBillNo": "$('[id *= healthCoverage_unpaidBill_label1]')"
+  },
+  "addtionalInformationSummary": {
+    "addtionalInformationSummaryHeading": "$('h1')"
+  }
+}

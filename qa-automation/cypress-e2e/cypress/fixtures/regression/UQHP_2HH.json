@@ -1,0 +1,15 @@
+{
+    "description": "2adults uQHP household",
+    "hhFamily": {"size": 2, "singleParent": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "csrEligibilityIndicator": false,
+            "aptcEligibilityIndicator": false
+        },
+        {
+            "csrEligibilityIndicator": false,
+            "aptcEligibilityIndicator": false
+        }
+    ]
+}

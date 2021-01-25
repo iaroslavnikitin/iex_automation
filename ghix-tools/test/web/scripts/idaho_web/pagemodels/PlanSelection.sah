@@ -1,0 +1,2131 @@
+_includeOnce("ViewDetails.sah");
+_includeOnce("ShowCart.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("Utils.sah");
+
+// Constants
+var $PLAN_SELECTION_DENTAL_TEXT = "Browse Pediatric Dental Plans";
+
+// Variables
+var $onDentalPage;
+var $PlanSelection = true;
+// Whether on the dental plan page
+
+// Health plan info
+var $planName = "";
+var $payment="";
+
+// Dental plan info
+var $dentalPlanName = "";
+var $dentalPayment="";
+
+// Accessors
+var $planSelectionBack = _link("Back to preferences");
+var $editInfo = _link("Edit Family Info");
+var $planSelectionHealthInsurance =_link("/Health Plans/");
+var $planSelectionDentalInsurance = _link("/Dental Plans/")
+var $planSelectionCart = _button("aid-cart");
+var $planSelectionHeader = _div("ps-eligibility plan-display-show");
+var $planSelectionSortBy = _link("dk_toggle dk_label");
+var $planSelectionSortByItems = [_link("Monthly price"), _link("Expense Estimate"), _link("Deductible"), _link("Out-of-Pocket (OOP) Max")];
+var $planSelectionRemove = _link("REMOVE");
+var $planSelectionContinueToHealthPlans = _link("/Continue To Health Plans/i");
+var $planSelectionContinueToDentalPlans = _button("/Continue To Dental Plans/i");
+/*
+if($loggedIn==true){
+	var $planSelectionContinueToCart = _link("Continue To Cart >");
+}
+else {
+	var $planSelectionContinueToCart=_link("Continue To Cart[1]");
+}
+*/
+var $planSelectionContinueToCart = _link("/Continue To Cart/i");
+var $planSelectionContinueToCart2 = _button("Continue To Cart");
+var $planSelectionGoToCart = _link("Go To cart");
+var $planSelectionGoToCart1 = _link("Go To cart[1]");
+var $planSelectionShopForDental=_button("Shop for Dental");
+
+var Plan = function(){
+	var $title = "", $tier = "", $type = "", $monthlyPremium = "";
+
+	this.setTitle = function($title) {
+		this.$title = $title;
+	};
+
+	this.setTier = function($tier) {
+		this.$tier = $tier;
+	};
+
+	this.setType = function($type) {
+		this.$type = $type;
+	};
+
+	this.setMonthlyPremium = function($premium) {
+		this.$monthlyPremium = $premium;
+	};
+
+	this.getTitle = function() {
+		return this.$title;
+	};
+
+	this.getTier = function() {
+		return this.$tier;
+	};
+
+	this.getType = function() {
+		return this.$type;
+	};
+
+	this.getMonthlyPremium = function() {
+		return this.$monthlyPremium;
+	};
+
+}
+	
+function verifyElementsOnPlanPage($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic, $ShowCSROnAllTiles){
+	var $inActive="ps-nav__list";
+	var $active = "ps-nav__list ps-nav__list--active";
+	if ($onDentalPage === undefined) {
+		$onDentalPage = false;
+	}
+	_assertVisible($planSelectionBack);	
+	_assertVisible($planSelectionHealthInsurance);
+	_assertVisible($planSelectionDentalInsurance);
+    if($signedEmail ==  "auto_issueradmin@yopmail.com"){
+        _assertNotVisible($planSelectionCart);
+    }
+    else{
+        _assertVisible($planSelectionCart);
+    }
+	
+	//Verify if health/dental navigation tab is active
+	if(_isVisible(_tableHeader("Generic Drugs", _in(_div("cp-tile"))))){
+		_assertEqual($active, _getAttribute(_listItem("/Health/"),"className"),"Verify if health navigation tab is active");
+		_assertEqual($inActive, _getAttribute(_listItem("/Dental/"),"className"),"Verify if dental navigation tab is not active");
+	} 
+	else{
+		_assertEqual($active, _getAttribute(_listItem("/Dental/"),"className"),"Verify if dental navigation tab is active");
+		_assertEqual($inActive, _getAttribute(_listItem("/Health/"),"className"),"Verify if health navigation tab is not active");
+	}
+	
+	_assertVisible(_paragraph("ps-eligibility__paragraph"),"Verify Eligibility is displayed");
+	if($aptcAmount){
+		_assertVisible(_heading2("Estimated Monthly Savings"),"Verify if Estimated Monthly Savings header is displayed");
+		$aptcAmount = $aptcAmount.toString(); 
+		$aptcAmount = $aptcAmount.split("/")[0]+".00";//$131.00 /month tooltip link
+		$aptcAmount = $aptcAmount.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")//currency format
+		_assertVisible(_link($aptcAmount+"/month tooltip link"),"Verify aptc amount is displayed");
+	}
+	
+	if(isTrue($isCSREnabled)){
+		//_assertVisible(_link("CSR-Eligible tooltip link"),"Verify CSR Eligible is displayed under PLAN FEATURE");
+		_assertVisible(_heading2("COST-SHARING REDUCTIONS"),"COST-SHARING REDUCTIONS heading is not displayed");
+		_assertVisible(_span("CSR tooltip link"),"CSR tooltip link is not displayed");
+		_assertVisible(_span("You qualify for cost-sharing reductions."),"You qualify for cost-sharing reductions text is not displayed");
+	}
+	verifyPlanDisplayHeader($noOfAdults, $noOfChildren);
+			
+	//$onDentalPage = undefined;
+	
+	if ($loggedIn || $onDentalPage) {
+		_assertNotVisible($editInfo);
+	}
+	else if($numAdults!=null && $numAdults>0)
+	{
+		_assertVisible($editInfo);
+	}
+	verifyPreferencesOnPlanDisplay();	
+	verifyfilterOnSideBar($showCatastrophic,$isCSREnabled,$ShowCSROnAllTiles); 
+}
+	
+	
+function verifyfilterOnSideBar($showCatastrophic, $isCSREnabled,$ShowCSROnAllTiles){
+	_setStrictVisibilityCheck(true);
+	if(_isVisible(_tableHeader("Generic Drugs", _in(_div("cp-tile"))))){
+		
+		verifySortByFilter();
+		_assertVisible(_fieldset("Filter By", _in(_div("filter"))));
+		_assertVisible(_heading3("Plan type", _in(_div("filter"))));
+		
+		verifyPlanTypeFilter();
+		verifyPlanFeaturesFilter($isCSREnabled);
+		verifyMetalLevelFilter($showCatastrophic,$ShowCSROnAllTiles, $isCSREnabled);
+		verifyYearlyDeductibleFilter();
+		verifyCompanyFilter();
+	}
+	else{
+		verifyDentalSortByFilter();
+		_assertVisible(_fieldset("Filter By", _in(_div("filter"))));
+		_assertVisible(_heading3("Plan type", _in(_div("filter"))));
+		
+		verifyDentalPlanTypeFilter();
+		verifyDentalPlanTierFilter();
+		verifyDentalYearlyDeductibleFilter();
+		verifyDentalCompanyFilter();
+		
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifySortByFilter(){
+	_assertVisible(_fieldset("Sort By"));
+	_assertVisible(_label("Expense Estimate"));
+	_assertNotTrue(_radio("estimatedTotalHealthCareCost").checked);// "Verify Total Expense Estimate radio button is selected by default"
+	
+	_assertVisible(_label("Monthly price"));
+	_assertVisible(_radio("estimatedTotalHealthCareCost"),"Verify radio button next to Monthly Price");
+	
+	_assertVisible(_label("Deductible"));
+	_assertVisible(_radio("deductible"),"Verify radio button next to Yearly deductible is visible");
+	
+	_assertVisible(_label("Out-of-Pocket (OOP) Max"));
+	_assertVisible(_radio("oopMax")," Verify  radio button next to OOP is visible");
+}
+
+function verifyDentalSortByFilter(){
+	_assertVisible(_fieldset("Sort By"));
+	
+	_assertVisible(_label("Monthly price", _in(_div("sort"))));
+	_assertVisible(_radio("premiumAfterCredit"));
+	_assert(_radio("premiumAfterCredit").checked);
+	
+	_assertVisible(_label("Deductible"));		
+	_assertVisible(_radio("deductible"));
+	_assertNotTrue(_radio("deductible").checked);
+	
+	_assertVisible(_label("Out-of-Pocket (OOP) Max"));
+	_assertVisible(_radio("oopMax"));
+	_assertNotTrue(_radio("oopMax").checked);
+}
+
+
+function verifyPlanTypeFilter(){
+	
+	_assertVisible(_label("POS")||_label("PPO")|| _label("HMO"));
+	if(_isVisible(_label("POS"))){
+		_assertVisible(_checkbox("plantype_filter_checkbox_POS"));
+		_assertNotTrue(_checkbox("plantype_filter_checkbox_POS").checked);
+	}
+	if(_isVisible(_label("PPO"))){
+		_assertVisible(_checkbox("plantype_filter_checkbox_PPO"));
+		_assertNotTrue(_checkbox("plantype_filter_checkbox_PPO").checked);
+	}
+	if(_isVisible(_label("HMO"))){
+		_assertVisible(_checkbox("plantype_filter_checkbox_HMO"));
+		_assertNotTrue(_checkbox("plantype_filter_checkbox_HMO").checked);
+	}
+
+
+}
+
+function verifyDentalPlanTypeFilter(){
+	_assertVisible(_label("PPO")|| _label("HMO")||_label("EPO"));
+	if(_isVisible(_label("PPO"))){
+		_assertVisible(_checkbox("PPO"));
+		_assertNotTrue(_checkbox("PPO").checked);
+		}
+	if(_isVisible(_label("HMO"))){
+		_assertVisible(_checkbox("HMO"));
+		_assertNotTrue(_checkbox("HMO").checked);
+	}
+	if(_isVisible(_label("EPO"))){
+		_assertVisible(_checkbox("EPO"));
+		_assertNotTrue(_checkbox("EPO").checked);
+	
+	}
+
+}
+
+function verifyPlanFeaturesFilter($isCSREnabled){
+	
+	_assertEqual("Plan Features", _getText(_heading3("Plan Features", _in(_fieldset("Filter By")))));
+	if(isTrue($isCSREnabled)){
+		_assertVisible(_link("CSR Eligible tooltip link"),"Verify if CSR Eligible tooltip link is displayed");
+		_assertVisible(_div("includes special discounts"));
+		_assertVisible(_checkbox("plantype_filter_csr"));
+		_assertNotTrue(_checkbox("plantype_filter_csr").checked);
+	}
+	_assertVisible(_label("HSA Qualified eligible for Health Savings Account (HSA)"));
+	_assertVisible(_checkbox("plantype_filter_hsa"));
+	_assertNotTrue(_checkbox("plantype_filter_hsa").checked);
+}
+
+//Verify the labels on the left in plan display page
+function verifyMetalLevelFilter($showCatastrophic,$ShowCSROnAllTiles, $isCSREnabled){
+	_assertVisible(_label("Platinum highest premiums, lowest deductibles"));	
+	_assertVisible(_checkbox("filter_platinum"));
+	_assertNotTrue(_checkbox("filter_platinum").checked);
+	
+	_assertVisible(_label("Gold higher premiums, lower deductibles"));
+	_assertVisible(_checkbox("filter_gold"));
+	_assertNotTrue(_checkbox("filter_gold").checked);
+	
+	_assertVisible(_label("Silver lower premiums, higher deductibles"));
+	_assertVisible(_checkbox("filter_silver"));
+	_assertNotTrue(_checkbox("filter_silver").checked);
+	
+	_assertVisible(_label("Bronze lowest premiums, highest deductibles"));
+	_assertVisible(_checkbox("filter_bronze"));
+	_assertNotTrue(_checkbox("filter_bronze").checked);
+	
+	if($showCatastrophic !="NO"){
+	
+		_assertVisible(_label("Catastrophic coverage for worst-case scenarios"));
+		_assertVisible(_checkbox("filter_catastrophic"));
+		_assertNotTrue(_checkbox("filter_catastrophic").checked);
+		_log("Verify Catastrophic plans are displayed");
+        verifyMetalTierFilterOnPlanPage("Catastrophic");
+        verifyCSRVisibleOnTiles($ShowCSROnAllTiles, $isCSREnabled);
+        _uncheck(_checkbox(0, _leftOf(_label("/Catastrophic/"))));
+    }
+    else{
+        _assertNotVisible(_div("Catastrophic tooltip link coverage for worst-case scenarios"));
+        _assertNotVisible(_checkbox("filter_catastrophic"));
+		}
+}
+function verifyYearlyDeductibleFilter(){
+	_assertVisible(_heading3("Deductible"));
+	_assertVisible(_label("$2500 and less")|| _label("$5000 and less")||_label("$7500 and less")||_label("$10000 and less"));
+	if(_isVisible(_label("$2500 and less"))){
+		_assertVisible(_checkbox("deductible_filter_2500"));
+		_assertNotTrue(_checkbox("deductible_filter_2500").checked);
+	}
+	if(_isVisible(_label("$5000 and less"))){
+		_assertVisible(_checkbox("deductible_filter_5000"));
+		_assertNotTrue(_checkbox("deductible_filter_5000").checked);
+	}
+	if(_isVisible(_label("$7500 and less"))){
+		_assertVisible(_checkbox("deductible_filter_7500"));
+		_assertNotTrue(_checkbox("deductible_filter_7500").checked);
+	}
+	if(_isVisible(_label("$10000 and less"))){
+		_assertVisible(_checkbox("deductible_filter_10000"));
+		_assertNotTrue(_checkbox("deductible_filter_10000").checked);	
+	}
+	
+}
+
+function verifyDentalYearlyDeductibleFilter(){
+	_assertVisible(_heading3("Deductible"));
+	
+	_assertVisible(_div("$49 and under"));
+	_assertVisible(_checkbox("deductible_filter_49"));
+	_assertNotTrue(_checkbox("deductible_filter_49").checked);
+	
+	_assertVisible(_div("$50 to $99"));
+	_assertVisible(_checkbox("deductible_filter_99"));
+	_assertNotTrue(_checkbox("deductible_filter_99").checked);
+	
+	_assertVisible(_div("$100 and over"));
+	_assertVisible(_checkbox("deductible_filter_10000"));
+	_assertNotTrue(_checkbox("deductible_filter_10000").checked);
+	
+}
+
+function verifyCompanyFilter(){
+	
+	_assertVisible(_heading3("Company"));
+	
+	_assertVisible(_label("Blue Cross of Idaho") || _label("Mountain Health CO-OP")||_label("Pacific Source")|| _label("SelectHealth") || _label("Select Health"));
+	 if(_isVisible(_label("Blue Cross of Idaho"))){
+        _assertVisible(_checkbox("planFeature", _leftOf(_label("Blue Cross of Idaho"))));
+        _assertNotTrue(_checkbox("planFeature", _leftOf(_label("Blue Cross of Idaho"))).checked);
+    }
+    if(_isVisible(_label("Mountain Health CO-OP"))){
+        _assertVisible(_checkbox("planFeature", _leftOf(_label("Mountain Health CO-OP"))));
+        _assertNotTrue(_checkbox("planFeature", _leftOf(_label("Mountain Health CO-OP"))).checked);
+    }
+    if(_isVisible(_label("Pacific Source"))){
+        _assertVisible(_checkbox("planFeature", _leftOf(_label("Pacific Source"))));
+        _assertNotTrue(_checkbox("planFeature", _leftOf(_label("Pacific Source"))).checked);
+    }   
+    if(_isVisible(_label("SelectHealth"))){
+        _assertVisible(_checkbox("planFeature", _leftOf(_label("SelectHealth"))));
+        _assertNotTrue(_checkbox("planFeature", _leftOf(_label("SelectHealth"))).checked);
+    }
+}
+
+
+function verifyDentalCompanyFilter(){
+	_assertVisible(_heading3("Company"));
+	_assertVisible(_label("BEST Life and Health Insurance Company") || _label("Blue Cross of Idaho")||_label("Delta Dental of Idaho")||_label("Pacific Source"));
+	_assertVisible(_checkbox("planFeature"));
+	_assertNotTrue(_checkbox("planFeature").checked);
+	
+	
+}
+
+function verifyDentalPlanTierFilter(){
+	
+	_assertVisible(_label("Low"));
+	_assertVisible(_checkbox("filter_plantTier_low"));
+	_assertNotTrue(_checkbox("filter_plantTier_low").checked);
+	
+	_assertVisible(_label("High"));
+	_assertVisible(_checkbox("filter_plantTier_high"));
+	_assertNotTrue(_checkbox("filter_plantTier_high").checked);
+
+}
+
+
+function verifyPlanDisplayHeader($noOfAdults, $noOfChildren){
+	
+	_assertContainsText("in ZIP code"+" "+$familyZipCode, $planSelectionHeader); 
+	$noOfAdults = parseInt($noOfAdults);
+	/*
+	if ($noOfAdults == 0) {
+		_assertNotContainsText("adult", $planSelectionHeader);
+	}
+	else if ($noOfAdults == 1) {
+		_assertContainsText("for 1 adult", $planSelectionHeader);
+	}
+	else {
+		_assertContainsText($noOfAdults + " adults", $planSelectionHeader);
+	}
+	$noOfChildren = parseInt($noOfChildren);
+	if ($noOfChildren == 0) {
+		_assertNotContainsText("child", $planSelectionHeader);
+	}
+	else if ($noOfChildren == 1) {
+		_assertContainsText("1 child", $planSelectionHeader);
+	} 
+	else {
+		_assertContainsText($noOfChildren + " children", $planSelectionHeader);
+	}*/
+	//new verification 
+	var $numOfMembers = $noOfAdults+$noOfChildren;
+	if(!$loggedIn){
+		if ($numOfMembers == 1){
+			_assertContainsText("for " + $numOfMembers + " member", $planSelectionHeader);
+		}else{
+			_assertContainsText("for " + $numOfMembers + " members", $planSelectionHeader);
+		}
+	}
+	else {
+		for(var $i =0; $i< $ssapPeople.length; $i++){
+			if($ssapPeople[$i].$applying !="No"){
+				_assertVisible(_span("/"+$ssapPeople[$i].$firstName+"/", _in(_paragraph("ps-eligibility__paragraph"))));
+			}
+		}
+	}
+
+	if (!$loggedIn) {
+		var $todaysDate = _fetch(window.moment().format('MM/DD/YYYY'));
+		$coverageDate = getCoverageStartDate("3", $todaysDate);
+		_log("PlanSelection, verifyPlanDisplayHeader, anonymous shopping: calculated coverageDate = " + $coverageDate);
+	}
+	else if ($signedEmail ==  "auto_issueradmin@yopmail.com") {
+        $coverageDate = "01/01/"+$selectedYear;
+    }
+	else {
+		$coverageDate = getCoverageStartDate($eventReported, $eventDate);	
+		_log("PlanSelection, verifyPlanDisplayHeader, logged-in: calculated coverageDate = " + $coverageDate);
+		
+	}
+//	_assertVisible(_paragraph("Coverage will start on "+$coverageDate));
+	_assertContainsText("Coverage will start on "+$coverageDate, _div("ps-eligibility__saving"));
+	
+}
+	
+
+	function verifyElementsOnPlanPageCT() {
+		if ($onDentalPage === undefined) {
+			$onDentalPage = false;
+		}
+		_assertVisible($planSelectionBack);
+
+		if ($loggedIn || $onDentalPage) {
+			_assertNotVisible($editInfo);
+		}
+		else if($numAdults!=null && $numAdults>0)
+		{
+			_assertVisible($editInfo);
+		}
+
+		if ($isIdaho) {
+			_assertVisible($planSelectionHealthInsurance);
+			_assertVisible($planSelectionCart);
+			if ($onDentalPage && !(_isVisible(_link("Cart 1")))) {
+				_assertVisible($planSelectionDentalInsurance);
+			}
+		}
+		else if ($isConnecticut) {
+			_assertNotVisible($planSelectionHealthInsurance);
+			_assertNotVisible($planSelectionDentalInsurance);
+			_assertNotVisible($planSelectionCart);
+
+			$planSelectionHeader = _small(0, _in(_heading1("/"+"Browse Health Plans"+"/")));
+			//_heading1("/plans for .* adult in ZIP code .*/");
+		}
+
+		_assertVisible($planSelectionHeader);
+
+		var $headerText = _getText($planSelectionHeader);
+
+		_assertContainsText($familyZipCode, $planSelectionHeader);
+
+		if (!$loggedIn) {
+			var $todaysDate = _fetch(window.moment().format('MM/DD/YYYY'));
+			$coverageDate = getCoverageStartDate("3", $todaysDate);
+			_log("PlanSelection, verifyElementsOnPlanPageCT, anonymous shopping: calculated coverageDate = " + $coverageDate);
+		}
+		else {
+			$coverageDate = getCoverageStartDate($eventReported, $eventDate);	
+			_log("PlanSelection, verifyElementsOnPlanPageCT, logged-in: calculated coverageDate = " + $coverageDate);
+		}
+
+		//	_assertTrue(new RegExp($coverageDate).test($headerText));
+		_assertVisible($planSelectionSortBy);
+
+		_click($planSelectionSortBy);
+		for (var $i = 0; $i < $planSelectionSortByItems.length; $i++) {
+			// index 1 does not exist on dental page
+			if ($i != 1 && $onDentalPage) {
+				_assertVisible($planSelectionSortByItems[$i]);
+			}
+		}
+
+		_assertVisible(_div("mainSummary"));
+		_assertVisible(_div("tile-header", _in(_div("mainSummary"))));
+
+		// filterBySortBy();
+		filterByPlanType();
+		filterByMetalTier();
+		filterByPlanFeature();
+		filterDentalPlanTier();
+		filterByCompany();
+	}
+
+function isShopForPlanVisible(){
+	return _isVisible(_link("Shop for a Different Plan"));
+}
+
+function verifyPlanSelectionPage(){
+	var $isShopForPlanVisible = isShopForPlanVisible();
+	var $cmsPlanId = getCmsPlanId($caseNumber);
+	var $sub = $cmsPlanId.substr(0, $cmsPlanId.length - 2);
+	var $updatedCmsPlanId = $sub + "03";
+	var $plans = getPlans($updatedCmsPlanId);
+	if ($plans.length > 0) {
+		_assertFalse($isShopForPlanVisible);
+	}
+	else {
+		_assertTrue($isShopForPlanVisible);
+	}
+	var $enrollments = getEnrollments($updatedCmsPlanId, $caseNumber);
+	_assert($enrollments.length > 0, "No enrollments found through DB query");
+}
+
+function clickBackToPreferencesFromPlanPage() {
+	_click($planSelectionBack);
+	$prefPageIndex = 0;
+	verifyElementsOfPreferencePage();
+}
+
+function clickHealthInsurance($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic) {
+	if(_isVisible(_heading1("Pick a new plan"))){
+		_assertVisible(_paragraph("Update: Because your eligibility status has changed, the plans noted below are no longer available to you. Please select a new plan."));
+		_click(_link("Shop for a New Plan"));
+	}
+	_click($planSelectionHealthInsurance);
+
+	$planName="";
+	$disenrollHealth ="false";
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+}
+
+function clickDentalInsurance($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic) {
+	$isCSREnabled = "N";
+	$showCatastrophic = "NO";
+	if(_isVisible(_heading1("Pick a new plan"))){
+		_assertVisible(_paragraph("Update: Because your eligibility status has changed, the plans noted below are no longer available to you. Please select a new plan."));
+		_click(_link("Shop for a New Plan"));
+		$disenrollDental ="false";
+	}
+	_click($planSelectionDentalInsurance);
+	$onDentalPage = true;
+	if(_isVisible(_heading3("Shopping For"))){
+		_click(_submit("Update Results"));
+	}
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+	
+}
+
+function clickEditFamilyInfo() {
+	clickElement($editInfo);
+	$taxCreditValue = undefined;
+	if($numAdults>1){
+		verifyElementsOnPreeligibility(true);
+	}
+	else {
+		verifyElementsOnPreeligibility();
+	}
+}
+
+function clickCart() {
+	_click($planSelectionCart);
+	verifyElementsOnShowCartPage();
+}
+
+function verifyPreferencesOnPlanDisplay(){
+	var $tiles = _collect("_div", "cp-tile", _in(_div("mainSummary")));
+	var $monthlyTaxCredit;
+	if(_isVisible(_link("ps-eligibility__amount"))) {
+		$monthlyTaxCredit = "$"+_getText(_span(0, _in(_div("ps-eligibility__saving"))));
+		$monthlyTaxCredit= $monthlyTaxCredit.replace(/[\(\),]/g, "")// remove , from aptc amount
+	}
+	else {
+		$monthlyTaxCredit = "$0.00";
+	}
+
+	for (var $j = 0; $j < $tiles.length; $j++) {
+		var $tile = $tiles[$j];
+		//_assertVisible(_paragraph("plan-options__tile__notes", _rightOf(_tableHeader("Estimated Monthly Premium"))));
+
+		var $isCatastrophic = _isVisible(_span("/CATASTROPHIC/i", _in($tile)));
+		if (!$isCatastrophic) {
+			if ($monthlyTaxCredit != "$0.00") {
+				var $premiumAmount = _getText(_span("cp-tile__premium-amount", _in($tile)));
+				var $premiumAmountInt = parseInt($premiumAmount.substring(1, $premiumAmount.length-3));
+				var $actualTaxCreditElement = _div("cp-tile__tax-credit", _in($tile));
+				var $actualTaxCredit = _getText($actualTaxCreditElement);
+				_log("monthlyTaxCredit = " + $monthlyTaxCredit + " , premiumAmount = " + $premiumAmount + " , premiumAmountInt = " + $premiumAmountInt + " , actualTaxCredit = " + $actualTaxCredit);
+				if ($premiumAmountInt > 1) {
+					_assertEqual("K:pd.label.title.aftertax1"+" "+$monthlyTaxCredit+" "+"tax credit", $actualTaxCredit);
+				}
+				else {
+					_assertContainsText ("/after \\$\\d+(\\.\\d{1,2}) tax credit/", $actualTaxCreditElement, "No tax credit specified in " + _getText(_link("detail", _in($tile))));
+				}
+			}
+		}
+
+		for (var $i = 0; $i < $doctors.length; $i++) {
+			if ($doctors[$i].length > 11) {
+				_assertVisible(_row("/"+$doctors[$i].substring(0, 11) + "/", _in($tile))); //satya@remove Dr. checks
+			}
+			else {
+				_assertVisible(_row("/"+$doctors[$i]+"/", _in($tile)));
+			}
+		}
+
+		for (var $i = 0; $i < $hospitals.length; $i++) {
+			if ($hospitals[$i].length > 15) {
+				_assertVisible(_row($hospitals[$i].substring(0, 15) + "...", _in($tile)));
+			}
+			else {
+				_assertVisible(_row($hospitals[$i], _in($tile)));
+			}
+		}
+
+		for (var $i = 0; $i < $prescriptions.length; $i++) {
+			if ($prescriptions[$i].name.length > 19) {
+				_assertVisible(_link("/"+$prescriptions[$i].name.substring(0, 19) +"/i", _in($tile)));
+			}
+			else {
+				_assertVisible(_link("/"+$prescriptions[$i].name+"/i", _in($tile)));
+			}
+		}
+
+		for (var $i = 0; $i < $removedDoctors.length; $i++) {
+			if ($removedDoctors[$i].length > 11) {
+				_assertNotVisible(_row($removedDoctors[$i].substring(0, 11) + "...", _in($tile))); //remove "Dr. "+ 
+			}
+			else {
+				_assertNotVisible(_row($removedDoctors[$i], _in($tile)));
+			}
+		}
+
+		for (var $i = 0; $i < $removedHospitals.length; $i++) {
+			if ($removedHospitals[$i].length > 15) {
+				_assertNotVisible(_row($removedHospitals[$i].substring(0, 15) + "...", _in($tile)));
+			}
+			else {
+				_assertNotVisible(_row($removedHospitals[$i], _in($tile)));
+			}
+		}
+
+		for (var $i = 0; $i < $removedPrescriptions.length; $i++) {
+			if ($removedPrescriptions[$i].name.length > 19) {
+				_assertNotVisible(_link("/"+$removedPrescriptions[$i].name.substring(0, 19) +"/i", _in($tile)));
+			}
+			else {
+				_assertNotVisible(_link("/"+$removedPrescriptions[$i].name+"/i", _in($tile)));
+			}
+		}
+	}
+}
+
+
+
+
+
+function verifyFilter($filterText) {
+	verifyFilterAppliedInPlanHeader($filterText);
+	var $allPlans =  _collect("_div", "/cp-tile__body/", _in(_div("mainSummary")));
+	 for (var $i = 0; $i < $allPlans.length; $i++) {
+		//_assertTrue(new RegExp($filterText, "i").test(_getText($allPlans[$i])));
+		_assertEqual("/"+$filterText.split(" ")[0]+"/i",_getText($allPlans[$i])," Verify filter type on the tile page  ");
+	}
+	if ($isConnecticut) {
+		verifyPreferencesOnPlanDisplay();
+	}
+}
+
+function filterByPlanType($type, $filter) {
+	if ($type === undefined || $filter === undefined) {
+		if(_isVisible(_div("planTypeFilter"))){
+			var Type =  _getText(_div("planTypeFilter"));
+			var $planType=	Type.split(" ");
+			if ($isConnecticut) {
+				//_assertEqual(["HMO", "POS", "PPO"], $planType.sort());
+				var $planTypeFil = getPlanType();
+				_assertContainsText($planTypeFil[0][0], _div("planTypeFilter"));
+				}
+			for($i=0;$i<$planType.length-1;$i++){
+				_check(_checkbox($planType[$i], _in(_div("planTypeFilter"))));
+				verifyFilter($planType[$i]);
+				_uncheck(_checkbox($planType[$i], _in(_div("planTypeFilter"))));
+			}
+		}
+	}
+	else{
+		var $accessor = _checkbox($type);
+		if ($filter) {
+			_check($accessor);
+		}
+		else {
+			_uncheck($accessor);
+		}
+		verifyFilter($type);
+	}
+}
+
+function filterByPlanFeature($feature, $filter) {
+	if ($feature === undefined || $filter === undefined) {
+		if(_isVisible(_span("Plan Features"))){
+			var $feature = _getText(_label("checkbox[4]"));
+			var $planFeature = $feature.split(" ")[0];
+			_check(_checkbox(0, _in(_div("HSA Qualified"+" "+"eligible for Health Savings Account (HSA)"))));
+			verifyFilter("HSA Qualified");
+			_uncheck(_checkbox(0, _in(_div("HSA Qualified"+" "+"eligible for Health Savings Account (HSA)"))));
+		}
+	}
+	else {
+		var $accessor = _checkbox($feature);
+		if ($filter) {
+			_check("/"+$accessor+"/");
+		}
+		else {
+			_uncheck("/"+$accessor+"/");
+		}
+		if($feature != "CSR Eligible"){
+			verifyFilter($feature);
+		}
+	}
+}
+
+/*
+* Params:
+*  tier: string of the name of the box
+*  filter: boolean to check or uncheck the box
+*/
+function filterByMetalTier($tier, $filter) {
+	if ($tier === undefined || $filter === undefined) {
+		if(_isVisible(_span("Metal tier"))){
+			var $tiers = _collectAttributes("_strong", "/:/", "sahiText", _in(_fieldset("metal-tier sidebar-form-inputs")));
+			_assertEqual(["Platinum"+":","Gold"+":","Silver"+":","Bronze"+":","Catastrophic"+":"], $tiers);
+
+			_assertVisible(_checkbox("GOLD", _in(_fieldset("metal-tier sidebar-form-inputs"))));
+			_check(_checkbox("GOLD", _in(_fieldset("metal-tier sidebar-form-inputs"))));
+			// TODO: valid failure
+			//verifyFilter("Gold");
+			_uncheck(_checkbox("GOLD", _in(_fieldset("metal-tier sidebar-form-inputs"))));
+		}
+	}
+	else {
+		var $accessor = _checkbox($tier.toUpperCase());
+		if ($filter) {
+			_check($accessor);
+		}
+		else {
+			_uncheck($accessor);
+		}
+		verifyFilter($tier);
+	}
+}
+
+/*
+* Params:
+*  deductible: string of the name of the box
+*  filter: boolean to check or uncheck the box
+*/
+function filterByDeductible(){
+	var $min, $max;
+	var $newArray=[];
+	if(_isVisible(_paragraph("Deductible"))){
+		var $options = _collectAttributes("_label", "/.*/", "sahiText", _in(_fieldset("yearly-deductible")));
+		_assertEqual(["$499 and under", "$500 to $999", "$1000 to $2499", "$2500 to $4999", "$5000 and over"], $options);
+		var $deductibleOptions = _collect("_checkbox", "deductible_filter_checkbox", _fieldset("Deductible"));
+		_check($deductibleOptions[0]);
+		var $deductibleRow = _collectAttributes("_row","/Deductible/","sahiText",_in(_div("mainSummary")));
+		_assert($deductibleRow.length!=0);
+		for(var $i = 0; $i<$deductibleRow.length; $i++){
+			var $str =  $deductibleRow[$i];
+			$deductible = $str.split(" ");
+			////////////////// remove deduct label
+			if ( $deductible.length== 4) {
+				var $firstDeduct = $deductible[1].replace("$", "");
+				var $secondDeduct = $deductible[3].replace("$", "");
+				var $text = parseInt($firstDeduct)+parseInt($secondDeduct);
+			}
+			else{
+				var $text = ($deductible[1].replace("$", ""));
+			}
+			$newArray.push($text);
+		}
+		var $newArr = $newArray.sort(function(a, b){
+			return a-b}
+									);
+		var $last = $newArr.length-1;
+		// to get min and max value from the option selected
+		var $expectedRange = _getText(_label("checkbox", _near($deductibleOptions[0]))).split(" ");
+		if($expectedRange[2]=="under"){
+			$max = parseInt($expectedRange[0].replace("$", ""));
+			_assert(parseInt($newArr[$last])<=$max);
+		}
+		else if($expectedRange[2]=="over"){
+			$min = parseInt($expectedRange[0].replace("$", ""));
+			_assert(parseInt($newArr[0]) >= $min );
+		}
+		else{
+			$min = parseInt($expectedRange[0].replace("$", ""));
+			$max = parseInt($expectedRange[2].replace("$", ""));
+			_assertTrue(parseInt($newArr[0]) >= $min && parseInt($newArr[$last])<=$max);
+		}
+	}
+	_click($deductibleOptions[0]);
+}
+
+/*
+* Params:
+*  company: string of the name of the box
+*  filter: boolean to check or uncheck the box
+*/
+function clickRemovePlan() {
+	_click($planSelectionRemove);
+	if (($onDentalPage) && ($dentalPlanName!="")) {
+		$dentalPlanName = undefined;
+		$dentalPayment = undefined;
+	}
+	else {
+		$planName = undefined;
+		$payment = undefined;
+	}
+}
+
+function selectPlan($index) {
+	if ($index === undefined) {
+		$index = 0;
+	}
+	//This will return plan id of the plan 
+	var $planId = _getAttribute(_link("Details",_in(_div("cp-tile["+$index+"]"))),"data-plan-id");
+	clickViewPlanDetails($index);
+	viewDetailsAddToCart();
+	viewDetailsClickContinueToCart();
+	_log("Plan id:" +$planId);
+	return $planId;
+}
+
+function selectRandomPlan() {
+	if(_isVisible(_heading1("Pick a new plan"))){
+		_assertVisible(_paragraph("Update: Because your eligibility status has changed, the plans noted below are no longer available to you. Please select a new plan."));
+		_click(_link("Shop for a New Plan"));
+	}
+	var $plans = _collect("_link", "/addToCart/");
+	var $index = _random($plans.length - 1);
+	$planId=selectPlan($index);
+	return $planId;
+}
+
+function selectSecondPlan($index) {
+	if ($index === undefined) {
+		$index = 0;
+	}
+	_click(_link("Add[" + $index + "]"));
+	_assertVisible(_heading3("Please select only one plan"));
+	_assertVisible(_paragraph("Please select only one plan. To replace your plan with a new one, first remove the plan by clicking the remove button."));
+	_assertVisible(_submit("Cancel[2]"));
+	_click(_submit("Cancel[2]"));
+}
+
+function selectSecondRandomPlan() {
+	var $plans = _collect("_link", "/addToCart/");
+	var $index = _random($plans.length - 1);
+	selectSecondPlan($index);
+}
+
+function getPlanDetails($tile){
+	//if(!$onDentalPage){
+	if(_isVisible(_tableHeader("Generic Drugs", _in($tile)))){
+		_log(" Get health plan details");
+		var $taxCredit;
+		var $childrenDental="";
+		var $acupuncture = "";
+		//var $tierAndType = _getText(_span(0, _in($tile))); 
+		var $tierAndType =_getText(_span("/cp-tile/", _in($tile))); 
+		_log($tierAndType)
+		var $title = _getAttribute(_link("detail", _in($tile)), "data-original-title");
+		var $premium =_getText(_span("cp-tile__premium-amount", _in($tile)));
+		$payment = $premium;
+		var $primaryCareVisits = _getText(_cell(0, _rightOf(_tableHeader("Office Visits",_in($tile)))));
+		var $yearlyDeductible = _getText(_cell(0, _rightOf(_tableHeader("Deductible", _in($tile)))));
+		var $outOfPocket = _getText(_cell(0, _rightOf(_tableHeader("OOP Max", _in($tile)))));
+		var $image = _image("cp-tile__img", _in($tile)).getAttribute("alt")
+		var $totalExpenseEstimate = _getText(_div("/cp-tile__header cp-tile__header/", _in($tile)));
+		var $genericDrugs = _getText(_cell(0, _rightOf(_tableHeader("Generic Drugs",_in($tile)))));
+		if(_isVisible(_cell("Not Available", _in($tile)))){
+			_log("visible");
+			var $network = "Not Available";
+		}
+		else{
+			var $network = _getText(_link(0, _rightOf(_link("Network",_in($tile)))));	
+		}
+		if(_isVisible(_span("/Catastrophic/i")) ||!_isVisible(_heading2("ESTIMATED MONTHLY SAVINGS"))){
+			$taxCredit = "No Tax Credit";
+		}
+		else{
+			$taxCredit = _getText(_div("/cp-tile__tax-credit/", _in($tile)));
+		}
+		if(_isVisible(_tableHeader("Children's Dental"))){
+			$childrenDental = _getAttribute(_link(0, _rightOf(_tableHeader("Children's Dental",_in(_div($tile))))),"data-original-title");
+		}
+		if(_isVisible(_tableHeader("Acupuncture"))){
+			$acupuncture = _getAttribute(_link(0, _rightOf(_tableHeader("Acupuncture",_in(_div($tile))))),"data-original-title");
+		}
+	
+		var $plan = {
+		};
+		//$plan.tierAndType = $tierAndType;
+		$plan.title = $title;
+		$plan.image = $image;
+		$plan.premium = $premium;
+		$plan.primaryCareVisits = $primaryCareVisits;
+		$plan.genericDrugs = $genericDrugs;
+		$plan.yearlyDeductible = $yearlyDeductible;
+		$plan.outOfPocket = $outOfPocket;
+		$plan.totalExpenseEstimate = $totalExpenseEstimate;
+		//$plan.qualityRating = $qualityRating;
+		$plan.taxCredit = $taxCredit;
+		$plan.tierAndType = $tierAndType;
+		$plan.childrenDental = $childrenDental;
+		$plan.acupuncture = $acupuncture;
+		$plan.network = $network;
+	}
+	else{
+		_log("Get dental plan details");
+		var $title = _getAttribute(_link("detail", _in($tile)), "data-original-title");
+		var $tierAndType =_getText(_div("/metal-tier/", _in($tile))); 
+		var $premium = _getText(_span("cp-tile__premium-amount", _in($tile)));
+		var $adultDental = _getText(_cell(0, _rightOf(_tableHeader("Routine Dental (Adult)", _in($tile)))));
+		var $childDental = _getText(_cell(0, _rightOf(_tableHeader("Dental Checkup (Child)", _in($tile)))));
+		if(_isVisible(_cell("Not Applicable", _rightOf(_tableHeader("Deductible (Child)", _in($tile)))))){
+			_log("visible");
+			var $deductibleChild = "Not Applicable";
+		}else{
+			var $deductibleChild = _getText(_link(0, _rightOf(_link("Deductible (Child)", _in($tile)))));
+		}
+		var $OOPMaxChild = _getText(_link(0, _rightOf(_link("OOP Max (Child)", _in($tile)))));
+		var $image = _image("cp-tile__img", _in($tile)).getAttribute("alt");
+		_log(" Plan detail -- Title = "+$title+ ";  Metal tier = "+$tierAndType+";  Premium  = "+$premium+ "; image = "+$image +" ...");
+		
+		var $plan = {
+		};
+		$plan.title = $title;
+		$plan.image = $image;
+		$plan.premium = $premium;
+		$plan.tierAndType = $tierAndType;
+		$plan.adultDental = $adultDental
+		$plan.childDental = $childDental
+		$plan.deductibleChild = $deductibleChild
+		$plan.OOPMaxChild = $OOPMaxChild
+			
+	}
+	/*
+	for (var $i = 0; $i < $doctors.length; $i++) {
+		var $isCovered = "";
+		if ($doctors[$i].length > 11) {
+			$isCovered = _getAttribute(_link("link-style__tooltip", _rightOf(_tableHeader("/"+$doctors[$i].substring(0, 11) + "/", _in($tile)))), "data-original-title"); //satya@"Dr. "+ 
+		}
+		else {
+			$isCovered = _getAttribute(_link("link-style__tooltip", _rightOf(_tableHeader("/"+$doctors[$i]+"/", _in($tile)))), "data-original-title");
+		}
+		if ($isCovered == "Available in your network") {
+			$isCovered = "In-Network";
+		}
+		$plan[$doctors[$i]] = $isCovered;
+	}
+
+	for (var $i = 0; $i < $hospitals.length; $i++) {
+		var $isCovered = "";
+		if ($hospitals[$i].length > 11) {
+			$isCovered = _getAttribute(_link("link-style__tooltip", _rightOf(_tableHeader("/"+ $hospitals[$i].substring(0, 11) + ".../i", _in($tile)))), "data-original-title");
+		}
+		else {
+			$isCovered = _getAttribute(_link("link-style__tooltip", _rightOf(_tableHeader("/" + $hospitals[$i] +"/i", _in($tile)))), "data-original-title");
+		}
+		if ($isCovered == "Available in your network") {
+			$isCovered = "In-Network";
+		}
+		$plan[$hospitals[$i]] = $isCovered;
+	}
+
+	for (var $i = 0; $i < $prescriptions.length; $i++) {
+		var $prescriptionName = $prescriptions[$i].name;
+		if ($prescriptionName.length > 19) {
+			$prescriptionName = "/"+ $prescriptionName.substring(0, 19) + ".../i";
+		}
+		if (_isVisible(_link("Generic", _rightOf(_link("/"+$prescriptionName+"/i", _in($tile))), _in($tile)))) {
+			_log("Generic is displayed next to drug "+ $prescriptionName);
+					$plan[$prescriptions[$i].name] = {
+						"isBrandCovered": "Not Covered", "isGenericCovered": "Covered"};
+		}
+		else if (_getAttribute(_link("/HEALTH/i", _rightOf(_link("/"+$prescriptionName+"/i", _in($tile))), _in($tile)), "data-original-title") == "K:pd.label.covered") {
+			$plan[$prescriptions[$i].name] = {
+				"isBrandCovered": "Covered", "isGenericCovered": "Covered"};
+		}
+		else {
+			$plan[$prescriptions[$i].name] = "Not Covered";
+		}
+	}
+*/	
+	return $plan;
+
+}
+
+function clickViewPlanDetails($index, $name) {
+	var $tile;
+	if ($isIdaho) {
+		if (!$index) {
+			var $noOfPlans = _count("_div", "cp-tile");
+			var $index = getRandomInt(0, $noOfPlans);
+			_log("Random index generated  "+$index)
+		}
+		$tile = _div("cp-tile["+$index+"]");
+		$plan = getPlanDetails($tile);
+		clickElement(_link("Details", _in($tile)));
+		verifyViewPlanDetails($plan);
+		//getPlanIdFromPlanDetailPage();
+		verifyMoreInformationLinks($plan);
+	}
+	else if ($isConnecticut) {
+		if ($name) {
+			var $tile = _parentNode(_paragraph($name));
+		} else if (!$index) {
+			$noOfPlans = _count("_div", "tile-header");
+			$index = getRandomInt(0, $noOfPlans);
+			var $tile = _div("tile-header["+$index+"]");
+		}
+		$plan = getPlanDetails($tile);
+
+		clickElement(_link("View Detail", _in($tile)));
+		verifyViewPlanDetails_CT($plan);
+		verifyMoreInformationLinks($plan);
+	}
+}
+
+
+function getPlanIdFromPlanDetailPage(){
+	var $planId = _getAttribute(_link("cp-tile__img-link detail"), "id").split("_")[1];	
+	$plan.Id = $planId;
+	return $planId;
+}
+
+function validateComparisonOfPlans(){
+	if ($isConnecticut) {
+		var $tiles = _collect("_div", "tile-header");
+		if ($tiles.length > 4) {
+			var $plans = [];
+			for (var $i = 0; $i < 3; $i++) {
+				_check(_checkbox("on", _in(_label("Compare",_in($tiles[$i])))));
+				$plan = getPlanDetails($tiles[$i]);
+				$plans.push($plan);
+				var $selectedPlans = _count("_image", "/.*/", _in(_list("compareBox")));
+				_assertEqual($selectedPlans, ($i+1), "No of plans selected for comparison should have been " + ($i+1));
+			}
+
+			_check(_checkbox("on", _in(_label("Compare",_in($tiles[3])))));
+			_assertVisible(_paragraph("You can only compare 3 plans at a time", _in(_div("more-than-four"))));
+			_click(_submit("Cancel", _in(_div("more-than-four"))));
+			_click(_link("Compare Now"));
+
+			verifyCompareHealthPlans($plans);
+		}
+		else {
+			_assert(false, "Number of plans is less than 4. Insufficient information present on the UI to completely validate Plan Comparison.");
+		}
+	}
+}
+
+function selectPlanForComparison($index, $planName){
+	var $tile;
+	var $planDetails;
+	if($index){
+		$tile = _div("cp-tile["+$index+"]");
+	}
+	else if($planName){
+		$tile = _parentNode(_paragraph($planName));
+	}
+	
+	_setStrictVisibilityCheck(true);
+	var $before = _count("_italic", "/icon-remove/");
+	_check(_checkbox("Compare", _in($tile)));
+	_wait(1000);
+	var $after = _count("_italic", "/icon-remove/");
+	_setStrictVisibilityCheck(false);
+	if ($before == 3) {
+		_assertVisible(_heading3("Too Many Plans to compare"));
+		_assertVisible(_paragraph("You can only compare 3 plans at a time", _in(_div("more-than-four"))));
+		_click(_submit("Cancel", _in(_div("more-than-four"))));
+	}
+	else {
+		_assertEqual($before+1, $after, "Number of plans selected for comparison should have increased by 1.");
+		$planDetails = getPlanDetails($tile);
+		 $planNumber = _getAttribute(_link("cp-tile__img-link detail",_in($tile)), "id").split("_")[1];
+        $planDetails.planNumber = $planNumber;
+		_log("Plan Number: "+$planNumber);
+        var $plansFromCompareBox = _collectAttributes("_italic","/removeChk/", "id", _in(_div("compareBox")));
+        for (var $i = 0; $i < $plansFromCompareBox.length; $i++) {
+            if($plansFromCompareBox[$i].indexOf($planNumber) !=-1){
+                _assertVisible(_image($planDetails.image,_near(_italic($plansFromCompareBox[$i]))), "Verify Image Text is same as the one selected");
+                _assertVisible(_div($planDetails.premium,_near(_italic($plansFromCompareBox[$i]))), "Verify Plan Premium");
+                _assertVisible(_div($planDetails.tierAndType,_near(_italic($plansFromCompareBox[$i]))), "Verify Tier and Type");
+            }
+        }
+	}
+	return $planDetails;
+}
+
+function clickCompareNow($plan1, $plan2, $plan3){
+	clickElement(_link("Compare Now"));
+	var $plans = [];
+	if ($plan1) {
+		$plans.push($plan1);
+		if ($plan2) {
+			$plans.push($plan2);
+			if ($plan3) $plans.push($plan3);
+		}
+	}
+	verifyCompareHealthPlans($plans);
+}
+
+function verifyCompareHealthPlans($plans){
+	//if ($isConnecticut) {
+		var $summaries = _collect("_div", "/ps-compare__plan-tile/", _in(_div("mainSummaryCmp")));
+		_assertEqual($plans.length, $summaries.length, "No of plans selected for comparison and the ones shown on the Compare page are different.");
+	
+		_assertEqual($plans.length, _getText(_span("filteredPlanCount")));
+
+		for (var $i = 0; $i < $summaries.length; $i++) {
+			var $plan = $plans[$i];
+			var $summary = $summaries[$i];
+			_assertVisible(_link("detail", _in($summary)));
+			//_assertEqual($plan.title,  _getAttribute(_link("detail", _in($summary)), "data-original-title"));
+			
+			  var $tierAndType = $plan.tierAndType.split(" ");
+			 for (var $i = 0; $i < $tierAndType.length; $i++) {
+                if($tierAndType[$i] == "HSA"){
+                   _assertVisible(_div("Yes", _near(_paragraph("HSA-compatible"))));
+                }
+                else{
+                    _assertVisible(_span("/"+$tierAndType[$i]+"/",_in($summary)));
+                }
+			}
+			
+			_assertVisible(_span($plan.premium,  _in($summary)));
+			//_assertVisible(_link("Remove from Compare", _in($summary)));
+
+			for (var $j = 0; $j < $prescriptions.length; $j++) {
+				var $prescription = $prescriptions[$j];
+				//var $brandName = encodeForRegEx($prescription.name + " (Brand)");
+				var $genericName = encodeForRegEx($prescription.name + " (Generic: "+$prescription.genericName+")");
+				if ($prescription.genericName != "") {
+					if ($plan[$prescription.name].isBrandCovered == "Covered") {
+						_assertVisible(_italic("GOOD", _rightOf(_link("/"+$prescription.name+"/"))));
+					}
+					else {
+						_assertEqual("Not Covered", _getAttribute(_link(0, _rightOf(_link("/"+$prescription.name+"/")), _under($summary)), "data-original-title") );
+					}
+					if ($plan[$prescription.name].isGenericCovered == "Covered") {
+						_assertVisible(_italic("GOOD", _rightOf(_link("/"+$genericName+"/")), _under($summary)));
+					}
+					else {
+						_assertEqual("Not Covered", _getAttribute(_link(0, _rightOf(_link("/"+$genericName+"/")), _under($summary)), "data-original-title") );
+					}
+				}
+				else {
+					if ($plan[$prescription.name].isGenericCovered == "Covered") {
+						_assertVisible(_italic("GOOD", _rightOf(_link("/"+$prescription.name+"/")), _under($summary)));
+					}
+					else {
+						_assertEqual("Not Covered", _getAttribute(_link(0, _rightOf(_link("/"+$prescription.name+"/")), _under($summary)), "data-original-title") );
+					}
+				}
+			}
+
+			for (var $j = 0; $j < $doctors.length; $j++) {
+				//_assertEqual($plan[$doctors[$j]], _getText(_div(0, _rightOf(_div("/" + $doctors[$j]+"/")), _under($summary))));
+				_assertContainsText($plan[$doctors[$j]], _div("providerNames"));
+				//_assertEqual($plan[$doctors[$j]], _getText(_div(0, _rightOf(_div("/" + $doctors[$j]+"/")), _under($summary, 10))));
+			}
+
+			for (var $j = 0; $j < $hospitals.length; $j++) {
+				//_assertEqual($plan[$hospitals[$j]], _getText(_div(0, _rightOf(_div("/" + $hospitals[$j]+"/")), _under($summary))));
+				_assertEqual($plan[$hospitals[$j]], _getText(_div(0, _rightOf(_div("/" + $hospitals[$j]+ "/")), _under($summary))));
+			}
+
+		}
+
+		for (var $i = 0; $i < $doctors.length; $i++) {
+			_assertVisible(_div("/" + $doctors[$i]+"/", _in(_div("providerNames"))));
+		}
+
+		for (var $i = 0; $i < $hospitals.length; $i++) {
+			_assertVisible(_div("/"+$hospitals[$i]+"/", _in(_div("providerNames"))));
+		}
+
+		for (var $i = 0; $i < $prescriptions.length; $i++) {
+			_assertVisible(_div("/"+$prescriptions[$i].name+"/"));
+		}
+
+		//		_assertEqual($plans[0].title,  _getAttribute(_link("detail", _in(_div("plan-details"))), "data-original-title"));
+		//		_click(_link("Remove from Compare"));
+		//		$removedPlans = $plans.slice(0, 1);
+		//		_assertNotEqual($removedPlans[0].title,  _getAttribute(_link("detail", _in(_div("plan-details"))), "data-original-title"));
+		//		_assertVisible(_span("filteredPlanCount"));
+		//		_assertEqual($plans.length - 1, _getText(_span("filteredPlanCount")));
+		
+		_assertVisible(_link("Summary"));
+ 		_assertVisible(_link("/Doctors/"));
+		_assertVisible(_link("Deductible & Out-of-Pocket (In Network)"));
+ 		_assertVisible(_link("Doctor Visit"));
+		_assertVisible(_link("Tests"));
+		_assertVisible(_link("Drugs"));
+		_assertVisible(_link("Outpatient"));
+		_assertVisible(_link("ER & Urgent Care"));
+		//_assertVisible(_link("Hospital"));
+		_assertVisible(_link("Mental / Behavioral Health"));
+		_assertVisible(_link("Pregnancy"));
+		_assertVisible(_link("Other Special Needs"));
+		_assertVisible(_link("Children's Vision"));
+		_assertVisible(_link("Children's Dental"));
+		
+	//}
+}
+
+function clickViewRandomPlanDetails() {
+	var $plans = _collect("_link", "/ADD TO CART/");
+	var $index = _random($plans.length - 1);
+	clickViewPlanDetails($index);
+}
+
+function clickContinueToDentalPlans($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic) {
+	_click($planSelectionContinueToDentalPlans);
+	$onDentalPage = true;
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+}
+
+function clickContinueToCart($keepCurrentPlan,$subscriberAmt,$grossPremium,$event,$covDateAfterTypeOneAdd) {
+	if (_isVisible($planSelectionContinueToCart)) {
+		_click($planSelectionContinueToCart);
+	}
+	else if(_isVisible($planSelectionGoToCart)) {
+		_click($planSelectionGoToCart);
+	}
+
+	if($dentalPlanName!=""){
+		$onDentalPage = true;
+	}
+	if($numberOfAdults==0){
+		verifyElementsOnShowCartPage();
+	}
+	var $grossPremium=verifyElementsOnShowCartPage($keepCurrentPlan,$subscriberAmt,$grossPremium,$event,$covDateAfterTypeOneAdd);
+	return $grossPremium;
+}
+
+function clickCancelOnUpdateResults(){
+	_assertVisible(_heading3("Shopping For"));
+	_assertVisible(_submit("Update Results"));
+	_click(_submit("btn btn-default pull-left"));
+}
+
+var $planTerminated="";
+function clickShopForDental(){
+	_assertVisible($planSelectionShopForDental);
+	_click($planSelectionShopForDental);
+	$onDentalPage=true;
+	$disenrollDental ="false";
+}
+
+var $removeExistingPlan="false";
+function clickShopForDifferentPlan(){
+	$planTerminated= verifyCoverageDateGreaterThanToday($actualEffectiveStartDate);
+	_assertVisible(_link("Shop for a Different Plan"));
+	_click(_link("Shop for a Different Plan"));
+	_assertVisible(_div("newplan"));
+	_assertVisible(_link("Remove Existing Plans & Go Shopping"));
+	_assertVisible(_button("/Return to Cart/i"),"Verify if Return To Cart button is visible");
+	_click(_link("Remove Existing Plans & Go Shopping"));
+	if($planName!="" || $dentalPlanName != ""){
+		$removeExistingPlan = "true";
+	}
+}
+
+function clickApplyChangesToDentalOnly(){
+	_assertVisible(_div("no-health-plan-dentalOnly-msg"));
+	_assertVisible(_button("GO BACK"),"Verify if GO BACK button is visible in No health plan selected pop up");
+	_assertVisible(_submit("APPLY CHANGES TO DENTAL PLAN"),"Verify if APPLY CHANGES TO DENTAL PLAN submit button is displayed");
+	_click(_submit("APPLY CHANGES TO DENTAL PLAN"));
+}
+
+var $issuerDetails="";
+
+function filterByCompany($company){
+
+	var $logoClass =  "carrierlogo hide";
+	if($company === undefined)
+	{
+		if(_isVisible(_fieldset("Company")))
+		{
+			var $companies = _collectAttributes("_label", "/.*/", "sahiText", _in(_fieldset("Company")));
+			if ($isConnecticut) {
+				//_assertEqual(["Anthem", "ConnectiCare"], $companies);
+				var $companyName = getCompanyNameforCurrentYear();
+				_assertContainsText($companyName[0][0], _div("carrierFilter"));
+			}
+			$company="";
+			var $company = _getText(_label("checkbox", _near(_span("Company"))));
+			_check(_checkbox(0, _in(_fieldset("Company"))));
+			if ($isConnecticut) {
+				_assertNotVisible(_link("ADD TO CART"));
+			}
+			else if ($isIdaho) {
+				_assertVisible(_link("ADD TO CART"));
+			}
+			var $img =_collect("_image","/"+$logoClass+"/","sahiText",_in(_div("mainSummary")));
+			_assert($img.length!=0);
+			for(var $i =0; $i< $img.length; $i++)
+			{
+				var $actualCompany = $img[$i].getAttribute("alt");
+				$actualCompany = $actualCompany.split(".");
+				_assertEqual("/" + $actualCompany[0] +"/", $company);
+
+			}
+			_uncheck(_checkbox(0, _in(_fieldset("Company"))));
+		}
+	}
+	else {
+		_check(_checkbox(0, _in(_label("/"+$company+"/i"))));
+		if ($isConnecticut) {
+			_assertNotVisible(_link("ADD TO CART"));
+		}
+		else if ($isIdaho) {
+			_assertVisible(_link("ADD TO CART"));
+		}
+		var $img =_collect("_image","/carrierlogo hide/","sahiText",_in(_div("mainSummary")));
+		_assert($img.length!=0);
+		for(var $i =0; $i< $img.length; $i++)
+		{
+			var $actualCompany = $img[$i].getAttribute("alt");
+			$actualCompany = $actualCompany.split(".");
+			_assertEqual("/"+$company+"/","/" + $actualCompany[0] +"/");
+		}
+		$issuerDetails = $company;
+		getIssuerPaymentURL($company);
+	}
+}
+
+function planSelectionMetalTierFilter($type){
+	var $metalTier = $type.charAt(0).toUpperCase() + $type.slice(1).toLowerCase();
+	_assertVisible((_span($metalTier+":", _in(_fieldset("Metal tier")))));
+	verifySearchResult($type);
+}
+
+function verifySearchResult($type){
+	if($type !="HSA")
+		_click(_checkbox($type));
+	if (_getText(_span("filteredPlanCount"))!= "0"){
+		var $planType =	_collectAttributes("_div","/tile-header/","sahiText",_in(_div("mainSummary")));
+		_assert($planType.length!=0);
+		var $Expected = "/" +$type+ "/";
+		for(var $i = 0; $i<$planType.length; $i++){
+			_assertEqual($Expected, $planType[$i], "Filter did not return the expected value");
+		}
+	}
+}
+
+var $removeExisitngHealthPlan = false;
+function clickShopforHealthPlan(){
+	_click(_link("Shop for Health"));
+//	_assertVisible(_link("Health Insurance"));
+	$removeExisitngHealthPlan = true;
+}
+
+
+function filterDentalPlanTier($filter){
+	if($filter === undefined){
+		if(_isVisible((_span("Plan Tier")))){
+			//IDSIT
+			_assertVisible(_label("Low"));
+			_assertVisible(_label("High"));
+			_click(_checkbox("filter_plantTier_low"));
+			verifyFilter("LOW");
+			_uncheck(_checkbox("filter_plantTier_low"));
+			
+						
+			/*
+			var $dentalPlanTier=_getText(_fieldset("Plan Tier")).split("Tier ")[1].split(" ");
+			for($i=0;$i<$dentalPlanTier.length;$i++){
+				var $y= $i+1;
+				//_check(_checkbox("filter_checkbox["+$y+"]"));
+				
+				verifyFilter($dentalPlanTier[$i]);
+				_uncheck(_checkbox("filter_checkbox["+$y+"]"));
+			}
+			*/
+		}
+	}
+	else {
+		_click(_checkbox($filter, _near(_span("Plan Tier"))));
+		//IDSIT
+		verifyFilter($filter);
+	}
+}
+
+function clickEnrollNow(){
+	if ($isConnecticut){
+		clickElement(_link("Enroll Now"));
+		_assertVisible(_heading3("enrollNowHeader"));
+		_assertEqual("K:pd.label.enrollNow.modal.header", _getText(_heading3("enrollNowHeader")));
+		clickElement(_link("Create An Account"));
+		_wait(10000, _isVisible(_div("Create User Account")));
+		var $url;
+		_set($url, _call(window.location.href));
+		_assertEqual("https://www.accesshealthct.com/AHCT/DisplayCreateUserAccount.action", $url);
+	}
+}
+
+function verifySortByDropdownOnPlanPage($defaultOption){
+	_setStrictVisibilityCheck(true);
+	clickElement(_link(0, _in(_parentNode(_span("Sort By")))));
+	var $sortingOptions = _collectAttributes("_link", "/.*/", "sahiText", _in(_list("dk_options_inner")));
+	_assertEqual(["Monthly price", "Total Expense Estimate", "Yearly Deductible", "Out-of-Pocket (OOP) Max"], $sortingOptions);
+	_wait(4000);
+	clickElement(_link(0, _in(_parentNode(_span("Sort By")))));
+
+	verifyPlansSortedByMonthlyPrice();
+	if(!$onDentalPage)
+		verifyPlansSortedByTotalExpenseEstimate();
+	verifyPlansSortedByYearlyDeductible();
+	verifyPlansSortedByOutOfPocketMax();
+
+	_setStrictVisibilityCheck(true);
+}
+
+function openSortByDropdown(){
+	if (!_isVisible(_div("dk_options"))) {
+		clickElement(_link(0, _in(_parentNode(_span("Sort By")))));
+	}
+}
+/*
+function closeSortByDropdown(){
+	if (_isVisible(_div("dk_options"))) {
+		clickElement(_link(0, _in(_parentNode(_span("Sort By")))));
+	}
+}
+
+function verifyPlansSortedByMonthlyPrice(){
+	openSortByDropdown();
+	clickElement(_link("Monthly price"));
+	var $plans = _collect("_div", "tile-header", _in(_div("mainSummary")));
+	var $correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $current = _getText(_paragraph("pac", _rightOf(_tableHeader("Estimated Monthly Premium", _in($plans[$i])))));
+		var $next = _getText(_paragraph("pac", _rightOf(_tableHeader("Estimated Monthly Premium", _in($plans[$i+1])))));
+		$current = convertMoneyToNumber($current);
+		$next = convertMoneyToNumber($next);
+		if ($current > $next) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans are not sorted in ascending order of Monthly Price");
+	closeSortByDropdown();
+}
+
+
+function isEstimateLarger($current, $next){
+	var $map = {
+		"low": 1, "average": 2, "high": 3};
+	return $map[$current] > $map[$next];
+}
+
+function verifyPlansSortedByTotalExpenseEstimate() {
+	openSortByDropdown();
+	clickElement(_link("Total Expense Estimate"));
+	var $plans = _collect("_div", "tile-header", _in(_div("mainSummary")));
+	var $correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $current = _getText(_span(0, _rightOf(_tableHeader("Total Expense Estimate", _in($plans[$i])))));
+		var $next = _getText(_span(0, _rightOf(_tableHeader("Total Expense Estimate", _in($plans[$i+1])))));
+		if (isEstimateLarger($current, $next)) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans are not sorted in ascending order of Total Expense Estimate");
+	closeSortByDropdown();
+}
+
+function verifyPlansSortedByYearlyDeductible() {
+	openSortByDropdown();
+	clickElement(_link("Yearly Deductible"));
+	var $plans = _collect("_div", "tile-header", _in(_div("mainSummary")));
+	$correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $current = _getText(_cell(0, _rightOf(_tableHeader("Yearly Deductible", _in($plans[$i])))));
+		$current = $current.split("/")[0];
+		$current = convertMoneyToNumber($current);
+		var $next = _getText(_cell(0, _rightOf(_tableHeader("Yearly Deductible", _in($plans[$i+1])))));
+		// "$3400 / $100"
+		var $nextSplitted = $next.split("/");
+		$next = 0;
+		for (var $j = 0; $j < $nextSplitted.length; $j++) {
+			$next += convertMoneyToNumber($nextSplitted[$j]);
+		}
+		if ($current > $next) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans are not sorted in ascending order of Total Expense Estimate");
+	closeSortByDropdown();
+}
+
+function verifyPlansSortedByOutOfPocketMax(){
+	openSortByDropdown();
+	clickElement(_link("Out-of-Pocket (OOP) Max"));
+	var $plans = _collect("_div", "tile-header", _in(_div("mainSummary")));
+	$correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $current = _getText(_cell(0, _rightOf(_tableHeader("Out-Of-Pocket Maximum", _in($plans[$i])))));
+		var $next = _getText(_cell(0, _rightOf(_tableHeader("Out-Of-Pocket Maximum", _in($plans[$i+1])))));
+		$current = convertMoneyToNumber($current);
+		$next = convertMoneyToNumber($next);
+		if ($current > $next) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans are not sorted in ascending order of Total Expense Estimate");
+	clickElement(_link(0, _in(_parentNode(_span("Sort By")))));
+	closeSortByDropdown();
+}
+*/
+function verifySortingPageNavigation(){
+	var $checkboxes = _collect("_checkbox", "/.*/", _in(_div("filter")));
+	for (var $i = 0; $i < $checkboxes.length; $i++) {
+		_uncheck($checkboxes[$i]);
+	}
+	var $planCount = parseInt(_getText(_span("filteredPlanCount")));
+	if($planCount >12){
+		_assertVisible(_div("pagination"));
+		_assertEqual("active", _getAttribute(_listItem("1", _in(_div("pagination"))), "className"));
+		_assertVisible(_link("next", _in(_div("pagination"))));
+		_assertNotVisible(_link("prev", _in(_div("pagination"))));
+		_click(_link("next", _in(_div("pagination"))));
+		_assertNotEqual("active", _getAttribute(_listItem("1", _in(_div("pagination"))), "className"));
+		_assertVisible(_link("prev", _in(_div("pagination"))));
+		_assertNotVisible(_link("next", _in(_div("pagination"))));
+		_click(_link("prev", _in(_div("pagination"))));
+	}
+}
+
+function verifyMoreInformationLinks($plan){
+ 	if ($isConnecticut){
+		if(providerDirectory($plan)){
+			_assertVisible(_div("More Information:"+" "+"Summary of Benefits and Coverage"+" "+"Detailed Plan Documents (PDF)"+" "+"Provider Directory"+" "+"Drug List"));
+			_assertVisible(_link("Provider Directory"));
+			clickElement(_link("Provider Directory"));
+			verifyLeavingPopUpWindow();
+		}
+		else{
+			_assertVisible(_div("More Information:"+" "+"Summary of Benefits and Coverage"+" "+"Detailed Plan Documents (PDF)"+" "+"Provider Directory (not available)"+" "+"Drug List"));
+		
+		}
+ 		_assertVisible(_link("Detailed Plan Documents (PDF)"));
+ 		_assertVisible(_link("Summary of Benefits and Coverage"));
+ 		_assertVisible(_link("Drug List"));
+		clickElement(_link("Summary of Benefits and Coverage"));
+ 		verifyLeavingPopUpWindow();
+ 		//clickElement(_link("Provider Directory"));
+ 		//verifyLeavingPopUpWindow();
+		clickElement(_link("Drug List"));
+ 		verifyLeavingPopUpWindow();
+	}
+}
+
+function verifyLeavingPopUpWindow(){
+ 	if ($isConnecticut){
+ 		_assertVisible(_heading4("You are now leaving AccessHealthCT Web site."));
+ 		_assertVisible(_link("Yes, Proceed"));
+		_click(_link("/"+"No, Take Me Back"+"/"));
+ 	}
+ }
+function verifyProvidersAndPrescriptionsArePresent($planName, $areDoctorsPresent, $areFacilitiesPresent, $arePrescriptionsAvailable){
+	$areDoctorsPresent = isTrue($areDoctorsPresent);
+	$areFacilitiesPresent = isTrue($areFacilitiesPresent);
+	$arePrescriptionsAvailable = isTrue($arePrescriptionsAvailable);
+
+	var $tile = _parentNode(_paragraph($planName));
+	for (var $i = 0; $i < $doctors.length; $i++) {
+		if ($areDoctorsPresent) {
+			if ($doctors[$i].length > 11) {
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$doctors[$i].substring(0, 11) +"/", _in($tile)))));
+			}
+			else {
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$doctors[$i] +"/", _in($tile)))));
+			}
+		}
+		else if ($doctors[$i].length > 11){
+			_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$doctors[$i].substring(0, 11) +"/", _in($tile)))));
+		}
+		else {
+			_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$doctors[$i] +"/", _in($tile)))));
+		}
+	}
+
+	for (var $i = 0; $i < $hospitals.length; $i++) {
+		if ($areFacilitiesPresent) {
+			if ($hospitals[$i].length > 15) {
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$hospitals[$i].substring(0, 15)+"/", _in($tile)))));
+			}
+			else {
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$hospitals[$i]+"/", _in($tile)))));
+			}
+		}
+		else if ($hospitals[$i].length > 15) {
+			_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$hospitals[$i].substring(0, 15)+"/", _in($tile)))));
+		}
+		else {
+			_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$hospitals[$i]+"/", _in($tile)))));
+		}
+	}
+
+	for (var $i = 0; $i < $prescriptions.length; $i++) {
+		if ($arePrescriptionsAvailable) {
+			if ($prescriptions[$i].name.length > 19) {
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$prescriptions[$i].name.substring(0, 19)+"/", _in($tile)))));
+			}
+			else {
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$prescriptions[$i].name+"/", _in($tile)))));
+			}
+		}
+		else if ($prescriptions[$i].name.length > 19){
+			_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$prescriptions[$i].name.substring(0, 19)+"/", _in($tile)))));
+		}
+		else {
+			_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$prescriptions[$i].name+"/", _in($tile)))));
+		}
+	}
+}
+
+
+//Filters on plan page
+	
+function verifySortByFilterOnPlanPage($filterType){
+	if($filterType =="Expense Estimate"){
+		verifyPlansSortedByTotalExpenseEstimate();
+	}
+	else if($filterType =="Monthly price"){
+		verifyPlansSortedByMonthlyPrice();
+	}
+	else if($filterType =="Deductible"){
+		verifyPlansSortedByYearlyDeductible();
+	}
+	else if($filterType =="OOP"){
+		verifyPlansSortedByOutOfPocketMax();
+	}
+	else{
+		if(_isVisible(_tableHeader("Generic Drugs", _in(_div("cp-tile"))))){
+			verifyPlansSortedByTotalExpenseEstimate();
+		}
+		verifyPlansSortedByMonthlyPrice();
+		verifyPlansSortedByYearlyDeductible();
+		verifyPlansSortedByOutOfPocketMax();
+	}
+}
+
+function verifyPlansSortedByTotalExpenseEstimate() {
+	_click(_radio(0, _near(_label("Total Expense Estimate"))));
+	var $plans = _collectAttributes("_link", "/Expense/", "sahiText", _in(_div("mainSummary")));
+	
+	var $correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $current = $plan[i].split(" ")[0];
+		var $next =$plan[i+1].split(" ")[0];
+		if (isEstimateLarger($current, $next)) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans should be sorted in ascending order of Total Expense Estimate");
+	
+}
+
+function verifyPlansSortedByMonthlyPrice(){
+	_click(_radio("Monthly price", _near(_label("Monthly price"))));
+	var $plans = _collect("_span", "cp-tile__premium-amount", _in(_div("mainSummary")));
+
+	//var $plans = _collect("_div", "tile-header", _in(_div("mainSummary")));
+	var $correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $current = _getText($plans[$i])
+		var $next = _getText($plans[$i+1])
+		$current = convertMoneyToNumber($current);
+		$next = convertMoneyToNumber($next);
+		if ($current > $next) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans should be sorted in ascending order of Monthly Price");
+	setSortByFilterToDefault();
+}
+
+
+
+function verifyPlansSortedByYearlyDeductible(){
+	var $newArr=[];
+	_click(_radio("deductible", _near(_label("Deductible"))));
+	
+	var $deductibleRow = _collectAttributes("_row","/Deductible/","sahiText",_in(_div("mainSummary")));
+	_assert($deductibleRow.length!=0);
+	
+	for (var $i = 0; $i < $deductibleRow.length; $i++) {
+		var $amount = _extract($deductibleRow[$i], "Deductible"+" (.*)", true).toString();
+		_log("Deductible amount of "+$i+"  is = "+ $amount);
+		var $index = $amount.indexOf("(Child) Not Applicable");	
+		if ($index == -1){
+			var $index = $amount.indexOf("/");
+			if ($index != -1) {
+				var $deduct = $amount.split("/");
+				$deduct[0] = $deduct[0].replace("$", "");
+				$deduct[1] = $deduct[1].replace("$", "");
+				var $text = parseInt($deduct[0])+parseInt($deduct[1]);
+			}else{
+				$amount = $amount.split(" ");
+				$amount= $amount[$amount.length-1]
+				var $text = parseInt($amount.replace("$", ""));
+				
+			}
+			$newArr.push($text);
+		}
+	}		
+	var $exp = $newArr.sort(function(a, b){return a-b});
+	_assertEqual($newArr, $exp, "Plans should be sorted by Deductible");		
+	setSortByFilterToDefault();
+}
+
+
+function verifyPlansSortedByOutOfPocketMax(){
+	_click(_radio(0, _near(_label("Out-of-Pocket (OOP) Max"))));
+	var $plans = _collect("_row", "/OOP Max/", _in(_div("mainSummary")));
+
+	$correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $oopMax = _getText($plans[$i]).split(" ");
+		var $current = $oopMax[$oopMax.length-1];
+		$oopMax = _getText($plans[$i+1]).split(" ")
+		var $next = $oopMax[  $oopMax.length-1];
+		$current = convertMoneyToNumber($current);
+		$next = convertMoneyToNumber($next);
+		if ($current > $next) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans should be sorted in ascending order of Total Expense Estimate");
+	setSortByFilterToDefault();
+}
+// Helper functions for filters
+function setSortByFilterToDefault(){
+		_click(_radio(0, _leftOf(_label("Monthly price"))));
+}
+
+
+function isEstimateLarger($current, $next){
+	var $map = {
+		"Lower": 1, "Medium": 2, "Higher": 3};
+	return $map[$current] > $map[$next];
+}
+
+function verifyPlansSortedByTotalExpenseEstimate() {
+	_click(_radio(0, _near(_label("Expense Estimate"))));
+	var $plans = _collectAttributes("_link", "/Expense/", "sahiText", _in(_div("mainSummary")));
+	
+	var $correctlySorted = true;
+	for (var $i = 0; $i < $plans.length - 1; $i++) {
+		var $current = $plans[$i].split(" ")[0];
+		var $next =$plans[$i+1].split(" ")[0];
+		if (isEstimateLarger($current, $next)) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans should be sorted in ascending order of Total Expense Estimate");
+	
+}
+
+// verify Plan type filter
+
+
+function verifyPlanTypeFilterOnPlanPage($type, $filter) {
+	_setStrictVisibilityCheck(true);
+	if ($type === undefined || $filter === undefined) {
+		var $planType =  _collectAttributes("_label","/ps-form/","sahiText",_in(_div("planTypeFilter")));
+		for($i=0;$i<$planType.length;$i++){
+			_check(_checkbox(0, _near(_label($planType[$i]))));
+			verifyFilter($planType[$i]);
+			_uncheck(_checkbox(0, _near(_label($planType[$i]))));
+		}
+		
+	}
+	else{
+		var $accessor = _checkbox($type);
+		_check($accessor);
+		verifyFilter($type);
+		if (!$filter) {
+			_uncheck($accessor);
+		}
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyCompanyFilterOnPlanPage($company){
+	_setStrictVisibilityCheck(true);
+	if($company === undefined){
+		var $companies =  _collectAttributes("_label", "/.*/", "sahiText", _in(_div("carrierFilter")));
+		for(var $i =0; $i< $companies.length; $i++){
+			_check(_checkbox(0, _near(_label($companies[$i]))));
+			verifyCompanyFilterResults($companies[$i]);
+			_uncheck(_checkbox(0, _near(_label($companies[$i]))));
+		}
+	}
+	else{
+		_check(_checkbox(0, _near(_label("/"+$company+"/i"))));
+		verifyCompanyFilterResults($company);
+	}
+	_setStrictVisibilityCheck(false);
+
+}
+
+// Helper function for verifyCompanyFilterOnPlanPage
+function verifyCompanyFilterResults($company){
+	if($signedEmail !=  "auto_issueradmin@yopmail.com"){
+        verifyFilterAppliedInPlanHeader($company);
+    }
+	var $companyName = _collect("_image","/cp-tile__img/","sahiText",_in(_div("mainSummary")));
+	_assert($companyName.length!=0);
+	for(var $i =0; $i< $companyName.length; $i++){
+		var $actualCompany = $companyName[$i].getAttribute("alt");
+		$actualCompany = $actualCompany.split(".")[0];
+		_assertEqual("/"+$actualCompany+"/", $company);
+	}
+}
+
+
+function verifyPlanFeatureFilterOnPlanPage($feature){
+	_setStrictVisibilityCheck(true);
+	if($feature === undefined){
+		var $planFeature = _collectAttributes("_label", "/.*/", "sahiText", _in(_div("/Plan Features/")));
+		if(!_isVisible(_div("cp-tile"))){
+			_log("There are no plans with this filter", "CUSTOM1");
+		}
+		else{
+			_assert($planFeature.length!=0);
+			for(var $i =0; $i< $planFeature.length; $i++){
+				_check(_checkbox(0, _leftOf(_label($planFeature[$i]))));
+				if ($planFeature[$i]=="CSR Eligible tooltip link includes special discounts"){
+					var $selectedPlanFeature="CSR Eligible";
+					verifyFilter($selectedPlanFeature);
+				}
+				else{
+					$selectedPlanFeature="HSA Qualified";
+					verifyFilter($selectedPlanFeature);
+				}
+				
+				//verifyFilter($planFeature[$i].split(" ")[0]);
+				_uncheck(_checkbox(0, _leftOf(_label($planFeature[$i]))));
+			}
+		}
+	}
+	else{
+		_check(_checkbox(0, _leftOf(_label($feature))));
+		verifyFilter($feature);
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyMetalTierFilterOnPlanPage($tier){
+	_setStrictVisibilityCheck(true);
+	if ($tier === undefined) {
+		var $planTier = _collectAttributes("_label", "/.*/", "sahiText", _in(_div("ps-sidebar__filter[2]")));
+		for(var $i =0; $i< $planTier.length; $i++){
+			_check(_checkbox(0, _leftOf(_label($planTier[$i]))));
+			if(isPlanDisplayed()){
+				verifyFilter($planTier[$i].split(" ")[0]);
+			}
+			else{
+				_log("There are no plans with this filter", "CUSTOM1");
+			}
+			_uncheck(_checkbox(0, _leftOf(_label($planTier[$i]))));
+		}
+		
+	}
+	else{
+		_check(_checkbox(0, _leftOf(_label("/"+$tier+"/"))));
+		verifyFilter($tier);
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyDeductibleFilterOnPlanPage($deductibleOption){
+	_setStrictVisibilityCheck(true);
+	if($deductibleOption === undefined){
+		var $deductibleOptions =  _collectAttributes("_label", "/.*/", "sahiText", _in(_div("deductibleRangeFilter")));
+		_assert($deductibleOptions.length!=0);
+		for(var $i = 0; $i<$deductibleOptions.length; $i++){
+			_check(_checkbox(0, _leftOf(_label($deductibleOptions[$i]))));
+			if(isPlanDisplayed()){
+				verifyDeductibleOptionResults($deductibleOptions[$i]);
+			}
+			else{
+				_log("There are no plans with this filter", "CUSTOM1");
+			}
+			_uncheck(_checkbox(0, _leftOf(_label($deductibleOptions[$i]))));
+		}
+	}else{
+		_check(_checkbox(0, _leftOf(_label($deductibleOption))));	
+		verifyDeductibleOptionResults($deductibleOption);	
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+// Helper function of verifyDeductibleFilterOnPlanPage
+function verifyDeductibleOptionResults($deductibleOption){
+    
+    verifyFilterAppliedInPlanHeader($deductibleOption); 
+    var $expectedAmount = parseInt($deductibleOption.split(" ")[0].replace("$", ""));
+    var $deductibleRow = _collectAttributes("_row","/Deductible/","sahiText",_in(_div("mainSummary")));
+    for (var $i = 0; $i < $deductibleRow.length; $i++) {
+        var $amount = _extract($deductibleRow[$i], "Deductible"+" (.*)", true).toString();
+		_log("Deductible amount from plan page for "+$i+" is  "+$amount);
+		var $index = $amount.indexOf("(Child) Not Applicable");	
+		if ($index == -1){
+			var $index = $amount.indexOf("/");
+			if ($index != -1){
+				var $deduct = $amount.split("/");
+				$deduct[0] = $deduct[0].replace("$", "");
+				$deduct[1] = $deduct[1].replace("$", "");
+				var $deductibleAmount = parseInt($deduct[0])+parseInt($deduct[1]);
+			}else{
+				var $fullAmount = $amount.replace("$", "").split(" ");
+				var $deductibleAmount = parseInt($fullAmount[$fullAmount.length-1]);
+			
+			}
+			var $option = $deductibleOption.split(" ")[2];
+			if($option == "under" || $option == "less" ){
+				_assert($deductibleAmount <= $expectedAmount);
+			}
+			else if($option == "$99"){
+				_assert($deductibleAmount >= $expectedAmount && $deductibleAmount <= 99 );    
+			}
+			else if($option == "over"){
+				_assert($deductibleAmount >= $expectedAmount)
+			}
+		}
+    }        
+
+
+}    
+
+function verifyFilterAppliedInPlanHeader($filter){
+	_assertVisible(_span("Filters Applied"),"Verify Filters applied is displayed on header");
+	_assertVisible(_span($filter),"Verify filter selected is displayed on the header");
+}
+
+function verifyDentalPlanTierFilterOnPlanPage($tier){
+	_setStrictVisibilityCheck(true);
+	if($tier === undefined){
+		var $planTier =  _collectAttributes("_label","/ps-form/","sahiText",_in(_div("/Plan Tier/")));
+		_assert($planTier.length!=0);
+		for($i=0;$i<$planTier.length;$i++){
+			_check(_checkbox(0, _leftOf(_label($planTier[$i]))));
+			if(isPlanDisplayed()){
+				verifyFilter($planTier[$i].split(" ")[0]);
+				//verifyFilter($planTier[$i]);
+			}
+			else{
+				_log("There are no plans with this filter", "CUSTOM1");
+			}
+			
+			
+			_uncheck(_checkbox(0, _leftOf(_label($planTier[$i]))));
+		}
+	}else{
+		_check(_checkbox(0, _leftOf(_label($tier))));
+		verifyFilter($tier);
+	}		
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyDentalDeductibleOnPlanPage($deductibleOption){
+	_setStrictVisibilityCheck(true);
+    if($deductibleOption === undefined){
+        var $checkBox =  _collect("_checkbox", "/deductible_filter/", "sahiText", _under(_heading3("Deductible")));
+        _assert($checkBox.length!=0);
+        for($i=0;$i<$checkBox.length-1;$i++){
+            var $deductOption = _getText(_label(0,_near($checkBox [$i])));
+            _check($checkBox [$i]);
+			if(isPlanDisplayed()){
+				verifyDeductibleOptionResults($deductOption);
+			}
+			else{
+				_log("There are no plans with this filter", "CUSTOM1");
+			}
+           
+            _uncheck($checkBox [$i]);
+        }
+    }
+    else{
+        _check(_checkbox(0, _leftOf(_label($deductibleOption))));    
+        verifyDeductibleOptionResults($deductibleOption);    
+    }
+	_setStrictVisibilityCheck(false);
+}
+
+// Custom Grouping for Dental
+function verifyCustomGroupingForDental(){
+	if($loggedIn==true){
+		_assertVisible(_div("shopping-modal"),"Shopping modal is not displayed when user lands on dental plan page");
+		_assertVisible(_div("Shopping For"),"Shopping For heading is not displayed");
+		_assertVisible(_tableHeader("Applicant"),"Applicant header is not visible");
+		_assertVisible(_tableHeader("Date of Birth"),"Date of Birth header is not visible");
+		_assertVisible(_tableHeader("Seeking Coverage"),"Seeking Coverage header is not visible");
+		_log("SSAP People Length: " +$ssapPeople.length);
+		for(var $i =0; $i< $ssapPeople.length; $i++){
+			if($ssapPeople[$i].$applying !="No"){
+				_assertVisible(_cell($ssapPeople[$i].$firstName.toLowerCase(), _under(_tableHeader("Applicant"))),"Applicant's first name is not visible in the custom grouping pop up");
+				_assertVisible(_cell($ssapPeople[$i].$doB, _rightOf(_cell($ssapPeople[$i].$firstName.toLowerCase()))));
+				_assert(_checkbox("chkSCoverage", _rightOf(_cell($ssapPeople[$i].$firstName.toLowerCase()))).checked);
+			}
+		}
+		_assertVisible(_submit("Cancel", _in(_div("shopping-modal"))),"Cancel button is not displayed");
+		_assertVisible(_submit("Update Results", _in(_div("shopping-modal"))),"Update Results button is not displayed");
+	}
+	else{
+		_assertNotVisible(_div("shopping-modal"),"Shopping modal is displayed when user lands on dental plan page");
+	}
+}
+
+function isPlanDisplayed(){
+	return _isVisible(_div("cp-tile"));
+}
+
+function verifyCSRVisibleOnTiles($ShowCSROnAllTiles, $isCSREnabled){
+    $tile = _collect("_div","cp-tile", _in(_div("mainSummary")));
+    for(var $i=0;$i<$tile.length;$i++){
+        if(($ShowCSROnAllTiles =="Y") && (!_isVisible(_span("/Catastrophic/", _in($tile[$i]))))){
+            _assertVisible(_span("CSR", _in($tile[$i])),"Verify CSR is displayed on the plan tile");
+        }
+        else if(($ShowCSROnAllTiles ==null) && ($isCSREnabled =="Y") && (_isVisible(_span("/Silver/", _in($tile[$i]))))){
+            _assertVisible(_span("CSR", _in($tile[$i])),"Verify CSR is displayed on the plan tile");
+        }
+        else{
+            _assertNotVisible(_span("CSR", _in($tile[$i])),"Verify CSR is not displayed on the plan tile");
+        }
+    }
+}
+
+function getPlanRate($planId,$zipCode,$age,$insuranceType){
+	var $county=getCountyCodeByZipFromDb($zipCode);
+	var $toDate =getToDate();
+	var $applicableYear =getApplicableYear();
+	var $planRate=getPlanRateFromDB($planId,$zipCode,$county,$toDate,$applicableYear,$age,$insuranceType);
+	return $planRate;
+}
+
+function verifyAddButtonNotDisplayed(){
+	_assertVisible(_div("Compare Details"),"Verify only Compare and Details is displayed");
+	_assertNotVisible(_div("/Compare Details ADD/"), "Verify Add button is not displayed");
+
+}
+
+function verifyDeductibleAndDrugDeductibleAmtOnDetails(){
+    var $found = false;
+    var $totalPages = 1;
+    var $count = 0;
+    if(_isVisible(_span("/cp-pagination__content/"))){
+        $totalPages = parseInt(_getText(_span("/cp-pagination__content/",_in(_div("pagination_bottom")))).match(/\d+/g).map(Number)[1]);
+         _log("Total Number of Plan pages are "+$totalPages);
+    }
+    for (var $j = 0; $j < $totalPages; $j++) {
+        var $deductibleRow = _collectAttributes("_row","/Deductible/","sahiText",_in(_div("mainSummary")));
+        for (var $i = 0; $i < $deductibleRow.length; $i++) {
+            var $amount = _extract($deductibleRow[$i],"Deductible"+" (.*)", true).toString();
+            _log("Deductible amount from plan page "+$j+" for plan tile "+$i+" is  "+$amount);
+            var $index = $amount.indexOf("/");
+            if ($index != -1){
+                _click(_link("Details["+$i+"]"));
+                var $deductAmtInPlanHighlights = _getText(_link(0,_rightOf(_tableHeader("Deductible")),_in(_div("ps-detail__highlights"))));
+                var $oopMaxAmtInPlanHighlights = _getText(_link(0,_rightOf(_tableHeader("OOP Max")),_in(_div("ps-detail__highlights"))));
+				$deductAmtInPlanHighlights = $deductAmtInPlanHighlights.match(/\d+/g).map(Number).toString();
+                $oopMaxAmtInPlanHighlights = $oopMaxAmtInPlanHighlights.match(/\d+/g).map(Number);
+                var $deduct = $deductAmtInPlanHighlights.split(",");
+                var $deductibleDetails=_collectAttributes("_paragraph","/.*/","sahiText",_in(_div("ps-detail__group-body u-table")));
+                var $deductible = $deductibleDetails[0].match(/\d+/g).map(Number);
+                var $drugDeductible = $deductibleDetails[1].match(/\d+/g).map(Number);
+                var $amtOOPMax = $deductibleDetails[3].match(/\d+/g).map(Number);
+                _assertEqual($deduct[0], $deductible,"Verify that deductible amount in Plan Highlights and under Deductible & Out-of-Pocket header are equal ");
+                _assertEqual($deduct[1], $drugDeductible,"Verify that drug deductible amount in Plan Highlights and under Deductible & Out-of-Pocket header are equal ");
+                _assertEqual($oopMaxAmtInPlanHighlights, $amtOOPMax,"Verify that OOP Max amount in Plan Highlights and under Deductible & Out-of-Pocket header are equal ");
+                _click(_link("Back to all plans"));
+                break;
+            }
+        }
+        if(_isVisible(_span("/cp-pagination__content/")) && $j < $totalPages-1){
+            _click(_link(1, _in(_div("pagination_bottom"))));
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

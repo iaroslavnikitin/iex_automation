@@ -1,0 +1,304 @@
+_includeOnce("Login.sah");
+
+var $firstName, $lastName, $email, $phoneNumber, $dob, $county = "Boise", $zipCode = "83702";
+
+function csrManageUserVerify($permission){
+	if($permission == "Y"){
+		_assertVisible(_link("Users", _in(_div("menu"))));
+		_click(_link("Users", _in(_div("menu"))));
+		_assertVisible(_link("Add User", _near(_link("Users"))));
+		_assertVisible(_link("Manage User", _near(_link("Users"))));
+		_click(_link("Manage User", _near(_link("Users"))));
+//		_assertEqual("Any,Counselor,Agent,Entity,Individual",_getOptions(_select("userType")));
+		var $options = _getOptions(_select("userType"));
+		_assert($options.indexOf("Any") != -1, "Option 'Any' is not present");
+		_assert($options.indexOf("Counselor") != -1, "Option 'Counselor' is not present");
+		_assert($options.indexOf("Agent") != -1, "Option 'Agent' is not present");
+		_assert($options.indexOf("Entity") != -1, "Option 'Entity' is not present");
+		_assert($options.indexOf("Individual") != -1, "Option 'Individual' is not present");
+		_assertEqual("5", _getOptions(_select("userType")).length);
+	}
+	else {
+		_assertNotVisible(_link("Users", _in(_div("menu"))));
+	}
+}
+
+function csrAddIndividual(){
+	_click(_link("Users", _in(_div("menu"))));
+	_click(_link("Add User", _near(_link("Users"))));
+	_assertEqual("Please select a Role,Individual",_getText(_click(_select("role"))));
+	_assertEqual("2",_getText(_select("role")).length);
+	_setSelected(_select("role"), "Individual");
+}
+
+//function csrManageUserVerify(){
+//	_click(_link("Users", _in(_div("menu"))));
+//	_click(_link("Manage User", _near(_link("Users"))));
+//	_assertEqual("Any,Entity,Individual,Counselor,Agent",_getOptions(_select("userType")));
+//	_assertEqual("5", _getOptions(_select("userType")).length);
+//}
+
+function csrCreateAndManageIndividual($user,$password,$permission){
+	clickLogin();
+	loginEnterEmailAddress($user);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	manageTicketVerify();
+	csrManageUserVerify($permission);
+	csrAddIndividual();
+	csrCreatingIndividual("","","10/10/1988","83702");
+	_click(_link("My Account"));
+	clickManageMember();
+	_setValue(_textbox("householdEmail"), $signupEmail);
+	_click(_submit("Go"));
+	_assertTrue(_isVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable")))));
+	_click(_link(0, _in(_cell(2))));
+	_click(_link("Send Account Activation Email", _in(_div("sidebar"))));
+	_assertVisible(_heading4("Send activation email ?"));
+	_click(_submit("Send"));
+	logOut();
+	getActivationlink();
+	clickSubmitOnSignUpPage($signupEmail,$firstName,$lastName);
+	logOut();
+	loginEnterEmailAddress($user);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	manageTicketVerify();
+	csrManageUserVerify($permission);
+	_setValue(_textbox("userName"), $signupEmail);
+	_click(_submit("submit"));
+	var $status =	_getText(_cell("user_Status", _in(_table("userlistTbl"))));
+	_click(_link("/"+$signupEmail+"/i", _in(_table("userlistTbl"))));
+	_assertVisible(_submit("Save and Send"));
+	_setSelected(_select("status"), "Inactive");
+	_click(_submit("Save and Send"));
+	_setValue(_textbox("userName"), $signupEmail);
+	_click(_submit("submit"));
+	_assertNotEqual($status, _getText(_cell("user_Status", _in(_table("userlistTbl")))));
+	$status =  _getText(_cell("user_Status", _in(_table("userlistTbl"))));
+	_click(_link("/"+$signupEmail+"/i", _in(_table("userlistTbl"))));
+	_assertVisible(_submit("Save and Send"));
+	_setSelected(_select("status"), "Active");
+	_click(_submit("Save and Send"));
+	_setValue(_textbox("userName"), $signupEmail);
+	_click(_submit("submit"));
+	_assertNotEqual($status, _getText(_cell("user_Status", _in(_table("userlistTbl")))));
+	logOut();
+}
+
+function csrModifyAgentAccount($user,$password,$permission,$agentLogin){
+	clickLogin();
+	loginEnterEmailAddress($user);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	manageTicketVerify();
+	csrManageUserVerify($permission);
+//	csrManageUserVerify();
+	_setValue(_textbox("userName"), $agentLogin);
+	_click(_submit("submit"));
+	var $status = _getText(_cell("user_Status", _in(_table("userlistTbl"))));
+	_click(_link("/"+$agentLogin+"/i", _in(_table("userlistTbl"))));
+	_assertVisible(_submit("Save and Send"));
+	_setSelected(_select("status"), "Inactive");
+	_click(_submit("Save and Send"));
+	_setValue(_textbox("userName"), $agentLogin);
+	_click(_submit("submit"));
+	_assertNotEqual($status,_getText(_cell("user_Status", _in(_table("userlistTbl")))));
+	var $status = _getText(_cell("user_Status", _in(_table("userlistTbl"))));
+	_click(_link("/"+$agentLogin+"/i", _in(_table("userlistTbl"))));
+	_assertVisible(_submit("Save and Send"));
+	_setSelected(_select("status"), "Active");
+	_click(_submit("Save and Send"));
+	_setValue(_textbox("userName"), $agentLogin);
+	_click(_submit("submit"));
+	_assertNotEqual($status,_getText(_cell("user_Status", _in(_table("userlistTbl")))));
+	logOut();
+}
+
+function csrUpdatingIndividualAccountStatusToInActive(){
+	clickLogin();
+	$url = getUpdatedBaseURL("").split("/");
+	var $userDataPath = _userDataDir();
+
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+//		$data= getAccountDetails($ExcelPath,"Admin") ;
+		$data= getAccountDetails("Admin") ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else {
+		loginEnterEmailAddress("gismoketest_admin@getinsured.com");
+		//	_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		//	_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+	_click(_link("Users", _in(_div("menu"))));
+	_click(_link("/Manage User/", _near(_link("Users"))));
+	_setValue(_textbox("User Name"), $signupEmail);
+	_click(_submit("Go"));
+
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		if($signupEmail =="" || $signupEmail ==null){
+			_log("Stopping test case here as signupEmail is Empty");
+			_stop();
+		}
+	}
+	_assertVisible(_link($signupEmail));
+	_assertEqual("Manage User 1 Total Users", _getText(_heading1("skip")));
+
+	var $status =	_getText(_cell("user_Status", _in(_table("userlistTbl"))));
+	_click(_link("dropdown", _rightOf(_cell($signupEmail)), _in(_table("userlistTbl"))));
+	_click(_link("Edit End of dropdown", _in(_table("userlistTbl"))));
+	_setSelected(_select("status"), "Inactive");
+	_click(_submit("submit"));
+	_setValue(_textbox("User Name"), $signupEmail);
+	_click(_submit("Go"));
+	_assertNotEqual($status, _getText(_cell("user_Status", _in(_table("userlistTbl")))));
+	logOut();
+}
+
+function createNewUser($communicationPreference) {
+	var $email = signUpUser("1", "ghix123#");
+	if (_isVisible(_paragraph("/Please click CONTINUE to log in with your email address and password/"))) {
+		_click(_link("Continue"));
+		login($email, "ghix123#");
+	}
+	fillPersonalDetails("417 S 6th St","","Boise","Idaho",$communicationPreference,"","English","English");
+	logOut();
+	return $email;
+}
+
+function signUpUserAndLogin(){
+	var $email = signUpUser("1", "ghix123#");
+	if (_isVisible(_paragraph("/Please click CONTINUE to log in with your email address and password/"))) {
+		_click(_link("Continue"));
+		login($email, "ghix123#");
+	}
+	return $email;
+}
+
+function login($user, $password) {
+	if (!$user) {
+		$user = $signupEmail;
+	}
+	loginEnterEmailAddress($user);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	if(_isVisible(_heading3("Find Help Near You")))
+		_click(_link("Don't ask again"));
+}
+
+function signUpUser($securityAnswer, $password){
+	_click(_link("START SHOPPINGIndividual"));
+	_click(_link("K:label.iex.prescreen.skipSignup"));
+	$firstName = randomString($FIELD_LENGTH);
+	_setValue(_textbox("/First Name/"), $firstName);
+	$lastName = randomString($FIELD_LENGTH);
+	_setValue(_textbox("/Last Name/"), $lastName);
+	$email = "Sahi_" + $firstName + $lastName + "@yopmail.com";
+	$email = $email.toLowerCase();
+	_setValue(_emailbox("email"), $email);
+	_setValue(_emailbox("confirmEmail"), $email);
+	$phoneNumber = phoneGen();
+	_setValue(_textbox("phone1"), $phoneNumber[0]);
+	_setValue(_textbox("phone2"), $phoneNumber[1]);
+	_setValue(_textbox("phone3"), $phoneNumber[2]);
+	_setSelected(_select("securityQuestion1"), 1);
+	_setValue(_textbox("Security Answer"), $securityAnswer);
+	_setValue(_password("password"), $password);
+	_setValue(_password("confirmPassword"), $password);
+	_check(_checkbox("terms"));
+	_click(_button("Submit "));
+	return $email;
+}
+
+function verifyNotificationPreferenceMessage(){
+	_assertVisible(_div("You will receive notifications based on your preferred method of communication, and each notification will be preceded by an email alert if applicable. As required by law, 1095-A tax statements are mailed via the U.S. Postal Service, and will also be distributed to your secure inbox."));
+}
+
+function createEmailAddress(){
+	$tempFirstName = randomString($FIELD_LENGTH);
+	$tempLastName = randomString($FIELD_LENGTH);
+	return "Sahi_" + $tempFirstName + $tempLastName + "@yopmail.com";
+}
+
+function fillPersonalDetails($addr1, $addr2, $city, $state,$communicationPreference,$chekforAddress,$prefspokenLang,$prefwrittenLang){
+	_setValue($preferencesAddress1, $addr1);
+	_setValue($preferencesAddress2, $addr2);
+	_setValue($preferencesCity, $city);
+	_setSelected($preferencesState, $state);
+	_setValue($preferencesZipCode, $zipCode);
+	_setSelected($preferencesCounty, $county);
+	if (_isVisible($preferencesDob)) {
+		var $month = Math.floor(Math.random() * 12) + 1;
+		if ($month < 10) {
+			$month = "0" + $month;
+		}
+
+		var $day = Math.floor(Math.random() * 28) + 1;
+		if ($day < 10) {
+			$day = "0" + $day;
+		}
+
+		var $year = Math.floor(Math.random() * 50);
+		var $year = 1940 + $year;
+
+		$dob = $month + "/" + $day + "/" + $year;
+		_setValue($preferencesDob, $dob);
+	}
+
+	if(!$prefspokenLang){
+		_setSelected($preferencesSpokenLanguage, 0);
+	}
+	else {
+		_setSelected(_select("prefSpokenLang"), $prefspokenLang);
+	}
+
+	if(!$prefwrittenLang){
+		_setSelected($preferencesWrittenLanguage, 0);
+	}
+	else {
+		_setSelected(_select("prefWrittenLang"), $prefwrittenLang);
+	}
+	
+	if ($communicationPreference) {
+		_click(_radio(0, _in(_label($communicationPreference))));
+		$preferenceType =$communicationPreference;
+	} else {
+		var $rand = Math.random() * 2;
+		if ($rand < 1) {
+			_click($preferencesEmail);
+			$preferenceType ="Email";
+		}
+		else {
+			_click($preferencesPostal);
+			$preferenceType = "Mail";
+		}
+	}
+
+	_click($preferencesContinue);
+	if($chekforAddress){
+		_click(_radio("addressSelect", _near(_heading4("We Found[1]"))));
+		_click(_submit("OK[3]"));
+	}
+}
+
+function searchUserByUserName($userName){
+	_setValue(_textbox("User Name"), $userName);
+	_click(_submit("Go"));
+}
+
+function selectUserName($userName){
+	_click(_link($userName));
+}
+
+function unlockUserAccount(){
+	_uncheck(_checkbox("accountLocked"));
+	_click(_submit("Save and Send"));
+}

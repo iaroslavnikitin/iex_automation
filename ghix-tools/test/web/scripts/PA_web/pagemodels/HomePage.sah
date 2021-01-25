@@ -1,0 +1,66 @@
+_includeOnce("HeaderFooter.sah");
+_includeOnce("Preeligibility.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("Signup.sah");
+
+var $WelcomeText = _heading1("Welcome to Pennie.");
+var $HomeText = _paragraph("Pennie is the only place that you can apply for financial help to lower the cost of your monthly premiums and out-of-pocket costs for health insurance.");
+var $LetsGetStarted = _paragraph("LET'S GET STARTED")
+var $BrowsePlans = _paragraph("Browse for health & dental plans");
+var $RegisterWithCode = _paragraph("Register with access code");
+var $LoginToExistingAccount = _paragraph("Log in to existing account");
+
+
+
+
+var $headerLogIn = _link("Login");
+
+var $Broker = _link("Health Insurance Agent/Broker");
+var $Entities = _link("Enrollment Entities");
+
+
+
+var $homepageAccessors = [$WelcomeText,$HomeText,$LetsGetStarted,$BrowsePlans,$RegisterWithCode, $LoginToExistingAccount]
+var $loggedIn ;
+
+function verifyElementsOfHomePage() {
+	verifyArray($homepageAccessors);
+	verifyNJHeader();
+	if (_isVisible($headerLogIn)) {
+		$loggedIn = false;
+	}
+	else {
+		$loggedIn = true;
+	}
+	
+}
+
+function clickStartShopping($coverageYear) {
+	if (_isVisible($BrowsePlans)){
+		_click($BrowsePlans);
+	}
+	else {
+		_logExceptionAsFailure("Missing StartShopping/BrowsePlans link");
+	}
+
+	_click(_link("Continue"));
+	$signupMode = "Individual";
+	verifyElementsOnPreeligibility("",$coverageYear);
+}
+
+function clickHealthInsuranceAgentOrBroker () {
+	_click($Broker);
+	$signupMode = "Agent";
+	verifyElementsOnSignUpPage();
+}
+
+function clickEnrollmentEntities() {
+	_click($Entities);
+	$signupMode = "Entity";
+	verifyElementsOnSignUpPage();
+}
+
+// function clickLogin() {
+// 	if (!_isVisible(_textbox("Email Address"))) _click($Login);
+// 	loginVerify();
+// }

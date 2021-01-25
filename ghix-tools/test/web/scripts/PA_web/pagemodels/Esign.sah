@@ -1,0 +1,208 @@
+var $esignHeader=_heading1("Electronic Signature for Your Enrollment");
+var $esignExchangeAgreement=_heading4("I. Exchange Agreement");
+var $esignAgreement=_checkbox("I have read and agreed to the Exchange Agreement");
+var $esignSignature=_textbox("/To provide your eSignature please enter your full name. /");
+var $esignEnroll=_button("Sign and Enroll");
+
+function verifyElementsOnEsignPage(){
+	_assertVisible($esignHeader);
+	_assertVisible($esignExchangeAgreement);
+	_assertVisible($esignAgreement);
+	_assertVisible($esignSignature);
+}
+
+function selectEsignAcceptAgrrement(){
+	//verifyElementsOnEsignPage();
+	_check($esignAgreement);
+}
+
+function enterEsignSignature($Signature){
+	if($Signature){
+		_setValue(_textbox("/To provide your eSignature please enter your full name./"), $Signature);
+	}
+	else
+		_setValue(_textbox("/To provide your eSignature please enter your full name./"), $ssapPeople[0].fullName());
+}
+
+function clickSignAndEnroll($group, $healthPlan, $dentalPlan, $coverageDate, $customGroupMem,$isCoverageDate){
+	_click($esignEnroll);
+	if($outsideIdaho == "Yes"){
+		_assertVisible(_heading4("Disenrollments from Existing Plans"));
+	}
+	_assertVisible(_link("Go to Dashboard"));
+	verifyEnrollmentOnConfirmation($group, $healthPlan, $dentalPlan, $coverageDate, $customGroupMem,$isCoverageDate)
+		}
+
+function enterBindingArbitrationAgreement($household,$isDental, $aptcEligibility){
+/*
+	if(!$isDental && $aptcEligibility == "true"){
+		_click(_checkbox("taxFiler_esign"));
+
+	}
+*/
+	if(_isVisible(_checkbox("taxFiler_esign"))){
+		_click(_checkbox("taxFiler_esign"));
+	}
+	_assertVisible(_label("I have read and agreed to the Exchange Agreement"));
+	_check(_checkbox("terms"))
+		var $fullName = $household[0].$firstName+" "+$household[0].$lastName;
+	_setValue(_textbox("applicant_esig"), $fullName);
+	_assertVisible(_div($fullName, _near(_span("Provide eSignature:"))));
+
+	//	_setValue(_password("pin_esig"), "1234");
+
+}
+
+function verifyEnrollmentOnConfirmation($group, $healthPlan, $dentalPlan, $coverageDate, $customGroupMem,$isCoverageDate){
+	var $totalPremium = 0;
+	var $totalPremiumCoast = 0;
+	_assertVisible(_heading1("Confirmation"));
+	//_assertVisible(_paragraph("individualOrderconfirmText"));
+	//_assertEqual("You have completed checkout with Covered California. You will be enrolled once you pay your premium bill to the plan(s) you chose. Congratulations!", _getText(_paragraph("individualOrderconfirmText")));
+
+	if($healthPlan){
+		verifyHealthPlanDetailsOnConfirmation($group, $coverageDate, $healthPlan,$customGroupMem,$isCoverageDate);
+		$totalPremium = parseFloat($healthPlan.premium.replace("$",""));
+
+//		if($group.aptc){
+//			$totalPremiumCoast = parseFloat($healthPlan.aptc);
+//		}
+		$totalPremiumCoast = parseFloat($healthPlan.totalPayment);
+	}
+	else{
+		_assertNotVisible(_heading4("Health Plans"))
+			}
+
+	if($dentalPlan){
+		verifyDentalPlanDetailsOnConfirmation($group, $coverageDate, $dentalPlan,$customGroupMem);
+		$totalPremium = parseFloat($dentalPlan.premium.replace("$",""));
+		$totalPremiumCoast += parseFloat($dentalPlan.premium.replace("$",""))
+			}
+
+	$totalPremium = $totalPremium.toFixed(2);
+	$totalPremium =$totalPremium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+		if($group.aptc && $healthPlan  && $group.aptc !=="$0.00"){
+			$totalPremiumCoast = $totalPremiumCoast.toFixed(2);
+			//$totalPremiumCoast = $totalPremiumCoast.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+//				var $cost = "$ "+$totalPremiumCoast;
+//				_assertVisible(_span($cost,_near(_cell("Monthly Price Tax Credit (APTC)"))))
+//				_assertContainsText("Total Monthly Premium Cost $ "+$totalPremiumCoast, _row("individual-subtotal"));
+			$aptc = $healthPlan.aptc.replace("$","");
+			var $APTC = "-$ "+$aptc.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+			_assertVisible(_span($APTC, _near(_div("Monthly Price Tax Credit (APTC)"))));
+			var $total = parseFloat($totalPremiumCoast - $aptc).toFixed(2);
+			 $total = "$"+$total;
+			_log("$T " +$total);
+			_assertVisible(_paragraph($total, _near(_div("Your Total Monthly Premium Payment"))));
+
+//			_assertVisible(_row("Total Monthly Premium Assistance -$ "+$aptc));
+		}
+	else{
+		
+		//_assertVisible(_row("Your Total Monthly Premium Payment $"+$totalPremium));
+		_assertVisible(_div("Your Total Monthly Premium Payment $"+$totalPremiumCoast.toFixed(2)));
+		
+	}
+	_assertVisible(_heading4("Making Changes to Your Plans"));
+	//_assertVisible(_paragraph("If changes occur in your household, to report them, log in to your account and click on \"Report a Change\" or \"Change Plans\"."));
+	//_assertVisible(_heading4("Disclaimers"));
+	//_assertContainsText("You are not enrolled until your plan(s) receives your premium payment. If you do not pay your first payment(s) your application may expire. If your application expires you may be required to resubmit your application and may have to wait until the next Open Enrollment Period.", _div("rightpanel"));
+	_assertVisible(_link("Shop For More Members"));
+	_assertVisible(_link("Print Page"));
+	_assertVisible(_link("Go to Dashboard"));
+}
+
+function verifyHealthPlanDetailsOnConfirmation($group, $coverageDate, $health, $customGroupMem, $isCoverageDate){
+	_assertVisible(_heading4("/Health/"));
+	verifyNamesOfFamilyMemberOnConfirmation($group, "/Health/", $customGroupMem);
+
+	if($isCoverageDate){
+		_assertVisible(_strong($coverageDate, _near(_heading4("/Health/"))));
+	}
+	else{
+		if($group.coverageChangeEffectiveDate){
+			_log("$group.coverageChangeEffectiveDate: "+$group.coverageChangeEffectiveDate);
+			var $coverageChangeEffectiveDate;
+			if($group.aptc){
+				_log("$group.aptc: "+$group.aptc);
+				$coverageChangeEffectiveDate = $group.coverageChangeEffectiveDate;
+				_log("$coverageChangeEffectiveDate if aptc: "+$coverageChangeEffectiveDate);
+			}
+			else{
+				$coverageChangeEffectiveDate = $coverageDate;
+				_log("$coverageChangeEffectiveDate if no aptc: "+$coverageChangeEffectiveDate);
+			}
+			_assertVisible(_strong($coverageChangeEffectiveDate, _near(_heading4("/Health/"))));
+		}
+		else{
+			_assertVisible(_strong($coverageDate, _near(_heading4("/Health/"))));
+		}
+	}
+	
+	_assertVisible(_link($health.title, _near(_heading4("/Health/"))));
+	var $premium = $health.premium.replace("$","")
+		if($group.aptc){
+
+			$premium = $health.totalPayment;
+		}
+
+	var $formatedPremium = $premium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+		_assertVisible(_div("/"+$formatedPremium+"/", _near(_heading4("/Health/"))));
+	//_assertVisible(_cell("Monthly Premium (monthly cost)", _near(_heading4("/Health/"))));
+}
+
+function verifyDentalPlanDetailsOnConfirmation($group, $coverageDate, $dental, $customGroupMem){
+	_assertVisible(_heading4("/Dental/"));
+	verifyNamesOfFamilyMemberOnConfirmation($group, "/Dental/", $customGroupMem)
+		if($group.coverageChangeEffectiveDate){
+			_assertVisible(_strong($group.coverageChangeEffectiveDate, _near(_heading4("/Dental/"))));
+		}
+	else{
+		_assertVisible(_strong($coverageDate, _near(_heading4("/Dental/"))));
+	}
+	//var $issuerName =$dental.imageText;
+	//_assertVisible(_cell("/"+$issuerName+"/", _near(_heading4("Dental Plans"))));
+	if($dental.name.indexOf("...") != -1){
+		var $planName = $dental.name.replace("...","");
+		_assertVisible(_cell($dental.title, _near(_heading4("/Dental/"))));
+	}
+	else{
+		_assertVisible(_link($dental.title, _near(_heading4("/Dental/"))));
+	}
+	var $premium = $dental.premium.replace("$","")
+		_assertVisible(_div("/"+$premium+"/", _near(_heading4("/Dental/"))));
+	//_assertVisible(_cell("Monthly Premium (monthly cost)", _near(_heading4("/Dental/"))));
+
+}
+
+function verifyNamesOfFamilyMemberOnConfirmation($group, $plan, $customGroupMem){
+
+	for(var $i = 0; $i< $group.member.length ;$i++){
+		_log($i + " " +$group.member[$i].$applying);
+		if($group.member[$i].$applying == "Yes"){
+		var $fullName =$group.member[$i].$firstName+" "+$group.member[$i].$lastName;
+		_assertVisible(_paragraph("/"+$fullName+"/i", _near(_heading4($plan))));
+		}
+	}
+
+}
+//$action button "CHANGE PLANS"
+//$status "Enrolled"
+function clickGoToDashboardFromEsig($coverageYear,$people,$actionButton, $eventDate,$groups,$isHealthEnrollmentComplete, $isFinancial, $aptcEligible ,$csrEligible,$isDentalEnrollmentComplete,$isSEP,$applicationType){
+	_click(_link("Go to Dashboard"));
+
+	verifyElementsOfIndividualDashboard($coverageYear,$people,$actionButton, $eventDate,$groups,$isHealthEnrollmentComplete, $isFinancial, $aptcEligible ,$csrEligible,$isDentalEnrollmentComplete,$isSEP,$applicationType);
+
+}
+function clickGoToDashboardFromEsignature($status, $household, $actionButton,$eventDate,$groups,$isHealthEnrollmentComplete,$isDentalEnrollmentComplete,$isFromToday,$verificationFlag,$isSEP,$isFinancial, $aptcEligible, $csrEligible,$applicationType){
+	_click(_link("Go to Dashboard"));	
+	if ($verificationFlag !="N") {
+		verifyIndividualDashboard($status, $household, $actionButton, $eventDate,$groups,$isHealthEnrollmentComplete,$isDentalEnrollmentComplete,$isFromToday,$isSEP,$isFinancial,$aptcEligible, $csrEligible,$isDentalEnrollmentComplete,$isSEP, $applicationType);	
+	}															
+}
+
+function clickShopForMoreMembersOnEsig(){
+	_button("Shop For More Members")
+		}
+
+

@@ -1,0 +1,27 @@
+"Comments","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/Broker.sah"
+,,"loadSahi","../pagemodels/Agency.sah"
+,,"loadSahi","../pagemodels/Login.sah"
+,,"loadSahi","create_data/CreateAgent.sah"
+,,"loadSahi","create_data/CreateAgency.sah"
+"//",,"loadSahi","""C:/Sahi/CA/agents.sah"""
+"//",,"loadSahi","""C:/Sahi/CA/agencies.sah"""
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+
+
+"Create test data","Verify that Agency Manager is able to change his own Activity status.","[Documentation]","Certified Agency with no Agent"
+,,"$cAyNoAgent = createAgency","cAyNoAgent"
+,,"updateBusinessLegalNameOfAgency","$cAyNoAgent.businessName","$cAyNoAgent.agencyName"
+,,"setAgencyNameEqualToBusinessLegalNameInDB","$cAyNoAgent.businessName"
+,,"certifyAgency","$cAyNoAgent"
+
+"Verify that Agency Manager is able to change his own Activity status.",,"[Documentation]","Prerequisite
+Agency should be CERTIFIEDAgency has not added any agent.Agency Manager is the agentSTR:1.Login as Agency2.User is landed at the View Agent list page3.Select the only Agent by selecting the gear icon4.Select EDIT5.In the left navigation pane tab ""Status"" should be present6.Click on EDIT button7.Select 'Active' from the dropdown8.Click on 'Submit' button9.Status should be changed to 'Active'Expected - Agency Manager must be  able to change his own Activity status."
+,,"loginAsAgency","$cAyNoAgent.email","$cAyNoAgent.password"
+,,"refineAgentsForAgency","$cAyNoAgent.firstName","$cAyNoAgent.lastName"
+,,"goToEditAgentPageAsAgency","$cAyNoAgent.firstName","$cAyNoAgent.lastName"
+,,"clickStatus","Active","Y"
+,,"editAgentStatus","Active"
+,,"editAgentStatus","InActive"
+,,"logOut"

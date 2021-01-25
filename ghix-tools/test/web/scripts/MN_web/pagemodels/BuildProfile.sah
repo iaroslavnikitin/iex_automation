@@ -1,0 +1,199 @@
+_includeOnce("CertificationApplication.sah");
+_includeOnce("CertificationStatus.sah");
+
+
+
+var $BuildProfile = true;
+
+// Constants
+var $AGENT_PROFILE_EDUCATION_MENU_LENGTH = 10;
+var $AGENT_PROFILE_PIC_NAME = "pic.jpg";
+//var $AGENT_PROFILE_PIC_PATH = "scripts\\idaho\\pic.jpg";
+var $AGENT_PROFILE_PIC_PATH = _resolvePath("../pic.jpg", "\\");
+
+// Accessors
+var $agentProfileHeader = _heading4("Step 2: Profile");
+var $agentProfileInstructions = _div("span10");
+var $agentProfileClientsServedLabel = _label("control-label required");
+var $agentProfileClientsServed = _checkbox("clientsServed");
+var $agentProfileLanguagesLabel = _label("Languages");
+var $agentProfileLanguages = _textbox(0);
+var $agentProfileProductExpertiseLabel =_label("/Product Expertise/");
+var $agentProfileHealth = _checkbox("Health");
+var $agentProfileDental = _checkbox("Dental");
+var $agentProfileVision = _checkbox("Vision");
+var $agentProfileLife = _checkbox("Life");
+var $agentProfileMedicare = _checkbox("Medicare");
+var $agentProfileMedicaid = _checkbox("Medicaid");
+var $agentProfileCHIP = _checkbox("CHIP");
+var $agentProfileWorkersComp = _checkbox("Workers Compensation");
+var $agentProfileProperty = _checkbox("Property/Casualty");
+var $agentProfileWebsiteLabel = _label("control-label required[2]");
+var $agentProfileWebsite = _textbox("yourWebSite");
+var $agentProfileEmailLabel = _label("required control-label");
+var $agentProfileEmail = _textbox("yourPublicEmail");
+var $agentProfileEducationLabel = _label("Education");
+var $agentProfileEducation = _select("education");
+var $agentProfileAboutYouLabel = _label("About Yourself");
+var $agentProfileAboutYou = _textarea("aboutMe");
+var $agentProfilePhotoLabel = _label("Upload Photo");
+var $agentProfilePhoto = _file("fileInputPhoto");
+var $agentProfileUpload = _button("btn_UploadPhoto");
+var $agentProfileBack = _button("back");
+var $agentProfileFinish = _submit("submit_finish_next");
+var $businessAddressLine1 = _textbox("address1");
+var $businessAddressLine2 = _textbox("address2");
+var $businessCity = _textbox("city");
+var $businessState = _select("state");
+var $businessZip = _textbox("zip");
+
+function verifyElementsOnAgentProfile() {
+	_assertVisible($agentProfileHeader);
+	_assertVisible($agentProfileInstructions);
+	_assertVisible($agentProfileClientsServedLabel);
+	_assertVisible($agentProfileClientsServed);
+	_assertVisible($agentProfileLanguagesLabel);
+	_assertVisible($agentProfileLanguages);
+	_assertVisible($agentProfileProductExpertiseLabel);
+	_assertVisible($agentProfileHealth);
+	_assertVisible($agentProfileDental);
+	_assertVisible($agentProfileVision);
+	_assertVisible($agentProfileLife);
+	_assertVisible($agentProfileMedicare);
+	_assertVisible($agentProfileMedicaid);
+	_assertVisible($agentProfileCHIP);
+	_assertVisible($agentProfileWorkersComp);
+	_assertVisible($agentProfileProperty);
+	_assertVisible($agentProfileWebsiteLabel);
+	_assertVisible($agentProfileWebsite);
+	_assertVisible($agentProfileEmailLabel);
+	_assertVisible($agentProfileEmail);
+	_assertVisible($agentProfileEducationLabel);
+	_assertVisible($agentProfileEducation);
+	_assertVisible($agentProfileAboutYouLabel);
+	_assertVisible($agentProfileAboutYou);
+	_assertVisible($agentProfilePhotoLabel);
+	_assertVisible($agentProfilePhoto);
+	_assertVisible($agentProfileUpload);
+	_assertVisible($agentProfileBack);
+	_assertVisible($agentProfileFinish);
+}
+
+function checkClientsServed($bool) {
+	if ($bool) {
+		_check($agentProfileClientsServed);
+	}
+	else {
+		_uncheck($agentProfileClientsServed);
+	}
+}
+
+function enterProfileLanguage($language) {
+	_click(_listItem($language));
+	_assertEqual("/"+$language+"/",_getText(_list("chzn-choices")));
+}
+
+function checkExpertise($type, $bool) {
+	var $accessor = _checkbox($type);
+	if ($bool) {
+		_check($accessor);
+	}
+	else {
+		_uncheck($accessor);
+	}
+}
+
+function enterAgentWebsite($address) {
+	_setValue($agentProfileWebsite, $address);
+}
+
+function enterAgentPublicEmail($email) {
+	_setValue($agentProfileEmail, $email);
+}
+
+function selectAgentEducation($edu) {
+	_setSelected($agentProfileEducation, $edu);
+}
+
+function enterAgentEducation() {
+	var $index = Math.floor(Math.random() * 9) + 1;
+	selectAgentEducation($index);
+}
+
+function enterAboutYourself($text) {
+	if ($text === undefined) {
+		$text = "";
+	}
+	_setValue($agentProfileAboutYou, $text);
+}
+
+function uploadAgentPhoto() {
+	/*
+	_setFile($agentProfilePhoto, $AGENT_PROFILE_PIC_PATH);
+	var $text = _getValue($agentProfilePhoto);
+	//_assertTrue(new RegExp($BUILD_PROFILE_PIC_NAME).test($text));
+	_click($agentProfileUpload);
+	_wait(10000, _isVisible(_heading4("File uploaded Successfully.")));
+	_assertVisible(_heading4("File uploaded Successfully."));
+	_click(_submit("Ok"));
+	*/
+	var $temp = getUpdatedBaseURL();
+	_set($tempUrl, $temp+"/hix/broker/buildprofile/");
+	_setFile2(_file("fileInputPhoto"), $AGENT_PROFILE_PIC_PATH, $tempUrl);
+	_click(_button("Upload"));
+	_setStrictVisibilityCheck(true);
+//	_click(_submit("Ok"));
+	_setStrictVisibilityCheck(false);
+	_wait(10000, _isVisible(_heading4("File uploaded Successfully.")));
+	_assertVisible(_heading4("File uploaded Successfully."));
+	_click(_submit("Ok"));
+	
+}
+
+function clickBackButtonOnAgentProfile() {
+	_click($agentProfileBack);
+	verifyElementsOnAgentRegistration();
+}
+
+function clickFinsihToCreateAgentAccount() {
+	_click($agentProfileFinish);
+	certificationStatusVerify();
+	_click(_submit("Close"));
+}
+
+var $agentBusinessAddress="";
+function updateAgentBusinessAddress($address1,$address2,$city,$state,$zip){
+	_assertVisible($businessAddressLine1);
+	_assertVisible($businessCity);
+	_assertVisible($businessState);
+	_assertVisible($businessZip);
+	_setValue($businessAddressLine1, $address1);
+	_setValue($businessAddressLine2, $address2);
+	_setValue($businessCity, $city);
+	_setSelected($businessState, $state);
+	_setValue($businessZip, $zip);
+
+	if($state == "Idaho"){
+		$state = "ID";
+	}
+	else if($state == "California"){
+		$city ="CA";
+	}
+	$agentBusinessAddress = "Business Address " +$address1 + " " +$address2 + " " +$city + ", " +$state + " " +$zip;
+	_log($agentBusinessAddress);
+}
+
+function verifyAgentBusinessAddress(){
+	_click(_link("Agent Information[1]"));
+	_assertVisible(_heading4("Agent Information"));
+	_assertVisible(_list("nav nav-list"));
+	_assertEqual($agentBusinessAddress,_getText(_table("table table-border-none table-condensed[1]")));
+	_click($homeIcon);
+}
+
+
+
+function test(){
+	_click(_button("Next"));
+	uploadAgentPhoto();
+}

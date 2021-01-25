@@ -1,0 +1,164 @@
+var $Results = true;
+_includeOnce("ShowCart.sah");
+_includeOnce("HeaderFooter.sah");
+_includeOnce("Preeligibility.sah");
+_includeOnce("Preferences.sah");
+
+// Variables
+var $taxCreditValue;
+var $resultsHeader;
+var $resultsHeader2;
+var $resultsTaxCredit = _span("maxAptc ng-binding");
+var $resultsPrevious = _button("Previous");
+var $resultsNext = _button("Next");
+
+function verifyElementsOfCheckSavingsResult() {
+	_assertVisible(_div("/IMPORTANT: These results are only an estimate. To find out if you qualify, you need to complete an application./"));
+	_assertVisible(_listItem("Your cost of health insurance depends on where you live, how many people are in your household, and income.", _in(_div("sidebar"))));
+	_assertVisible(_button("Back"));
+	_assertVisible(_listItem("Your information will help us find out if you qualify for help paying for health coverage and which plans might be available for you.", _in(_div("sidebar"))));
+	_assertVisible(_heading1("Find out how much health insurance may cost in " + $coverageYear));
+}
+
+function validateResultsTitle($expectedTitle){
+	_assert(_isVisible(_heading4($expectedTitle)));
+}
+
+function getEstimatedTaxCredit(){
+	var $str = _getText(_paragraph("/You could get an estimated Tax Credit of/"));;
+	var $taxCredit = _extract($str, "You could get an estimated Tax Credit of (.*)", true);
+	return $taxCredit;
+}
+
+function verifyEstimatedTaxCredit($taxCredit){
+	_assertVisible(_paragraph("subtitle"));
+	_assertEqual("You could get an estimated Tax Credit of " + $taxCredit, _getText(_paragraph("subtitle")));
+}
+
+function goBackToPreScreenerPage(){
+	clickElement(_button("Back"));
+}
+
+//function validateSavingDetails($expectedTitle, $detail, $subTitle){
+//	$expectedTitle = encodeForRegEx($expectedTitle);
+//	_assertVisible(_heading5("/"+$expectedTitle+"/"));
+//	if ($subTitle) {
+//		_assertVisible(_paragraph("subtitle"));
+//		_assertEqual("/"+$subTitle+"/", _getText(_paragraph("subtitle")));
+//	}
+//	$detail = encodeForRegEx($detail);
+//	_assertVisible(_div("/"+$detail+"/"));
+//}
+
+function validateSavingDetails($isLowerMonthlyPayment, $isLowerOutOfPocketCosts, $isMedicare, $isMedicaid, $isCHIP, $isStillQualify){
+	$isLowerMonthlyPayment = isTrue($isLowerMonthlyPayment);
+	$isLowerOutOfPocketCosts = isTrue($isLowerOutOfPocketCosts);
+	$isMedicare = isTrue($isMedicare);
+	$isMedicaid = isTrue($isMedicaid);
+	$isCHIP = isTrue($isCHIP);
+	$isStillQualify = isTrue($isStillQualify);
+	
+	verifySavingLowerMonthlyPayment($isLowerMonthlyPayment);
+	verifySavingLowerOutOfPocketCosts($isLowerOutOfPocketCosts);
+	verifySavingMedicare($isMedicare);
+	verifySavingMedicaid($isMedicaid);
+	verifySavingCoverageForYourChild($isCHIP);
+	verifySavingYouStillQualifyForQualityOptions($isStillQualify);
+	
+	var $shouldNextButtonBeVisible = $isLowerMonthlyPayment || $isLowerOutOfPocketCosts || $isStillQualify;
+	_assertEqual($shouldNextButtonBeVisible, _isVisible(_button("Next")));
+}
+
+function verifySavingLowerMonthlyPayment($shouldBeVisible){
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("Lower monthly payment (premium)"));
+		_assertVisible(_paragraph("subtitle"));
+		_assertContainsText("You could get an estimated Tax Credit of ", _paragraph("subtitle"));
+		var $desc = encodeForRegEx("Based on the income you entered, you may qualify for an Advanced Premium Tax Credit (APTC). A tax credit could lower your portion of the monthly insurance bill. Your monthly payment (or premium) may be about.*Learn more about APTC");
+		_assertVisible(_div("/"+$desc+"/"));
+		verifyTooltip(_link("/APTC/"), "APTC APTC's can help you pay for a medical plan and can be used right away to lower your monthly bill or you can wait until the end of the year to claim your tax credit).");
+	}
+	else {
+		_assertNotVisible(_heading5("Lower monthly payment (premium)"));
+		_assertNotVisible(_paragraph("subtitle"));
+		var $desc = encodeForRegEx("/Based on the income you entered, you may qualify for an Advanced Premium Tax Credit (APTC). A tax credit could lower your portion of the monthly insurance bill. Your monthly payment (or premium) may be about.*Learn more about APTC/");
+		_assertNotVisible(_div($desc));
+	}
+}
+
+function verifySavingLowerOutOfPocketCosts($shouldBeVisible){
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("Lower out-of-pocket costs"));
+		_assertVisible(_div("It looks like you may qualify for cost-sharing reductions. These will reduce the copays Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service. , coinsurance and deductibles Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible. you pay for services. To get cost-sharing reductions you must enroll in a Silver level plan."));
+	}
+	else {
+		_assertNotVisible(_heading5("Lower out-of-pocket costs"));
+		_assertNotVisible(_div("It looks like you may qualify for cost-sharing reductions. These will reduce the copays Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service. , coinsurance and deductibles Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible. you pay for services. To get cost-sharing reductions you must enroll in a Silver level plan."));
+	}
+}
+
+
+function verifySavingYouStillQualifyForQualityOptions($shouldBeVisible){
+	var $desc = encodeForRegEx("While it looks like you do not qualify for the financial help (premium tax credits), you may still be able to get access to qualified health plans. In Hartford County, Connecticut, you can get plans for about ");
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("You still qualify for quality options"));
+		_assertVisible(_div("/"+$desc+"/"));
+	}
+	else {
+		_assertNotVisible(_heading5("You still qualify for quality options"));
+		_assertNotVisible(_div("/"+$desc+"/"));
+	}
+}
+
+function verifySavingMedicaid($shouldBeVisible){
+	var $desc = encodeForRegEx("Based on the household income you reported, you may qualify for low-cost -- or even free -- coverage with Medicaid or the Children's Health Insurance Program (CHIP).");
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("Medicaid"));
+		_assertVisible(_div("/"+$desc+"/"));
+	}
+	else {
+		_assertNotVisible(_heading5("Medicaid"));
+		_assertNotVisible(_div("/"+$desc+"/"));
+	}
+}
+
+function verifySavingCoverageForYourChild($shouldBeVisible){
+	var $desc = encodeForRegEx("Based on your income and location, your child may be able to get insurance at a lower cost -- or even free -- through the Children's Health Insurance Program, more commonly known as CHIP.");
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("/Coverage for your child/"));
+		_assertVisible(_div("/"+$desc+"/"));
+	}
+	else {
+		_assertNotVisible(_heading5("/Coverage for your child/"));
+		_assertNotVisible(_div("/"+$desc+"/"));
+	}
+}
+
+function verifySavingMedicare($shouldBeVisible){
+	var $desc = encodeForRegEx("Anyone in your household over 65 years of age is likely to qualify for Medicare. If someone qualifies for Medicare, they may not be eligible to purchase a health insurance plan through Access Health CT. To find a Medicare plan, click here.");
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("Medicare"));
+		_assertVisible(_div("/"+$desc+"/"));
+	}
+	else {
+		_assertNotVisible(_heading5("Medicare"));
+		_assertNotVisible(_div("/"+$desc+"/"));
+	}
+}
+
+function clickPreviousButtonOnSavingResults() {
+	_click($resultsPrevious);
+	verifyElementsOnPreeligibility(true);
+	verifyDataOnPreeligibility();
+}
+
+function clickNextOnCheckSavingResults() {
+	if (!$loggedIn) {
+		if (_isVisible($resultsTaxCredit)) {
+			$taxCreditValue = _getText($resultsTaxCredit);
+			$taxCreditValue = $taxCreditValue.replace(/\$/, "");
+		}
+	}
+	_click($resultsNext);
+	verifyElementsOfPreferencePage();
+}

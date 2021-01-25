@@ -1,0 +1,31 @@
+_includeOnce("Indportal.sah");
+_includeOnce("Utils.sah");
+
+var $AccountSettings = true;
+
+function manageQHPValidateCertifiedVerifiedAvailablePlans(){
+	headerFooterClickLogin();
+	loginEnterEmailAddress("auto_admin@yopmail.com");
+	loginEnterPassword("ghix123#");
+	loginClickLoginButton();
+	_click(_link("Plans"));
+	_click(_link("Manage QHPs"));
+	_assertVisible(_heading1("/Qualified Health Plans/"));
+	var $now= _call(window.moment()).format("MM/DD/YYYY");
+	$currentYear = parseInt(_fetch(window.moment($now).get('year')))+1;
+	$nextYear = parseInt(_fetch(window.moment($now).get('year')));
+	_assertTrue(new RegExp($currentYear).test(_getText(_select("planYear"))));
+	_assertTrue(new RegExp($nextYear).test(_getText(_select("planYear"))));
+	_setSelected(_select("planYear"),  "/"+$currentYear+"/");
+	_setSelected(_select("status"), "Certified");
+	_setSelected(_select("verified"), "Yes");
+	_setSelected(_select("enrollmentAvailability"), "Available");
+	_click(_submit("Go"));
+	_assertNotEqual("/Qualified Health Plans 0 Total Plan/", _getText(_heading1(0)));
+	_setSelected(_select("planYear"), "/"+$nextYear+"/");
+	_setSelected(_select("status"), "Certified");
+	_setSelected(_select("verified"), "Yes");
+	_setSelected(_select("enrollmentAvailability"), "Available");
+	_click(_submit("Go"));
+	_assertNotEqual("/Qualified Health Plans 0 Total Plan/", _getText(_heading1(0)));
+}

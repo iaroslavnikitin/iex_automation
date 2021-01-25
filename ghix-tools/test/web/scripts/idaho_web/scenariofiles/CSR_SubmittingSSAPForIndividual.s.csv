@@ -1,0 +1,10 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2","Argument 3","Argument 4","Argument 5","Argument 6","Argument 7","Argument 8","Argument 9","Argument 10","Argument 11","Argument 12","Argument 13","Argument 14"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+,,"loadSahi","../pagemodels/global_include.sah"
+
+
+"all,individualPortal,cap","L1 / L2 / Supervisor Creating Individual Account And Submitting SSAP","[Documentation]"
+
+,,"[Keyword]","csrCreatingAndVerifyingIndividualAccount"
+,,"[Documentation]","Role","createPermission","ridpPermission","user","password","first","last","dob","zipcode","phoneNumber","emailPrefix","isCSREnabled","aptcAmount","noOfAdults","noOfChildren","showCatastrophic"
+,,"[Data]","[userdata:SubmitSSAP:Role]","[userdata:SubmitSSAP:createPermission]","[userdata:SubmitSSAP:ridpPermission]","[userdata:SubmitSSAP:user]","[userdata:SubmitSSAP:password]","[userdata:SubmitSSAP:first]","[userdata:SubmitSSAP:last]","[userdata:SubmitSSAP:dob]","[userdata:SubmitSSAP:zipcode]","[userdata:SubmitSSAP:phoneNumber]","[userdata:SubmitSSAP:emailPrefix]","[userdata:SubmitSSAP:isCSREnabled]","[userdata:SubmitSSAP:aptcAmount]","[userdata:SubmitSSAP:noOfAdults]","[userdata:SubmitSSAP:noOfChildren]","[userdata:SubmitSSAP:showCatastrophic]"

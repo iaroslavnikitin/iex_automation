@@ -1,0 +1,244 @@
+_includeOnce("PlanSelection.sah");
+_includeOnce("Utils.sah");
+_includeOnce("ReportChange.sah");
+
+
+var $ShowCart = true;
+var $now = new Date();
+var $showCartDentalCoverageStart;
+var $showCartPlanLink;
+var $showCartDentalPlanLink;
+var $showCartRemoveHealthPlanLink;
+var $showCartRemoveDentalPlanLink;
+
+var $showCartHeader = _heading1("Confirm your Plan Selection");
+var $showCartCoverageStart = _span("span5 margin0 txt-right pull-right");
+var $showCartMonthlyPrice = _span("numberToFormat", _rightOf(_paragraph("Monthly Price")));
+var $showCartYourPayment = _row("individual-subtotal");
+var $showCartYourDentalPayment;
+var $showCartCartTotal = _heading4("Cart Total");
+var $showCartCartTotalValue;
+var $showCartContinueShopping = _button("Continue Shopping");
+var $showCartNextRegister = _link("Next: Register");
+var $showCartNextFinal = _link("Next: Final Eligibility");
+var $showCartShopPlans = _link("Shop Plans");
+var $showCartSkipAndSignUp = _link("Skip & Sign Up");
+var $showCartSkipAndFinalize = _link("Skip & Finalize Eligibility");
+var $shopForDifferentPlan=_link("Shop for a Different Plan");
+
+
+function verifyElementsOnShowCartPage($keepCurrentPlan,$totalIndvRespAmt,$grossPremium,$event,$covDateAfterTypeOneAdd) {
+	var $total;
+	var $cartDentalPayment = "";
+	
+	$clickNextCount = 0;
+	if ($loggedIn === undefined) {
+		$loggedIn = false;
+	}
+	if($loggedIn){
+		_assertVisible(_heading1("Confirm your Plan Selection"));
+	}
+	else {
+		_assertVisible(_heading1("Your Cart"));
+	}
+
+	// Remove accessors
+	if ($planName) {
+		$showCartRemoveHealthPlanLink = _link("Remove");
+		$showCartRemoveDentalPlanLink = _link("Remove[1]");
+	}
+	else {
+		$showCartRemoveDentalPlanLink = _link("Remove");
+	}
+
+	// planLink accessors change whether logged in or not
+//	$showCartPlanLink = _cell("span4 plan-carrier");
+	$showCartPlanLink = _link("/"+$planName+"/");
+//	$showCartDentalPlanLink = _table("table table-condensed carttable margin0 cart");
+	$showCartDentalPlanLink = _link("/"+$dentalPlanName+"/");
+	$showCartCartTotalValue= _span("numberToFormat", _in(_row("/TOTAL MONTHLY PAYMENT/")));
+	if ($planName) {
+		$showCartDentalCoverageStart = _span("span5 margin0 txt-right pull-right[1]");
+		
+		//if(_isIE()){
+		//	$showCartYourDentalPayment = _cell("txt-right vertical-align-middle[2]");
+		//}
+		//else {
+		//	$showCartYourDentalPayment = _row("individual-subtotal[1]");
+		//}
+	}
+	else {
+		$showCartDentalCoverageStart = _span("span5 margin0 txt-right pull-right");
+		//if(_isIE()){
+		//	$showCartYourDentalPayment = _cell("txt-right vertical-align-middle");
+		//}
+		//else {
+		//	$showCartYourDentalPayment = _row("individual-subtotal");
+		//}
+	}
+
+	if ($planName) {
+		_assertTrue(new RegExp($planName).test(_getText($showCartPlanLink)));
+	}
+	if ($dentalPlanName && $onDentalPage) {
+		_log("Dental Plan"+$dentalPlanName);
+		_assertTrue(new RegExp($dentalPlanName).test(_getText($showCartDentalPlanLink)));
+		if ($dentalPlanName && $onDentalPage) {
+			if(!$dentalPayment){
+			$dentalPayment="";
+			}
+			$dentalPayment = $dentalPayment.replace("/month","");
+			$cartDentalPayment = _getText(_cell(0, _rightOf(_cell("DENTAL MONTHLY PAYMENT", _under(_tableHeader("/Dental/")))))).replace("$","");
+			var $dentalPay = $dentalPayment.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+			//_log($dentalPay+"              "+ _getText($showCartYourDentalPayment));
+			_assertNotEqual($cartDentalPayment.indexOf($dentalPay), -1);
+		}
+	}
+	
+	// verify coverage date
+	if ($loggedIn) {
+		$coverageDate = getCoverageStartDate($eventReported, $eventDate, $event, $covDateAfterTypeOneAdd);	
+		_log("ShowCart, verifyElementsOnShowCartPage, logged-in: calculated coverageDate = " + $coverageDate);
+	}
+	else { // anonymous shopping flow
+		var $todaysDate = _fetch(window.moment().format('MM/DD/YYYY'));
+		$coverageDate = getCoverageStartDate("3", $todaysDate);
+		_log("ShowCart, verifyElementsOnShowCartPage, anonymous shopping: calculated coverageDate = " + $coverageDate);
+	}
+	_assertContainsText($coverageDate, _cell("/span4 coverage-start-date/"));
+	
+	if( $payment != null){
+		$payment = $payment.replace(/\$/, "");
+		$payment = $payment.replace(",", "");
+	}
+	if ($cartDentalPayment != null) {
+		$cartDentalPayment = $cartDentalPayment.replace(/\$/, "");		
+		$cartDentalPayment = $cartDentalPayment.replace(",", "");		
+	}
+	_log("Plan Name"+$planName);
+	_log("Dental Plan Name"+ $dentalPlanName +"Dental Page Value"+ $onDentalPage);
+	if ($planName && ($dentalPlanName && $onDentalPage)) {
+		$total = (parseFloat($payment) + parseFloat($cartDentalPayment)).toFixed(2).toString();
+		_log("Health payment = "+ $payment + " , Dental payment = " + $cartDentalPayment);
+		_log("***************first total*************"+$total)
+	}
+	else if ($planName) {
+		$total = $payment;
+		_log("Health payment = "+ $payment + " , no Dental payment");
+		_log("***************2nd total*************"+$total)
+	}
+	else if ($dentalPlanName && $onDentalPage) {
+		//$total = $dentalPayment;
+		$total = $cartDentalPayment;
+		_log("No Health payment , Dental payment = " + $cartDentalPayment);
+		_log("***************third total*************"+$total)
+	}
+	if ($total ) {
+		
+//		$total = $total.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+		$total =$total.replace("/month","");
+		_wait(5000,_isVisible(_heading4("Cart Total")));
+		if($keepCurrentPlan=="add"){
+				_log("Tol Ind resp amt: " +$totalIndvRespAmt[0][0]);
+				$total = parseFloat($total) + parseFloat($totalIndvRespAmt[0][0]);
+				$total=parseFloat($total).toFixed(2);
+		/*		if($keepCurrentPlan=="addAndRemove"){
+					_log("Tol Ind resp amt: " +$totalIndvRespAmt[0][0]);
+					$total = parseFloat($total) - parseFloat($totalIndvRespAmt[0][0]);
+				}*/
+			}
+			else if ($keepCurrentPlan=="remove"){
+				_log("Tol Ind resp amt: " +$totalIndvRespAmt[0][0]);
+				$total = parseFloat($grossPremium) - parseFloat($totalIndvRespAmt[0][0]);
+			}
+
+		_log("Total  =  "+$total);
+		_log("Cartvalue =  "+_getText($showCartCartTotalValue));
+		$total=parseFloat($total).toFixed(2);
+		_log("Total before DigitGroupSeparator : "+$total);
+		var $totalDigitGroupSeparator=$total.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+		_log("totalDigitGroupSeparator: " +$totalDigitGroupSeparator);
+		//_assertEqual($totalDigitGroupSeparator,_getText($showCartCartTotalValue));
+	}
+
+	return $total;
+}
+
+function getMonthlyPriceFromCartPage(){
+	var $monthlyPrice=_getText($showCartMonthlyPrice);
+	return $monthlyPrice;
+}
+
+
+
+function clickRemoveHealthPlanFromCartPage() {
+	_click($showCartRemoveHealthPlanLink);
+	$planName = undefined;
+	$payment = undefined;
+	verifyElementsOnShowCartPage();
+}
+
+function clickRemoveDentalPlanFromCartPage() {
+	_click($showCartRemoveDentalPlanLink);
+	$dentalPlanName = undefined;
+	$dentalPayment = undefined;
+	verifyElementsOnShowCartPage();
+}
+
+//function clickContinueShopping() {
+function clickContinueShopping($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic, $ShowCSROnAllTiles){
+	_click($showCartContinueShopping);
+	$onDentalPage = false;
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic, $ShowCSROnAllTiles);
+}
+
+function clickRegisterOnCartPage() {
+	_click($showCartNextRegister);
+	$signupMode = "Individual";
+	verifyElementsOnSignUpPage();
+}
+
+function clickFinalOnCartPage() {
+	_click($showCartNextFinal);
+	verifyElementsOfIndividualDashboard();
+}
+
+function clickSkipAndSignUpOnCartPage() {
+	_click($showCartSkipAndSignUp);
+	verifyElementsOfApplyPopUp();
+	$clickNextCount++;
+}
+
+// Dental - Change Enrollees
+function clickChangeEnrollees() {
+	_click(_link("Change Enrollees"));
+	verifyCustomGroupingForDental();
+	
+	//Verify error message when all the members are unchecked
+	for(var $i =0; $i< $ssapPeople.length; $i++){
+		if($ssapPeople[$i].$applying !="No"){
+			_uncheck(_checkbox("chkSCoverage", _rightOf(_cell($ssapPeople[$i].$firstName.toLowerCase()))));
+		}
+	}
+	_click(_submit("Update Results"));
+	_assertVisible(_div("Please select at least one member to proceed."),"Please select at least one member to proceed message is not displayed");
+	
+	//Check only one member and update results
+	for(var $i =0; $i< $ssapPeople.length-1; $i++){
+		if($ssapPeople[$i].$applying !="No"){
+			_uncheck(_checkbox("chkSCoverage", _rightOf(_cell($ssapPeople[$i].$firstName.toLowerCase()))));
+		}
+	}
+	_click(_submit("Update Results"));
+	_click(_link("Change Enrollees"));
+	var $newApplicantIndex=$ssapPeople.length-1;
+	_assert(_checkbox("chkSCoverage", _rightOf(_cell($ssapPeople[$newApplicantIndex].$firstName.toLowerCase()))).checked);
+	_click(_submit("Cancel"));
+}
+
+function verifyClickShopForDifferentPlan() {
+	_assertVisible($shopForDifferentPlan,"Verify if shop For Different Plan link is visible");
+	_click(_link("Shop for a Different Plan"));
+	_assertVisible(_link("Remove Existing Plans & Go Shopping"),"Verify if Remove Existing Plans & Go Shopping link is visible");
+	_click(_link("Remove Existing Plans & Go Shopping"));
+}

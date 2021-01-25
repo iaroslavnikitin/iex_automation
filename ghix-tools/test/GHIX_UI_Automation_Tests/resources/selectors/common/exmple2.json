@@ -1,0 +1,4 @@
+{
+    "welcomeDashboardHeading":"$('h1')",
+    "welcomeDashboardHeading2":"$('h2')"
+}

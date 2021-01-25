@@ -1,0 +1,172 @@
+"Comments","Tags","TestCase","Key Word","Argument 1",,"Argument 2"
+,,,"loadSahi","../pagemodels/Broker.sah"
+,,,"loadSahi","../pagemodels/Login.sah"
+,,,"loadSahi","../lib/CommonNameCreation.sah"
+,,,"loadSahi","../pagemodels/Agency.sah"
+,,,"loadSahi","../pagemodels/Agents.sah"
+,,,"loadSahi","../pagemodels/Signup.sah"
+,,,"loadSahi","../pagemodels/AdminStaff.sah"
+,,,"loadSahi","../pagemodels/BookOfBusiness.sah"
+,,,"loadSahi","../pagemodels/ENGSVC-1216_lib.sah"
+,,,"loadSahi","../scenariofiles/create_data/CreateAgency.sah"
+,,,"loadSahi","../scenariofiles/create_data/CreateAgent.sah"
+,,,"loadSahi","../pagemodels/DelegationHistory.sah"
+,,,"loadSahi","../pagemodels/cap_memberView.sah"
+,,,"loadSahi","../pagemodels/SoapRequest.sah"
+,,,"loadSahi","../resources/delegation_history/DataForDelegationHistoryTests.sah"
+
+,,"[Global]","[SetUp]"
+,,,"maximizeWindow"
+,,,"createDbObj"
+
+,,,"[Documentation]","accessing data from
+resources/delegation_history/DataForDelegationHistoryTests.sah"
+,,,"$agencyData =","$AGENCY_DATA_ID_49"
+,,,"$consumerData =","[]"
+,,,"$delegationHistoryRecordsFromAgent=","[]"
+,,,"$delegationHistoryRecordsToAgent=","[]"
+,,,"$capSupervisor =","""auto_supervisor_49@yopmail.com"""
+,,,"$capSupervisorRole =","""SUPERVISOR"""
+,,,"$capLZero =","""auto_lzero_49@yopmail.com"""
+,,,"$capLZeroRole =","""L0_READONLY"""
+,,,"$capLOne =","""auto_lone_49@yopmail.com"""
+,,,"$capLOneRole =","""L1_CSR"""
+,,,"$capLTwo =","""auto_ltwo_49@yopmail.com"""
+,,,"$capLTwoRole =","""L2_CSR"""
+
+
+"Create consumer with designation","all","id=49","[Documentation]",">Login as Agency Manager
+> Transfer consumer from one agent to other agent 
+to populate first record in delegation history
+> Transfer consumer from one agent to other agent 
+to populate second record in delegation history
+> Verify delegation history page for individual with ended delegation and agent with active delegation
+>As agency manager mark consumer as inactive and verify delegation history
+for agency and individual"
+,,,"$automationAgency = createAutomationAgencyIfNotExist","$agencyData"
+,,,"$household=createIndividualWithDesignation","$automationAgency.agents[0].recordID"
+"//",,,"[Documentation]","data","variableName","test id","clear file? Y or null"
+"//",,,"saveDataInFile","$household","""$household""","""49""","""Y"""
+"//",,,"_include","""C:/Sahi/CA/householdData49.sah"""
+,,,"logOut"
+"Login as agency manager
+and transfer consumer from
+one agent to other agent
+to populate first record",,,"[Documentation]"
+,,,"Login","$automationAgency.email","""ghix123"""
+,,,"[Documentation]","$fromAgent","$toAgent","$countOfConsumers","$verificationFlag"
+,,,"bulkTransferConsumers","$automationAgency.agents[0].name","$automationAgency.agents[1].name","1","""N"""
+,,,"$consumerData[0]=getConsumerData","$household"
+,,,"[Documentation]","$agents","$counselors","$agentOrCecNameToDelegate","$consumerData"
+,,,"$delegationHistoryRecords=createDelegationHistoryRecord","$automationAgency.agents",,"$automationAgency.agents[1].name","$consumerData"
+
+"As agency manager transfer consumer from
+one agent to other agent to populate 
+second record",,,"[Documentation]","$fromAgent","$toAgent","$countOfConsumers","$verificationFlag"
+,,,"bulkTransferConsumers","$automationAgency.agents[1].name","$automationAgency.agents[0].name","1","""N"""
+,,,"[Documentation]","$agents","$counselors","$agentOrCecNameToDelegate","$consumerData"
+,,,"$delegationHistoryRecorsAfterTransfer=createDelegationHistoryRecord","$automationAgency.agents",,"$automationAgency.agents[0].name","$consumerData"
+,,,"[Documentation]","$delegationHistoryRecords","$newRecords","$reason","$option"
+,,,"$delegationHistoryRecords=updateDelegationHistoryRecords","$delegationHistoryRecords","$delegationHistoryRecorsAfterTransfer","""Transfer within Agency/Entity"""
+,,,"logOut"
+
+"Login as exadmin and search for
+consumer to get CAP url",,,"[Documentation]","username","password","$household"
+,,,"$capURL=loginAsExadminAndSearchForIndividual",,,"$household"
+,,,"logOut"
+"Login as supervisor and verify
+delegation history page",,,"[Documentation]","username","role"
+,,,"createCsrUserIfNotExist","$capSupervisor","$capSupervisorRole"
+,,,"[Documentation]","username","password","$household","URL","$role"
+,,,"loginAsCapAdmin","$capSupervisor","""ghix123""","$household","$capURL","""supervisor"""
+,,,"navigateToDelegationHistoryOnCapPortal"
+,,,"verifyDelegationHistoryUI","""supervisor"""
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecords"
+"Search by agent one first name, last name 
+and case id and verify ended delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory",,"$automationAgency.agents[1].firstName","$automationAgency.agents[1].lastName"
+,,,"$delegationHistoryRecordsFromAgent[0]=","$delegationHistoryRecords[1]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsFromAgent"
+,,,"clickResetAllButton","$delegationHistoryRecords"
+"Search by agent two first name, last name 
+and case id and verify active delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId","$automationAgency.agents[0].firstName","$automationAgency.agents[0].lastName"
+,,,"$delegationHistoryRecordsToAgent[0]=","$delegationHistoryRecords[0]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsToAgent"
+,,,"clickResetAllButton"
+"Search by incorrect case and
+verify no results message",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory","""incorrect case"""
+,,,"verifyNoSearchResultsMessage"
+,,,"logOut"
+"Login as supervisor L2 and verify
+delegation history page",,,"[Documentation]","username","role"
+,,,"createCsrUserIfNotExist","$capLTwo","$capLTwoRole"
+,,,"[Documentation]","username","password","$household","URL","$role"
+,,,"loginAsCapAdmin","$capLTwo","""ghix123""","$household","$capURL","""L2"""
+,,,"navigateToDelegationHistoryOnCapPortal"
+,,,"verifyDelegationHistoryUI","""supervisor"""
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecords"
+"Search by agent one first name, last name 
+and case id and verify ended delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory",,"$automationAgency.agents[1].firstName","$automationAgency.agents[1].lastName"
+,,,"$delegationHistoryRecordsFromAgent[0]=","$delegationHistoryRecords[1]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsFromAgent"
+,,,"clickResetAllButton","$delegationHistoryRecords"
+"Search by agent two first name, last name 
+and case id and verify active delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId","$automationAgency.agents[0].firstName","$automationAgency.agents[0].lastName"
+,,,"$delegationHistoryRecordsToAgent[0]=","$delegationHistoryRecords[0]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsToAgent"
+,,,"logOut"
+"Login as supervisor L1 and verify
+delegation history page",,,"[Documentation]","username","role"
+,,,"createCsrUserIfNotExist","$capLOne","$capLOneRole"
+,,,"[Documentation]","username","password","$household","URL","$role"
+,,,"loginAsCapAdmin","$capLOne","""ghix123""","$household","$capURL","""L1"""
+,,,"navigateToDelegationHistoryOnCapPortal"
+,,,"verifyDelegationHistoryUI","""supervisor"""
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecords"
+"Search by agent one first name, last name 
+and case id and verify ended delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory",,"$automationAgency.agents[1].firstName","$automationAgency.agents[1].lastName"
+,,,"$delegationHistoryRecordsFromAgent[0]=","$delegationHistoryRecords[1]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsFromAgent"
+,,,"clickResetAllButton","$delegationHistoryRecords"
+"Search by agent two first name, last name 
+and case id and verify active delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId","$automationAgency.agents[0].firstName","$automationAgency.agents[0].lastName"
+,,,"$delegationHistoryRecordsToAgent[0]=","$delegationHistoryRecords[0]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsToAgent"
+,,,"logOut"
+"Login as supervisor L0 and verify
+delegation history page",,,"[Documentation]","username","role"
+,,,"createCsrUserIfNotExist","$capLZero","$capLZeroRole"
+,,,"[Documentation]","username","password","$household","URL","$role"
+,,,"loginAsCapAdmin","$capLZero","""ghix123""","$household","$capURL","""L0"""
+,,,"navigateToDelegationHistoryOnCapPortal"
+,,,"verifyDelegationHistoryUI","""supervisor"""
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecords"
+"Search by agent one first name, last name 
+and case id and verify ended delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory",,"$automationAgency.agents[1].firstName","$automationAgency.agents[1].lastName"
+,,,"$delegationHistoryRecordsFromAgent[0]=","$delegationHistoryRecords[1]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsFromAgent"
+,,,"clickResetAllButton","$delegationHistoryRecords"
+"Search by agent two first name, last name 
+and case id and verify active delegation",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId","$automationAgency.agents[0].firstName","$automationAgency.agents[0].lastName"
+,,,"$delegationHistoryRecordsToAgent[0]=","$delegationHistoryRecords[0]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsToAgent"

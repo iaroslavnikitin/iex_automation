@@ -1,0 +1,37 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+"//",,"loadSahi","../pagemodels/HeaderFooter.sah"
+"//",,"loadSahi","../pagemodels/HomePage.sah"
+"//",,"loadSahi","../pagemodels/Indportal.sah"
+"//",,"loadSahi","../pagemodels/QEPHome.sah"
+"//",,"loadSahi","../pagemodels/QEPEligible.sah"
+"//",,"loadSahi","../pagemodels/Apply.sah"
+"//",,"loadSahi","../pagemodels/Ssap.sah"
+"//",,"loadSahi","../pagemodels/Login.sah"
+"//",,"loadSahi","../pagemodels/Esign.sah"
+"//",,"loadSahi","../pagemodels/JenkinsAndDBSetUp.sah"
+"//",,"loadSahi","../pagemodels/ManageMember.sah"
+"//",,"loadSahi","../pagemodels/User.sah"
+"//",,"loadSahi","../pagemodels/Tickets.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+,,"loadSahi","../pagemodels/global_include.sah"
+"//",,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+
+"all,Security,HIX-88035,HIX-88034,HIX-88033,HIX-88032,HIX-88031,HIX-88029,HIX-89453,HIX-88227","HIX-88035 HIX-88034 HIX-88033 HIX-88032 HIX-88031 HIX-88029 HIX-89453 HIX-88227   Verify Override Feature For Different Roles","[Documentation]","Verify Override Feature For Different Roles
+1) HIX-88035-Enable permission for L1 CSR user to view ""CSR OVERRIDES"" (Actions tab).
+2) HIX-88034-Enable permission for L1, L2 and Supervisor user to view ""CANCEL OR TERMINATE PLAN"".
+3) HIX-88033-Enable permission for L2 and Supervisor user to view ""REINSTATE ENROLLMENT"".
+4) HIX-88032-Enable permission for L2 and Supervisor user to view ""OPEN SPECIAL ENROLLMENT"".
+5) HIX-88031-Enable permission for L2 and Supervisor user to view ""EDIT NON FINANCIAL APPLICATION"".
+6) HIX-88029-Enable permission for L2 and Supervisor user to view ""Change Coverage Start Date"".'
+7) HIX-89453-Verify Role-based configurable access management to Enrollment Edit Tool.
+8) HIX-88227-Enable Override Enrollment Status permission to CSR Supervisor and Admin along with 1095 user."
+,,"openBrowser"
+,,"[Keyword]","csrModifyingIndividualEnrollment"
+,,"[Data]","[userdata:OverrideFeature:role]","[userdata:OverrideFeature:user]","[userdata:OverrideFeature:password]","[userdata:OverrideFeature:actionTabPermission]","[userdata:OverrideFeature:cancelOrTerminatePermission]","[userdata:OverrideFeature:changeCovDate]","[userdata:OverrideFeature:reinstatement]","[userdata:OverrideFeature:openSpecialEnrollment]","[userdata:OverrideFeature:overrideEnrollmentStatus]","[userdata:OverrideFeature:editToolPermission]","[userdata:OverrideFeature:resend]"

@@ -1,0 +1,28 @@
+{
+    "identityVerificationHeader":"Identity Verification Steps:",
+    "getStarted":{
+        "verifyIdentityHeading":"Verify your Identity"
+    },
+
+    "contactInformation":{
+        "contactInformationHeading":"Contact Information"
+
+    },
+
+    "finish":{
+        "errorText":"We encountered an error while verifying your identity online. You can either continue working on the application and try again later or proceed for manual verification."
+        },
+
+    "manualVerification":{
+        "manualVerificationHeading":"Submit documents that prove your identity",
+        "alertErrorText":"Your identity wasn't verified.  You won't be able to submit your application for health coverage until your identity is verified.",
+        "submitted":"SUBMITTED"
+    },
+    "callExperian":{
+        "experianUnresolved":"Experian is still reporting this issue as unresolved. To proceed further, please call Experian and then click on the above button."
+    },
+    "adminManualVerification":{
+        "basicInformationHeader":"Basic Information"
+    }
+
+}

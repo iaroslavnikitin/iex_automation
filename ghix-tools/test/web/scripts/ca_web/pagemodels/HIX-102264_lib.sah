@@ -1,0 +1,13 @@
+_includeOnce("../lib/CommonFunctions.sah");
+
+function goToPendingDelegationRequestsAsAgency()
+{
+	_click(_link("Agency Delegations"));
+	_click(_link("/Pending Delegation Requests/", _near(_link("/Agency Delegations Dropdown Menu/"))));
+	_assertVisible(_textbox(0, _in(_div("Consumer First Name"))));
+	_assertVisible(_textbox(0, _in(_div("Consumer Last Name"))));
+	_assertVisible(_textbox(0, _in(_div("Agent First Name"))));
+	_assertVisible(_textbox(0, _in(_div("Agent Last Name"))));
+	_assertVisible(_textbox(0, _in(_div("From:"))));
+	_assertVisible(_textbox(0, _in(_div("To:"))));
+}

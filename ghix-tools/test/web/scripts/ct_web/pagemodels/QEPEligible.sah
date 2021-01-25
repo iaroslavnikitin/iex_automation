@@ -1,0 +1,18 @@
+_includeOnce("Apply.sah");
+_includeOnce("Indportal.sah");
+
+var $QEPEligible = true;
+
+var $qepEligibleHeader = _heading3("You probably qualify for a Special Enrollment Period");
+var $qepEligibleStart = _link("START YOUR APPLICATION");
+
+function qepEligibleVerify() {
+	_assertVisible($qepEligibleHeader);
+	_assertVisible(_link("START YOUR APPLICATION"));
+	_assertTrue(new RegExp("Welcome, " + $firstName + " " + $lastName, "i").test(_getText($indportalHeader)));
+}
+
+function qepEligibleClickStartApplication() {
+	_click($qepEligibleStart);
+	verifyElementsOfApplyPopUp(true);
+}

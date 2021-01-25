@@ -1,0 +1,128 @@
+const $DEFAULT_ENTITY = {
+	"firstName": null,
+	"lastName": null,
+	"username": null,
+	"phoneNumber": ["111","111","1111"],
+	"password": null,
+	"entityInformation": {
+		"entityNumber": null,
+		"entityType": [],
+		"entityName": null,
+		"businessName": null,
+		"primaryEmailAddress": null,
+		"primaryPhoneNumber": null,
+		"secondaryPhomeNumber": null,
+		"wayToContact": [],
+		"faxNumber": null,
+		"federalTaxId": null,
+		"stateTaxId": null,
+		"organizationType": [],
+		"countiesServed": [],
+		"educationGrant":[]
+	},
+	"populationServed":{
+		"languages":[],
+		"ethnicities":[],
+		"industries":[]
+	},
+	"locationAndHours":{
+		"primarySite": {
+			"primarySiteLocation": null,
+			"primaryEmailAddress": null,
+			"primaryPhoneNumber": null,
+			"secondaryPhomeNumber": null,
+			"hoursOfOperation":{
+				"Monday": ["09:00","19:00"],
+				"Tuesday": ["09:00","19:00"],
+				"Wednesday": ["09:00","19:00"],
+				"Thursday": ["09:00","19:00"],
+				"Friday": ["09:00","19:00"],
+				"Saturday": ["Closed","Closed"],
+				"Sunday": ["Closed","Closed"],
+			},
+			"mailingAddress": null,
+			"physicalAddress": null,
+			"spokenLanguages": null,
+			"writtenLanguages": null
+		},
+		"subSites":null
+	},
+	"contactInformation":{
+		"primaryContact": {
+			"name":null,
+			"email":null,
+			"primaryPhoneNumber": null,
+			"secondaryPhomeNumber": null,
+			"wayToContact": null
+		},
+		"financialContact":{
+			"name":null,
+			"email":null,
+			"primaryPhoneNumber": null,
+			"secondaryPhomeNumber": null,
+			"wayToContact": null
+		}
+	},
+	"counselors": null,
+	"registrationStatus":{
+		"status": "Incomplete",
+		"regRenewalDate": null,
+		"registrationHistory":[
+			{
+				"date": null,
+				"previousStatus": null,
+				"newStatus": null,
+				"comment": null
+			}
+		]
+	}
+};
+
+const $DEFAULT_CEC = {
+			"firstName": null,
+			"lastName": null,
+			"username": null,
+			"password": null,
+			"email": null,
+			"counselorNumber": null,
+			"primaryPhoneNumber": null,
+			"secondaryPhomeNumber": null,
+			"wayToContact": null,
+			"isCecCertified": "No",
+			"primaryCecSite": null,
+			"secondaryCecSite": null,
+			"mailingAddress": null,
+			"spokenLanguages": null,
+			"writtenLanguages": null,
+			"education": null,
+			"isPhotoUploaded": false,
+			"dbdata":{
+				"ee_assisters": []
+			},
+			"certificationStatus":{
+				"status": "Incomplete",
+				"certNumber": null,
+				"certStartDate": null,
+				"certRenewalDate": null,
+				"certHistory":[
+					{
+						"date": null,
+						"previousStatus": null,
+						"newStatus": null,
+						"comment": null
+					}
+				]
+			},
+			"activityStatus":{
+				"status": "InActive",
+				"activityHistory":[
+					{
+						"date": null,
+						"previousStatus": "InActive",
+						"newStatus": "InActive",
+						"comment": null
+					}
+				]
+			}
+		};
+

@@ -1,0 +1,60 @@
+{
+  "CA_Zip":94043,
+  "CA_aptc":"80.22",
+  "CA_coverageDate":"01/01/2021",
+  "CA_stateSubsidy":"27.5",
+  "houseHold": {
+    "zip": "",
+    "income": 82000,
+    "county": "",
+    "eventType":3,
+    "applicationYear":"",
+    "applicationType":"",
+    "coverageDate":"",
+    "eligibility": "APTC",
+    "flowType":"Anonymous",
+    "applicants": [
+      {
+        "relation": "SELF",
+        "dateOfBirth": "10/10/1985",
+        "tobaccoUse": false,
+        "nativeAmerican": true,
+        "pregnant": false,
+        "seekingCoverage": true
+      },
+      {
+        "relation": "SPOUSE",
+        "dateOfBirth": "11/11/1985",
+        "tobaccoUse": false,
+        "nativeAmerican": true,
+        "pregnant": true,
+        "seekingCoverage": true
+      },
+      {
+        "relation": "CHILD",
+        "dateOfBirth": "12/12/2015",
+        "tobaccoUse": false,
+        "nativeAmerican": true,
+        "pregnant": false,
+        "seekingCoverage": true
+      },
+      {
+        "relation": "CHILD",
+        "dateOfBirth": "12/12/2016",
+        "tobaccoUse": false,
+        "nativeAmerican": true,
+        "pregnant": false,
+        "seekingCoverage": true
+      }
+    ],
+    "preferences":
+    {
+    "dropSearch": "doctor",
+    "doctor": "Dr.",
+    "selectDoctorVisits" : "level3",
+    "selectMonthlyPrescriptions" : "level4",
+    "drug":"Lipitor 80 Mg Tab (Oral Tablet)",
+    "Lipitor":"Lipitor"
+    }
+  }
+}

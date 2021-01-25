@@ -1,0 +1,25 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,,"loadSahi","../global_include.sah"
+,,,"loadSahi","../pagemodels/HomePage.sah"
+,,,"loadSahi","../pagemodels/preeligibility.sah"
+,,,"loadSahi","../lib/DB.sah"
+,,,"$zip =","""07306"""
+,,,"[Documentation]","eventType","Event Date","Event","isInOEP"
+,,,"$coverageStartDate = getCoverageStartDate","3",,,"$inOEP"
+,,,"$coverageDate = getCurrentCoverageYear"
+
+
+
+
+
+
+"Kid Only","smoke,anonymous","Kid doing anonymous flow for both health and dental plan","[Documentation]","Kids only with No CSR and APTC.Select preferences(randomly) and verify Plan display page 3. Select Health Plan and go to Cart page and verify Cart 4. Click Shop for dental and Select Dental plan from Plan Display page 5. Go to Plan Detail page and remove the selected Dental Plans 6. Click Back to plan Link and add dental plan from this page 7. Go till Cart page and remove both Health plan and Dental Plans. 8. Click Back to shopping and verify Plan display Page."
+
+,,,"clickBrowseForHealthAndDentalPlans","$coverageDate"
+,,,"selectCoverageYear",,"$coverageDate"
+,,,"enterZipCode","$zip"
+,,,"enterPrimaryInformation","""02/02/1997""","FALSE","FALSE","FALSE"
+,,,"clickAddChild","""02/05/2014""","FALSE","FALSE","TRUE"
+"//",,,"clickBrowsePlans"
+,,,"enterHouseholdIncome","""37000"""
+,,,"clickCheckForSavings","$coverageDate","3"

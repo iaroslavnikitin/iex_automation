@@ -1,0 +1,78 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../lib/DB.sah"
+,,"loadSahi","../pagemodels/Preferences.sah"
+,,"loadSahi","../pagemodels/PlanSelection.sah"
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+,,"createDbObj"
+,,"$zip =","""94043"""
+,,"$coverageDate=","""01/01/2018"""
+,,"$noOfAdults =","1"
+,,"$noOfChildren =","0"
+,,"$showCatastrophic =","""NO"""
+
+"all","Edit and Shop from View Details","[Documentation]","1. One Adult only with No CSR and APTC
+2. Add 1 provider, select first doctor in the list
+3. Select preferences(randomly) and verify Plan display page
+4. Go to View Details for Health plan and click Edit link in provider section.
+5. Remove the Doctor and go back to Plan Detail page and add Health plan from View Details and go to Dental Plans
+6. Verify View Details for dental plan and add dental plan from this page
+7. Go to Plan Display from Cart page and remove Health plan.
+8. Click on cart Icon on Plan Display page.
+9. Click Shop for health plan from cart page and select another Health plan and continue to Cart"
+,,"[Documentation]","Zipcode","County","Date of Birth","aptc Amount","CSR","Coverage Date"
+,,"navigateToPreferencePage","$zip","""06085""","""01011988""",,,"""01012018"""
+
+,,"[Documentation]","Provider","Name","Miles","Zipcode","No. of Providers"
+"//",,"selectprovider","""Doctor""",,"""10""","$zip","1"
+,,"clickNextPreferences"
+,,"$option1 =selectRandomOptionOnPreference"
+,,"clickNextPreferences"
+,,"$option2 =selectRandomOptionOnPreference"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickViewPlans",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+,,"$healthPlan = clickViewPlanDetails"
+"//",,"clickEditProvidersOnPlanDetails","$healthPlan.zipcode"
+
+,,"[Documentation]","Provider Type","Number"
+"//",,"removeProvider","""Doctor""","1"
+"//",,"clickNextPreferences","$option1"
+"//",,"clickNextPreferences","$option2"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+"//",,"clickViewPlans",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+"//",,"$healthPlan=clickViewPlanDetails"
+,,"[Documentation]","Health Plan Details"
+,,"addToCartOnviewDetails","$healthPlan"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickContinueToDentalPlans",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren"
+,,"$dentalPlan=clickViewPlanDetails"
+
+,,"[Documentation]","Health Plan Details","Dental Plan Details"
+,,"addToCartOnviewDetails","$healthPlan","$dentalPlan"
+
+,,"[Documentation]","Health Plan Details","Dental Plan Details","Coverage Date"
+,,"clickContinueToCart","$healthPlan","$dentalPlan","$coverageDate"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickBackToShopping",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+
+,,"[Documentation]","Plan Number"
+,,"clickViewPlanDetails","$healthPlan.index"
+,,"removePlanFromPlanDetail"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickBackToAllPlansOnViewDetails",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+
+,,"[Documentation]","Health Plan Details","Dental Plan Details","Coverage Date"
+,,"clickCartIconOnPlanSelection",,"$dentalPlan","$coverageDate"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickShopForHealthPlans",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+,,"$healthPlan=clickAddPlanFromPlanSelection"
+
+,,"[Documentation]","Health Plan Details","Dental Plan Details","Coverage Date"
+,,"clickContinueToCart","$healthPlan","$dentalPlan","$coverageDate"

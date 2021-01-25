@@ -1,0 +1,248 @@
+_resource("../pic.jpg");
+
+_includeOnce("DocumentEntity.sah");
+_includeOnce("EntityContactInfo.sah");
+_includeOnce("Files.sah");
+_includeOnce("MailingAddressForm.sah");
+_includeOnce("Utils.sah");
+
+var $Registration = true;
+var $REGISTRATION_EDUCATION_MENU_LENGTH = 8;
+var $addingAssister = false;
+var $registrationHeader = _heading4("Step 5: Enrollment Counselors");
+var $registrationInstructions = _paragraph("In this section, you will provide information about this organization's certified enrollment counselors");
+var $registrationAddEnrollmentCounselor = _button("addAssister");
+var $registrationBack = _button("assisterBack");
+var $registrationDone = _button("assisterDone");
+
+// New Enrollment Counselor
+var $registrationFirstNameLabel = _label("First name");
+var $registrationFirstName = _textbox("firstName");
+var $registrationLastNameLabel = _label("Last name");
+var $registrationLastName = _textbox("lastName");
+var $registrationEmailLabel = _label("Email");
+var $registrationEmail = _textbox("emailAddress");
+var $registrationPrimaryPhoneNumberLabel = _label("required control-label[2]");
+var $registrationPrimaryPhoneNumber = [_textbox("primaryPhone1"), _textbox("primaryPhone2"), _textbox("primaryPhone3")];
+var $registrationSecondaryPhoneNumberLabel = _label("control-label[1]");
+var $registrationSecondaryPhoneNumber = [_textbox("secondaryPhone1"), _textbox("secondaryPhone2"), _textbox("secondaryPhone3")];
+var $registrationContactPrefLabel = _fieldset("How would this person like to be contacted? required");
+var $registrationContactPref = [_radio("communicationPreferenceEmail"), _radio("communicationPreferenceEmailPhone"), _radio("communicationPreferenceMail")];
+var $registrationCertifiedLabel = _fieldset("Is this Enrollment Counselor Certified?");
+var $registrationCertified = [_radio("selectNo"), _radio("selectYes")];
+var $registrationCertificationNumberLabel = _label("Enrollment Counselor Certification#");
+var $registrationCertificationNumber = _textbox("certificationNumber");
+var $registrationPrimarySiteLabel = _label("Primary Enrollment Counselor Site");
+var $registrationPrimarySite = _select("primarySite");
+var $registrationSecondarySiteLabel = _label("Secondary Enrollment Counselor Site");
+var $registrationSecondarySite = _select("secondarySite");
+
+// Profile Information
+var $registrationProfileInformationHeader = _heading4("Profile Information");
+var $registrationSpokenLanguagesArea = _div("controls[16]");
+var $registrationWrittenLanguagesArea = _div("controls[17]");
+var $registrationEducationLabel = _label("Education");
+var $registrationEducation = _select("education");
+var $registrationPhotoLabel = _label("Upload Photo");
+var $registrationPhoto = _file("fileInput");
+
+// Rest of accessors
+var $registrationSaveAssister = _button("SaveAssister");
+
+function verifyElementsOnRegistrationPage() {
+	_assertVisible($registrationHeader);
+	_assertVisible($registrationInstructions);
+	_assertVisible($registrationAddEnrollmentCounselor);
+	_assertVisible($registrationBack);
+	_assertVisible($registrationDone);
+}
+
+function verifyElementsOfCounselorForm() {
+	// New Enrollment Counselor
+	_assertVisible($registrationFirstNameLabel);
+	_assertVisible($registrationFirstName);
+	_assertVisible($registrationLastNameLabel);
+	_assertVisible($registrationLastName);
+	_assertVisible($registrationEmailLabel);
+	_assertVisible($registrationEmail);
+	_assertVisible($registrationPrimaryPhoneNumberLabel);
+	verifyArray($registrationPrimaryPhoneNumber);
+	_assertVisible($registrationSecondaryPhoneNumberLabel);
+	verifyArray($registrationSecondaryPhoneNumber);
+	_assertVisible($registrationContactPrefLabel);
+	verifyArray($registrationContactPref);
+	_assertVisible($registrationCertifiedLabel);
+	verifyArray($registrationCertified);
+	_assertVisible($registrationPrimarySiteLabel);
+	_assertVisible($registrationPrimarySite);
+	_assertVisible($registrationSecondarySiteLabel);
+	_assertVisible($registrationSecondarySite);
+	_assertVisible($registrationEducationLabel);
+	_assertVisible($registrationEducation);
+	_assertVisible($registrationPhotoLabel);
+	_assertVisible($registrationPhoto);
+
+	verifyMailingAddress();
+	_assertVisible($registrationProfileInformationHeader);
+	_assertVisible($registrationSpokenLanguagesArea);
+	_assertVisible($registrationWrittenLanguagesArea);
+}
+
+function clickAddEnrollmentCounselor() {
+	_click($registrationAddEnrollmentCounselor);
+	$addingAssister = true;
+	verifyElementsOfCounselorForm();
+}
+
+function clickEditRegistration($index) {
+	if ($index === undefined) {
+		$index = 0;
+	}
+
+	_click(_italic("icon-cog[" + $index + "]"));
+	_click(_link("editId[" + $index + "]"));
+
+	$addingAssister = false;
+	verifyElementsOfCounselorForm();
+}
+
+function enterFirstNameOnRegistrationPage($name) {
+	if ($name === undefined) {
+		$name = randomString($FIELD_LENGTH);
+	}
+	_setValue($registrationFirstName, $name);
+}
+
+function enterLastNameOnRegistrationPage($name) {
+	if ($name === undefined) {
+		$name = randomString($FIELD_LENGTH);
+	}
+	_setValue($registrationLastName, $name);
+}
+
+function enterEmailOnRegistrationPage($email) {
+	if ($email === undefined) {
+		$email = randomString($FIELD_LENGTH) + "@example.com";
+	}
+	_setValue($registrationEmail, $email);
+}
+
+function enterPrimaryPhoneNumberOnRegistrationPage() {
+	var $phone = phoneGen();
+
+	for (var $i = 0; $i < $phone.length; $i++) {
+		_setValue($registrationPrimaryPhoneNumber[$i], $phone[$i]);
+	}
+}
+
+function enterSecondaryPhoneNumberOnRegistrationPage() {
+	var $phone = phoneGen();
+
+	for (var $i = 0; $i < $phone.length; $i++) {
+		_setValue($registrationSecondaryPhoneNumber[$i], $phone[$i]);
+	}
+}
+
+function enterContactPreferenceOnRegistrationPage($type) {
+	if ($type === undefined) {
+		$type = Math.floor(Math.random() * $registrationContactPref.length);
+	}
+
+	_click(_radio($type));
+}
+
+function selectCertified($value) {
+	_click(_radio($value));
+
+	if ($value === "Yes") {
+		_assertVisible($registrationCertificationNumberLabel);
+		_assertVisible($registrationCertificationNumber);
+	}
+}
+
+function enterCertificationNumber($number) {
+	if ($number === undefined) {
+		$number = randomString(10, true);
+	}
+
+	_setValue($registrationCertificationNumber, $number);
+}
+
+function enterPrimarySiteOnRegistrationPage($site) {
+	if ($site === undefined) {
+		$site = 1;
+	}
+
+	_setSelected($registrationPrimarySite, $site);
+}
+
+function enterSecondarySiteOnRegistrationPage($site) {
+	if ($site === undefined) {
+		$site = 1;
+	}
+
+	_setSelected($registrationSecondarySite, $site);
+}
+
+function enterMailingInformationOnRegistrationPage($addr1, $addr2, $cityVal, $stateVal, $zipVal) {
+	enterMailingAddressInformation($addr1, $addr2, $cityVal, $stateVal, $zipVal);
+}
+
+function selectSpokenLanguageOnRegistrationPage($language) {
+	var $accessor = _checkbox($language, _in($registrationSpokenLanguagesArea));
+
+	if (_isVisible($accessor)) {
+		_check($accessor);
+	}
+	else {
+		_check(_checkbox("otherSpokenLanguageCheckbox"));
+		$accessor = _listItem($language, _in($registrationSpokenLanguagesArea));
+		_click($accessor);
+	}
+}
+
+function selectWrittenLanguageOnRegistrationPage($language) {
+	var $accessor = _checkbox(new RegExp($language + "(\[1\])?"), _in($registrationWrittenLanguagesArea));
+
+	if (_isVisible($accessor)) {
+		_check($accessor);
+	}
+	else {
+		_check(_checkbox("otherWrittenLanguageCheckbox"));
+		$accessor = _listItem(new RegExp($language + "(\[1\])?"), _in($registrationWrittenLanguagesArea));
+		_click($accessor);
+	}
+}
+
+function enterEducationOnRegistrationPage($education) {
+	if ($education === undefined) {
+		$education = Math.floor(Math.random() * ($REGISTRATION_EDUCATION_MENU_LENGTH - 1)) + 1;
+	}
+
+	_setSelected($registrationEducation, $education);
+}
+
+function clickAddPhotoOnRegistrationPage() {
+	_setFile($registrationPhoto, $PIC_PATH);
+}
+
+function clickSaveAssisterOnRegistrationPage() {
+	var $currentAssisters = _count("_italic", "/icon-cog.*/");
+
+	_click($registrationSaveAssister);
+
+	if ($addingAssister) {
+		var $newAssisters = _count("_italic", "/icon-cog.*/");
+		_assertEqual($currentAssisters + 1, $newAssisters);
+	}
+}
+
+function clickBackOnRegistrationPage() {
+	_click($registrationBack);
+	verifyElementsOnEntityContactInfoPage();
+}
+
+function clickDoneOnRegistrationPage() {
+	_click($registrationDone);
+	verifyElementsForDocumentEntity();
+}

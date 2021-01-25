@@ -1,0 +1,38 @@
+_includeOnce("ConfirmAddress.sah");
+
+var $MailingAddressForm = true;
+
+var $mailingAddressHeader = _heading4("Mailing Address");
+var $address1Label = _label("/Address/")
+var $address1 = _textbox("mailingLocation.address1");
+var $address2 =_textbox("mailingLocation.address2");
+var $cityLabel = _label("CityRequired");
+var $city = _textbox("mailingLocation.city");
+var $state = _select("mailingLocation.state");
+var $zipCode =_textbox("mailingLocation.zip");
+
+function verifyMailingAddress() {
+	_assertVisible($mailingAddressHeader);
+	_assertVisible($address1Label);
+	_assertVisible($address1);
+	_assertVisible(_label("Suite") || _label("Address 2"));
+	_assertVisible($address2);
+	_assertVisible($cityLabel);
+	_assertVisible($city);
+	_assertVisible($state);
+	_assertVisible(_textbox("mailingLocation.zip"));
+}
+
+function enterMailingAddressInformation($addr1, $addr2, $cityVal, $stateVal, $zipVal) {
+	var $oldAddress = _getValue($address1);
+
+	_setValue($address1, $addr1);
+	_setValue($address2, $addr2);
+	_setValue($city, $cityVal);
+	_setSelected($state, $stateVal);
+	_setValue(_textbox("mailingLocation.zip"), $zipVal);
+
+	_wait(3000);
+	verifyConfirmAddress();
+	clickConfirmAddress();
+}

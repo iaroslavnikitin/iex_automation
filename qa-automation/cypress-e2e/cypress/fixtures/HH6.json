@@ -1,0 +1,25 @@
+{
+    "description": "3adults/1 kid household",
+    "hhFamily": {"size": 3, "singleParent": false},
+    "hhLastName": true,
+    "aptcMaximumAmount": 325,
+    "people": [
+        {
+            "personSex": "Male",
+            "dob": "1980-01-01",
+            "csrEligibilityIndicator": false
+        },
+        {
+            "personSex": "Female",
+            "dob": "1985-10-10",
+            "csrEligibilityIndicator": false
+        },
+        {
+            "personSex": "Female",
+            "dob": "2010-09-15",
+            "exchangeEligibilityIndicator": false,
+            "aptcEligibilityIndicator": false,
+            "csrEligibilityIndicator": false
+        }
+    ]
+}

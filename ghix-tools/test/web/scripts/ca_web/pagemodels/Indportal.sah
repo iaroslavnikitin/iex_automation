@@ -1,0 +1,2512 @@
+_includeOnce("../lib/Utils.sah");
+_includeOnce("../lib/DbDetails.sah");
+_includeOnce("../lib/CommonFunctions.sah");
+_includeOnce("QualifyingEvent.sah");
+_includeOnce("CustomGrouping.sah");
+
+function yearTabOnDashboardElement($applicationYear){
+	return _paragraph($applicationYear);
+}
+
+function clickYearTabOnDashboard($applicationYear){
+	click(yearTabOnDashboardElement($applicationYear));
+}
+
+function verifyIndividualDashboard($status, $household,$actionButton, $eventDate,$groups,$isHealthEnrollmentComplete,$isDentalEnrollmentComplete,$isFromToday,$isSEP,$supervisor){
+
+	var $applicationYear =  $household.coverageYear;
+	var $yearTabOnDashboard = yearTabOnDashboardElement($applicationYear);
+
+	_setStrictVisibilityCheck(true);
+	
+	waitUntilElementVisible($yearTabOnDashboard,20);
+	click($yearTabOnDashboard);
+
+	_setStrictVisibilityCheck(false);
+	 
+	_assertVisible(_heading1("Welcome, "+$household.people[0].firstName+" "+$household.people[0].lastName));
+	//_assertVisible(_div("FIND HELP NEAR YOU"),"Verify Agent Help icon");
+	verifySideBarLinksOnIndDashboard();
+	verifyMyEnrollmentDashboard($status, $household,$actionButton, $eventDate, $groups,$isHealthEnrollmentComplete,$isDentalEnrollmentComplete,$isFromToday,$isSEP,$supervisor);
+
+}
+
+
+function verifyMyEnrollmentDashboard($status, $household,$actionButton, $eventDate, $groups,$isHealthEnrollmentComplete,$isDentalEnrollmentComplete,$isFromToday,$isSEP,$supervisor){
+	_setStrictVisibilityCheck(true);
+	verifyApplicationTab($supervisor);
+	if($eventDate){
+		verifyOpenEnrollmentNotice($eventDate,$household,$isHealthEnrollmentComplete,$isFromToday,$isDentalEnrollmentComplete);
+	}
+	_assertNotVisible(_heading3("/Your Health Coverage Status:/"));
+	verifyEventButtonOnIndDashboard($actionButton,$isHealthEnrollmentComplete,$household,$isDentalEnrollmentComplete,$isSEP,$status);
+	verifyOverviewOnIndDashboard($household);
+	
+	var $testIdNum = getTestCaseId(); 
+	_log("$testIdNum: "+$testIdNum);
+	//if($testIdNum == "01" || $testIdNum == "12" || $testIdNum == "21"){
+		verifyYourHouseholdEligibilityOnIndDashboard($household);
+	//}
+	verifyYourHealthPlanOnIndDashboard($groups);
+	verifyYourDentalPlanOnIndDashboard($groups);	
+	_setStrictVisibilityCheck(false);
+	
+}
+
+
+function verifySideBarLinksOnIndDashboard(){
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_link("My Enrollment Dashboard"));
+	_assertVisible(_link("My Eligibility History"));
+	_assertVisible(_link("My Enrollments"));
+	_assertNotVisible(_link("Find Local Assistance"));
+	_assertVisible(_link("Appeals Information"));
+	_assertVisible(_link("My Account Home"));
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyApplicationTab($supervisor){
+	var $tabText;
+	var $currentDate = getCurrentDate('MM/DD/YYYY');
+	if(showPreviousYearTab($supervisor)){
+		_assertVisible(_list("/gi-tabs_dashboard/"));
+
+		var $tabFrom = getIndShowCurrentYearTabFrom()[0][0].substring(6,10);
+		var $tabUntil = getIndShowPreviousYearTabUntil()[0][0].substring(6,10);
+		$tabText = $tabFrom + $tabUntil;
+	}else{
+		_set($tabText, _call(window.moment($currentDate).get('year')));
+	}
+	_assertEqual($tabText, _getText(_list("/gi-tabs_dashboard/")));
+}
+
+
+function verifyOpenEnrollmentNotice($eventDate,$household,$isHealthEnrollmentComplete,$isFromToday,$isDentalEnrollmentComplete){
+	var $endDate =  getOEPEndDate()[0][0];
+	var $currentDate = getCurrentDate('MM/DD/YYYY');//_fetch(window.moment().format( 'MM/DD/YYYY'));
+
+
+	var $enrollementTime = getGracePeriodFromDb() +60;
+	_log("Total time left for enrollment will be = "+ $enrollementTime);
+	var $buttonText = _getText(_button("further-action-btn"));
+	var $daysLeft = 0;
+
+	var $daysLeftText = "You have _ days left to enroll or change a plan.";
+
+	if (!$isFromToday) {
+		//var $days = _fetch(window.moment($currentDate).diff($eventDate,'d'))-1;
+		var $days = _fetch(window.moment($currentDate).diff($eventDate,'d'));
+		_log("$days: "+$days);
+		$daysLeft = $enrollementTime - $days;
+		_log("$daysLeft: "+$daysLeft);
+	}
+
+
+	if($eventDate =="OE"){
+		var $daysleftOE = _fetch(window.moment($endDate).diff($currentDate,'d'));
+		var $qepDuringOEStartDate = $household.giAppConfig.iex_QEPDuringOEStartDate;
+		var $qepDuringOEEndDate = $household.giAppConfig.iex_QEPDuringOEEndDate;
+		var $isInQepDuringOE = isInQepDuringOePeriod($qepDuringOEStartDate,$qepDuringOEEndDate);
+		
+		if(($isHealthEnrollmentComplete != "Y" || $isDentalEnrollmentComplete != "Y") && $isInQepDuringOE === false){
+			_assertContainsText("Open enrollment period for "+$household.giAppConfig.iex_current_coverage_year+" ends on "+$endDate+". You have "+$daysleftOE+" days to enroll in plan.", _div("/usa-alert/"));
+		}else if($isInQepDuringOE === false){
+			_assertNotVisible(_div("/usa-alert/", _in(_div($household.coverageYear+"_tab_content"))));
+		}else if(($isHealthEnrollmentComplete != "Y" || $isDentalEnrollmentComplete != "Y") && $isInQepDuringOE === true){
+			_assertVisible(_div($daysLeftText.split("_")[0] + $daysleftOE + $daysLeftText.split("_")[1]));
+		}
+	}else if(($buttonText == "CONTINUE SHOPPING" || $buttonText == "SHOP FOR PLANS" || $buttonText == "FINALIZE PLANS" && $isHealthEnrollmentComplete != "Canceled") && !$isFromToday){	
+		var $oeSatrtDate = $household.giAppConfig.iex_current_oe_start_date;
+		var $oeEndDate = $household.giAppConfig.iex_current_oe_end_date;
+		var $coverageYear = $household.giAppConfig.iex_current_coverage_year;
+
+		if(isInOePeriod($oeSatrtDate,$oeEndDate) === true && $household.coverageYear == $coverageYear){
+			$daysLeft = _fetch(window.moment($endDate).diff($currentDate,'d'));
+		}
+
+		_assertVisible(_div($daysLeftText.split("_")[0] + $daysLeft + $daysLeftText.split("_")[1]));
+		
+	}else if(($buttonText == "CONTINUE SHOPPING" || $buttonText == "SHOP FOR PLANS" || $buttonText == "FINALIZE PLANS" && $isHealthEnrollmentComplete != "Canceled") && $isFromToday){	
+		_assertVisible(_div($daysLeftText.split("_")[0] + $enrollementTime + $daysLeftText.split("_")[1]));
+	}else if($buttonText == "CHANGE PLANS" && $household.isSepOpen == "true"){
+		var $oeSatrtDate = $household.giAppConfig.iex_current_oe_start_date;
+		var $oeEndDate = $household.giAppConfig.iex_current_oe_end_date;
+		var $coverageYear = $household.giAppConfig.iex_current_coverage_year;
+
+		if(isInOePeriod($oeSatrtDate,$oeEndDate) === true && $household.coverageYear == $coverageYear){
+			$daysLeft = _fetch(window.moment($endDate).diff($currentDate,'d'));
+		}
+
+		if (!$isFromToday) {
+			_assertVisible(_div($daysLeftText.split("_")[0] + $daysLeft + $daysLeftText.split("_")[1]));
+		}else{
+			_assertVisible(_div($daysLeftText.split("_")[0] + $enrollementTime + $daysLeftText.split("_")[1]));
+		}
+	}else{
+		_assertNotVisible(_div("/days left to enroll/"));
+	}
+	_log("$household.isSepOpen: "+$household.isSepOpen);
+	_log("$buttonText: "+$buttonText);
+}
+
+
+function verifyEventButtonOnIndDashboard($actionButton,$isHealthEnrollmentComplete,$household, $isDentalEnrollmentComplete,$isSEP,$status){
+	
+	if($actionButton == "CONFIRM EVENT AND SHOP"){
+		//_assertContainsText("Your application is complete and one or more of your family members are eligible to shop and enroll in Covered California plans.", _paragraph("further-action-txt"));
+		_assertContainsText("Your application is complete but we need to confirm your life event. Please confirm the life event by clicking the button below. You will be able to shop for and enroll in Covered California plans once you confirm the event.", _paragraph("further-action-txt"));
+		
+	}
+	else if ($actionButton == "SHOP FOR PLANS"){
+		if($status == "OE"){
+			_assertVisible(_paragraph("Your application is complete and one or more of your family members are eligible to shop and enroll in Covered California plans."));
+		}else{
+			_assertVisible(_paragraph("Your application is complete and the life event has been confirmed. Please click the button below to shop for Covered California plans."));
+		}
+	}
+	else if($actionButton == "CHANGE PLANS"){
+
+		if($household.householdAianFlag && $isDentalEnrollmentComplete && $status != "OE"){
+			_setStrictVisibilityCheck(true);
+			_assertVisible(_paragraph("You are currently enrolled in health and dental plan(s). Due to special privileges for Native American members in your household you can click on change plans button below and enroll in a different plan(s)."));	
+			_setStrictVisibilityCheck(false);
+		}else if($isDentalEnrollmentComplete){
+			if($status == "OE"){
+				var $withChangePlans = "You have successfully enrolled in health and dental plans. If you would like to change plans, please click on the button below. Please go to the 'Your Household Eligibility' section and click on 'REPORT A CHANGE' if you need to report a change to your application.";
+				var $withoutChangePlans = "You have successfully enrolled in health and dental plans. If you would like to change plans, please click on the 'CHANGE PLANS' button below. Please go to the 'Your Household Eligibility' section and click on 'REPORT A CHANGE' if you need to report a change to your application.";
+
+				if(_isVisible(_paragraph($withChangePlans))){
+					_assertVisible(_paragraph($withChangePlans))
+				}else{
+					_assertVisible(_paragraph($withoutChangePlans))
+				}
+			}else if($status == "Renewals"){
+				_assertVisible(_paragraph("You have successfully enrolled in health and dental plans. If you would like to change plans, please click on the 'CHANGE PLANS' button below. Please go to the 'Your Household Eligibility' section and click on 'REPORT A CHANGE' if you need to report a change to your application."));
+			}else{
+				_assertVisible(_paragraph("You have successfully enrolled in health and dental plan(s). If you'd like to change your plans, please click on the button below and shop for new plans."));
+			}		
+		}else{
+			_assertVisible(_paragraph("You have successfully enrolled in health plan(s). If you'd like to change your plans, please click on the button below and shop for new plans."));
+		}
+		
+	}
+	else if($actionButton == "CONTINUE SHOPPING" && $isHealthEnrollmentComplete == "N"  && !$isSEP){
+        _assertEqual("You have successfully completed one or more enrollment(s) for your household. Please complete remaining enrollments.", _getText(_paragraph("further-action-txt")));
+    }
+    else if($actionButton == "CONTINUE SHOPPING" && $isHealthEnrollmentComplete == "N"  && $isSEP == "Y"){
+        _assertEqual("Please finalize plan selection and enrollment on the next screen for un-enrolled members.", _getText(_paragraph("further-action-txt")));
+    }
+	else if($actionButton == "CONTINUE SHOPPING" && $isHealthEnrollmentComplete == "Y"  && $isSEP == "Y"){
+		_assertVisible(_paragraph("Please finalize plan selection and enrollment on the next screen for dental plans."));
+		_assertEqual("Please finalize plan selection and enrollment on the next screen for dental plans.", _getText(_paragraph("further-action-txt")));
+	}
+	else if($actionButton == "CONTINUE SHOPPING" && $isHealthEnrollmentComplete == "Y" && !$isDentalEnrollmentComplete){
+		if($status == "Renewals"){
+			_assertVisible(_paragraph("You have successfully enrolled in health plans. Please click on 'CONTINUE SHOPPING' to renew dental plans."));		
+		}else{
+			_assertVisible(_paragraph("You have successfully completed health enrollment(s) for your household. Please click on the button below if you wish to enroll in dental plans."));		
+		}
+		
+    
+    }
+    else if($actionButton == "CONTINUE SHOPPING" && $isHealthEnrollmentComplete == "Y" && $isDentalEnrollmentComplete == "Y"){
+    	_assertVisible(_paragraph("Please finalize plan selection and enrollment on the next screen for dental plans."));
+    }
+	else if($actionButton == "FINALIZE PLANS"){
+		if($status == "Renewals"){
+			_assertVisible(_paragraph("You have successfully reviewed and completed your application for "+$household.coverageYear+". Please renew or change your plans by clicking on the 'FINALIZE PLANS' Button."));	
+		}else{
+			_assertVisible(_paragraph("The update to your application is complete and you have confirmed your life event. Please click the button below to shop for Covered California plans."));	
+		}
+		
+
+	}
+
+	if($actionButton == "REPORT A CHANGE"){
+		if($isHealthEnrollmentComplete == "Y" && $isDentalEnrollmentComplete == "Y" && !$isSEP){
+			//_assertVisible(_paragraph("You are currently enrolled in health and dental plan(s). If you'd like to report a change in Income, members or something else please click on the button to report a change. You will have an option to select new plans if the reported change qualifies you for new plan selection."));
+			_assertVisible(_paragraph("If you'd like to report a change in income, members or something else please click on the button to report a change. You will have the option to select new plans if the reported change qualifies you for changing plans."));
+		}else if($isHealthEnrollmentComplete == "Y" && !$isDentalEnrollmentComplete  && !$isSEP){
+			_assertVisible(_paragraph("You are currently enrolled in health plan(s). If you'd like to report a change in Income, members or something else please click on the button to report a change. You will have an option to select new plans if the reported change qualifies you for new plan selection."));
+		}else if ($isHealthEnrollmentComplete == "Y" && $isDentalEnrollmentComplete && $isSEP == "Y"){
+			//_assertVisible(_paragraph("You are currently enrolled in health and dental plan(s). If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."));
+			_assertVisible(_paragraph("If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."));
+		}else if ($isHealthEnrollmentComplete == "Y" && !$isDentalEnrollmentComplete && $isSEP == "Y"){
+			_assertVisible(_paragraph("You are currently enrolled in health plan(s). If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."));
+		}else if($isHealthEnrollmentComplete == "Canceled" && $isDentalEnrollmentComplete == "Y" && $isSEP == "Y"){
+			//_assertVisible(_paragraph("You are currently enrolled in dental plan(s). If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."));
+			_assertVisible(_paragraph("If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."));
+		}else if($isHealthEnrollmentComplete == "Canceled" && $isDentalEnrollmentComplete == "Canceled" && $isSEP == "Y"){
+			_assertVisible(_paragraph("If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."));
+		}
+	}
+
+	_assertVisible(_heading4("NEXT STEPS", _in(_div("auto-further-action"))));
+	_assertVisible(_button($actionButton, _in(_div("auto-further-action"))));
+}
+
+function verifyOverviewOnIndDashboard($household){
+	_setStrictVisibilityCheck(true);
+	var $appStatusContainer = _div("auto-app-status");
+	_assertVisible(_heading3("Overview"));
+	_assertVisible(_heading4("Your Application Status", _in($appStatusContainer)));
+	_assertVisible(_div($household.coverageYear +" Application", _in($appStatusContainer)));
+	_assertVisible(_div("Complete", _in($appStatusContainer)));
+	_assertVisible(_link("Eligibility Details", _in($appStatusContainer)));
+	_assertVisible(_link("For "+$household.people.length+" members", _in($appStatusContainer)));
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyYourHouseholdEligibilityOnIndDashboard($household){
+	_setStrictVisibilityCheck(true);
+	var $householdEligibilityContainer = _div("auto-household");
+	_assertVisible(_heading4("Your Household Eligibility", _in($householdEligibilityContainer)));
+	
+	
+	if($household){
+		var $exchangeEligibilityFlag = true;
+		var $aptcFlag = false;
+		var $stateSubsidyFlag = false;
+		var $csrFlag = false;
+		
+		_assertNotVisible(_div("Your household member and eligibility info will show up here once you have completed your application.", _in($householdEligibilityContainer)));
+		
+		for(var $i = 0; $i< $household.people.length ;$i++){
+			if($household.people[$i].exchangeEligibility == "false"){
+				$exchangeEligibilityFlag = false;
+			}
+
+			if($household.people[$i].aptcEligibility == "true"){
+				$aptcFlag = true;
+			}
+
+			if($household.people[$i].stateSubsidyEligibility == "true"){
+				$stateSubsidyFlag = true;
+			}
+
+			if($household.people[$i].csrEligibility == "true"){
+				$csrFlag = true;
+			}
+
+			var $fullName = $household.people[$i].firstName+" "+$household.people[$i].lastName;
+			_assertVisible(_span($fullName, _in($householdEligibilityContainer)));
+
+			if($household.people[$i].exchangeEligibility == "false"){
+				if($household.people[$i].medicaidEligibility == "true"){
+					_assertVisible(_listItem("Medi-Cal eligible", _in(_listItem("/"+$fullName+"/"))));
+				}else if($household.people[$i].chipEligibility == "true"){
+					_assertVisible(_listItem("CCHIP eligible", _in(_listItem("/"+$fullName+"/"))));
+				}
+				_assertNotVisible(_listItem("Not eligible for QHP", _in(_listItem("/"+$fullName+"/"))));						
+			}else{
+				_assertNotVisible(_listItem("Not eligible for QHP", _in(_listItem("/"+$fullName+"/"))));
+			}
+
+			if($household.people[$i].americanIndianIndicator == "true"){
+				_assertVisible(_listItem("AI/AN", _rightOf(_span($fullName))));
+			}else{
+				_assertNotVisible(_listItem("AI/AN", _rightOf(_span($fullName))));
+			}
+
+		}
+
+		if($exchangeEligibilityFlag === false){	
+			_assertVisible(_listItem("Not eligible to enroll in a plan on the exchange", _in($householdEligibilityContainer)));
+		}else{
+			_assertNotVisible(_listItem("Not eligible to enroll in a plan on the exchange", _in($householdEligibilityContainer)));
+		}
+
+		if($aptcFlag){	
+			_assertVisible(_link("Federal Advanced Premium Tax Credit", _in($householdEligibilityContainer)));
+			_assertVisible(_listItem("$"+$household.people[0].maxAPTC+" per month", _in($householdEligibilityContainer)));
+		}else{
+			_assertNotVisible(_link("Federal Advanced Premium Tax Credit", _in($householdEligibilityContainer)));
+		}
+
+		if($stateSubsidyFlag){
+			_assertVisible(_link("CA Premium Subsidy", _in($householdEligibilityContainer)));
+			_assertVisible(_listItem("$"+$household.people[0].maxStateSubsidy+" per month", _in($householdEligibilityContainer)));
+		}else{
+			_assertNotVisible(_link("CA Premium Subsidy", _in($householdEligibilityContainer)));
+		}
+
+		var $csrTooltipText = "If you qualify for cost-sharing reductions, you pay less for services like doctor visits and medicine. Only Silver plans have these special benefits. If you are a member of a federally recognized tribe, you may qualify for additional cost-sharing benefits.";
+		var $csrLink = _link("Cost Sharing Reductions", _in($householdEligibilityContainer));
+		var $csrStatus = _parentNode($csrLink, "li", 1, _in($householdEligibilityContainer));
+
+		if($csrFlag){
+			_assertContainsText("ligible for Cost Sharing Reductions", $csrStatus);		
+			_assertVisible($csrLink);
+		}else if($aptcFlag || $stateSubsidyFlag){
+			_assertNotVisible($csrLink);
+			_assertVisible(_listItem("Not eligible for Cost Sharing Reductions"));
+		}
+
+		var $eligibleForQhpText = "Eligible for Qualified Health Plans";
+		
+		if(!$aptcFlag && !$stateSubsidyFlag){
+			_assertVisible(_listItem($eligibleForQhpText, _in($householdEligibilityContainer)));
+		}else{
+			_assertNotVisible(_listItem($eligibleForQhpText, _in($householdEligibilityContainer)));
+		}
+		
+		_assertVisible(_link("View Details", _in($householdEligibilityContainer)));
+		
+	}else{
+		_assertVisible(_div("Your household member and eligibility info will show up here once you have completed your application.", _in($householdEligibilityContainer)));
+		_assertNotVisible(_link("View Details", _in($householdEligibilityContainer)));
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyYourHealthPlanOnIndDashboard($groups){
+	var $plansCount = 0;
+	_setStrictVisibilityCheck(true);
+	var $healthPlanContainer = _div("auto-health-plans");
+	_assertVisible(_heading4("Your Health Plans", _in($healthPlanContainer)));
+	
+	for (var $i=0; $i<$groups.length; $i++){
+
+		if($groups[$i].enrollmentStatus != "Cancelled" && $groups[$i].healthPlan != "null"){
+			var $planName = $groups[$i].healthPlan.name;
+			if($planName.indexOf("...") != -1 || $planName.indexOf("0 Cost Share") != -1){
+				var $planId = $groups[$i].healthPlan.planId.replace(/\D+/g, "");
+				$planName = getPlanDetailsByIdDB($planId)[0][0];
+			}
+			if ($groups[$i].healthPlan.enrollmentStatus == 'Terminated') {
+				_assertNotVisible(_div($groups[$i].healthPlan.enrollmentStatus, _near(_span($planName))));		
+				var $enrEndDate = $groups[$i].coverageEndDate;
+				$enrEndDate = _fetch(window.moment($enrEndDate).format('MM/DD/YYYY'));
+				_assertVisible(_div("Coverage ends "+$enrEndDate, _near(_span($planName))));
+			}else{
+				_assertVisible(_link($groups[$i].healthPlan.enrollmentStatus, _near(_span($planName))));	
+			}
+			
+			var $issuerName = $groups[$i].healthPlan.issuerName;
+			_assertVisible(_div("/"+$issuerName+"/", _in($healthPlanContainer)));			
+			_assertVisible(_span($planName, _in($healthPlanContainer)));
+			
+			var $member = "members";
+			if($groups[$i].member.length == 1){
+				$member = "member";
+			}
+			var $endDate =$groups[$i].coverageYear;
+		  	$endDate = "12/31/"+$endDate;
+		  	_log('$endDate: '+$endDate);
+		  	
+
+			var $coveredMembers = $groups[$i].member.length;
+			for (var $j=0; $j<$groups[$i].member.length; $j++){
+				if($groups[$i].member[$j].coverageEndDate != $endDate){
+					_log('$groups[$i].member.coverageEndDate: '+$groups[$i].member[$j].coverageEndDate);
+					$coveredMembers--;
+				}
+			}
+
+			if($groups[$i].enrollmentStatus != "Terminated"){
+				_assertVisible(_div("/"+$planName.replace("$","")+"(.*)For "+$coveredMembers+" "+$member+"/", _in($healthPlanContainer)));
+			}else{
+				_assertVisible(_div("/"+$planName.replace("$","")+"(.*)For "+$groups[$i].member.length+" "+$member+"/", _in($healthPlanContainer)));
+			}
+
+			_assertVisible(_link("View Details["+$plansCount+"]", _in($healthPlanContainer)));
+			$plansCount++;
+		}
+	}
+	if($plansCount == 0){
+		if($groups[$plansCount].previousHealthPlan != "null"){
+			
+			_assertVisible(_div("You will be able to see your health plan(s) here once you have completed plan shopping.", _in($healthPlanContainer)));
+		}else{
+			_assertVisible(_div("You will be able to see your health plan(s) here once you have completed plan shopping.", _in($healthPlanContainer)));
+		}
+		_assertNotVisible(_link("View Details", _in($healthPlanContainer)));
+
+	}	
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyYourDentalPlanOnIndDashboard($groups){	
+	_setStrictVisibilityCheck(true);
+	var $dentalPlanContainer = _div("auto-dental-plans");
+	_assertVisible(_heading4("Your Dental Plans", _in($dentalPlanContainer)));
+
+	var $plansCount = 0;
+	for (var $i=0; $i<$groups.length; $i++){
+		if($groups[$i].dentalPlan != "null"){
+			_assertVisible(_link($groups[$i].dentalPlan.enrollmentStatus, _in($dentalPlanContainer)));
+			_assertVisible(_link("View Details", _in($dentalPlanContainer)));
+			if($groups[$i].dentalPlan.name.indexOf("...") != -1){
+				var $planName = $groups[$i].dentalPlan.name.replace("...","");
+				_assertVisible(_span("/"+$planName+"/", _in($dentalPlanContainer)));
+			}else{
+				_assertVisible(_span($groups[$i].dentalPlan.name, _in($dentalPlanContainer)));
+			}
+			
+			var $member = "members";
+			if($groups[$i].member.length == 1){
+				$member = "member";
+			}
+			var $endDate =$groups[$i].coverageYear;
+		  	$endDate = "12/31/"+$endDate;
+		  	_log('$endDate: '+$endDate);
+		  	
+
+			var $coveredMembers = $groups[$i].member.length;
+			for (var $j=0; $j<$groups[$i].member.length; $j++){
+				if($groups[$i].member[$j].coverageEndDate != $endDate){
+					_log('$groups[$i].member.coverageEndDate: '+$groups[$i].member[$j].coverageEndDate);
+					$coveredMembers--;
+				}
+			}
+
+			_assertVisible(_link("For "+$coveredMembers+ " "+$member, _in($dentalPlanContainer)));
+			$plansCount++;
+		}
+	}
+	if($plansCount == 0){
+		_assertVisible(_div("You will be able to see your dental plan here once you have completed plan shopping.", _in($dentalPlanContainer)));
+		_assertNotVisible(_link("View Details", _in($dentalPlanContainer)));
+	}	
+	_setStrictVisibilityCheck(false);
+}
+
+
+
+/*
+*  Left Pannel links on ind dashboard
+*/
+function clickMyEnrollmentDashBoard($status, $household,$actionButton, $eventDate,$groups,$isHealthEnrollmentComplete,$verificationFlag,$isDentalEnrollmentComplete,$isFromToday,$isSEP){
+	_setStrictVisibilityCheck(true);
+	click(_link("My Enrollment Dashboard"));
+
+	if($household){
+		var $applicationYear =  $household.coverageYear;
+		var $yearTabOnDashboard = yearTabOnDashboardElement($applicationYear);
+
+		click($yearTabOnDashboard);
+	}
+	 
+	_setStrictVisibilityCheck(false);
+	if($verificationFlag != "N"){
+		verifyIndividualDashboard($status, $household,$actionButton, $eventDate,$groups,$isHealthEnrollmentComplete,$isDentalEnrollmentComplete,$isFromToday,$isSEP);
+	}
+}
+
+function clickMyEligibilityHistory($household,$groups,$isEnrolled,$isSEP,$verificationFlag){
+	_setStrictVisibilityCheck(true);
+	click(_link("My Eligibility History"));
+
+	var $headerContainer = _div("row-fluid header");
+
+	_assertVisible(_heading4("My Eligibility History", _in($headerContainer)));
+	_assertVisible(_span("aid_coverageYearDd", _in($headerContainer)));
+	_assertVisible(_select("", _in(_span("aid_coverageYearDd"))));
+	_setSelected(_select("", _in(_span("aid_coverageYearDd"))), $household.coverageYear);
+	if($verificationFlag != "N"){
+		verifyMyEligibilityHistory($household,$groups,$isEnrolled,$isSEP);
+    }
+	_setStrictVisibilityCheck(false);
+}
+
+
+function clickMyEnrollments($groups, $household, $coverageDate,$coverageEndDate, $status, $numOfHealthEnrollments, $verificationFlag){
+	_setStrictVisibilityCheck(true);
+
+	click(_link("My Enrollments"));
+	_setSelected(_select("/activeEhCoverageYear/"), $household.coverageYear);
+	var $order = "";
+	var $initialStatus = $status;
+	if(!$numOfHealthEnrollments){
+		$numOfHealthEnrollments = 1;
+	}
+
+	_setStrictVisibilityCheck(false);
+
+	if ($verificationFlag != "N") {
+
+		for(var $i=0; $i<$groups.length; $i++){
+			$status = $initialStatus;
+			if($groups[$i].healthPlan != "null"){
+				//_log("$groups[$i].healthPlan: "+$groups[$i].healthPlan);
+				_log("health plan not null");
+
+				var $healthPlanName = $groups[$i].healthPlan.name;
+
+				if($healthPlanName.indexOf("...") != -1 || $healthPlanName.indexOf("0 Cost Share") != -1){
+					var $planId = $groups[$i].healthPlan.planId.replace(/\D+/g, "");
+					$healthPlanName = getPlanDetailsByIdDB($planId)[0][0];
+				}
+
+				//check if member is visible in one of the health containers and verify that container
+				for(var $j=0; $j<$numOfHealthEnrollments; $j++){
+					var $healthPlansContainer=_div("/myHealthPlan/");
+
+
+					var $planName = _link($healthPlanName, _in(_div("activeEnrollment_"+$j)),_in($healthPlansContainer));
+
+					var $fullName = $groups[$i].member[0].firstName+" "+$groups[$i].member[0].lastName
+					var $memberName =_cell($fullName, _in(_div("activeEnrollment_"+$j)), _in($healthPlansContainer));
+					if(_isVisible($memberName && $planName)){
+						$order = $j;
+						_log("$order:"+$order);
+					}
+				}
+				
+				
+				var $healthPlan = $groups[$i].healthPlan;
+				_assertVisible(_div("Health Plan"));
+				_assertVisible(_image("/ogo/", _in(_div("/myHealthPlan/"))));
+				_assertVisible(_link($healthPlanName, _in(_div("/myHealthPlan/"))));
+				// todo benefit summary
+				
+				_assertVisible(_link("View Benefit Details"));
+				
+				if($groups[$i].enrollmentStatus){
+					$status = $groups[$i].enrollmentStatus;
+				}
+				if($groups[$i].coverageStartDate){
+					$coverageDate = $groups[$i].coverageStartDate;
+				}
+				if($groups[$i].coverageEndDate){
+					$coverageEndDate = $groups[$i].coverageEndDate;
+				}
+				
+				verifyPlanSummaryOnEnrollmentHistory($coverageDate,$coverageEndDate, $status,$healthPlan,"",$order,$groups[$i]);
+				verifyCoveredFamilyMember($household, $coverageDate,$coverageEndDate,"Health", $groups[$i],$order);
+			}
+
+			if($groups[$i].dentalPlan != "null"){
+				//_log("$groups[$i].dentalPlan: "+$groups[$i].dentalPlan);
+				_log("dental plan not null");
+				//check if member is visible in one of the health containers and verify that container
+				for(var $j=0; $j<$numOfHealthEnrollments; $j++){
+					var $healthPlansContainer=_div("myDentalPlan");
+					var $planName = _link($groups[$i].dentalPlan.name, _in(_div("aid_dentalActiveEnrollment_"+$j)),_in($healthPlansContainer));
+
+					var $fullName = $groups[$i].member[0].firstName+" "+$groups[$i].member[0].lastName
+					var $memberName =_cell($fullName, _in(_div("aid_dentalActiveEnrollment_"+$j)), _in($healthPlansContainer));
+					if(_isVisible($memberName && $planName)){
+						$order = $j;
+						_log("$order:"+$order);
+					}
+				}
+
+				var $dentalPlan = $groups[$i].dentalPlan;
+				if($dentalPlan.name.indexOf("...") != -1){
+					var $planName = $dentalPlan.name.replace("...","");
+					_assertVisible(_link("/"+$planName+"/", _in(_div("/myDentalPlan/"))));
+				}else{
+					_assertVisible(_link($dentalPlan.name, _in(_div("/myDentalPlan/"))));
+				}
+				_assertVisible(_div("/myDentalPlan/"));
+				_assertVisible(_image("/ogo/", _in(_div("/myDentalPlan/"))));
+				
+				// todo benefit summary
+				
+				_assertVisible(_link("View Benefit Details", _in(_div("/myDentalPlan/"))));
+				
+				if($groups[$i].enrollmentStatus){
+					$status = $groups[$i].enrollmentStatus;
+				}
+				if($groups[$i].coverageStartDate){
+					$coverageDate = $groups[$i].coverageStartDate;
+				}
+				if($groups[$i].coverageEndDate){
+					$coverageEndDate = $groups[$i].coverageEndDate;
+				}
+						
+				if($coverageDate == $groups[$i].coverageEndDate){
+					$status = "Cancelled";
+				}
+				
+				if($groups[$i].dentalPlan.enrollmentStatus == "Pending"){
+					$status = "Pending";
+				}
+				
+				verifyPlanSummaryOnEnrollmentHistory($coverageDate,$coverageEndDate, $status,null, $dentalPlan,$order,$groups[$i]);
+				verifyCoveredFamilyMember($household, $coverageDate,$coverageEndDate,"Dental",$groups[$i],$order);
+				
+			}
+
+			if($groups[$i].previousHealthPlan != "null"){
+
+				var $healthPlan = $groups[$i].previousHealthPlan;
+				var $healthPlanName = $healthPlan.name;
+
+				if($healthPlanName.indexOf("...") != -1 || $healthPlanName.indexOf("0 Cost Share") != -1){
+						var $planId = $healthPlan.planId.replace(/\D+/g, "");
+						$healthPlanName = getPlanDetailsByIdDB($planId)[0][0];
+				}
+
+				//_log("$groups[$i].previousHealthPlan: "+$groups[$i].previousHealthPlan);
+				_log("Previous Health Plan plan not null");
+				//check if member is visible in one of the health containers and verify that container
+				for(var $j=0; $j<$numOfHealthEnrollments; $j++){
+					var $healthPlansContainer=_div("pastHealthEnrollments");
+					var $fullName = $groups[$i].member[0].firstName+" "+$groups[$i].member[0].lastName
+					var $memberName =_cell($fullName, _in(_table("coveredFamilyMembers["+$j+"]", _in($healthPlansContainer))));
+					_log("$memberName elemet: "+$memberName.toString());
+
+					var $planName = _link($healthPlanName, _in(_div("pastEnrollmentHealth_"+$j,_in($healthPlansContainer))));
+					_log("$planName elemet: "+$planName.toString());
+					if(_isVisible($memberName && $planName)){
+						$order = $j;
+						_log("$order in if visible: "+$order);
+					}
+				}
+				
+				_assertVisible(_link("Health Plan", _in(_div("pastEnrollments"))));
+				_assertVisible(_image("/ogo/", _in(_div("pastHealthEnrollments"))));
+				_assertVisible(_link($healthPlanName, _in(_div("pastHealthEnrollments"))));
+				// todo benefit summary
+				_assertVisible(_link("View Benefit Details", _in(_div("pastHealthEnrollments"))));
+				
+				if($groups[$i].enrollmentStatus){
+					$status = $groups[$i].enrollmentStatus;
+				}
+				if($groups[$i].coverageStartDate){
+					$coverageDate = $groups[$i].coverageStartDate;
+				}
+				if($groups[$i].coverageEndDate){
+					$coverageEndDate = $groups[$i].coverageEndDate;
+				}
+
+				if($coverageDate == $groups[$i].coverageEndDate){
+					$status = "Cancelled";
+				}
+				
+				verifyPlanSummaryOnEnrollmentHistory($coverageDate,$groups[$i].coverageEndDate, $status,$healthPlan,"",$order,$groups[$i]);
+				verifyCoveredFamilyMember($household, $coverageDate,$groups[$i].coverageEndDate,"Health", $groups[$i],$order);
+			}
+
+			if($groups[$i].previousDentalPlan != "null"){
+				click(_link("Dental Plan", _in(_div("pastEnrollments"))));
+
+				var $dentalPlan = $groups[$i].previousDentalPlan;
+				var $dentalPlanName = $dentalPlan.name;
+
+				if($dentalPlanName.indexOf("...") != -1 || $dentalPlanName.indexOf("0 Cost Share") != -1){
+						var $planId = $dentalPlan.planId.replace(/\D+/g, "");
+						$dentalPlanName = getPlanDetailsByIdDB($planId)[0][0];
+				}
+
+				//_log("$groups[$i].previousDentalPlan: "+$groups[$i].previousDentalPlan);
+				_log("Previous Dental Plan plan not null");
+				//check if member is visible in one of the health containers and verify that container
+				for(var $j=0; $j<$numOfHealthEnrollments; $j++){
+					var $dentalPlansContainer=_div("pastDentalEnrollments");
+					var $fullName = $groups[$i].member[0].firstName+" "+$groups[$i].member[0].lastName
+					var $memberName =_cell($fullName, _in(_table("coveredFamilyMembers["+$j+"]", _in($dentalPlansContainer))));
+					_log("$memberName elemet: "+$memberName.toString());
+
+					var $planName = _link($dentalPlanName, _in(_div("pastEnrollmentHealth_"+$j,_in($dentalPlansContainer))));
+					_log("$planName elemet: "+$planName.toString());
+					if(_isVisible($memberName && $planName)){
+						$order = $j;
+						_log("$order in if visible: "+$order);
+					}
+				}
+				
+				_assertVisible(_link("Dental Plan", _in(_div("pastEnrollments"))));
+				_assertVisible(_image("/ogo/", _in($dentalPlansContainer)));
+				_assertVisible(_link($dentalPlanName, _in($dentalPlansContainer)));
+				// todo benefit summary
+				_assertVisible(_link("View Benefit Details", _in($dentalPlansContainer)));
+				
+				if($groups[$i].enrollmentStatus){
+					$status = $groups[$i].enrollmentStatus;
+				}
+				if($groups[$i].coverageStartDate){
+					$coverageDate = $groups[$i].coverageStartDate;
+				}
+				if($groups[$i].coverageEndDate){
+					$coverageEndDate = $groups[$i].coverageEndDate;
+				}
+
+				if($coverageDate == $groups[$i].coverageEndDate){
+					$status = "Cancelled";
+				}
+				
+				verifyPlanSummaryOnEnrollmentHistory($coverageDate,$groups[$i].coverageEndDate, $status,null,$dentalPlan,$order,$groups[$i]);
+				verifyCoveredFamilyMember($household, $coverageDate,$groups[$i].coverageEndDate,"Dental", $groups[$i],$order);
+			}
+		}
+	}
+}
+//$status = "Pending"
+function verifyPlanSummaryOnEnrollmentHistory($coverageDate,$coverageEndDate, $status, $health, $dental,$order,$group){
+	var $healthContainer; 
+	var $dentalContainer;
+	if($status == "Cancelled"){
+		$healthContainer = "pastHealthEnrollments";
+		$dentalContainer = "pastDentalEnrollments";
+	}else{
+		$healthContainer = "myHealthPlan";
+		$dentalContainer = "myDentalPlan";
+	}
+
+	if($health){
+		_assertEqual($coverageDate, _getText(_cell(0, _rightOf(_tableHeader("Coverage Start Date:["+$order+"]",_in(_div($healthContainer)))))));
+		_assertEqual($coverageEndDate, _getText(_cell(0, _rightOf(_tableHeader("Coverage End Date:["+$order+"]",_in(_div($healthContainer)))))));
+		if ($status == "Pending") {
+			$status = "Pending Tooltip text: Enrollment Complete - awaiting payment confirmation from the carrier."
+			//$status = "Pending"
+		}
+		_assertEqual($status, _getText(_cell(0, _rightOf(_tableHeader("Enrollment Status:["+$order+"]",_in(_div($healthContainer)))))));
+		
+		if($group.groupDataBeforeSep && ($group.groupDataBeforeSep.healthPlan.totalPayment != $group.healthPlan.totalPayment || $group.groupDataBeforeSep.healthPlan.premium != $group.healthPlan.premium)){
+			var $coverageChangeEffectiveDate = $group.coverageChangeEffectiveDate;
+			_assertEqual($coverageChangeEffectiveDate, _getText(_cell(0, _near(_italic("icon-question-sign["+$order+"]",_in(_div($healthContainer)))))));
+		}else{
+			_assertEqual($coverageDate, _getText(_cell(0, _near(_italic("icon-question-sign["+$order+"]",_in(_div($healthContainer)))))));
+		}
+		
+		var $fomatedPremium = $health.premium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+		_assertEqual($fomatedPremium, _getText(_cell(0, _rightOf(_tableHeader("Net Premium:["+$order+"]", _in(_div($healthContainer)))))));
+		var $expectedTaxCredit = 0;
+
+		if($health.taxCredit != "No Tax Credit"){
+			
+			if($status != "Cancelled"){
+				if($group.aptc){
+					$expectedTaxCredit = $health.aptc;//$health.taxCredit.split(" ")[1];
+					$expectedTaxCredit = $expectedTaxCredit.replace("$","");
+					var $formatedTaxCredit = $expectedTaxCredit.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting;
+					_assertEqual("$" + $formatedTaxCredit, _getText(_cell(0, _rightOf(_tableHeader("Elected APTC:", _in(_div("activeEnrollment_"+$order, _in(_div("myHealthPlan")))))))));
+				}else{
+					_assertNotVisible(_tableHeader("Elected APTC:", _in(_div("activeEnrollment_"+$order, _in(_div("myHealthPlan"))))));
+				}
+
+				if($group.stateSubsidy){
+					var $fomatedStateSubsidy = $health.stateSubsidy.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+					_assertEqual("$" + $fomatedStateSubsidy, _getText(_cell(0, _rightOf(_tableHeader("CA Premium Subsidy:", _in(_div("activeEnrollment_"+$order, _in(_div("myHealthPlan")))))))));
+				}else{
+					_assertNotVisible(_tableHeader("CA Premium Subsidy:", _in(_div("activeEnrollment_"+$order, _in(_div("myHealthPlan"))))));
+				}
+				
+			}else{
+				if($group.aptc){
+					$expectedTaxCredit = $health.aptc;//$health.taxCredit.split(" ")[1];
+					$expectedTaxCredit = $expectedTaxCredit.replace("$","");
+					var $formatedTaxCredit = $expectedTaxCredit.replace(/\d(?=(\d{3})+\.)/g, '$&,');///currency formatting
+					_assertEqual("$" + $formatedTaxCredit, _getText(_cell(0, _rightOf(_tableHeader("Elected APTC:", _in(_div("pastEnrollmentHealth_"+$order)))))));
+				}
+				if($group.stateSubsidy){
+					var $fomatedStateSubsidy = $health.stateSubsidy.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+					_assertEqual("$" + $fomatedStateSubsidy, _getText(_cell(0, _rightOf(_tableHeader("CA Premium Subsidy:", _in(_div("pastEnrollmentHealth_"+$order)))))));
+				}else{
+					_assertNotVisible(_tableHeader("CA Premium Subsidy:", _in(_div("pastEnrollmentHealth_"+$order))));
+				}
+			}
+			
+			
+			var $premium = parseFloat($health.premium.replace("$",""));
+			$premium = $premium.toFixed(2);
+			var $netPremium = parseFloat($premium)+parseFloat($expectedTaxCredit)+parseFloat($health.stateSubsidy);
+			$netPremium = $netPremium.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+			_assertEqual("$"+$netPremium, _getText(_cell(0, _rightOf(_tableHeader("Monthly Premium:["+$order+"]", _in(_div($healthContainer)))))));
+		}		
+		else{
+			_assertEqual($fomatedPremium, _getText(_cell(0, _rightOf(_tableHeader("Monthly Premium:["+$order+"]", _in(_div($healthContainer)))))));
+		}
+	}
+	if($dental){
+		var $formatedPremium = parseFloat($dental.premium.replace("$",""));
+		$formatedPremium = $formatedPremium.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+		_assertEqual("$"+$formatedPremium, _getText(_cell(0, _rightOf(_tableHeader("Monthly Premium:", _in(_div($dentalContainer)))))));
+		_assertEqual("$"+$formatedPremium, _getText(_cell(0, _rightOf(_tableHeader("Net Premium:", _in(_div($dentalContainer)))))));
+		_assertEqual($coverageDate, _getText(_cell(0, _rightOf(_tableHeader("Coverage Start Date:",_in(_div($dentalContainer)))))));
+		_assertEqual($coverageEndDate, _getText(_cell(0, _rightOf(_tableHeader("Coverage End Date:",_in(_div($dentalContainer)))))));
+		if ($status == "Pending") {
+			$status = "Pending Tooltip text: Enrollment Complete - awaiting payment confirmation from the carrier."
+			//$status = "Pending"
+		}
+		_assertEqual($status, _getText(_cell(0, _rightOf(_tableHeader("Enrollment Status:", _in(_div($dentalContainer)))))));
+		if($group.coverageChangeEffectiveDate){
+			var $coverageChangeEffectiveDate = $group.coverageChangeEffectiveDate;
+			// if($group.dentalPlan.coverageChangeEffectiveDate){
+			// 	$coverageChangeEffectiveDate = $group.coverageChangeEffectiveDate;
+			// }else{
+			// 	$coverageChangeEffectiveDate = $coverageDate;
+			// } 
+			_assertEqual($coverageChangeEffectiveDate, _getText(_cell(0, _near(_italic("icon-question-sign",_in(_div($dentalContainer)))))));
+		}else{
+			_assertEqual($coverageDate, _getText(_cell(0, _near(_italic("icon-question-sign",_in(_div($dentalContainer)))))));
+		}
+		
+		
+	}
+	
+
+}
+
+
+function verifyCoveredFamilyMember($household, $coverageDate,$coverageEndDate, $plantype, $group,$order){
+	
+	var $divAttribute ="";
+	if($plantype == "Health"){
+		
+		if($coverageDate == $group.coverageEndDate){
+			//$divAttribute = "pastEnrollmentHealth_"+$order;
+			$divAttribute = "pastEnrollments";
+		}else{
+			$divAttribute = "myHealthPlan";
+		}
+		
+		for(var $i = 0; $i< $group.member.length ;$i++){
+			_setStrictVisibilityCheck(true);
+			var $fullName = $group.member[$i].firstName+" "+$group.member[$i].lastName;
+
+
+			var $rowNum = 0;
+			for(var $j=0;$j<$group.member.length;$j++){
+				if(_isVisible(_cell($fullName, _in(_row("enrolleeHistoryEntries_"+$j, _in(_table("coveredFamilyMembers["+$order+"]", _in(_div($divAttribute))))))))) {
+					 $rowNum = $j;
+					 break;
+				}
+			}
+			_log("$rowNum: "+$rowNum);
+
+			var $coveragePeriod = $group.member[$i].coverageStartDate+" - "+$group.member[$i].coverageEndDate;
+			_assertVisible(_cell($fullName, _in(_row("enrolleeHistoryEntries_"+$rowNum, _in(_table("coveredFamilyMembers["+$order+"]", _in(_div($divAttribute))))))));
+			_assertVisible(_cell($coveragePeriod, _in(_row("enrolleeHistoryEntries_"+$rowNum, _in(_table("coveredFamilyMembers["+$order+"]", _in(_div($divAttribute))))))));
+
+			_setStrictVisibilityCheck(false);
+		}
+	}
+
+	if($plantype == "Dental"){
+		
+		if($coverageDate == $group.coverageEndDate){
+			$divAttribute = "pastDentalEnrollments";
+		}else{
+			$divAttribute = "myDentalPlan";
+		}
+		
+		for(var $i = 0; $i< $group.member.length ;$i++){
+			var $fullName = $group.member[$i].firstName+" "+$group.member[$i].lastName;
+			var $coveragePeriod = $group.member[$i].coverageStartDate+" - "+$group.member[$i].coverageEndDate;
+			
+			var $rowNum = 0;
+			for(var $j=0;$j<$group.member.length;$j++){
+				if(_isVisible(_cell($fullName, _in(_row("enrolleeHistoryEntries_"+$j, _in(_table("coveredFamilyMembers["+$order+"]", _in(_div($divAttribute))))))))){
+					 $rowNum = $j;
+					 break;
+				}
+			}
+
+			_log("$rowNum: "+$rowNum);
+			_assertVisible(_cell($fullName, _in(_row("enrolleeHistoryEntries_"+$rowNum, _in(_table("coveredFamilyMembers["+$order+"]", _in(_div($divAttribute))))))));
+			_assertVisible(_cell($coveragePeriod, _in(_row("enrolleeHistoryEntries_"+$rowNum, _in(_table("coveredFamilyMembers["+$order+"]", _in(_div($divAttribute))))))));
+
+		}
+	}
+	
+	
+}
+
+function clickFindLocalAssistance(){
+}
+
+
+/*
+*  Event button on Dashboard
+*/
+function clickConfirmEventAndShop(){
+	click(_button("CONFIRM EVENT AND SHOP"));
+	verifyQualifyingEventPage();
+}
+
+
+function clickStartNewApplication(){
+	click(_button("START NEW APPLICATION"));
+}
+
+
+function clickShopForPlans($household, $groups, $notEnrolledGroups,$enrolledGroups,$verificationFlag){
+	_setStrictVisibilityCheck(true);
+	click(_button("SHOP FOR PLANS"));
+	if($verificationFlag != "N"){
+		verifyCustomGroupingPage($household, $groups,$notEnrolledGroups,$enrolledGroups,"","");
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function clickFinalizePlans($household, $groups, $notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$isRenewals){
+	click(_button("FINALIZE PLANS"));
+	for(var $i=0;$i<$groups.length;$i++){
+		$groups[$i].isNeedToBeFinalized = true;
+	}
+	verifyCustomGroupingPage($household, $groups,$notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,"",$isRenewals);
+}
+
+function clickContinueShopping($household,$groups, $notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$landingTab,$verificationFlag,$isRenewals){
+   if($household){
+		var $applicationYear =  $household.coverageYear;
+		var $yearTabOnDashboard = yearTabOnDashboardElement($applicationYear);
+		click($yearTabOnDashboard);
+	}
+    
+    click(_button("CONTINUE SHOPPING"));
+    if ($verificationFlag !="N") {
+    	verifyCustomGroupingPage($household, $groups,$notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$landingTab,$isRenewals);	
+    }
+}
+
+
+/*
+*  ####--DB verifications--####
+*/
+
+function verifyDBAfterAT($household,$applicationStatus,$applicationType,$eligibilityStatus,$CSR,$event,$eventDate){
+	var $applicationDataFromDB = {};
+
+	//var $emailId = $household.people[0].email.replace("edit","");
+	var $emailId = $household.people[0].email;
+
+	var $isBeforeQepDuringOE = _fetch(window.moment(getCurrentDate("MM/DD/YYYY")).isBefore($household.giAppConfig.iex_QEPDuringOEStartDate));
+	_log("$isBeforeQepDuringOE: "+$isBeforeQepDuringOE);
+
+	if (!$isBeforeQepDuringOE && $applicationType =="OE") {
+		$applicationType = "QEP";
+		_log("$applicationType: "+$applicationType);
+	}
+
+	var $cmrHouseholdData = verifyCMRHouseholdDB($emailId,$household);
+	var $ssapApplicationData = verifySSAPApplicationsData($cmrHouseholdData.ID,$household,$applicationStatus,$applicationType,$eligibilityStatus,$CSR);
+	var $applicantsDataDB = verifySSAPApplicantsDB($ssapApplicationData,$household,$cmrHouseholdData);
+	verifyProgramEligibilitiesDB($applicantsDataDB,$household);
+	var $ssapApplicationEventsDataDB = verifySsapApplicationEvents($household,$ssapApplicationData,$applicantsDataDB,$event,$applicationType,$eventDate);
+	verifySsapApplicantEvents($household,$ssapApplicationData,$applicantsDataDB,$event,$eventDate,$ssapApplicationEventsDataDB);	
+																					 
+	$applicationDataFromDB.cmrHouseholdData = $cmrHouseholdData;
+	$applicationDataFromDB.ssapApplicationData = $ssapApplicationData;
+	$applicationDataFromDB.applicantsDataDB = $applicantsDataDB;
+	
+	return $applicationDataFromDB;
+}
+function getSSAPApplicationDataAfterAT($household,$applicationStatus,$applicationType,$eligibilityStatus,$CSR){
+	var $applicationDataFromDB = {};	
+	var $emailId = $household.people[0].email;
+	var $cmrHouseholdData = getCMRHouseholdData($emailId);
+	var $ssapApplicationData = getSSAPApplicationsDataDB($cmrHouseholdData.ID,$household);
+	$applicationDataFromDB.cmrHouseholdData = $cmrHouseholdData;
+	$applicationDataFromDB.ssapApplicationData = $ssapApplicationData;
+	
+	return $applicationDataFromDB;
+}
+
+function verifySsapApplicationEvents($household,$ssapApplicationData,$applicantsDataDB,$event,$applicationType,$eventDate){
+	var $ssapApplicationEventsDataDB = getSsapApplicationEventsDataDB($ssapApplicationData.ID);
+	$eventDate = _fetch(window.moment($eventDate).format('YYYY-MM-DD'));
+	_assertEqual(1, $ssapApplicationEventsDataDB.length, "Verify that ssap_application_events has 1 record only");
+	_assertEqual("null", $ssapApplicationEventsDataDB[0].COVERAGE_END_DATE, "Verify COVERAGE_END_DATE in ssap_application_events");
+	_assertEqual("null", $ssapApplicationEventsDataDB[0].VERIFICATIONS, "Verify VERIFICATIONS in ssap_application_events");
+
+	_assertEqual("null", $ssapApplicationEventsDataDB[0].ACTION_ENABLED, "Verify ACTION_ENABLED in ssap_application_events");
+	_assertNotEqual("null", $ssapApplicationEventsDataDB[0].CREATION_TIMESTAMP, "Verify CREATION_TIMESTAMP in ssap_application_events");
+	_assertEqual("null", $ssapApplicationEventsDataDB[0].EVENT_DATE, "Verify EVENT_DATE in ssap_application_events");
+	_assertEqual("null", $ssapApplicationEventsDataDB[0].REPORT_START_DATE, "Verify REPORT_START_DATE in ssap_application_events");
+	_assertEqual("null", $ssapApplicationEventsDataDB[0].REPORT_END_DATE, "Verify REPORT_END_DATE in ssap_application_events");
+	
+	var $eventType = getEventType($event);
+	var $enrollmentStartDate = _fetch(window.moment($ssapApplicationEventsDataDB[0].ENROLLMENT_START_DATE).format('YYYY-MM-DD'));
+	var $expectedEnrollmentStartDate;
+	var $expectedSepEndDate;
+	var $keepOnlyFlag;
+
+	_log("$eventType: "+$eventType);
+	_log("$eventDate: "+$eventDate);
+	_log("$enrollmentStartDate: "+$enrollmentStartDate);
+	_log("$applicationType: "+$applicationType);
+
+	//need to confirm logic for SEP application 
+	if($applicationType == "QEP" || $applicationType == "OE"){
+		var $currentDate = getCurrentDate("YYYY-MM-DD");
+		_log("$currentDate: "+$currentDate);
+
+		if($applicationType =="QEP"){
+			$expectedEnrollmentStartDate = $currentDate;
+		}else if($applicationType =="SEP"){
+				$expectedEnrollmentStartDate = $eventDate;
+		}else if($applicationType =="OE"){
+			$expectedEnrollmentStartDate = $currentDate;
+		}
+
+		_assertEqual($expectedEnrollmentStartDate, $enrollmentStartDate, "Verify ENROLLMENT_START_DATE in ssap_application_events");
+		
+
+		if($applicationType == "QEP" || $applicationType ==  "SEP"){
+
+			var $qepDuringOEStartDate = $household.giAppConfig.iex_QEPDuringOEStartDate;
+			var $qepDuringOEEndDate = $household.giAppConfig.iex_QEPDuringOEEndDate;
+			var $isInQepDuringOE = isInQepDuringOePeriod($qepDuringOEStartDate,$qepDuringOEEndDate);
+			
+			if((!$eventDate || $eventDate == "Invalid date") && $isInQepDuringOE === true){
+				$expectedSepEndDate = $household.giAppConfig.iex_current_oe_end_date;
+				$expectedSepEndDate = _fetch(window.moment($expectedSepEndDate).format('YYYY-MM-DD'));
+			}else{
+				$expectedSepEndDate = _fetch(window.moment($eventDate).add(60, 'days').format('YYYY-MM-DD'));
+				_log("$household.giAppConfig.iex_lce_enrollmentEndDate_gracePeriod: "+$household.giAppConfig.iex_lce_enrollmentEndDate_gracePeriod);
+				var $gracePeriod = parseInt($household.giAppConfig.iex_lce_enrollmentEndDate_gracePeriod);
+				if($gracePeriod > 0){
+					$expectedSepEndDate = _fetch(window.moment($expectedSepEndDate).add($gracePeriod, 'days').format('YYYY-MM-DD'));
+				}
+
+				$keepOnlyFlag = "N";
+			}
+			
+			_log("$expectedSepEndDate: "+$expectedSepEndDate);
+		}else if($applicationType == "OE"){
+			$expectedSepEndDate = $household.giAppConfig.iex_current_oe_end_date;
+			_log("$expectedSepEndDate: "+$expectedSepEndDate);
+			$expectedSepEndDate = _fetch(window.moment($expectedSepEndDate).format('YYYY-MM-DD'));
+
+			$keepOnlyFlag = "null";
+		}
+
+		var $enrollmentEndDate = _fetch(window.moment($ssapApplicationEventsDataDB[0].ENROLLMENT_END_DATE).format('YYYY-MM-DD'));
+		_log("$expectedSepEndDate: "+$expectedSepEndDate);
+		_log("$enrollmentEndDate: "+$enrollmentEndDate);
+		_assertEqual($expectedSepEndDate, $enrollmentEndDate, "Verify ENROLLMENT_END_DATE in ssap_application_events");
+	}
+
+	_assertEqual("null", $ssapApplicationEventsDataDB[0].OVERWRITTEN_COVERAGE_DATE, "Verify OVERWRITTEN_COVERAGE_DATE in ssap_application_events");
+	
+	//need to confirm logic for below assertion
+	//_assertEqual($keepOnlyFlag, $ssapApplicationEventsDataDB[0].KEEP_ONLY, "Verify KEEP_ONLY in ssap_application_events");
+	
+	_assertEqual($applicationType, $ssapApplicationEventsDataDB[0].EVENT_TYPE, "Verify EVENT_TYPE in ssap_application_events");
+	//_assertEqual($household.isChangePlan, $ssapApplicationEventsDataDB[0].CHANGE_PLAN, "Verify CHANGE_PLAN in ssap_application_events");
+
+	return $ssapApplicationEventsDataDB;
+}
+
+function verifyRenewalApplications($applicationDataFromDB,$healthRenewalStatus,$dentalRenewalStatus){
+	var $renewalApplicationsDataDB = getRenewalApplicationsDataDB($applicationDataFromDB.ssapApplicationData.ID);
+	_assertEqual($healthRenewalStatus, $renewalApplicationsDataDB[0].HEALTH_RENEWAL_STATUS, "Verify HEALTH_RENEWAL_STATUS in renewal_applications table");
+	_assertEqual($dentalRenewalStatus, $renewalApplicationsDataDB[0].DENTAL_RENEWAL_STATUS, "Verify DENTAL_RENEWAL_STATUS in renewal_applications table");
+
+	_assertEqual($applicationDataFromDB.cmrHouseholdData.householdCaseId, $renewalApplicationsDataDB[0].EXTERNAL_HOUSEHOLD_CASE_ID, "Verify EXTERNAL_HOUSEHOLD_CASE_ID in renewal_applications table");
+	_assertEqual($applicationDataFromDB.cmrHouseholdData.ID, $renewalApplicationsDataDB[0].CMR_HOUSEHOLD_ID, "Verify CMR_HOUSEHOLD_ID in renewal_applications table");
+
+	if($healthRenewalStatus == "TO_CONSIDER" && $dentalRenewalStatus == "TO_CONSIDER"){
+		_log("$healthRenewalStatus == TO_CONSIDER && $dentalRenewalStatus == TO_CONSIDER");
+		_assertEqual("null", $renewalApplicationsDataDB[0].GI_MONITOR_ID, "Verify GI_MONITOR_ID in renewal_applications table");
+		_assertEqual("null", $renewalApplicationsDataDB[0].HEALTH_REASON_CODE, "Verify HEALTH_REASON_CODE in renewal_applications table");
+		_assertEqual("null", $renewalApplicationsDataDB[0].DENTAL_REASON_CODE, "Verify DENTAL_REASON_CODE in renewal_applications table");
+		_assertEqual("null", $renewalApplicationsDataDB[0].HOUSEHOLD_RENEWAL_STATUS, "Verify HOUSEHOLD_RENEWAL_STATUS in renewal_applications table");
+	}
+
+	_assertNotEqual("null", $renewalApplicationsDataDB[0].CREATION_TIMESTAMP, "Verify CREATION_TIMESTAMP in renewal_applications table");
+	_assertNotEqual("null", $renewalApplicationsDataDB[0].LAST_UPDATE_TIMESTAMP, "Verify LAST_UPDATE_TIMESTAMP in renewal_applications table");
+	_assertEqual("null", $renewalApplicationsDataDB[0].NOTICE_ID, "Verify NOTICE_ID in renewal_applications table");
+	_assertEqual("null", $renewalApplicationsDataDB[0].FAILURE_NOTICE_ID, "Verify FAILURE_NOTICE_ID in renewal_applications table");
+	_assertEqual("null", $renewalApplicationsDataDB[0].TO_CONSIDER_SERVER_NAME, "Verify TO_CONSIDER_SERVER_NAME in renewal_applications table");
+	_assertEqual("null", $renewalApplicationsDataDB[0].AUTO_ENROLL_SERVER_NAME, "Verify AUTO_ENROLL_SERVER_NAME in renewal_applications table");
+
+}
+
+function verifyRenewalApplicants($applicationDataFromDB,$household,$newYearGroups,$previousYearGroups,$healthRenewalStatus,$dentalRenewalStatus,$case){
+	var $renewalApplicants = {};
+	var $health = [];
+	var $dental = [];
+	var $renewalApplicantsData = getRenewalApplicantsDataDB($applicationDataFromDB.ssapApplicationData.ID);
+	
+	var $newMembersCount = 0;
+	var $removedMembersCount = 0;
+	var $removedMemberNum = "";
+	var $isNewMember = false;
+	var $isMemberRemovedFromApp = false;
+	var $isMemberRemoved = false;
+	var $helthGroupToRemove = "";
+
+	// parse $case parameter
+	if($case){
+		if($case.split(":")[1] == "add"){
+			$newMembersCount = $case.split(":")[0];
+			$case = $case.split(":")[1];
+		}
+		if($case.split(":")[1] == "remove"){
+			$removedMembersCount = parseInt($case.split(":")[0]);
+			$removedMemberNum = parseInt($case.split(":")[2]);
+			$helthGroupToRemove = parseInt($case.split(":")[3].replace(/\D+/g, ""));
+			$case = $case.split(":")[1];
+			
+		}
+		_log("$case: "+$case);
+	}
+
+	//separate health and dental data from renewal applicants
+	$renewalApplicants.health = $health;
+	$renewalApplicants.dental = $dental;
+
+	for (var $i = 0; $i < $renewalApplicantsData.length; $i++) {
+		if($renewalApplicantsData[$i].PLAN_TYPE == "Health"){
+			$renewalApplicants.health.push($renewalApplicantsData[$i]);
+		}else{
+			$renewalApplicants.dental.push($renewalApplicantsData[$i]);
+		}
+	}
+	var $str = JSON.stringify($renewalApplicants);
+	_log("JSON: "+$str);
+
+	//verify applicant id in renewal applicants
+	var $applicantsIdArr = [];
+	var $renewalApplicantsHealthIdArr = [];
+	var $renewalApplicantsDentalIdArr = [];
+	for (var $i = 0; $i < $applicationDataFromDB.applicantsDataDB.length; $i++) {
+		$applicantsIdArr[$i] = $applicationDataFromDB.applicantsDataDB[$i].ID;
+		$renewalApplicantsHealthIdArr[$i] = $renewalApplicants.health[$i].SSAP_APPLICANT_ID;
+		$renewalApplicantsDentalIdArr[$i] = $renewalApplicants.dental[$i].SSAP_APPLICANT_ID;
+	}
+	$applicantsIdArr.sort();
+	$renewalApplicantsHealthIdArr.sort();
+	$renewalApplicantsDentalIdArr.sort();
+	verifyArray($applicantsIdArr,$renewalApplicantsHealthIdArr);
+	verifyArray($applicantsIdArr,$renewalApplicantsDentalIdArr);
+
+	_log("$applicantsIdArr[$i]: "+$applicantsIdArr.toString());
+	_log("$renewalApplicantsHealthIdArr[$i]: "+$renewalApplicantsHealthIdArr.toString());
+	
+	for(var $j = 0; $j < $previousYearGroups.length; $j++){
+		
+		//verifying applicants PLAN_TYPE health
+		if($previousYearGroups[$j].healthPlan != "null"){
+			
+
+			if($isMemberRemovedFromApp && $helthGroupToRemove == $j){
+				for (var $n = 0; $n < $removedMembersCount; $n++) {
+					delete $previousYearGroups[$j].member[$removedMemberNum];
+				}
+
+			}	
+				
+			for (var $i = 0; $i < $renewalApplicants.health.length; $i++) {
+				$isNewMember = false;
+				$isMemberRemoved = false;
+				_log("####### veify applicant "+$i+" in health enrollment ########");
+				var $renewalApplicantsToVerify;
+
+				//check for new or removed member
+				if($i < $previousYearGroups[$j].member.length){
+					$renewalApplicantsToVerify = getApplicantByMedId($renewalApplicants.health, $previousYearGroups[$j].member[$i].personMedicaidIdentification);
+					if($j === $helthGroupToRemove && $i === $removedMemberNum){
+						$isMemberRemoved = true;
+					}
+				}else{
+					$renewalApplicantsToVerify = getApplicantByMedId($renewalApplicants.health, $household.people[$i].personMedicaidIdentification);
+					$isNewMember = true;
+				}
+				
+				var $strOne = JSON.stringify($renewalApplicantsToVerify);
+				_log("renewalApplicantsToVerify: "+$strOne);
+				_log("case: "+$case);
+				_log("isNewMember: "+$isNewMember);
+				_log("isMemberRemoved: "+$isMemberRemoved);
+
+				
+				
+				if(!$case || !$isNewMember && !$isMemberRemoved){
+					_log("!$case || !$isNewMember && !$isMemberRemoved");
+					_assertEqual($previousYearGroups[$j].enrollmentDataDB[0].ID, $renewalApplicantsToVerify[0].ENROLLMENT_ID, "Verify ENROLLMENT_ID in renewal_applications table");
+					_assertEqual($healthRenewalStatus, $renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+					_assertEqual("null", $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+					_assertEqual($previousYearGroups[$j].enrollmentDataDB[0].CMS_PLAN_ID, $renewalApplicantsToVerify[0].PLAN_ID, "Verify PLAN_ID in renewal_applications table");
+					_assertEqual($healthRenewalStatus, $renewalApplicantsToVerify[0].GROUP_RENEWAL_STATUS, "Verify GROUP_RENEWAL_STATUS in renewal_applications table");
+					_assertEqual($previousYearGroups[$j].member[$i].personMedicaidIdentification, $renewalApplicantsToVerify[0].MEMBER_ID, "Verify MEMBER_ID in renewal_applications table");
+				}else if($isNewMember || $isMemberRemoved){
+					_log("$isNewMember || $isMemberRemoved");
+					if($isNewMember){
+						_log("$isNewMember");
+						_assertEqual("null", $renewalApplicantsToVerify[0].ENROLLMENT_ID, "Verify ENROLLMENT_ID in renewal_applications table");
+					}else{
+						_log("$isMemberRemoved");
+						_assertEqual($previousYearGroups[$j].enrollmentDataDB[0].ID, $renewalApplicantsToVerify[0].ENROLLMENT_ID, "Verify ENROLLMENT_ID in renewal_applications table");
+					}
+					
+					
+					if ($healthRenewalStatus == "TO_CONSIDER") {
+						_log("$healthRenewalStatus == TO_CONSIDER");
+						_assertEqual("NOT_TO_CONSIDER",$renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+						
+						if($isNewMember){
+							_log("$isNewMember");
+							_assertEqual("NOT_TO_CONSIDER",$renewalApplicantsToVerify[0].GROUP_RENEWAL_STATUS, "Verify GROUP_RENEWAL_STATUS in renewal_applications table");
+							var $falloutReasonCode = getFalloutReasonCode("New member added this year");
+							_assertEqual($falloutReasonCode, $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+							_assertEqual("null", $renewalApplicantsToVerify[0].PLAN_ID, "Verify PLAN_ID in renewal_applications table");
+						}else{
+							_log("$isMemberRemoved");
+							_assertEqual("null", $renewalApplicantsToVerify[0].GROUP_RENEWAL_STATUS, "Verify GROUP_RENEWAL_STATUS in renewal_applications table");
+							var $falloutReasonCode = getFalloutReasonCode("Member is ineligible for health renewal");
+							_assertEqual($falloutReasonCode, $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE,"Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+							_assertEqual($previousYearGroups[$j].enrollmentDataDB[0].CMS_PLAN_ID, $renewalApplicantsToVerify[0].PLAN_ID, "Verify PLAN_ID in renewal_applications table");
+						}
+						
+					}else if ($healthRenewalStatus == "RENEWED"){
+						if($isNewMember){
+							_assertEqual("NOT_TO_CONSIDER", $renewalApplicantsToVerify[0].RENEWAL_STATUS,"Verify RENEWAL_STATUS in renewal_applications table");
+							_assertEqual("NOT_TO_CONSIDER", $renewalApplicantsToVerify[0].GROUP_RENEWAL_STATUS, "Verify GROUP_RENEWAL_STATUS in renewal_applications table");
+							var $falloutReasonCode = getFalloutReasonCode("New member added this year");
+							_assertEqual($falloutReasonCode, $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+						}else{
+							_assertEqual("NOT_TO_CONSIDER", $renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+							_assertEqual("null", $renewalApplicantsToVerify[0].GROUP_RENEWAL_STATUS, "Verify GROUP_RENEWAL_STATUS in renewal_applications table");
+							var $falloutReasonCode = getFalloutReasonCode("Member is ineligible for health renewal");
+							_assertEqual($falloutReasonCode, $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+						}
+						
+					}
+
+					_assertEqual($household.people[$i].personMedicaidIdentification, $renewalApplicantsToVerify[0].MEMBER_ID, "Verify MEMBER_ID in renewal_applications table");
+				}
+
+				_assertEqual("Health", $renewalApplicantsToVerify[0].PLAN_TYPE, "Verify PLAN_TYPE in renewal_applications table");
+				_assertEqual("null", $renewalApplicantsToVerify[0].GROUP_REASON_CODE, "Verify GROUP_REASON_CODE in renewal_applications table");	
+				_assertNotEqual("null", $renewalApplicantsToVerify[0].CREATION_TIMESTAMP, "Verify CREATION_TIMESTAMP in renewal_applications table");
+				_assertNotEqual("null", $renewalApplicantsToVerify[0].LAST_UPDATE_TIMESTAMP, "Verify LAST_UPDATE_TIMESTAMP in renewal_applications table");
+				_assertEqual("null", $renewalApplicantsToVerify[0].GI_MONITOR_ID, "Verify GI_MONITOR_ID in renewal_applications table");
+			}
+		}
+			
+
+		//verifying applicants PLAN_TYPE dental
+		if($previousYearGroups[$j].dentalPlan != "null"){
+		
+			for (var $i = 0; $i < $renewalApplicants.dental.length; $i++) {
+				$isNewMember = false;
+				$isMemberRemoved = false;
+				_log("####### veify applicant "+$i+" in dental enrollment ########");
+				var $renewalApplicantsToVerify;
+				if($i < $previousYearGroups[$j].member.length){
+					$renewalApplicantsToVerify = getApplicantByMedId($renewalApplicants.dental, $previousYearGroups[$j].member[$i].personMedicaidIdentification);
+					if($i === $removedMemberNum){
+						$isMemberRemoved = true;
+					}
+				}else{
+					$renewalApplicantsToVerify = getApplicantByMedId($renewalApplicants.dental, $household.people[$i].personMedicaidIdentification);
+					$isNewMember = true;
+				}
+
+				var $strOne = JSON.stringify($renewalApplicantsToVerify);
+				_log("renewalApplicantsToVerify: "+$strOne);
+				_log("case: "+$case);
+				_log("isNewMember: "+$isNewMember);
+				_log("isMemberRemoved: "+$isMemberRemoved);
+
+				if(!$case || !$isNewMember){
+
+					_assertEqual($previousYearGroups[$j].enrollmentDataDB[0].ID, $renewalApplicantsToVerify[0].ENROLLMENT_ID, "Verify ENROLLMENT_ID in renewal_applications table");
+					if($case == "remove"){
+						if ($isMemberRemoved) {
+							_assertEqual("NOT_TO_CONSIDER", $renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+							var $falloutReasonCode = getFalloutReasonCode("Member is ineligible for dental renewal");
+							_assertEqual($falloutReasonCode, $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+						}else{
+							var $falloutReasonCode;
+							_assertEqual($dentalRenewalStatus, $renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+							if ($dentalRenewalStatus == "MANUAL_ENROLMENT") {
+								$falloutReasonCode = getFalloutReasonCode("User shopped for plans");
+							}else{
+								$falloutReasonCode = getFalloutReasonCode("Household is ineligible for dental renewal");
+							}
+							_assertEqual($falloutReasonCode, $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+						}
+					}else{
+						_assertEqual($dentalRenewalStatus, $renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+						_assertEqual("null", $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+					}
+					
+					_assertEqual($previousYearGroups[$j].enrollmentDataDB[0].CMS_PLAN_ID, $renewalApplicantsToVerify[0].PLAN_ID, "Verify PLAN_ID in renewal_applications table");
+					_assertEqual($previousYearGroups[$j].member[$i].personMedicaidIdentification, $renewalApplicantsToVerify[0].MEMBER_ID, "Verify MEMBER_ID in renewal_applications table");
+				}else if($isNewMember){
+					_assertEqual("null", $renewalApplicantsToVerify[0].ENROLLMENT_ID, "Verify ENROLLMENT_ID in renewal_applications table");
+					if ($dentalRenewalStatus == "TO_CONSIDER") {
+						_assertEqual("NOT_TO_CONSIDER", $renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+					}else if ($dentalRenewalStatus == "RENEWED"){
+						_assertEqual("NOT_TO_CONSIDER", $renewalApplicantsToVerify[0].RENEWAL_STATUS, "Verify RENEWAL_STATUS in renewal_applications table");
+					}
+					var $falloutReasonCode = getFalloutReasonCode("New member added this year");
+					_assertEqual($falloutReasonCode, $renewalApplicantsToVerify[0].MEMBER_FALLOUT_REASON_CODE, "Verify MEMBER_FALLOUT_REASON_CODE in renewal_applications table");
+					_assertEqual("null", $renewalApplicantsToVerify[0].PLAN_ID, "Verify PLAN_ID in renewal_applications table");
+					_assertEqual($household.people[$i].personMedicaidIdentification, $renewalApplicantsToVerify[0].MEMBER_ID, "Verify MEMBER_ID in renewal_applications table");
+				}
+
+				_assertEqual("Dental", $renewalApplicantsToVerify[0].PLAN_TYPE, "Verify PLAN_TYPE in renewal_applications table");
+				_assertEqual("null", $renewalApplicantsToVerify[0].GROUP_REASON_CODE, "Verify GROUP_REASON_CODE in renewal_applications table");
+				_assertEqual("null", $renewalApplicantsToVerify[0].GROUP_RENEWAL_STATUS, "Verify GROUP_RENEWAL_STATUS in renewal_applications table");				
+				_assertNotEqual("null", $renewalApplicantsToVerify[0].CREATION_TIMESTAMP, "Verify CREATION_TIMESTAMP in renewal_applications table");
+				_assertNotEqual("null", $renewalApplicantsToVerify[0].LAST_UPDATE_TIMESTAMP, "Verify LAST_UPDATE_TIMESTAMP in renewal_applications table");
+				_assertEqual("null", $renewalApplicantsToVerify[0].GI_MONITOR_ID, "Verify GI_MONITOR_ID in renewal_applications table");
+			}
+		}	
+	}	
+	
+
+}
+
+function verifySsapApplicantEvents($household,$ssapApplicationData,$applicantsDataDB,$event,$eventDate,$ssapApplicationEventsDataDB){
+	var $primaryPersonNum = $household.primaryTaxFiler;
+	var $applicantEventsDataDB = getSsapApplicantEventsDataDB($applicantsDataDB);
+	if($ssapApplicationData.APPLICATION_TYPE == "OE"){
+		_assertEqual(0, $applicantEventsDataDB.length,"Verify that no records for OE application");
+	}else{
+		_assertEqual($household.people.length, $applicantEventsDataDB.length, "Verify that number af applicants match members in AT");
+		for (var $i=0;$i<$household.people.length;$i++){
+			_log("####### Verify person "+$i+" #######");
+
+			_assertEqual($ssapApplicationEventsDataDB[0].ID, $applicantEventsDataDB[$i].SSAP_APPLICATION_EVENT_ID, "Verify SSAP_APPLICATION_EVENT_ID in ssap_applicant_events table");
+			_assertEqual($applicantsDataDB[$i].ID, $applicantEventsDataDB[$i].SSAP_APPLICANT_ID, "Verify SSAP_APPLICATION_EVENT_ID in ssap_applicant_events table");
+
+			verifyHmsStatusInApplicantEvents($household,$ssapApplicationData,$applicantEventsDataDB,$event,$i);
+		}
+	}
+}
+
+function verifyHmsStatusInApplicantEvents($household,$ssapApplicationData,$applicantEventsDataDB,$event,$personNum){
+	_log("$applicantEventsDataDB[$i]: "+$applicantEventsDataDB[$personNum].VALIDATION_STATUS);
+	if($ssapApplicationData.APPLICATION_TYPE == "QEP"){		
+		if ($household.people[$personNum].isPrimaryContact && isHmsMockEnabled() && $event == "LossOfMec") {
+			if ($household.people[$personNum].lastName == "Verified") {
+				_assertEqual($applicantEventsDataDB[$personNum].VALIDATION_STATUS, "VERIFIED","Verify VALIDATION_STATUS in ssap_applicant_events table");
+				_assertEqual($applicantEventsDataDB[$personNum].REAL_TIME_STATUS, "VERIFIED","Verify REAL_TIME_STATUS in ssap_applicant_events table");	
+			}else if($household.people[$personNum].lastName != "Verified" || $household.people[$personNum].lastName != "Notverified"){
+				_assertEqual($applicantEventsDataDB[$personNum].VALIDATION_STATUS, "OVERRIDDEN","Verify VALIDATION_STATUS in ssap_applicant_events table");
+				_assertEqual($applicantEventsDataDB[$personNum].REAL_TIME_STATUS, "ERROR","Verify REAL_TIME_STATUS in ssap_applicant_events table");	
+			}
+		}else{
+			_assertEqual($applicantEventsDataDB[$personNum].VALIDATION_STATUS, "NOTREQUIRED","Verify VALIDATION_STATUS in ssap_applicant_events table");
+			_assertEqual($applicantEventsDataDB[$personNum].REAL_TIME_STATUS,  "null","Verify REAL_TIME_STATUS in ssap_applicant_events table");
+		}			
+	}else if($ssapApplicationData.APPLICATION_TYPE == "SEP"){			
+		if (isHmsMockEnabled() && $event == "LossOfMec") {				
+			if ($household.people.length-1 == $personNum && $household.people[$personNum].lastName == "Verified") {					
+				_assertEqual($applicantEventsDataDB[$personNum].VALIDATION_STATUS, "VERIFIED","Verify VALIDATION_STATUS in ssap_applicant_events table");
+				_assertEqual($applicantEventsDataDB[$personNum].REAL_TIME_STATUS, "VERIFIED","Verify REAL_TIME_STATUS in ssap_applicant_events table");	
+			}else if($household.people.length-1 == $personNum && ($household.people[$personNum].lastName != "Verified" || $household.people[$personNum].lastName != "Notverified")){
+						
+				_assertEqual($applicantEventsDataDB[$personNum].VALIDATION_STATUS, "OVERRIDDEN","Verify VALIDATION_STATUS in ssap_applicant_events table");
+				_assertEqual($applicantEventsDataDB[$personNum].REAL_TIME_STATUS, "ERROR","Verify REAL_TIME_STATUS in ssap_applicant_events table");	
+			}else{			
+				_assertEqual($applicantEventsDataDB[$personNum].VALIDATION_STATUS, "NOTREQUIRED","Verify VALIDATION_STATUS in ssap_applicant_events table");
+				_assertEqual($applicantEventsDataDB[$personNum].REAL_TIME_STATUS,  "null","Verify REAL_TIME_STATUS in ssap_applicant_events table");
+			}
+		}else{
+			_assertEqual($applicantEventsDataDB[$personNum].VALIDATION_STATUS, "NOTREQUIRED","Verify VALIDATION_STATUS in ssap_applicant_events table");
+			_assertEqual($applicantEventsDataDB[$personNum].REAL_TIME_STATUS,  "null","Verify REAL_TIME_STATUS in ssap_applicant_events table");
+		}
+	}
+}
+
+function verifyCMRHouseholdDB($email,$household){
+	var $primaryPersonNum = $household.primaryTaxFiler;
+	var $CMRHouseholdDataDB = getCMRHouseholdData($email);
+	_assertEqual($CMRHouseholdDataDB.email,  $email.toLowerCase(),"Verify email in CMR_Household table");
+	_assertNotEqual($CMRHouseholdDataDB.userid, null ,"Verify userid is not null");
+	_assertEqual($CMRHouseholdDataDB.zipcode, $household.people[$primaryPersonNum].homeAddress.zipcode ,"Verify zipcode in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.firstName, $household.people[$primaryPersonNum].firstName ,"Verify first name in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.lastName, $household.people[$primaryPersonNum].lastName ,"Verify last name in CMR_Household table");
+	_assertNotEqual($CMRHouseholdDataDB.giHouseholdId, null ,"Verify giHouseholdId is not null in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.birthDate, $household.people[$primaryPersonNum].dob ,"Verify DOB in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.SSN, $household.people[$primaryPersonNum].SSN ,"Verify SSN in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.householdCaseId, $household.externalHouseholdCaseId ,"Verify householdCaseId in CMR_Household table");
+	
+	var $addressDB = getAddressFromLocationsDB($CMRHouseholdDataDB.locatinId);
+	_assertEqual($addressDB.ADDRESS1, $household.people[$primaryPersonNum].mailingAddress.street ,"Verify ADDRESS1 in Locations table");
+	_assertEqual($addressDB.CITY, $household.people[$primaryPersonNum].mailingAddress.city ,"Verify CITY in Locations table");
+	_assertEqual($addressDB.STATE, $household.people[$primaryPersonNum].mailingAddress.state ,"Verify STATE in Locations table");
+	_assertEqual($addressDB.ZIP, $household.people[$primaryPersonNum].mailingAddress.zipcode ,"Verify ZIP in Locations table");
+	
+	var $addressDB = getAddressFromLocationsDB($CMRHouseholdDataDB.contactLocationId);
+	_assertEqual($addressDB.ADDRESS1, $household.people[$primaryPersonNum].homeAddress.street ,"Verify ADDRESS1 in Locations table");
+	_assertEqual($addressDB.CITY, $household.people[$primaryPersonNum].homeAddress.city ,"Verify CITY in Locations table");
+	_assertEqual($addressDB.STATE, $household.people[$primaryPersonNum].homeAddress.state ,"Verify STATE in Locations table");
+	_assertEqual($addressDB.ZIP, $household.people[$primaryPersonNum].homeAddress.zipcode ,"Verify ZIP in Locations table");
+	return $CMRHouseholdDataDB;
+}
+
+function verifySSAPApplicationsData($cmrHouseholdId, $household,$applicationStatus,$applicationType,$eligibilityStatus,$CSR){
+	var $SSAPApplicationsDataDB = getSSAPApplicationsDataDB($cmrHouseholdId, $household);
+	var $primaryPersonNum = $household.primaryTaxFiler;
+	//_assertEqual($SSAPApplicationsDataDB.START_DATE, $household.applicationCreationDate,"Verify START_DATE");	
+	_assertEqual($SSAPApplicationsDataDB.ESIGN_FIRST_NAME,$household.people[$primaryPersonNum].firstName,"Verify ESIGN_FIRST_NAME");
+	_assertEqual($SSAPApplicationsDataDB.ESIGN_LAST_NAME,$household.people[$primaryPersonNum].lastName,"Verify ESIGN_LAST_NAME");
+	_assertEqual($SSAPApplicationsDataDB.ESIGN_DATE,$household.signatureDate,"Verify ESIGN_DATE");
+	_assertEqual($SSAPApplicationsDataDB.APPLICATION_STATUS, $applicationStatus ,"Verify application status");
+	_assertEqual($SSAPApplicationsDataDB.APPLICATION_TYPE,  $applicationType,"Verify APPLICATION_TYPE");
+	_assertEqual($SSAPApplicationsDataDB.CMR_HOUSEOLD_ID,  $cmrHouseholdId,"Verify CMR_HOUSEOLD_ID");
+	
+	if($household.financialAssistanceIndicator == "true"){
+		_assertEqual($SSAPApplicationsDataDB.FINANCIAL_ASSISTANCE_FLAG, "Y","Verify FINANCIAL_ASSISTANCE_FLAG");
+	}else{
+		_assertEqual($SSAPApplicationsDataDB.FINANCIAL_ASSISTANCE_FLAG, "N","Verify FINANCIAL_ASSISTANCE_FLAG");
+	}
+	
+	_assertEqual($SSAPApplicationsDataDB.EXCHANGE_ELIGIBILITY_STATUS,  $eligibilityStatus,"Verify EXCHANGE_ELIGIBILITY_STATUS");
+	
+	_assertEqual($SSAPApplicationsDataDB.CSR_LEVEL,  $CSR,"Verify CSR_LEVEL");
+	if($household.people[$primaryPersonNum].maxAPTC != ""){
+		_assertEqual($SSAPApplicationsDataDB.MAXIMUM_APTC, $household.people[$primaryPersonNum].maxAPTC,"Verify MAXIMUM_APTC");
+	}else{
+		_assertEqual($SSAPApplicationsDataDB.MAXIMUM_APTC, "null" ,"Verify MAXIMUM_APTC is null");
+		_assertEqual($SSAPApplicationsDataDB.ELECTED_APTC,  "null","Verify ELECTED_APTC");
+	}
+	_assertEqual($SSAPApplicationsDataDB.COVERAGE_YEAR,  $household.coverageYear,"Verify COVERAGE_YEAR");
+	_assertEqual($SSAPApplicationsDataDB.EXTERNAL_APPLICATION_ID,  $household.ATapplicationID,"Verify EXTERNAL_APPLICATION_ID");
+
+	for(var $i=0;i<$household.people.length;$i++){
+		if($household.people[$i].americanIndianIndicator == "true"){
+			_assertEqual($SSAPApplicationsDataDB.NATIVE_AMERICAN_FLAG,  "Y","Verify NATIVE_AMERICAN_FLAG");
+		}else{
+			_assertEqual($SSAPApplicationsDataDB.NATIVE_AMERICAN_FLAG,  "N","Verify NATIVE_AMERICAN_FLAG");
+		}
+	}
+	var $currentDate = getCurrentDate("YYYY-MM-DD");
+	_assertEqual($SSAPApplicationsDataDB.ELIGIBILITY_RECEIVED_DATE.substring(0,10),  $currentDate,"Verify ELIGIBILITY_RECEIVED_DATE");
+	_assertEqual($SSAPApplicationsDataDB.VALIDATION_STATUS,  "NOTREQUIRED","Verify VALIDATION_STATUS");
+	return $SSAPApplicationsDataDB;
+}
+
+function verifySSAPApplicantsDB($ssapApplication,$household,$CMRHouseholdDataDB){
+	var $primaryPersonNum = $household.primaryTaxFiler;
+	var $applicantsDataDB = getApplicantsDataDB($ssapApplication.ID);
+	_assertEqual($applicantsDataDB.length,  $household.people.length,"Verify that number af applicants match members in AT");
+	
+	for (var $i=0;$i<$household.people.length;$i++){
+		_log("####### Verify person "+$i+" #######");
+		_assertEqual($applicantsDataDB[$i].EXTERNAL_APPLICANT_ID,$household.people[$i].personMedicaidIdentification,"Verify EXTERNAL_APPLICANT_ID for person "+$i);
+		_assertEqual($applicantsDataDB[$i].FIRST_NAME,$household.people[$i].firstName,"Verify FIRST_NAME for person "+$i);
+		_assertEqual($applicantsDataDB[$i].LAST_NAME,$household.people[$i].lastName,"Verify LAST_NAME for person "+$i);
+		_assertEqual($applicantsDataDB[$i].BIRTH_DATE.substring(0,10),$household.people[$i].dob,"Verify BIRTH_DATE for person "+$i);
+		_assertEqual($applicantsDataDB[$i].GENDER,$household.people[$i].personSex,"Verify GENDER for person "+$i);
+		
+		if($household.people[$i].personMarriedIndicatorCode){
+			_assertEqual($applicantsDataDB[$i].MARRIED, $household.people[$i].personMarriedIndicatorCode,"Verify MARRIED status for person "+$i);
+		}else{
+			_assertEqual($applicantsDataDB[$i].MARRIED, "R","Verify MARRIED status for person "+$i);
+		}
+
+		_assertEqual($applicantsDataDB[$i].TOBACCOUSER,"null","Verify TOBACCOUSER for person "+$i);
+		_log("houshold person:" + $household.people[$i].personMedicaidIdentification);
+		if($household.people[$i].personMedicaidIdentification == $household.people[$primaryPersonNum].personMedicaidIdentification){
+			_assertEqual($applicantsDataDB[$i].HOUSEHOLD_CONTACT_FLAG,"Yes","Verify HOUSEHOLD_CONTACT_FLAG for person "+$i);
+			var $getglobalcount = getApplicationCount();
+			_log("Global app count " + $getglobalcount);
+			_log("Household count:" + $household.applicationCount);
+			if($getglobalcount==$household.applicationCount){
+				_assertEqual($applicantsDataDB[$i].MAILIING_LOCATION_ID,$CMRHouseholdDataDB.locatinId,"Verify MAILIING_LOCATION_ID for person "+$i);
+				_assertEqual($applicantsDataDB[$i].PRIMARY_LOC_ID,$CMRHouseholdDataDB.contactLocationId,"Verify PRIMARY_LOC_ID for person "+$i);
+			}
+			
+		}else{
+			_assertEqual($applicantsDataDB[$i].HOUSEHOLD_CONTACT_FLAG,"No","Verify HOUSEHOLD_CONTACT_FLAG for person "+$i);
+				_assertEqual($applicantsDataDB[$i].MAILIING_LOCATION_ID,"null","Verify MAILIING_LOCATION_ID for person "+$i);
+				_assertEqual($applicantsDataDB[$i].PRIMARY_LOC_ID,"null","Verify PRIMARY_LOC_ID for person "+$i);
+		}
+		
+		_assertEqual($applicantsDataDB[$i].SSAP_APPLICATION_ID,$ssapApplication.ID,"Verify SSAP_APPLICATION_ID for person "+$i);
+		_assertEqual($applicantsDataDB[$i].SSN,$household.people[$i].SSN,"Verify SSN for person "+$i);
+		
+		if($household.people[$i].phoneNumber != ""){
+			_assertEqual($applicantsDataDB[$i].PHONE_NUMBER,$household.people[$i].phoneNumber,"Verify PHONE_NUMBER for person "+$i);
+		}else{
+			_assertEqual($applicantsDataDB[$i].PHONE_NUMBER, "null","Verify PHONE_NUMBER for person "+$i);
+		}
+
+		if($household.people[$i].email != ""){
+			_assertEqual($applicantsDataDB[$i].EMAIL_ADDRESS,$household.people[$i].email,"Verify EMAIL_ADDRESS for person "+$i);
+		}else{
+			_assertEqual($applicantsDataDB[$i].EMAIL_ADDRESS, "null","Verify EMAIL_ADDRESS for person "+$i);
+		}
+		
+		if($household.people[$i].csrEligibility != "false"){
+			var $CSLevel = convertCSRLevel($household.people[$i].csrLevel,"Short");
+			_assertEqual($applicantsDataDB[$i].CSR_LEVEL,$CSLevel ,"Verify CSR_LEVEL for person "+$i);
+		}else{
+			_assertEqual($applicantsDataDB[$i].CSR_LEVEL,"null" ,"Verify CSR_LEVEL for person "+$i);
+		}
+		
+		var $expectedRelationCode = $household.people[$primaryPersonNum].relationshipCode[$i].toString();
+		if ($expectedRelationCode.indexOf("-") != -1) {
+			$expectedRelationCode = $expectedRelationCode.substring($expectedRelationCode.indexOf("-")+1,$expectedRelationCode.length);
+		}
+		_assertEqual($applicantsDataDB[$i].RELATIONSHIP,$expectedRelationCode,"Verify RELATIONSHIP for person "+$i);
+		
+		if($household.people[$i].americanIndianIndicator == "true"){
+			_assertEqual($applicantsDataDB[$i].NATIVE_AMERICAN_FLAG, "Y","Verify NATIVE_AMERICAN_FLAG for person "+$i);
+		}else{
+			_assertEqual($applicantsDataDB[$i].NATIVE_AMERICAN_FLAG, "N","Verify NATIVE_AMERICAN_FLAG for person "+$i);
+		}
+		
+		if($household.people[$i].exchangeEligibility == "true"){
+			_assertEqual($applicantsDataDB[$i].ELIGIBILITY_STATUS,"QHP","Verify ELIGIBILITY_STATUS for person "+$i);
+		}else if($household.people[$i].medicaidEligibility == "true" || $household.people[$i].chipEligibility == "true"){
+			_assertEqual($applicantsDataDB[$i].ELIGIBILITY_STATUS,"MEDICAID","Verify ELIGIBILITY_STATUS for person "+$i);
+		}else{
+			_assertEqual($applicantsDataDB[$i].ELIGIBILITY_STATUS,"NONE","Verify ELIGIBILITY_STATUS for person "+$i);
+		}	
+	}
+	return $applicantsDataDB;
+}
+function verifyProgramEligibilitiesDB($applicantsDataDB,$household){
+	var $eligibilityType;
+	for (var $i=0;$i<$household.people.length;$i++){
+		if($household.people[$i].aptcEligibility != ""){
+			$eligibilityType = "APTCEligibilityType";
+			var $programEligibilitiesDataDB = getProgramEligibilitiesDataDB($applicantsDataDB[$i].ID,$eligibilityType);
+			_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_INDICATOR.toLowerCase(),$household.people[$i].aptcEligibility,"Verify APTCEligibilityType ELIGIBILITY_INDICATOR for person "+$i);
+			_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_START_DATE.substring(0,10),$household.people[$i].aptcEligibilityStartDate,"Verify APTCEligibilityType ELIGIBILITY_START_DATE for person "+$i);
+			_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_END_DATE.substring(0,10),$household.people[$i].aptcEligibilityEndDate,"Verify APTCEligibilityType ELIGIBILITY_END_DATE for person "+$i);
+			if($household.people[$i].aptcEligibilityDeterminationDate != ""){
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_DETERMINATION_DATE.substring(0,10),$household.people[$i].aptcEligibilityDeterminationDate.substring(0,10),"Verify APTCEligibilityType ELIGIBILITY_DETERMINATION_DATE for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_DETERMINATION_DATE, "null", "Verify APTCEligibilityType ELIGIBILITY_DETERMINATION_DATE for person "+$i);
+			}
+
+			if($household.people[$i].aptcEligibility == "true"){
+				_assertEqual($programEligibilitiesDataDB.INELIGIBLE_REASON, "null", "Verify APTCEligibilityType INELIGIBLE_REASON for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.INELIGIBLE_REASON, "Not eligible to buy QHP with any Financial assistance.", "Verify APTCEligibilityType INELIGIBLE_REASON for person "+$i);
+			}
+		}
+
+		if($household.people[$i].csrEligibility != ""){
+			$eligibilityType = "CSREligibilityType";
+			var $programEligibilitiesDataDB = getProgramEligibilitiesDataDB($applicantsDataDB[$i].ID,$eligibilityType);
+			_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_INDICATOR.toLowerCase(),$household.people[$i].csrEligibility,"Verify CSREligibilityType ELIGIBILITY_INDICATOR for person "+$i);
+			
+			if($household.people[$i].csrEligibilityStartDate != ""){
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_START_DATE.substring(0,10),$household.people[$i].csrEligibilityStartDate,"Verify CSREligibilityType ELIGIBILITY_START_DATE for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_START_DATE,"null","Verify CSREligibilityType ELIGIBILITY_START_DATE for person "+$i);
+			}
+			
+			if($household.people[$i].csrEligibilityEndDate != ""){
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_END_DATE.substring(0,10),$household.people[$i].csrEligibilityEndDate,"Verify CSREligibilityType ELIGIBILITY_END_DATE for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_END_DATE,"null","Verify CSREligibilityType ELIGIBILITY_END_DATE for person "+$i);
+			}
+
+			if($household.people[$i].csrEligibilityDeterminationDate != ""){
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_DETERMINATION_DATE.substring(0,10),$household.people[$i].csrEligibilityDeterminationDate.substring(0,10),"Verify CSREligibilityType ELIGIBILITY_DETERMINATION_DATE for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_DETERMINATION_DATE, "null", "Verify CSREligibilityType ELIGIBILITY_DETERMINATION_DATE for person "+$i);
+			}
+
+			if($household.people[$i].csrEligibility == "true"){
+				_assertEqual($programEligibilitiesDataDB.INELIGIBLE_REASON, "null", "Verify CSREligibilityType INELIGIBLE_REASON for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.INELIGIBLE_REASON, "Not eligible for Cost Sharing Reduction.", "Verify CSREligibilityType INELIGIBLE_REASON for person "+$i);
+			}
+		}
+		
+		if($household.people[$i].exchangeEligibility != ""){
+			$eligibilityType = "ExchangeEligibilityType";
+			var $programEligibilitiesDataDB = getProgramEligibilitiesDataDB($applicantsDataDB[$i].ID,$eligibilityType);
+			_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_INDICATOR.toLowerCase(),$household.people[$i].exchangeEligibility,"Verify ExchangeEligibilityType ELIGIBILITY_INDICATOR for person "+$i);
+			_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_START_DATE.substring(0,10),$household.people[$i].exchangeEligibilityStartDate,"Verify ExchangeEligibilityType ELIGIBILITY_START_DATE for person "+$i);
+			_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_END_DATE.substring(0,10),$household.people[$i].exchangeEligibilityEndDate,"Verify ExchangeEligibilityType ELIGIBILITY_END_DATE for person "+$i);
+			if($household.people[$i].exchangeEligibilityDeterminationDate != ""){
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_DETERMINATION_DATE.substring(0,10),$household.people[$i].exchangeEligibilityDeterminationDate.substring(0,10),"Verify ExchangeEligibilityType ELIGIBILITY_DETERMINATION_DATE for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.ELIGIBILITY_DETERMINATION_DATE, "null", "Verify ExchangeEligibilityType ELIGIBILITY_DETERMINATION_DATE for person "+$i);
+			}
+
+			if($household.people[$i].exchangeEligibility == "true"){
+				_assertEqual($programEligibilitiesDataDB.INELIGIBLE_REASON, "null", "Verify ExchangeEligibilityType INELIGIBLE_REASON for person "+$i);
+			}else{
+				_assertEqual($programEligibilitiesDataDB.INELIGIBLE_REASON, "null", "Verify ExchangeEligibilityType INELIGIBLE_REASON for person "+$i);
+			}
+		}
+
+
+	}
+}
+
+function verifyDBAfterEnrollment($household, $applicationDataFromDB, $group, $healthPlan, $dentalPlan, $enrollmentStatus, $enrollmentType,$isCoverageDate){
+	var $enrollmentDataDB = verifyEnrollmentDataDB($household, $applicationDataFromDB, $group, $healthPlan, $dentalPlan, $enrollmentStatus, $enrollmentType,$isCoverageDate);
+	var $enrolleesDB = verifyEnrolleeDataDB($household, $enrollmentDataDB, $applicationDataFromDB,$group);
+	verifyEnrollmentEventDB($household,$enrollmentDataDB,$enrolleesDB,$applicationDataFromDB);
+	$group.enrollmentDataDB = $enrollmentDataDB;
+	$group.enrolleesDB = $enrolleesDB;
+	return $group;
+}
+
+function verifyEnrollmentEventDB($household,$enrollmentDataDB,$enrolleesDB,$applicationDataFromDB){
+	_log("$household.event: "+$household.event);
+	_log("$applicationDataFromDB.ssapApplicationData.APPLICATION_TYPE: "+$applicationDataFromDB.ssapApplicationData.APPLICATION_TYPE);
+	_log("$household.newMembersCount "+$household.newMembersCount);
+	if ($household.event == "BirthOrAdoption" && $applicationDataFromDB.ssapApplicationData.APPLICATION_TYPE == "SEP") {
+		verifyEnrollmentEventForNewMembers($household,$enrollmentDataDB,$enrolleesDB,$applicationDataFromDB);
+	}
+}
+
+function verifyEnrollmentEventForNewMembers($household,$enrollmentDataDB,$enrolleesDB,$applicationDataFromDB){
+	for (var $i = 0; $i < $household.newMembersCount; $i++) {
+		var $enrollmentEventDataDB = getEnrollmentEventDataDB($enrollmentDataDB[0].ID,$enrolleesDB[$enrolleesDB.length-1-$i].ID);
+		var $eventTypeDB = getLookupValueDataByValueIdDB($enrollmentEventDataDB[0].EVENT_TYPE_LKP);
+		var $eventReasonDB = getLookupValueDataByValueIdDB($enrollmentEventDataDB[0].EVENT_REASON_LKP);
+		_assertEqual("021", $eventTypeDB.LOOKUP_VALUE_CODE, "Verify EVENT_TYPE_LKP in enrollment_event for new person "+$i);
+		_assertEqual("EC", $eventReasonDB.LOOKUP_VALUE_CODE, "Verify EVENT_REASON_LKP in enrollment_event for new person "+$i);
+	}
+}
+
+function verifyEnrollmentDataDB($household, $applicationDataFromDB, $group, $healthPlan, $dentalPlan, $enrollmentStatus, $enrollmentType,$isCoverageDate){
+	var $subscriberNumInGroup = getSubscriberNumInGroup($household,$group);
+	
+	var $planId = "";
+	var $enrollmentTypeLkp = "";
+	if($healthPlan){
+		$planId = $healthPlan.planId.replace(/\D+/g, "");
+		$enrollmentTypeLkp = "1832";
+	}else{
+		$planId = $dentalPlan.planId.replace(/\D+/g, "");
+		$enrollmentTypeLkp = "1831";
+	}
+	var $enrollmentDataDB = getEnrollmentDataDB($applicationDataFromDB.ssapApplicationData.ID,$enrollmentTypeLkp,$group.member[$subscriberNumInGroup].personMedicaidIdentification,$planId);
+
+	if($healthPlan){
+		verifyHealthEnrollmentDataDB($household, $applicationDataFromDB, $group, $healthPlan, $dentalPlan, $enrollmentStatus, $enrollmentType,$isCoverageDate,$enrollmentDataDB);
+	}else{
+		verifyDentalEnrollmentDataDB($household, $applicationDataFromDB, $group, $healthPlan, $dentalPlan, $enrollmentStatus, $enrollmentType,$isCoverageDate,$enrollmentDataDB);
+	}
+	
+	
+	return $enrollmentDataDB;
+}
+
+function verifyHealthEnrollmentDataDB($household, $applicationDataFromDB, $group, $healthPlan, $dentalPlan, $enrollmentStatus, $enrollmentType,$isCoverageDate,$enrollmentDataDB){
+	var $coverageStartDate = $household.coverageStartDate;
+	var $subscriberNumInGroup = getSubscriberNumInGroup($household,$group);
+	var $primaryPersonNum = $household.primaryTaxFiler;
+
+	var $planId = $healthPlan.planId.replace(/\D+/g, "");
+
+	if($group.coverageStartDate){
+		$coverageStartDate = $group.coverageStartDate;
+	}
+	_set($coverageStartDate, _call(window.moment($coverageStartDate).format("YYYY-MM-DD")));
+	_log("$coverageStartDate: "+$coverageStartDate);
+
+	var $coverageEndDate = $group.coverageEndDate;
+	_set($coverageEndDate, _call(window.moment($coverageEndDate).format("YYYY-MM-DD")));
+	_log("$coverageEndDate: "+$coverageEndDate);
+
+	var $coverageChangeEffectiveDate = "";
+	if($group.coverageChangeEffectiveDate){
+		$coverageChangeEffectiveDate = $group.coverageChangeEffectiveDate;
+		_set($coverageChangeEffectiveDate, _call(window.moment($coverageChangeEffectiveDate).format("YYYY-MM-DD")));
+	}
+	
+	var $sponsorName = $household.people[$primaryPersonNum].firstName+" "+$household.people[$primaryPersonNum].lastName;
+	var $subscriberName = $group.member[$subscriberNumInGroup].firstName+" "+$group.member[$subscriberNumInGroup].lastName;
+
+
+
+
+
+	_assertEqual(1,$enrollmentDataDB.length,"Enrollment number should match");
+	_assertEqual($enrollmentDataDB[0].SPONSOR_NAME, $sponsorName,"Verify enrollment SPONSOR_NAME");
+	
+
+	_log("$group.coverageChangeEffectiveDate: "+$group.coverageChangeEffectiveDate);
+	_log("$coverageChangeEffectiveDate: "+$coverageChangeEffectiveDate);
+
+	_assertEqual($enrollmentDataDB[0].BENEFIT_EFFECTIVE_DATE.substring(0,10), $coverageStartDate,"Verify enrollment BENEFIT_EFFECTIVE_DATE");
+	_assertEqual($enrollmentDataDB[0].BENEFIT_END_DATE.substring(0,10), $coverageEndDate,"Verify enrollment BENEFIT_END_DATE");
+	
+	if(!$group.aptc){
+		_assertEqual($enrollmentDataDB[0].APTC_AMT, "null","Verify enrollment APTC_AMT");
+	}else{
+		var $aptc = $group.aptc.replace("$","");
+		$aptc = $aptc.trim();
+		_assertEqual(parseFloat($enrollmentDataDB[0].APTC_AMT).toFixed(2), $aptc, "Verify enrollment APTC_AMT");
+	}
+
+	if(!$group.stateSubsidy){
+		_assertEqual($enrollmentDataDB[0].STATE_SUBSIDY_AMT, "null","Verify enrollment STATE_SUBSIDY_AMT");
+	}else{
+		var $stateSubsidy;
+		if($enrollmentStatus == "Cancelled"){
+			$stateSubsidy = $group.previousHealthPlan.stateSubsidy.replace("$","");
+		}else{
+			$stateSubsidy = $group.healthPlan.stateSubsidy.replace("$","");
+		} 
+		$stateSubsidy = $stateSubsidy.trim();
+		_assertEqual(parseFloat($enrollmentDataDB[0].STATE_SUBSIDY_AMT).toFixed(2), $stateSubsidy, "Verify enrollment STATE_SUBSIDY_AMT");
+	}
+
+	if(($healthPlan.name.indexOf("Silver") != -1 && $group.csr) || ($healthPlan.name.indexOf("0 Cost Share") != -1 && $group.csr)) {
+		_assertNotEqual($enrollmentDataDB[0].CSR_AMT, "null","Verify enrollment CSR_AMT");
+	}else{
+		_assertEqual($enrollmentDataDB[0].CSR_AMT, "null", "Verify enrollment CSR_AMT");
+	}
+
+	_assertEqual($enrollmentDataDB[0].PLAN_ID, $planId,"Verify enrollment PLAN_ID");
+	
+	if($enrollmentStatus == "Pending"){
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_STATUS_LKP, "1765","Verify enrollment ENROLLMENT_STATUS_LKP is Pending");
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_CONFIRMATION_DATE, "null", "Verify enrollment ENROLLMENT_CONFIRMATION_DATE is null if enrollment is pending");
+	}else if ($enrollmentStatus == "Cancelled"){
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_STATUS_LKP, "1761","Verify enrollment ENROLLMENT_STATUS_LKP");
+	}
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_CONFIRMATION_DATE, "null", "Verify enrollment ENROLLMENT_CONFIRMATION_DATE");
+	
+	if($enrollmentType == "Individual"){
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_TYPE_LKP, "1768","Verify enrollment ENROLLMENT_TYPE_LKP is Individual");
+	}else{
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_TYPE_LKP, "needs to be added","Verify enrollment ENROLLMENT_TYPE_LKP");
+	}
+	_assertEqual($enrollmentDataDB[0].SPONSOR_TAX_ID_NUMBER, $household.people[$primaryPersonNum].SSN,"Verify enrollment SPONSOR_TAX_ID_NUMBER");
+	_assertEqual($enrollmentDataDB[0].SUBSCRIBER_NAME, $subscriberName,"Verify enrollment SUBSCRIBER_NAME");
+	_assertEqual($enrollmentDataDB[0].HOUSEHOLD_CASE_ID, $applicationDataFromDB.ssapApplicationData.CMR_HOUSEOLD_ID,"Verify enrollment HOUSEHOLD_CASE_ID match ssap_Applications CMR_HOUSEOLD_ID");
+	
+	var $planName = $healthPlan.name;
+	if($planName.indexOf("0 Cost Share") != -1){
+		$planName = "$"+$planName;
+	}
+
+	if($planName.indexOf("...") != -1){
+		_log("dots in plan name");
+	}else{
+		_assertEqual($enrollmentDataDB[0].PLAN_NAME, $planName,"Verify enrollment PLAN_NAME");
+	}
+	_assertEqual(parseFloat($enrollmentDataDB[0].GROSS_PREMIUM_AMT).toFixed(2), $healthPlan.totalPayment,"Verify enrollment GROSS_PREMIUM_AMT");
+	_assertEqual(parseFloat($enrollmentDataDB[0].NET_PREMIUM_AMT).toFixed(2), $healthPlan.numPremium,"Verify enrollment NET_PREMIUM_AMT");
+	
+	if(!$group.aptc){
+		_assertEqual($enrollmentDataDB[0].APTC_EFF_DATE, "null","Verify enrollment APTC_EFF_DATE");	
+	}else{
+		if($group.groupDataBeforeSep && ($group.groupDataBeforeSep.healthPlan.aptc != $group.healthPlan.aptc)){
+			_assertEqual($enrollmentDataDB[0].APTC_EFF_DATE.substring(0,10), $coverageChangeEffectiveDate,"Verify enrollment APTC_EFF_DATE");
+		}else{
+			_assertEqual($enrollmentDataDB[0].APTC_EFF_DATE.substring(0,10), $coverageStartDate,"Verify enrollment APTC_EFF_DATE");
+		}
+	}
+
+	if(!$group.stateSubsidy){
+		_assertEqual($enrollmentDataDB[0].STATE_SUBSIDY_EFF_DATE, "null","Verify enrollment STATE_SUBSIDY_EFF_DATE");
+	}else{
+		if($group.groupDataBeforeSep && ($group.groupDataBeforeSep.healthPlan.stateSubsidy != $group.healthPlan.stateSubsidy)){
+			_assertEqual($enrollmentDataDB[0].STATE_SUBSIDY_EFF_DATE.substring(0,10), $coverageChangeEffectiveDate,"Verify enrollment STATE_SUBSIDY_EFF_DATE");
+		}else{
+			_assertEqual($enrollmentDataDB[0].STATE_SUBSIDY_EFF_DATE.substring(0,10), $coverageStartDate,"Verify enrollment STATE_SUBSIDY_EFF_DATE");
+		}
+	}
+
+	if (!$group.aptc && !$group.stateSubsidy) {
+		_assertEqual($enrollmentDataDB[0].FINANCIAL_EFFECTIVE_DATE, "null","Verify enrollment FINANCIAL_EFFECTIVE_DATE");
+	}
+
+	
+	if(($healthPlan.name.indexOf("Silver") != -1 && $group.csr) || ($healthPlan.name.indexOf("0 Cost Share") != -1 && $group.csr)) {
+		var $testIdNum = getTestCaseId(); 
+		_log("$testIdNum: "+$testIdNum);
+		if($testIdNum != "16" && $testIdNum != "19"){
+			if($group.groupDataBeforeSep && ($group.groupDataBeforeSep.csr != $group.csr)){
+				_assertEqual($enrollmentDataDB[0].CSR_EFF_DATE.substring(0,10), $coverageChangeEffectiveDate,"Verify enrollment CSR_EFF_DATE");
+			}else{
+				_assertEqual($enrollmentDataDB[0].CSR_EFF_DATE.substring(0,10), $coverageStartDate,"Verify enrollment CSR_EFF_DATE");
+			}
+		}
+	}else{
+		_assertEqual($enrollmentDataDB[0].CSR_EFF_DATE, "null","Verify enrollment CSR_EFF_DATE is null");
+	}
+	
+
+	_log("$group.coverageChangeEffectiveDate: "+$group.coverageChangeEffectiveDate);
+	if($group.groupDataBeforeSep && ($group.groupDataBeforeSep.healthPlan.premium != $group.healthPlan.premium)){
+		_assertEqual($enrollmentDataDB[0].TOT_INDV_RESP_EFF_DATE.substring(0,10), $coverageChangeEffectiveDate,"Verify enrollment TOT_INDV_RESP_EFF_DATE");
+	}else{
+		_assertEqual($enrollmentDataDB[0].TOT_INDV_RESP_EFF_DATE.substring(0,10), $coverageStartDate,"Verify enrollment TOT_INDV_RESP_EFF_DATE");
+	}
+
+	if($group.groupDataBeforeSep && ($group.groupDataBeforeSep.healthPlan.totalPayment != $group.healthPlan.totalPayment)){
+		_assertEqual($enrollmentDataDB[0].TOT_PREM_EFF_DATE.substring(0,10), $coverageChangeEffectiveDate,"Verify enrollment TOT_PREM_EFF_DATE");
+	}else{
+		_assertEqual($enrollmentDataDB[0].TOT_PREM_EFF_DATE.substring(0,10), $coverageStartDate,"Verify enrollment TOT_PREM_EFF_DATE");
+	}
+
+	if(Object.keys($group.renewalsData).length !== 0){
+		_assertEqual($enrollmentDataDB[0].PRIOR_ENROLLMENT_ID, $group.renewalsData.previousEnrollmentId,"Verify enrollment PRIOR_ENROLLMENT_ID");
+		_assertEqual($enrollmentDataDB[0].RENEWAL_FLAG, $group.renewalsData.renewalFlag,"Verify enrollment RENEWAL_FLAG");
+		_assertEqual($enrollmentDataDB[0].RENEWAL_SAME_PLAN, $group.renewalsData.renewalSamePlan,"Verify enrollment RENEWAL_SAME_PLAN");
+	}
+	
+	return $enrollmentDataDB;
+}
+
+function verifyDentalEnrollmentDataDB($household, $applicationDataFromDB, $group, $healthPlan, $dentalPlan, $enrollmentStatus, $enrollmentType,$isCoverageDate,$enrollmentDataDB){
+	var $coverageStartDate = $household.coverageStartDate;
+	var $subscriberNumInGroup = getSubscriberNumInGroup($household,$group);
+	var $primaryPersonNum = $household.primaryTaxFiler;
+
+	var $planId = $dentalPlan.planId.replace(/\D+/g, "");
+
+	if($group.coverageStartDate){
+		$coverageStartDate = $group.coverageStartDate;
+	}
+	_set($coverageStartDate, _call(window.moment($coverageStartDate).format("YYYY-MM-DD")));
+	_log("$coverageStartDate: "+$coverageStartDate);
+
+	var $coverageChangeEffectiveDate = "";
+	if($group.coverageChangeEffectiveDate){
+		$coverageChangeEffectiveDate = $group.coverageChangeEffectiveDate;
+		_set($coverageChangeEffectiveDate, _call(window.moment($coverageChangeEffectiveDate).format("YYYY-MM-DD")));
+	}
+	
+	var $sponsorName = $household.people[$primaryPersonNum].firstName+" "+$household.people[$primaryPersonNum].lastName;
+	var $subscriberName = $group.member[$subscriberNumInGroup].firstName+" "+$group.member[$subscriberNumInGroup].lastName;
+
+	_assertEqual(1,$enrollmentDataDB.length,"Enrollment number should match");
+	_assertEqual($enrollmentDataDB[0].SPONSOR_NAME, $sponsorName,"Verify enrollment SPONSOR_NAME");
+	
+
+	_log("$group.coverageChangeEffectiveDate: "+$group.coverageChangeEffectiveDate);
+	_log("$coverageChangeEffectiveDate: "+$coverageChangeEffectiveDate);
+
+	_assertEqual($enrollmentDataDB[0].BENEFIT_EFFECTIVE_DATE.substring(0,10), $coverageStartDate,"Verify enrollment BENEFIT_EFFECTIVE_DATE");
+	_assertEqual($enrollmentDataDB[0].BENEFIT_END_DATE.substring(0,10), $household.people[$primaryPersonNum].exchangeEligibilityEndDate.substring(0,10),"Verify enrollment BENEFIT_END_DATE");
+	
+	_assertEqual($enrollmentDataDB[0].APTC_AMT, "null","Verify enrollment APTC_AMT");
+	_assertEqual($enrollmentDataDB[0].CSR_AMT, "null", "Verify enrollment CSR_AMT");
+	
+	_assertEqual($enrollmentDataDB[0].PLAN_ID, $planId,"Verify enrollment PLAN_ID");
+	
+	if($enrollmentStatus == "Pending"){
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_STATUS_LKP, "1765","Verify enrollment ENROLLMENT_STATUS_LKP is Pending");
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_CONFIRMATION_DATE, "null", "Verify enrollment ENROLLMENT_CONFIRMATION_DATE is null if enrollment is pending");
+	}else{
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_STATUS_LKP, "needs to be added","Verify enrollment ENROLLMENT_STATUS_LKP");
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_CONFIRMATION_DATE, "needs to be added", "Verify enrollment ENROLLMENT_CONFIRMATION_DATE");
+	}
+	
+	if($enrollmentType == "Individual"){
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_TYPE_LKP, "1768","Verify enrollment ENROLLMENT_TYPE_LKP is Individual");
+	}else{
+		_assertEqual($enrollmentDataDB[0].ENROLLMENT_TYPE_LKP, "needs to be added","Verify enrollment ENROLLMENT_TYPE_LKP");
+	}
+	_assertEqual($enrollmentDataDB[0].SPONSOR_TAX_ID_NUMBER, $household.people[$primaryPersonNum].SSN,"Verify enrollment SPONSOR_TAX_ID_NUMBER");
+	_assertEqual($enrollmentDataDB[0].SUBSCRIBER_NAME, $subscriberName,"Verify enrollment SUBSCRIBER_NAME");
+	_assertEqual($enrollmentDataDB[0].HOUSEHOLD_CASE_ID, $applicationDataFromDB.ssapApplicationData.CMR_HOUSEOLD_ID,"Verify enrollment HOUSEHOLD_CASE_ID match ssap_Applications CMR_HOUSEOLD_ID");
+	
+	var $planName = $dentalPlan.name;
+	if($planName.indexOf("0 Cost Share") != -1){
+		$planName = "$"+$planName;
+	}
+
+	if($planName.indexOf("...") != -1){
+		_log("dots in plan name");
+	}else{
+		_assertEqual($enrollmentDataDB[0].PLAN_NAME, $planName,"Verify enrollment PLAN_NAME");
+	}
+	_assertEqual(parseFloat($enrollmentDataDB[0].GROSS_PREMIUM_AMT).toFixed(2), $dentalPlan.totalPayment,"Verify enrollment GROSS_PREMIUM_AMT");
+	_assertEqual(parseFloat($enrollmentDataDB[0].NET_PREMIUM_AMT).toFixed(2), $dentalPlan.numPremium,"Verify enrollment NET_PREMIUM_AMT");
+	
+	_assertEqual($enrollmentDataDB[0].APTC_EFF_DATE, "null","Verify enrollment APTC_EFF_DATE");
+	_assertEqual($enrollmentDataDB[0].FINANCIAL_EFFECTIVE_DATE, "null","Verify enrollment FINANCIAL_EFFECTIVE_DATE");
+	
+
+	_assertEqual($enrollmentDataDB[0].CSR_EFF_DATE, "null","Verify enrollment CSR_EFF_DATE is null");
+	
+
+	_log("$group.coverageChangeEffectiveDate: "+$group.coverageChangeEffectiveDate);
+	_log("$group.totalIndivRespEffDate: "+$group.totalIndivRespEffDate);
+	if($group.coverageChangeEffectiveDate){
+		if($group.totalIndivRespEffDate){
+			var $totalIndivRespEffDate = $group.totalIndivRespEffDate;
+			_set($totalIndivRespEffDate, _call(window.moment($totalIndivRespEffDate).format("YYYY-MM-DD")));
+			$coverageChangeEffectiveDate = $totalIndivRespEffDate;
+		}
+		_assertEqual($enrollmentDataDB[0].TOT_INDV_RESP_EFF_DATE.substring(0,10), $coverageChangeEffectiveDate,"Verify enrollment TOT_INDV_RESP_EFF_DATE");
+		_assertEqual($enrollmentDataDB[0].TOT_PREM_EFF_DATE.substring(0,10), $coverageChangeEffectiveDate,"Verify enrollment TOT_PREM_EFF_DATE");
+	}else{
+		_assertEqual($enrollmentDataDB[0].TOT_INDV_RESP_EFF_DATE.substring(0,10), $coverageStartDate,"Verify enrollment TOT_INDV_RESP_EFF_DATE");
+		_assertEqual($enrollmentDataDB[0].TOT_PREM_EFF_DATE.substring(0,10), $coverageStartDate,"Verify enrollment TOT_PREM_EFF_DATE");
+	}
+
+	if(Object.keys($group.renewalsData).length !== 0){
+		_assertEqual($enrollmentDataDB[0].PRIOR_ENROLLMENT_ID, $group.renewalsData.previousEnrollmentId,"Verify enrollment PRIOR_ENROLLMENT_ID");
+		_assertEqual($enrollmentDataDB[0].RENEWAL_FLAG, $group.renewalsData.renewalFlag,"Verify enrollment RENEWAL_FLAG");
+		_assertEqual($enrollmentDataDB[0].RENEWAL_SAME_PLAN, $group.renewalsData.renewalSamePlan,"Verify enrollment RENEWAL_SAME_PLAN");
+	}
+	
+	return $enrollmentDataDB;
+}
+
+function verifyEnrolleeDataDB($household, $enrollmentDataDB, $applicationDataFromDB,$group){
+	var $subscriberNumInGroup = getSubscriberNumInGroup($household,$group);
+	var $primaryPersonNum = $household.primaryTaxFiler;
+	var $countOfEnrollee = getCountOfEnrollee($enrollmentDataDB[0].ID);
+	var $primaryPersonMedId = $household.people[$primaryPersonNum].personMedicaidIdentification;
+	var $enrollees = [];
+	
+	_assertEqual($group.member.length+2, $countOfEnrollee,"Verify enrollee countOfEnrollee");
+	for (var $i=0; $i<$group.member.length;$i++){
+		_log("--------------enrolee: "+$i+" ---------------------")
+		var $enrolleeDataDB;
+		var $personType;
+
+		if($group.member[$i].isSubscriber){
+			$personType = getSubscriberLookupValueIdDB();
+			$enrolleeDataDB = getEnrolleeDataDB($enrollmentDataDB[0].ID,$group.member[$i].SSN,$personType);
+			$enrollees[$i] = $enrolleeDataDB[0];
+		}else{
+			$personType = getEnrolleeLookupValueIdDB();
+			$enrolleeDataDB = getEnrolleeDataDB($enrollmentDataDB[0].ID,$group.member[$i].SSN,$personType);
+			$enrollees[$i] = $enrolleeDataDB[0];
+		}
+		if($group.member[$i].isPrimaryContact){
+			verifyEnroleeLanguageDB($group,$enrolleeDataDB,$i);
+		}
+
+		verifyEnroleeRaceDB($enrollmentDataDB,$group,$enrolleeDataDB,$personType,$i);
+		verifyHomeAndMailingAddressDB($group,$enrolleeDataDB[0].MAILING_ADDRESS_ID,$enrolleeDataDB[0].HOME_ADDRESS_ID,$i)
+		var $genderDB=getEnrolleeGenderDB($enrolleeDataDB);
+
+		_assertEqual($enrolleeDataDB[0].FIRST_NAME, $group.member[$i].firstName,"Verify first name");
+		_assertEqual($enrolleeDataDB[0].LAST_NAME, $group.member[$i].lastName,"Verify last name");
+		_assertEqual($enrolleeDataDB[0].TAX_ID_NUMBER, $group.member[$i].SSN,"Verify SSN");
+		_assertEqual($genderDB, $group.member[$i].personSex,"Verify gender");
+
+		var $enrolleeMaritalStatusDB = getEnrolleeMaritalStatusDB($enrolleeDataDB);
+		if($group.member[$i].personMarriedIndicatorCode){
+			_assertEqual($group.member[$i].personMarriedIndicatorCode, $enrolleeMaritalStatusDB,"Verify enrollee Marital Status");
+		}else{
+			_assertEqual("R", $enrolleeMaritalStatusDB,"Verify enrollee Marital Status");
+		}
+	}
+	return $enrollees;
+}
+
+function verifyHomeAndMailingAddressDB($group,$mailingLocationId,$homeLocationId,$personNum){
+	_log("mailing address");	
+	var $addressDB = getAddressFromLocationsDB($mailingLocationId);
+	_assertEqual($addressDB.ADDRESS1, $group.member[$personNum].mailingAddress.street ,"Verify ADDRESS1 in Locations table");
+	_assertEqual($addressDB.CITY, $group.member[$personNum].mailingAddress.city ,"Verify CITY in Locations table");
+	_assertEqual($addressDB.STATE, $group.member[$personNum].mailingAddress.state ,"Verify STATE in Locations table");
+	_assertEqual($addressDB.ZIP, $group.member[$personNum].mailingAddress.zipcode ,"Verify ZIP in Locations table");
+	
+	_log("home address");
+	$addressDB = getAddressFromLocationsDB($homeLocationId);
+	_assertEqual($addressDB.ADDRESS1, $group.member[$personNum].homeAddress.street ,"Verify ADDRESS1 in Locations table");
+	_assertEqual($addressDB.CITY, $group.member[$personNum].homeAddress.city ,"Verify CITY in Locations table");
+	_assertEqual($addressDB.STATE, $group.member[$personNum].homeAddress.state ,"Verify STATE in Locations table");
+	_assertEqual($addressDB.ZIP, $group.member[$personNum].homeAddress.zipcode ,"Verify ZIP in Locations table");
+}
+
+function verifyEnroleeRaceDB($enrollmentDataDB,$group,$enrolleeDataDB,$personType,$personNum){
+	var $enrolleeRaceArrDB = getEnrolleeRaceDB($enrolleeDataDB[0].ID).sort();
+	var $enrolleeRaceArr = $group.member[$personNum].personRace.sort();
+	verifyArray($enrolleeRaceArrDB,$enrolleeRaceArr);
+}
+
+function verifyEnroleeLanguageDB($group,$enrolleeDataDB,$personNum){
+	var $enrolleeLanguageObjDB = getEnrolleeLanguageDB($enrolleeDataDB);
+	//commenting till HIX-113722 will be resolved
+	_assertEqual($enrolleeLanguageObjDB.spokenLanguage, $group.member[$personNum].personSpeaksLanguage);
+	_assertEqual($enrolleeLanguageObjDB.writtenLanguage, $group.member[$personNum].personWritesLanguage);
+}
+
+function saveHousehold($household,$groups,$applicationDataFromDB,$updatedDataObject){
+	
+	var $output = "";
+	if($household){
+		$output = "var $household"+"="+JSON.stringify($household)+";\n";
+	}
+	if($groups){
+		$output = $output + "var $defaultGroups"+"="+JSON.stringify($groups)+";\n";
+	}
+	if($applicationDataFromDB){
+		$output = $output + "var $applicationDataFromDB"+"="+JSON.stringify($applicationDataFromDB)+";\n";
+	}
+	if($updatedDataObject){
+		$output = $output + "var $updatedDataObject"+"="+JSON.stringify($updatedDataObject)+";\n";
+	}
+	_writeFile($output, "household.sah");
+	//_copyFile("household.sah", "C:\\sahi_pro632\\userdata\\scripts\\ca_web\\scenariofiles");
+
+}
+
+function verifyEnrollmentPremiumDB($household,$group){
+	var $enrollmentId = $group.enrollmentDataDB[0].ID;
+	var $premiumTable = $group.healthPlan.premiumTable;
+	var $enrollmentPremiumDB = getEnrollmentPremiumDB($enrollmentId);
+
+	for (var $i = 0; $i < 12; $i++) {
+		var $month=$i+1;
+		_log("--------------- Verify for month "+$month+" ------------");
+		if($premiumTable[$month][1] === 'Not Applicable'){
+			_assertEqual("null",$enrollmentPremiumDB[$i].GROSS_PREM_AMT,"Verify GROSS_PREM_AMT in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].ACTUAL_GROSS_PREM_AMT,"Verify ACTUAL_GROSS_PREM_AMT in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].NET_PREM_AMT,"Verify NET_PREM_AMT in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].APTC_AMT,"Verify APTC_AMT in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].ACTUAL_APTC_AMT,"Verify ACTUAL_APTC_AMT in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].MAX_APTC,"Verify MAX_APTC in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].STATE_SUBSIDY_AMT,"Verify STATE_SUBSIDY_AMT in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].ACTUAL_STATE_SUBSIDY_AMT,"Verify ACTUAL_STATE_SUBSIDY_AMT in enrollment_premium");
+			_assertEqual("null",$enrollmentPremiumDB[$i].MAX_STATE_SUBSIDY,"Verify MAX_STATE_SUBSIDY in enrollment_premium");
+		}else{
+			_assertEqual($premiumTable[$month][1],parseFloat($enrollmentPremiumDB[$i].GROSS_PREM_AMT).toFixed(2),"Verify GROSS_PREM_AMT in enrollment_premium");
+			_assertEqual($premiumTable[$month][7],parseFloat($enrollmentPremiumDB[$i].ACTUAL_GROSS_PREM_AMT).toFixed(2),"Verify ACTUAL_GROSS_PREM_AMT in enrollment_premium");
+			_assertEqual($premiumTable[$month][6],parseFloat($enrollmentPremiumDB[$i].NET_PREM_AMT).toFixed(2),"Verify NET_PREM_AMT in enrollment_premium");
+			
+			if ($premiumTable[$month][3]) {
+				_assertEqual($premiumTable[$month][3],parseFloat($enrollmentPremiumDB[$i].APTC_AMT).toFixed(2),"Verify APTC_AMT in enrollment_premium");
+				_assertEqual($premiumTable[$month][8],parseFloat($enrollmentPremiumDB[$i].ACTUAL_APTC_AMT).toFixed(2),"Verify ACTUAL_APTC_AMT in enrollment_premium");
+				_assertEqual($premiumTable[$month][2],parseFloat($enrollmentPremiumDB[$i].MAX_APTC).toFixed(2),"Verify MAX_APTC in enrollment_premium");	
+			}else{
+				_assertEqual("null",$enrollmentPremiumDB[$i].APTC_AMT,"Verify APTC_AMT in enrollment_premium");
+				_assertEqual("null",$enrollmentPremiumDB[$i].ACTUAL_APTC_AMT,"Verify ACTUAL_APTC_AMT in enrollment_premium");
+				_assertEqual("null",$enrollmentPremiumDB[$i].MAX_APTC,"Verify MAX_APTC in enrollment_premium");	
+			}
+			
+			if ($premiumTable[$month][5]) {
+				_assertEqual($premiumTable[$month][5],parseFloat($enrollmentPremiumDB[$i].STATE_SUBSIDY_AMT).toFixed(2),"Verify STATE_SUBSIDY_AMT in enrollment_premium");
+				_assertEqual($premiumTable[$month][9],parseFloat($enrollmentPremiumDB[$i].ACTUAL_STATE_SUBSIDY_AMT).toFixed(2),"Verify ACTUAL_STATE_SUBSIDY_AMT in enrollment_premium");
+				_assertEqual($premiumTable[$month][4],parseFloat($enrollmentPremiumDB[$i].MAX_STATE_SUBSIDY).toFixed(2),"Verify MAX_STATE_SUBSIDY in enrollment_premium");	
+			}else{
+				_assertEqual("null",$enrollmentPremiumDB[$i].STATE_SUBSIDY_AMT,"Verify STATE_SUBSIDY_AMT in enrollment_premium");
+				_assertEqual("null",$enrollmentPremiumDB[$i].ACTUAL_STATE_SUBSIDY_AMT,"Verify ACTUAL_STATE_SUBSIDY_AMT in enrollment_premium");
+				_assertEqual("null",$enrollmentPremiumDB[$i].MAX_STATE_SUBSIDY,"Verify MAX_STATE_SUBSIDY in enrollment_premium");	
+			}
+		}
+		
+	}
+}
+
+function recalculatePremium($household,$oldGroups,$groupNum,$isAptcOrSsDistribution){
+	if(_isVisible(_link("My Enrollment Dashboard"))){
+		click(_link("My Enrollment Dashboard"));
+	}
+
+	var $groups = JSON.parse(JSON.stringify($oldGroups));
+	var $countOfActiveMembers = getCountOfActiveMembers($oldGroups[$groupNum]);
+	
+	var $subscriberNumInGroup = getSubscriberNumInGroup($household,$groups[$groupNum]);
+	var $primaryPersonNum = $household.primaryTaxFiler;
+
+	var $insuranceType = ($groups[$groupNum].healthPlan != "null") ? "1832":"1831";
+	var $grossPremiumFromEnrollment = getGrossPremiumFromEnrollment($groups[$groupNum].member[$subscriberNumInGroup].personMedicaidIdentification,$insuranceType);
+	$grossPremiumFromEnrollment = parseFloat($grossPremiumFromEnrollment).toFixed(2);
+	
+	$groups[$groupNum].healthPlan.premium = "$"+$grossPremiumFromEnrollment;
+	$groups[$groupNum].healthPlan.totalPayment = $grossPremiumFromEnrollment;
+	$groups[$groupNum].healthPlan.numPremium = $grossPremiumFromEnrollment;
+
+	if($groups[$groupNum].aptc){
+		_log("aptc case");
+		var $groupAptc = 0;
+
+		if($isAptcOrSsDistribution){
+			var $updatedHouseholdAndGroup=aptcDistribution($groups[$groupNum],"",$household,$household.people[0].maxAPTC);
+			$household = $updatedHouseholdAndGroup.household;	
+			$groups[$groupNum] = $updatedHouseholdAndGroup.group;
+			$groupAptc = $groups[$groupNum].aptc.replace("$","");
+		}else{
+			$groupAptc = $household.people[$primaryPersonNum].maxAPTC;
+		}
+
+
+		$groupAptc = parseFloat($groupAptc).toFixed(2);
+
+		if(parseFloat($groupAptc) >= parseFloat($grossPremiumFromEnrollment)){
+			$groupAptc = $grossPremiumFromEnrollment - $groups[$groupNum].member.length;
+			$groupAptc = parseFloat($groupAptc).toFixed(2);
+		}
+
+		$groups[$groupNum].aptc = "$"+$groupAptc;
+		$groups[$groupNum].healthPlan.taxCredit = "after $"+$groupAptc+" tax credit";
+		$groups[$groupNum].healthPlan.aptc = $groupAptc;
+		$groups[$groupNum].healthPlan.premium = "$"+parseFloat((parseFloat($groups[$groupNum].healthPlan.numPremium).toFixed(2) - parseFloat($groupAptc).toFixed(2))).toFixed(2);
+		$groups[$groupNum].healthPlan.totalPayment = $grossPremiumFromEnrollment;
+		$groups[$groupNum].healthPlan.numPremium = parseFloat((parseFloat($groups[$groupNum].healthPlan.numPremium).toFixed(2) - parseFloat($groupAptc).toFixed(2))).toFixed(2);
+		if(!$groups[$groupNum].stateSubsidy){
+			_log("no SS");
+			$groups[$groupNum].stateSubsidy = "";
+			$groups[$groupNum].healthPlan.stateSubsidy = 0;
+		}
+	}
+
+	if($groups[$groupNum].stateSubsidy){
+		_log("ss case");
+		var $groupStateSubsidy = 0;
+		var $groupMaxStateSubsidy = 0;
+
+		if($isAptcOrSsDistribution){
+			var $updatedHouseholdAndGroup=aptcDistribution($groups[$groupNum],"",$household,$household.people[0].maxStateSubsidy);
+			$household = $updatedHouseholdAndGroup.household;	
+			$groups[$groupNum] = $updatedHouseholdAndGroup.group;
+			$groupStateSubsidy = $groups[$groupNum].stateSubsidy.replace("$","");
+		}else{
+			$groupStateSubsidy = $household.people[$primaryPersonNum].maxStateSubsidy;
+		}
+
+		
+		$groupStateSubsidy = parseFloat($groupStateSubsidy).toFixed(2);
+		$groupMaxStateSubsidy = $groupStateSubsidy;
+
+		if(parseFloat($groupStateSubsidy) >= parseFloat($grossPremiumFromEnrollment)){
+			$groupStateSubsidy = $grossPremiumFromEnrollment - $countOfActiveMembers;//$groups[$groupNum].member.length;
+			$groupStateSubsidy = parseFloat($groupStateSubsidy).toFixed(2);
+		}
+
+		$groups[$groupNum].stateSubsidy = "$"+$groupMaxStateSubsidy;
+		$groups[$groupNum].healthPlan.taxCredit = "after $"+$groupStateSubsidy+" tax credit";
+		$groups[$groupNum].healthPlan.stateSubsidy = $groupStateSubsidy;
+		$groups[$groupNum].healthPlan.premium = "$"+parseFloat((parseFloat($groups[$groupNum].healthPlan.numPremium).toFixed(2) - parseFloat($groupStateSubsidy).toFixed(2))).toFixed(2);
+		$groups[$groupNum].healthPlan.totalPayment = $grossPremiumFromEnrollment;
+		$groups[$groupNum].healthPlan.numPremium = parseFloat((parseFloat($groups[$groupNum].healthPlan.numPremium).toFixed(2) - parseFloat($groupStateSubsidy).toFixed(2))).toFixed(2);
+		if(!$groups[$groupNum].aptc){
+			_log("no APTC");
+			$groups[$groupNum].aptc = "";
+			$groups[$groupNum].healthPlan.aptc = 0;
+		}
+	}
+	if(!$groups[$groupNum].aptc && !$groups[$groupNum].stateSubsidy) {
+		_log("no APTC and SS");
+		// $groups[$groupNum].healthPlan.premium = "$"+$grossPremiumFromEnrollment;
+		// $groups[$groupNum].healthPlan.totalPayment = $grossPremiumFromEnrollment;
+		// $groups[$groupNum].healthPlan.numPremium = $grossPremiumFromEnrollment;
+		$groups[$groupNum].healthPlan.taxCredit = "No Tax Credit";
+		$groups[$groupNum].healthPlan.aptc = 0;
+		$groups[$groupNum].healthPlan.stateSubsidy = 0;
+	}
+	
+	var $str = JSON.stringify($groups[$groupNum].healthPlan);
+	_log("JSON: "+$str);
+	
+	return $groups;
+}
+
+function clickCancelOrDisenrollOnMyEnrollments($healthPlan,$dentalPlan,$group,$reason,$terminationMonth){
+	var $planIndex;
+	var $memberFullName = $group.member[0].firstName+" "+$group.member[0].lastName;
+	var $verificationOption;
+	var $coverageEndDate;
+
+	if($healthPlan){
+		var $numOfHealthPlans = _collect("_div", "/activeEnrollment_/", _in(_div("myHealthPlan"))).length;
+		
+		for (var $i = 0; $i < $numOfHealthPlans; $i++) {
+			if (_isVisible(_cell($memberFullName, _in(_div("activeEnrollment_"+$i))))) {
+				$planIndex = $i;
+			}
+		}
+	}
+
+	if($dentalPlan){
+		var $numOfDentalPlans = _collect("_div", "/aid_dentalActiveEnrollment_/", _in(_div("myDentalPlan"))).length;
+		
+		for (var $i = 0; $i < $numOfDentalPlans; $i++) {
+			if (_isVisible(_cell($memberFullName, _in(_div("aid_dentalActiveEnrollment_"+$i))))) {
+				$planIndex = $i;
+			}
+		}
+	}
+	
+	var $isBefore = _fetch(window.moment(getCurrentDate("MM/DD/YYYY")).isBefore($group.coverageStartDate));
+	_log("$isBefore: "+$isBefore);
+	
+	if($isBefore){
+		if($healthPlan){
+			click(_span("Cancel coverage", _in(_div("activeEnrollment_"+$planIndex))));
+		}else{
+			click(_span("Cancel coverage", _in(_div("aid_dentalActiveEnrollment_"+$planIndex))));
+		}
+	}else{
+		if($healthPlan){
+			click(_span("Disenroll From Health Plan", _in(_div("activeEnrollment_"+$planIndex))));
+		}else{
+			click(_span("Disenroll From Health Plan", _in(_div("aid_dentalActiveEnrollment_"+$planIndex))));
+		}
+		
+	}
+
+	$verificationOption = $isBefore ? "cancel" : "disenroll";
+	_log("$verificationOption: "+$verificationOption);
+
+	_lockWindow();
+	_focusWindow();
+
+	verifyVoluntaryDisenrollmentSurvey($verificationOption);
+	selectDisenrollmentReasonAndContinue($reason);
+
+	_log("$isBefore: "+$isBefore);
+	if($isBefore){
+		$coverageEndDate = $group.coverageStartDate;
+	}else{
+		verifySelectTerminationDate();
+		$coverageEndDate = selectTerminationMonthAndContinue($terminationMonth);
+		verifyConfirmCoverageEndDate($group,$coverageEndDate);
+		verifyConfirmCoverageEndDateAndSubmit($group,$coverageEndDate);
+	}
+	
+	verifyVoluntaryDisenrollmentRequestSubmitted($verificationOption);
+
+	_unlockWindow();
+	
+	// if there is dental plan, create separate dental group
+
+	var $newGroup = JSON.parse(JSON.stringify($group));
+	
+	for (var $i = 0; $i < $group.member.length; $i++) {
+		$newGroup.member[$i].coverageEndDate = $coverageEndDate;
+	}
+
+	if($isBefore != true){
+		$newGroup.enrollmentStatus = "Terminated";
+		if($healthPlan){
+			$newGroup.healthPlan.enrollmentStatus = "Terminated";
+		}else{
+			$newGroup.dentalPlan.enrollmentStatus = "Terminated";
+		}
+		$newGroup.coverageEndDate = $coverageEndDate;
+	}else{
+		if($healthPlan){
+			$newGroup.healthPlan = "null";
+			$newGroup.previousHealthPlan = $group.healthPlan;	
+		}else{
+			$newGroup.dentalPlan = "null";
+			$newGroup.previousDentalPlan = $group.dentalPlan;
+		}
+		
+		$newGroup.coverageEndDate = $coverageEndDate;
+	}
+	
+	
+	return $newGroup;
+}
+
+function verifyConfirmCoverageEndDateAndSubmit($group,$coverageEndDate){
+	$coverageEndDate = _fetch(window.moment($coverageEndDate).format("MMMM DD, YYYY"));
+
+	_assertVisible(_heading3("Confirmation", _in(_div("modal fade in"))));
+	_assertVisible(_paragraph("Your coverage from "+$group.healthPlan.name+" will end "+$coverageEndDate+".", _in(_div("modal fade in"))));
+	_assertVisible(_div("NOTE: Please continue to make any premium payments until coverage end date.", _in(_div("modal fade in"))));
+
+	var $url;
+	_set($url, window.location.href);
+	if ($url.indexOf("enrollmenthistory") != -1) {
+		_assertVisible(_link("Submit", _in(_div("modal fade in"))));
+		click(_link("Submit", _in(_div("modal fade in"))));
+	}else{
+		_assertVisible(_link("OK", _in(_div("modal fade in"))));
+		click(_link("OK", _in(_div("modal fade in"))));
+	}
+}
+
+function verifyConfirmCoverageEndDate($group,$coverageEndDate){
+	$coverageEndDate = _fetch(window.moment($coverageEndDate).format("MMMM DD, YYYY"));
+
+	_assertVisible(_heading3("Confirm your coverage end date", _in(_div("modal fade in"))));
+	_assertVisible(_paragraph("You have chosen to disenroll on: "+$coverageEndDate+" from "+$group.healthPlan.name, _in(_div("modal fade in"))));
+	_assertVisible(_submit("Update Termination Date", _in(_div("modal fade in"))));
+	
+	var $url;
+	_set($url, window.location.href);
+	if ($url.indexOf("enrollmenthistory") != -1) {
+		_assertVisible(_link("Continue", _in(_div("modal fade in"))));
+		click(_link("Continue", _in(_div("modal fade in"))));
+	}else{
+		_assertVisible(_link("OK", _in(_div("modal fade in"))));
+		_click(_link("OK", _in(_div("modal fade in"))));
+	}
+}
+
+function verifyVoluntaryDisenrollmentSurvey($case){
+	_assertVisible(_div("disenrollDialog"));
+	if($case == 'cancel'){
+		_assertVisible(_heading3("Cancel Coverage", _in(_div("disenrollDialog"))));
+	}else{
+		_assertVisible(_heading3("Voluntary Disenrollment Survey", _in(_div("disenrollDialog"))));	
+	}
+	
+	_assertVisible(_button("/×/", _in(_div("disenrollDialog"))));
+	if($case == 'cancel'){
+		var $url;
+		_set($url, window.location.href);
+		if ($url.indexOf("enrollmenthistory") != -1) {
+			_assertVisible(_span("Why are you canceling your plan?", _in(_div("disenrollDialog"))));
+		}else{
+			_assertVisible(_strong("Why are you canceling your plan?", _in(_div("disenrollDialog"))));
+		}
+	}else{
+		var $url;
+		_set($url, window.location.href);
+		if ($url.indexOf("enrollmenthistory") != -1) {
+			_assertVisible(_span("Why are you disenrolling from your plan?", _in(_div("disenrollDialog"))));
+		}else{
+			_assertVisible(_heading5("Why are you disenrolling from your plan?", _in(_div("disenrollDialog"))));
+		}
+		
+	}
+	
+
+	_assertVisible(_label("Purchase coverage outside Covered California", _in(_div("disenrollDialog"))));
+	_assertVisible(_radio("disaffordability", _in(_div("disenrollDialog"))));
+	_assertNotTrue(_radio("disaffordability", _in(_div("disenrollDialog"))).checked);
+
+	_assertVisible(_label("Moving out of Covered California area", _in(_div("disenrollDialog"))));
+	_assertVisible(_radio("disnothappywithplan", _in(_div("disenrollDialog"))));
+	_assertNotTrue(_radio("disnothappywithplan", _in(_div("disenrollDialog"))).checked);
+
+	_assertVisible(_label("Gained Employer Sponsored coverage", _in(_div("disenrollDialog"))));
+	_assertVisible(_radio("outOfnetwork", _in(_div("disenrollDialog"))));
+	_assertNotTrue(_radio("outOfnetwork", _in(_div("disenrollDialog"))).checked);
+
+	_assertVisible(_label("Enrollment Counselors/Agent error", _in(_div("disenrollDialog"))));
+	_assertVisible(_radio("agentError", _in(_div("disenrollDialog"))));
+	_assertNotTrue(_radio("agentError", _in(_div("disenrollDialog"))).checked);
+
+	_assertVisible(_label("Other", _in(_div("disenrollDialog"))));
+	_assertVisible(_radio("other", _in(_div("disenrollDialog"))));
+	_assertNotTrue(_radio("other", _in(_div("disenrollDialog"))).checked);
+
+	_assertEqual("If you would like to report a life event, such as moving, gaining coverage through an employer, a change in income or a birth or death in the household, please report this event by navigating to your Account Home and selecting Report a Change.", _getText(_div("/alert alert-info/", _in(_div("disenrollDialog")))));
+
+	_assertVisible(_link("Cancel", _in(_div("disenrollDialog"))));
+	_assertVisible(_link("Skip and Continue", _in(_div("disenrollDialog"))));
+}
+
+function verifySelectTerminationDate(){
+	var $currentDate = getCurrentDate("MM/DD/YYYY");
+	var $endOfCurrentMonth = _fetch(window.moment($currentDate).endOf("month").format("MMMM DD, YYYY"));	
+	var $endOfNextMonth = _fetch(window.moment($currentDate).add(1, 'months').endOf("month").format("MMMM DD, YYYY"));	
+	var $endOfNextNextMonth = _fetch(window.moment($currentDate).add(2, 'months').endOf("month").format("MMMM DD, YYYY"));	
+	var $currentMonth = getCurrentDate("MM");
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	var $modalContainer = _div("modal fade in");
+	_assertVisible(_heading3("Select Termination Date:", _in($modalContainer)));
+
+	_assertVisible(_label("Last day of the current month ("+$endOfCurrentMonth+")", _in($modalContainer)));
+	
+	
+	if ($currentMonth >= "11") {
+		_assertNotVisible(_label("Last day of the month after next ("+$endOfNextNextMonth+")", _in($modalContainer)));
+		_assertNotVisible(_radio("disenrollmentdate", _in(_label("/Last day of the month after next/"))));
+	}else if ($currentMonth == "12") {
+		_assertNotVisible(_label("Last day of next month ("+$endOfNextMonth+")", _in($modalContainer)));
+		_assertNotVisible(_radio("disenrollmentdate", _in(_label("/Last day of next month/"))));
+	}else{
+		_assertVisible(_label("Last day of the month after next ("+$endOfNextNextMonth+")", _in($modalContainer)));
+		_assertVisible(_label("Last day of next month ("+$endOfNextMonth+")", _in($modalContainer)));
+
+		_assertNotTrue(_isChecked(_radio("disenrollmentdate", _in(_label("/Last day of the month after next/")))));
+		_assertNotTrue(_isChecked(_radio("disenrollmentdate", _in(_label("/Last day of next month/")))));
+	}
+	
+	_assertNotTrue(_isChecked(_radio("disenrollmentdate", _in(_label("/Last day of the current month/")))));
+
+	_assertVisible(_div("If you have questions about termination date selection, please contact Covered California at 1-800-300-1506.", _in($modalContainer)));
+	
+	var $url;
+	_set($url, window.location.href);
+	if ($url.indexOf("enrollmenthistory") != -1) {
+		_assertVisible(_div("Continue", _in(_div("modal fade in"))));
+	}else{
+		_assertVisible(_div("OK", _in(_div("modal fade in"))));
+	}
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+}
+
+function selectTerminationMonthAndContinue($terminationMonth){
+
+	var $terminationDate;
+	var $currentDate = getCurrentDate("MM/DD/YYYY");
+
+	_lockWindow();
+	_focusWindow();
+	if($terminationMonth == "current"){
+		click(_radio("disenrollmentdate", _in(_label("/Last day of the current month/"))));
+		$terminationDate = _fetch(window.moment($currentDate).endOf("month").format("MM/DD/YYYY"));
+	}else if($terminationMonth == "next"){
+		click(_radio("disenrollmentdate", _in(_label("/Last day of next month/"))));
+		$terminationDate = _fetch(window.moment($currentDate).add(1, 'months').endOf("month").format("MM/DD/YYYY"));
+	}else if($terminationMonth == "next next"){
+		click(_radio("disenrollmentdate", _in(_label("/Last day of the month after next/"))));
+		$terminationDate = _fetch(window.moment($currentDate).add(2, 'months').endOf("month").format("MM/DD/YYYY"));
+	}
+
+	var $url;
+	_set($url, window.location.href);
+	if ($url.indexOf("enrollmenthistory") != -1) {
+		_assertVisible(_submit("Continue", _in(_div("modal fade in"))));
+		click(_submit("Continue", _in(_div("modal fade in"))));
+	}else{
+		_assertVisible(_submit("OK", _in(_div("modal fade in"))));
+		_click(_submit("OK", _in(_div("modal fade in"))));
+	}
+	
+	
+	_log("$terminationDate: "+$terminationDate);
+	_unlockWindow();
+
+	return $terminationDate;
+}
+
+
+
+function selectDisenrollmentReasonAndContinue($reason){
+	if($reason){
+		_check(_radio("disenrollmentreason", _in(_label($reason))));
+	}else{
+		var $randomOption = Math.floor(Math.random() * Math.floor(3));
+		click(_radio("disenrollmentreason["+$randomOption+"]", _in(_div("disenrollDialog"))));
+	}
+	_assertVisible(_link("Continue", _in(_div("disenrollDialog"))));
+	click(_link("Continue", _in(_div("disenrollDialog"))));
+}
+
+function verifyVoluntaryDisenrollmentRequestSubmitted($case){
+	_assertVisible(_div("modal fade in"));
+	if($case == "cancel"){
+		_assertVisible(_heading3("Cancel Coverage Request Submitted", _in(_div("modal fade in"))));
+		_assertVisible(_paragraph("We have received your request for cancel coverage. We will notify the insurance company of this request.", _in(_div("modal fade in"))));
+	}else{
+		_assertVisible(_heading3("Voluntary Disenrollment Request Submitted", _in(_div("modal fade in"))));
+		_assertVisible(_paragraph("We have received your request for voluntary disenrollment. We will notify the insurance company of this request.", _in(_div("modal fade in"))));
+	}
+	
+	_assertVisible(_button("/×/", _in(_div("modal fade in"))));
+	
+	_assertVisible(_paragraph("If you have any questions, please call 1-800-300-1506.", _in(_div("modal fade in"))));
+	_assertVisible(_link("Go To Dashboard", _in(_div("modal fade in"))));
+	click(_link("Go To Dashboard", _in(_div("modal fade in"))));
+}
+
+// For a AI/AN use case, click on Change Plans Button on dashboard and verify the message displayed. 
+function clickChangePlansButtonOnDashboard($isAianpopup,$household, $groups,$notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$landingTab,$isRenewals,$verificationFlag){
+	if($household){
+		var $applicationYear =  $household.coverageYear;
+		var $yearTabOnDashboard = yearTabOnDashboardElement($applicationYear);
+		click($yearTabOnDashboard);
+	}
+
+	 click(_button("CHANGE PLANS"));	
+	if($isAianpopup=="Y"){
+       verifyAIANPopUpOnDashboard();
+    }else{
+    	if ($verificationFlag !="N") {
+    		verifyCustomGroupingPage($household, $groups,$notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$landingTab,$isRenewals);	
+   		}
+    }
+}
+
+function verifyAIANPopUpOnDashboard(){	
+	_assertExists(_paragraph("You have already used this privilege once this month. Please try again next month."));
+    _assertVisible(_paragraph("You have already used this privilege once this month. Please try again next month."));
+	click(_submit("Ok"));
+}
+
+function clickLinkMyDelegatesOnMemberPortal(){
+	click(_link("My Delegates"));
+	_assertVisible(_heading1("My Delegates"));
+}
+
+

@@ -1,0 +1,678 @@
+_includeOnce("Results.sah");
+_includeOnce("Ssap.sah");
+_includeOnce("Utils.sah");
+_includeOnce("Preferences.sah");
+
+var $Preeligibility = true;
+var $currentYear;
+var $people;
+var $signedEmail ;
+// DO NOT USE Person object DIRECTLY! USE METHODS in Preeligibility to add people on this page!
+// Stores information of a single person in the table on this page
+// params: int, string, boolean, boolean, boolean
+function Person($num, $birthdate, $tobaccoUse, $nativeAmerican, $seekingCoverage, $isPregnant) {
+	// Variables
+	this.$age;
+	this.$seeking = $seekingCoverage;
+	this.$birth = $birthdate;
+	this.$tobacco = $tobaccoUse;
+	this.$native = $nativeAmerican;
+	this.$pregnant = $isPregnant;
+	this.$preeligibilitySeekingCoverage;
+	var $rows =_collect("_div", "/row-fluid member-info-block fadeIn/", _in(_div("family-members-container")));
+	this.updateNumber = function($num) {
+		$preeligibilityBirthdate = _textbox(0, _in($rows[$num]));
+		//if ($isIdaho) {
+			$preeligibilityTobaccoUse = _checkbox(0, _in($rows[$num]), _under(_div("/Tobacco Use/")));
+			$preeligibilityNativeAmerican = _checkbox(0, _in($rows[$num]), _under(_div("Native American")));
+		//}
+		//if ($isIdaho) {
+			this.$preeligibilitySeekingCoverage =_checkbox(0, _in($rows[$num]), _under(_div("/Seeking Coverage/")));
+			
+		//}
+		//else if ($isConnecticut) {
+		//	this.$preeligibilitySeekingCoverage = _checkbox(0, _in($rows[$num]), _under(_div("/"+"K:label.iex.prescreen.seekingCoverage"+"/")));
+		//	$preeligibilityPregnant = _checkbox(0, _in($rows[$num]), _under(_div("K:label.iex.prescreen.pregnant"+"?")));
+		//}
+
+
+		// Little trick to work with inconsistant naming for logged in vs loggout out
+		if (this.$number == -1 && $loggedIn) {
+			this.$number++;
+		}
+		this.$remove = _link(0, _in($rows[$num]));
+	};
+
+	this.updateNumber($num);
+	this.verify = function() {
+		_assertVisible($preeligibilityBirthdate);
+			_assertVisible($preeligibilityTobaccoUse, "Tobacco use is not visible");
+			_assertVisible($preeligibilityNativeAmerican, "Native American is not visible");
+		_assertVisible(this.$preeligibilitySeekingCoverage);
+		_assertVisible(this.$remove);
+	};
+
+	/*
+* Takes a date of birth string and calculates the age of this person in years.
+* birth is a string in the form mm/dd/yyyy
+* Method copied from phix page objects
+*/
+	this.calculateAge = function($birth) {
+		var $array = $birth.split("/");
+		var $now = new Date();
+		var $year = $now.getFullYear();
+		var $month = $now.getMonth() + 1;
+		var $day = $now.getDate();
+		$currentYear = $year;
+		parseInt($currentYear);
+		// Calculate and return the age
+		var $age = $year - $array[2];
+		if (($month <= $array[0]) && ($day < $array[1])) {
+			$age--;
+		}
+		return $age;
+	};
+
+	/*
+* Sets the birthdate of this person on the page.
+* birth should be in the form mm/dd/yyyy
+*/
+	this.setBirthdate = function($birth) {
+		_setValue($preeligibilityBirthdate, $birth);
+		this.$age = this.calculateAge($birth);
+	};
+
+	/*
+* Sets the tobacco use of this person on the page.
+* usesTobacco should be a boolean true/false
+*/
+	this.setTobaccoUse = function($usesTobacco) {
+		if ($usesTobacco == "TRUE") {
+			_check($preeligibilityTobaccoUse);
+		}
+		else {
+			_uncheck($preeligibilityTobaccoUse);
+		}
+	};
+
+	/*
+* Sets whether this person is Native American on the page.
+* isNativeAmerican should be a boolean true/false
+*/
+	this.setNativeAmerican = function($isNativeAmerican) {
+		if ($isNativeAmerican == "TRUE") {
+			_check($preeligibilityNativeAmerican);
+		}
+		else {
+			_uncheck($preeligibilityNativeAmerican);
+		}
+	};
+
+	this.verifySeekingCoverageIsChecked = function(){
+		//_assertTrue(_getAttribute(this.$preeligibilitySeekingCoverage, "checked"));
+		_assert(this.$preeligibilitySeekingCoverage.checked)
+	};
+
+	/*
+* Sets whether this person is seeking coverage on the page.
+* seeking should be a boolean true/false
+*/
+
+	this.setSeekingCoverage = function($seeking) {
+		if (($seeking =="TRUE" )||($seeking==true )) {
+			_check(this.$preeligibilitySeekingCoverage);
+		}
+		else {
+			_uncheck(this.$preeligibilitySeekingCoverage);
+		}
+	};
+
+	this.setPregnant = function($isPregnant){
+		if (isTrue($isPregnant)) {
+			_check($preeligibilityPregnant);
+		}
+		else {
+			_uncheck($preeligibilityPregnant);
+		}
+	};
+
+	/*
+* Removes this person from the page
+*/
+	this.remove = function() {
+		_click(this.$remove);
+	};
+
+	// Set values on page
+	this.setBirthdate($birthdate);
+	//if ($isIdaho) {
+		this.setTobaccoUse($tobaccoUse);
+		this.setNativeAmerican($nativeAmerican);
+	//}
+	//else if ($isConnecticut) {
+	//	this.setPregnant($isPregnant);
+	//}
+	this.verifySeekingCoverageIsChecked();
+	this.setSeekingCoverage($seekingCoverage);
+}
+
+// Variables
+var $coverageYear;
+var $familyZipCode;
+// Where the family lives
+if ($people === undefined) {
+	$people = [];
+}
+var $numAdults;
+var $numChildren;
+
+var $preeligibilityPostfix;
+if ($loggedIn) {
+	$preeligibilityPostfix = 0;
+}
+else {
+	$preeligibilityPostfix = 1;
+}
+
+// Accessors
+var $preeligibilityCoverageYear = _select("coverageYear");
+
+var $preeligibilityZipCode = _textbox("zipCode");
+var $preeligibilityCounty = _select("countyname");
+var $preeligibilityBirthdate = _textbox("birthdate1");
+//var $preeligibilityPregnant = _checkbox("pregnant" + $preeligibilityPostfix);
+//if ($isIdaho) {
+	var $preeligibilityTobaccoUse = _checkbox("tobacco" + $preeligibilityPostfix);
+	var $preeligibilityNativeAmerican = _checkbox("nativeAmerican" + $preeligibilityPostfix);
+//}
+//var $preeligibilitySeekingCoverage = _checkbox("coverage" + $preeligibilityPostfix);
+var $preeligibilityAddSpouse = _button("Add a " + "K:label.iex.prescreen.spouse");
+var $preeligibiilityAddChild = _button("addChild");
+var $preeligibilityIncome = _textbox("income");
+var $preeligibilityCheckForSavings = _button("Check for Savings");
+var $preeligibilitySkip = _link("K:label.iex.prescreen.skipSignup");
+var $preeligibilityBrowsePlans = _button("Browse Plans");
+var $selectedYear;
+
+if ($people.length <= 0) {
+	$people.push("");
+}
+
+/*
+* ignoreAddSpouse is an optional boolean parameter which defaults to false.
+* if set to true, verify won't check for addSpouse button.
+*/
+function verifyElementsOnPreeligibility($ignoreAddSpouse, $coverageYear) {
+
+var $coverageLabel;
+/*	if(!displayCoverageYearDropdown()){ 
+	_assertNotVisible(_select("coverageYear", _rightOf(_label("K:label.iex.prescreen.selectCoverageYear"+":"))),"Verify Two tabs are not displayed on prescreener"); 
+	} 
+	else{ 
+	_assertVisible(_select("coverageYear"),"Verify Two tab is displayed"); 
+	var $covYear = getCurrentCoverageYear() 
+	_assertEqual($covYear, _getSelectedText(_select("coverageYear"))," Verify Current Coverage Year is the first option"); 
+	} 
+*/
+
+	
+	//_log(" Coverage Year is selected as ==="+$selectedYear);
+	//$coverageYear = getCoverageYear()[0];
+	//_log("Coverage Year from the db is---"+$coverageYear);
+/*
+	if ($isIdaho) {
+		if($selectedYear ==""|| $selectedYear == null){
+				if(!displayCoverageYearDropdown()){ 
+					_assertNotVisible(_select("coverageYear", _rightOf(_label("K:label.iex.prescreen.selectCoverageYear"+":"))),"Verify Two tabs are not displayed on prescreener"); 
+				} 
+				else{ 
+					_assertVisible(_select("coverageYear"),"Verify Two tab is displayed"); 
+					var $covYear = getCurrentCoverageYear() 
+					_assertEqual($covYear, _getSelectedText(_select("coverageYear"))," Verify Current Coverage Year is the first option"); 
+				} 
+			var $displayedYear = getCoverageYear()[0];
+		}
+		else{
+			$displayedYear = $selectedYear;
+			$coverageYear = $selectedYear;
+		}
+		if (!$selectedYear || $selectedYear == null) {
+			$selectedYear = $coverageYear;
+		}
+		_assertVisible(_listItem("You can view your selected favorite health and dental plans for coverage year " + $displayedYear+ " from start of open enrollment.", _in(_div("sidebar"))));
+		//if (!$selectedYear) {
+		//	$selectedYear = $coverageYear;
+		//}
+		_assertVisible(_listItem("The cost of health and dental insurance depends on where you live, how many people are in your household, and income.", _in(_div("sidebar"))));
+		
+		//$coverageLabel = _span("Seeking Coverage");
+		$coverageLabel = _div("/Seeking Coverage/");
+		if($signedEmail == "auto_issueradmin@yopmail.com"){
+            _assertNotVisible(_paragraph("incomeAlertText"),"Issuer Admin should not be able to see Annual Tax Household income text box");
+        }
+        else{
+			_assertVisible(_paragraph("incomeAlertText"));
+			_assertEqual("Enter the approximate annual income for your tax household. This will be used to determine eligibility for potential cost-saving programs. If "+
+					 " you are not interested in these programs and want to view plans at full price, click BROWSE PLANS.", _getText(_paragraph("incomeAlertText")));
+		}
+	}
+	else if ($isConnecticut) {
+		_assertVisible(_div("titlebar"));
+		_assertEqual("K:label.iex.sidebar.header" + " " + $coverageYear, _getText(_div("titlebar")));
+		_assertNotVisible(_select("coverageYear", _rightOf(_label("K:label.iex.prescreen.selectCoverageYear"+":"))));
+
+		_assertVisible(_listItem("K:label.iex.sidebar.formExplanation1", _in(_div("sidebar"))));
+		_assertVisible(_listItem("K:label.iex.sidebar.formExplanation4", _in(_div("sidebar"))));
+		
+		$coverageLabel = _div("/"+"K:label.iex.prescreen.seekingCoverage"+"/");
+		_assertVisible(_paragraph("alert alert-info ng-scope"));
+		_assertEqual("K:label.iex.prescreen.incomeAlert", _getText(_paragraph("alert alert-info ng-scope")));
+	}
+*/
+	_assertVisible(_heading2("In this section:"));
+	_assertVisible(_div("All labels marked Required are required."));
+	_assertVisible(_listItem("The cost of health and dental insurance depends on where you live, how many people are in your household, and income."));
+	_assertVisible(_heading1("/Find Out How Much Insurance May Cost In /"));
+	//_assertVisible(_listItem("You can view your selected favorite health and dental plans for coverage year "+$coverageYear[0][0]+" from start of open enrollment."));
+	_assertVisible(_heading2("Where do you live?"));
+	_assertVisible(_textbox("zipCode"));
+	_assertVisible(_heading2("Who is in your household and do they need coverage? in the table below"));
+	
+	$familyZipCode = _getText($preeligibilityZipCode);
+	$people = [];
+	var $coverage = "FALSE";
+	var $rows =_collect("_div", "/row-fluid member-info-block fadeIn/", _in(_div("family-members-container")));
+	for (var $i = 0; $i < $rows.length; $i++) {
+		var $num = $i;
+		var $birthdate = _getText(_textbox(0, _in($rows[$i])));
+		var $nativeAmerican = false;
+		var $tobaccoUse = false;
+		var $isPregnant = false;
+		_assertNotTrue(_checkbox(0, _in($rows[$i]),_under(_div("/Tobacco Use/"))).checked);
+		_assertNotTrue(_checkbox(0, _in($rows[$i]),_under(_div("/Native American/"))).checked);
+		_assertTrue(_checkbox(0, _in($rows[0]),_under(_div("/Seeking Coverage/"))).checked);
+		
+		$coverage = _checkbox(0, _in($rows[$i]), _under(_div("/Seeking Coverage/")).checked);
+		if($coverage = true){
+			$coverage = "TRUE";
+		}
+		$people.push(new Person($num, $birthdate, $tobaccoUse, $nativeAmerican, $coverage, $isPregnant));
+	}
+
+	if ($people.length <= 0) {
+		$people.push("");
+	}
+
+	if ($loggedIn) {
+		$preeligibilityPostfix = 0;
+	}
+	else {
+		$preeligibilityPostfix = 1;
+	}
+	$preeligibilityTobaccoUse = _checkbox("tobacco" + $preeligibilityPostfix);
+	$preeligibilityNativeAmerican = _checkbox("nativeAmerican" + $preeligibilityPostfix);
+	
+	if ($ignoreAddSpouse === undefined) {
+		$ignoreAddSpouse = false;
+	}
+	_assertVisible($preeligibilityZipCode);
+	for (var $i = 1; $i < $people.length; $i++) {
+		$people[$i].verify();
+	}
+	if ($ignoreAddSpouse) {
+		_assertNotVisible($preeligibilityAddSpouse);
+	}
+	else {
+		_assertVisible($preeligibilityAddSpouse);
+	}
+	_assertVisible($preeligibiilityAddChild);
+	if($signedEmail == "auto_issueradmin@yopmail.com"){
+        _assertNotVisible(_textbox("income", _rightOf(_label("/"+"K:label.iex.prescreen.annual"+" "+"K:label.iex.prescreen.taxHouseholdIncome"+"/"), 10)));
+        _assertNotVisible(_button("Check for Savings"));
+    }
+    else{
+		_assertVisible(_textbox("income"));
+		_assertVisible(_button("Check for Savings"));
+	}
+
+	if (!$loggedIn) {
+		_assertVisible($preeligibilitySkip);
+	}
+}
+
+var $selectOEPYear = "";
+function selectCoverageYear($OEP_NextYear, $coverageYear) {
+	
+	_setSelected($preeligibilityCoverageYear, ""+$coverageYear);
+	_assertVisible(_heading1("Find Out How Much Insurance May Cost In "+$coverageYear[0][0]));
+	/*
+	$selectOEPYear = $OEP_NextYear;
+	//$coverageYear = getCoverageYear()[0];
+	$selectedYear = $coverageYear
+	_assertVisible(_heading1("Find Out How Much Insurance May Cost In "+$coverageYear));
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	
+	var $currentDate = _fetch(window.moment().get('date'));
+	_log("Current month is "+$currentMonth+" and current day is "+$currentDate);
+	if($selectOEPYear =="previous_year"){
+		$selectedYear = _fetch(window.moment().subtract(1, 'year').format('YYYY'));
+		//$selectedYear ="2017"//////////////////////////////////hardcoded inorder to test code//////////////
+		_setSelected($preeligibilityCoverageYear, $selectedYear);
+		$coverageYear = $selectedYear;
+		
+	}
+	else if($selectOEPYear != "true"){
+			$selectedYear = _fetch(window.moment().get('year'));
+			$coverageYear = $selectedYear;
+			
+			if($currentMonth == 12 || ($currentMonth == 11 && $currentDate >15)){
+				$coverageYear = getCoverageYear()[0];
+				$selectedYear=$coverageYear;
+			}
+			else{
+				$coverageYear = $selectedYear;
+				if(_isVisible($preeligibilityCoverageYear)){
+				_setSelected($preeligibilityCoverageYear, ""+$selectedYear);
+				}
+			}
+			
+	}
+	*/
+	_log("Selected Year is:" +$selectedYear);
+	_log("*******Coverage Year selected is  "+ $coverageYear);
+	return $coverageYear;
+}
+
+function isOEPYearSelected(){
+	_log(" In OEP period and select application for next year is ---"+$selectOEPYear);
+	return $selectOEPYear =="true";
+}
+
+function enterZipCode($zip, $counties) {
+	$familyZipCode = $zip;
+	_setValue($preeligibilityZipCode, $zip);
+	if ($counties) {
+		$counties = $counties.split(",");
+		if ($counties.length == 1) {
+			_wait(5000, _isVisible(_span(0, _rightOf(_textbox("zipCode")))));
+			_assertContainsText($counties[0], _span(0, _rightOf(_textbox("zipCode"))));
+		}
+	}
+}
+
+function verifyCheckForSavingWithNoSeekingCoverage(){
+	for (var $i = 0; $i < $people.length; $i++) {
+		$people[$i].setSeekingCoverage(false);
+	}
+	_setStrictVisibilityCheck(true);
+	_assertNotVisible(_paragraph("At least one member of your family needs to be seeking coverage.", _in(_div("modal fade in"))));
+	clickElement(_button("Check for Savings"));
+	_assertVisible(_paragraph("At least one member of your family needs to be seeking coverage.", _in(_div("modal fade in"))));
+	clickElement(_submit("Close"));
+	_setStrictVisibilityCheck(false);
+}
+
+function enterInvalidZipCode($zip) {
+	//$familyZipCode = $zip;
+	_setValue($preeligibilityZipCode, $zip);
+	_wait(5000, _isVisible(_span("ariaZipCodeError")));
+	_assertVisible(_span("K:label.iex.prescreen.errInvalidZip", _in(_div("zipEntry"))));
+}
+
+// Removes all people on this page.
+function clickRemovePeople() {
+	var $removeButton = _link("Remove[1]");
+	while (_isVisible($removeButton)) {
+		_wait(2000);
+		_click($removeButton);
+	}
+	$people = [];
+	$people.push("");
+	// Placeholder person
+}
+
+function enterInvalidBirthdate($date) {
+	_setValue($preeligibilityBirthdate, $date);
+	_wait(5000, _isVisible(_span(0, _rightOf(_div("popover-inner")))));
+	_assertEqual("Please enter valid date.", _getText(_div("popover-inner")));
+		
+}
+
+function enterPrimaryInformation($birthdate, $tobaccoUse, $nativeAmerican, $seekingCoverage, $isPregnant) {
+	$people[0] = new Person(0, $birthdate, $tobaccoUse, $nativeAmerican, $seekingCoverage, $isPregnant);
+	_log($people[0].$age);
+	isValidDate($birthdate);
+	ageGreaterThan120($birthdate);
+	$people[0].$birth =$birthdate;
+	$people[0].$tobacco = $tobaccoUse;
+	$people[0].$native = $nativeAmerican;
+	$people[0].$pregnant = $isPregnant;
+	if (($isIdaho) && ($signedEmail !=  "auto_issueradmin@yopmail.com")){
+		_assertTrue(_getAttribute(_button("Check for Savings"), "disabled"));
+	}
+}
+
+function clickAddSpouse($birthdate, $tobaccoUse, $nativeAmerican, $seekingCoverage, $isPregnant) {
+	_click($preeligibilityAddSpouse);
+
+	var $new = new Person($people.length, $birthdate, $tobaccoUse, $nativeAmerican, $seekingCoverage, $isPregnant);
+	_log($people.length);
+	$new.verify();
+	$people.push($new);
+
+	isValidDate($birthdate);
+	if(parseInt(($people[$people.length-1]).$age) <18){
+		_assertVisible(_div("You must be 18 or older."));
+		
+	}
+
+	ageGreaterThan120($birthdate);
+	_wait(500);
+	$people[$people.length-1].$birth =$birthdate;
+	$people[$people.length-1].$tobacco = $tobaccoUse;
+	$people[$people.length-1].$native = $nativeAmerican;
+}
+
+function clickAddChild($birthdate, $tobaccoUse, $nativeAmerican, $seekingCoverage, $isPregnant) {
+	_click($preeligibiilityAddChild);
+	if($people.length <11){
+		var $new = new Person($people.length, $birthdate, $tobaccoUse, $nativeAmerican, $seekingCoverage, $isPregnant);
+		$new.verify();
+		$people.push($new);
+		isValidDate($birthdate);
+		if((parseInt(($people[$people.length-1]).$age) >26)&&((parseInt(($people[$people.length-1]).$age) <120))){
+			_assertVisible(_div("Children must be under age 26."));
+		}
+		ageGreaterThan120($birthdate);
+		$people[$people.length-1].$birth =$birthdate;
+		$people[$people.length-1].$tobacco = $tobaccoUse;
+		$people[$people.length-1].$native = $nativeAmerican;
+	}
+	else{
+		verifyErrorMessageForLimitDependents();
+	}
+}
+
+function clickAddDependentWithMaxDependents(){
+	_assertNotVisible(_heading3("openDependLimit"));
+	_assertNotVisible(_paragraph("This tool limits the number of dependents to 6. During open enrollment, when you complete your application, there are no limits on the number of dependents you can apply for."));
+	clickElement(_button("Add a "+"K:label.iex.prescreen.dependent"));
+	_assertVisible(_heading3("openDependLimit"));
+	_assertEqual("Limit on Number of Dependents", _getText(_heading3("openDependLimit")));
+	_assertVisible(_paragraph("This tool limits the number of dependents to 6. During open enrollment, when you complete your application, there are no limits on the number of dependents you can apply for."));
+	_setStrictVisibilityCheck(true);
+	clickElement(_submit("Close"));
+	_setStrictVisibilityCheck(false);
+}
+
+function removePerson($index) {
+	if ($index === undefined) {
+		$index = 1;
+	}
+
+	$people[$index].remove();
+	$people.splice($index, 1);
+	for (var $i = $index; $i < $people.length; $i++) {
+		$people[$i].updateNumber($people[$i].$number - 1);
+	}
+}
+
+function countPeople() {
+	$numAdults = 0;
+	$numChildren = 0;
+	for (var $i = 0; $i < $people.length; $i++) {
+		if ($people[$i].$age > 18 && $people[$i].$seeking) {
+			$numAdults++;
+		}
+		else if ($people[$i].$age <= 18 && $people[$i].$seeking) {
+			$numChildren++;
+		}
+	}
+}
+
+var $householdIncome="";
+function enterHouseholdIncome($income) {
+	_focus($preeligibilityIncome);
+	_click($preeligibilityIncome);
+	_setValue($preeligibilityIncome, "");
+	_assertFalse(_getAttribute(_button("Browse Plans"), "disabled"));
+	_assertTrue(_getAttribute(_button("Check for Savings"), "disabled"));
+	_setValue($preeligibilityIncome, $income);
+	//if ($isConnecticut) {
+	//	_assertTrue(_getAttribute(_button("Browse Plans"), "disabled"));
+	//} else if ($isIdaho) {
+		_assertFalse(_getAttribute(_button("Browse Plans"), "disabled"));
+	//}
+	_assertFalse(_getAttribute(_button("Check for Savings"), "disabled"));
+	$householdIncome=$income;
+}
+
+function clickCheckForSavingsWithNoAssertion(){
+	if (_isVisible($preeligibilityCounty)) {
+		_setSelected($preeligibilityCounty, 1);
+	}
+	$prefPageIndex = 0;
+	_click($preeligibilityCheckForSavings);
+	countPeople();
+	countssapPeople();
+}
+
+function verifyMedicaidCostSaving(){
+	_assertVisible(_heading5("Medicaid"));
+	_assertVisible(_span("Based on the household income you reported, you may qualify for low-cost -- or even free -- coverage with Medicaid."));
+	_assertNotVisible(_button("Next"));
+}
+
+function verifyMedicareCostSaving(){
+	_assertVisible(_heading5("Medicare"));
+	_assertVisible(_span("results"));
+	_assertEqual("Anyone in your household over 65 years of age is likely to qualify for Medicare. If someone qualifies for Medicare, they cannot purchase a health insurance plan through Your Health Idaho. To find a Medicare plan, click here.", _getText(_span("results")));
+	_assertNotVisible(_button("Next"));
+}
+
+function clickCheckForSavings($coverageYear, $eligibilityType) {
+	if (_isVisible($preeligibilityCounty)) {
+		_setSelected($preeligibilityCounty, 1);
+	}
+	$prefPageIndex = 0;
+	_click($preeligibilityCheckForSavings);
+	//countPeople();
+	//countssapPeople();
+	verifyElementsOfCheckSavingsResult($coverageYear, $eligibilityType);
+}
+
+function clickSkipAndSignUp(){
+	_click($preeligibilitySkip);
+}
+
+function clickBrowsePlans() {
+	if (_isVisible($preeligibilityCounty)) {
+		_setSelected($preeligibilityCounty, 1);
+	}
+	countPeople();
+	countssapPeople();
+	$prefPageIndex = 0;
+	_click($preeligibilityBrowsePlans);
+	if($signedEmail == "auto_issueradmin@yopmail.com"){
+		_selectWindow("/preferences/");
+	}
+	verifyElementsOfPreferencePage();
+}
+
+function verifyDataOnPreeligibility(){
+	var $rows = _collect("_div", "/row-fluid member-info-block fadeIn animated400ms ng-scope/", _in(_div("family-members-container")));
+	for (var $i = 0; $i < $rows.length; $i++) {
+		_assertEqual($familyZipCode, _getText($preeligibilityZipCode));
+		_assertEqual($people[$i].$birth,_getText(_textbox(0, _in($rows[$i]))));
+		_assertEqual($people[$i].$tobacco,_getAttribute(_checkbox(0, _in($rows[$i])), "checked"));
+		//if ($isIdaho) {
+			_assertEqual($people[$i].$native, _getAttribute(_checkbox(0, _in($rows[$i]), _under(_div("Native American"))), "checked"));
+		//}
+		_assertEqual($people[$i].$seeking,_getAttribute(_checkbox(2, _in($rows[$i])), "checked"));
+	}
+}
+
+function verifySignupLink(){
+	if ($isConnecticut){
+		clickElement(_link("Sign Up"));
+		var $url;
+		_set($url, _call(window.location.href));
+		_assertEqual("https://www.accesshealthct.com/AHCT/DisplayCreateUserAccount.action", $url);
+		_call(window.history.back());
+	}	
+}
+
+function verifySkipAndSignupLink(){
+	if ($isConnecticut){
+		clickElement(_link("K:label.iex.prescreen.skipSignup"));
+		var $url;
+		_set($url, _call(window.location.href));
+		_assertEqual("https://www.accesshealthct.com/AHCT/DisplayCreateUserAccount.action", $url);
+		_call(window.history.back());
+	}	
+}
+
+function verifyAllMemberEligibleOnPreference(){
+	_setStrictVisibilityCheck(true);
+	clickElement(_button("Browse Plans"));
+	_assertVisible(_heading3("Medicare Eligible"));
+	_assertVisible(_paragraph("All the member of your household are Medicare eligible."));
+	_click(_submit("Close"));
+	_setStrictVisibilityCheck(false);
+}
+
+ function displayCoverageYearDropdown(){ 
+	var $currentCovYear = parseInt(getCurrentCoverageYear()); 
+	var $prevCovYear = parseInt(getPreviousCoverageYear()); 
+	var $showCurrentYear = getPreScreenerShowCurrentYear().toString(); 
+	var $tabTill = "11/15/"+_fetch(window.moment().get('year'));
+	if($currentCovYear ==(_fetch(window.moment().get('year'))+1) &&
+	   $prevCovYear ==(_fetch(window.moment().get('year'))) &&
+	   (_fetch(window.moment().isBefore($tabTill))) && 
+	   (_fetch(window.moment().isAfter($showCurrentYear)))){ 
+	return true; 
+	} 
+	else 
+	return false; 
+} 
+
+function verifyErrorMessageForLimitDependents(){
+	_assertVisible(_heading3("Limit on Number of Dependents", _in(_div("modal fade in"))),"Verify if modal dialog is displayed");
+	_assertVisible(_paragraph("Before logging in you may shop for up to 10 dependents. When you login and complete your application there will be no limit to the number of household dependents on an enrollment."), _in(_div("modal fade in")),"Verify if error message is displayed for limit on number of dependents");
+	_assertVisible(_submit("Close", _in(_div("modal fade in"))),"Verify if Close button is displayed");
+	_click(_submit("Close", _in(_div("modal fade in"))));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

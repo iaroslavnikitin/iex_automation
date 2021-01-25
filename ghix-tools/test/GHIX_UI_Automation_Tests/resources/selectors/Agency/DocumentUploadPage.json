@@ -1,0 +1,67 @@
+{
+    "pageURLId":"documentupload",
+    "headerRightPanel":
+    {
+       "label":"Document Upload",
+       "fieldType":"staticText",
+       "selectors":
+       {
+         "common":"$('#rightpanel .header')",
+         "PA":"$('#rightpanel .header')"
+       },
+       "headerText":"Step 5: Document Upload"
+       
+    },
+    "uploaddocument":
+     {
+        "label":"",
+        "type":"button",
+        "selectors":
+         {
+            "common":{"chooseFileButton":"$('#file')", "uploadButton":"$('.btn-primary')"},
+            "PA":{"chooseFileButton":"$('#file')", "uploadButton":"$('.btn-primary')"}
+         }
+        
+     },
+
+     "fileUploadSuccessAlert":
+     {
+         "label":"",
+         "fieldType":"alertBox",
+         "selectors":
+         {
+            "common":
+            {
+                "box":"$('#fileUploadSuccessModal')",
+                "okButton":"$('#fileUploadSuccessModal > div.modal-footer > button')"
+            }
+         }
+        
+     } ,
+
+     "finishButton":
+     {
+        "label":"Finish",
+        "fieldType":"button",
+        "selectors":
+         {
+            "common":"$('#rightpanel > div:nth-child(2) > div.controls-group.form-actions.ng-scope > input.btn.btn-primary.pull-right')",
+            "PA":"$('#rightpanel > div:nth-child(2) > div.controls-group.form-actions.ng-scope > input.btn.btn-primary.pull-right')"
+         }
+      },
+      "successfullyCompletedApplication":
+      {
+         "label":"",
+         "fieldType":"alertBox",
+         "selectors":
+         {
+            "common":
+            {
+                "box":"$('#successfullyCompletedApplication')",
+                "okButton":"$('#successfullyCompletedApplication > div.modal-footer > button')"
+            }
+         }
+        
+     }
+
+}

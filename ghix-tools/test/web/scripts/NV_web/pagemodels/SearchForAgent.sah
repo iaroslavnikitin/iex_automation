@@ -1,0 +1,187 @@
+_includeOnce("FindLocalAssistance.sah");
+_includeOnce("../lib/DB.sah");
+
+var $SearchForAgent = true;
+var $searchForAgentLocationHeader = _heading4("Search by location");
+var $searchForAgentZipCode = _textbox("location.zip");
+var $searchForAgentDistance = _select("distance");
+var $searchForAgentLanguage = _textbox("/default/");
+var $searchForAgentLocationSubmit = _submit("Search");
+var $searchForAgentNameHeader = _heading4("Search by Name");
+var $searchForAgentFirstName = _textbox("user.firstName");
+var $searchForAgentLastName = _textbox("user.lastName");
+var $searchForAgentBusinessName = _textbox("companyName");
+var $searchForAgentNameSubmit = _submit("Search[1]");
+var $searchForAgentResultsHeader = _link("skip");
+var $searchForAgentResultsAgain = _link("Search Again");
+var $yourAgentDropdownMenuLink = _link("/Your Agent Dropdown Menu/");
+var $deDesignateAgentLink =_link("/De-designate Agent/");
+var $deDesignateAgentConfirmButton = _button("Confirm");
+var $findHelpNearYouLink = _link("FIND HELP NEAR YOU");
+
+function verifyElemenstForAgentSearch() {
+	_assertVisible($searchForAgentLocationHeader);
+	_assertVisible($searchForAgentZipCode);
+	_assertVisible($searchForAgentDistance);
+	_assertVisible($searchForAgentLanguage);
+	_assertVisible($searchForAgentLocationSubmit);
+	_assertVisible($searchForAgentNameHeader);
+	_assertVisible($searchForAgentFirstName);
+	_assertVisible($searchForAgentLastName);
+	_assertVisible($searchForAgentBusinessName);
+	_assertVisible($searchForAgentNameSubmit);
+}
+
+function clickSearchForAgentByLocation($zip, $distance, $language) {
+	if ($distance === undefined) {
+		$distance = "5";
+	}
+	if ($language === undefined) {
+		$language = "English";
+	}
+
+	_setValue($searchForAgentZipCode, $zip);
+	_setSelected($searchForAgentDistance, $distance);
+	_click(_listItem($language));
+	_click($searchForAgentLocationSubmit);
+	_assertTrue(new RegExp("Agents found").test(_getText($searchForAgentResultsHeader)));
+}
+
+function clickSearchForAgentByName($firstName, $lastName, $businessName, $agent, $agentInfo) {
+	_setValue($searchForAgentFirstName, $firstName);
+	_setValue($searchForAgentLastName, $lastName);
+	_setValue($searchForAgentBusinessName, $businessName);
+	_click($searchForAgentNameSubmit);
+	if($agent != null && $agentInfo != null){
+		verifyResultForAgentSearch($firstName, $agent, $agentInfo);
+	}
+}
+
+function verifyResultForAgentSearch($firstName, $agent, $agentInfo) {
+	_assertTrue(new RegExp("Agents found").test(_getText($searchForAgentResultsHeader)));
+	_assertVisible($searchForAgentResultsAgain);
+	_assertVisible(_heading4("/"+$firstName+"/"));
+	_assertVisible(_row("/"+$agent.businessName+"/"));
+	_assertVisible(_row("/"+$agent.address+"/"));
+	_assertVisible(_row("/"+$agent.city+"/"));
+	if($agent.state =="Nevada"){
+		_assertVisible(_row("/NV/"));
+	}
+	else
+		_assertVisible(_row("/"+$agent.state+"/"));
+	var $phNumber = $agent.agentPrimaryNumber;
+	$phNumber = $phNumber.substring(0,3)+ "-"+$phNumber.substring(3,6)+"-"+$phNumber.substring(6,10);
+	_assertVisible(_row("/"+$phNumber+"/"));
+	var $email = $agentInfo[0].$email
+		$email = $email.toLowerCase();
+	_assertVisible(_row("/"+$email+"/"));
+	_assertVisible(_row("/"+$agent.profileLanguage+"/"));
+	_assertVisible(_row("/"+$agent.expertise+"/"));
+
+
+}
+
+function clickSearchAgainForAgent() {
+	_click($searchForAgentResultsAgain);
+	verifyElemenstForAgentSearch();
+}
+
+function verifyElementsForDesignateAgent($agentFirstName,$agentLastName){
+	_click(_span($agentFirstName+" "+$agentLastName, _under(_tableHeader("Name"))));
+	//	_click(_span("break-word", _in(_table("table table-condense"))));
+	_assertVisible(_paragraph("Selecting an agent as your representative allows them to access your account, see your information, and make changes on your behalf."));
+	_assertVisible(_link("SELECT AGENT"));
+	_assertVisible(_span("/Back Search Again/"));
+	_assertVisible(_link("Search Again"));
+}
+
+function designateAgent($indFirstName,$indLastName,$agentFirstName,$agentLastName){
+	verifyElementsForDesignateAgent($agentFirstName,$agentLastName);
+	_click(_link("SELECT AGENT"));
+	_assertVisible(_checkbox("terms1"));
+	_assertVisible(_checkbox("terms2"));
+	_assertVisible(_checkbox("terms3"));
+	_assertVisible(_heading4("Signature"));
+	_assertVisible(_textbox("esignName"));
+	_check(_checkbox("terms1"));
+	_check(_checkbox("terms2"));
+	_check(_checkbox("terms3"));
+	var $indName = $indFirstName + " " + $indLastName;
+	_assertVisible(_label("Applicant Name", _near(_div($indName))));
+//	_click(_checkbox("esignCheck"));
+	_setValue(_textbox("esignName"), $indName);
+	_check(_button("Confirm"));
+	_assertVisible(_heading1("Congratulations!"));
+	_click(_button("Close"));
+	_wait(500);
+	if(_isVisible(_link("Your Agent Dropdown Menu. Press enter to open it and tab through its options"))){
+		_assertVisible(_link("Your Agent Dropdown Menu. Press enter to open it and tab through its options"));
+	}
+	else _assertVisible(_button("Your Agent"));
+}
+
+function deDesignateAgent($agentFirstName,$agentLastName){
+	_click($yourAgentDropdownMenuLink);
+	_click($deDesignateAgentLink);
+	_assertVisible(_paragraph("Click Confirm to de-designate "+$agentFirstName+" "+$agentLastName),"Verify text in modal to de-designate agent");
+	_click($deDesignateAgentConfirmButton);
+	_assertVisible($findHelpNearYouLink,"Verify find help near you link is displayed");
+}
+
+function verifyDBAgentDesignation($email,$agentFirstAndLastName){
+
+	var $brokerDetailsEnrollmentDB = getBrokerDetailsFromEnrollment($email);
+	var $enrollmentIdDB = $brokerDetailsEnrollmentDB[0][0];
+	var $agentBrokerNameEnrollmentDB = $brokerDetailsEnrollmentDB[0][1];
+	var $brokerRoleEnrollmentDB = $brokerDetailsEnrollmentDB[0][2];
+	var $brokerTpaFlagEnrollmentDB = $brokerDetailsEnrollmentDB[0][3];
+
+	_assertEqual($agentFirstAndLastName,$agentBrokerNameEnrollmentDB,"Verify agent name in enrollment table");
+	_assertEqual("AGENT",$brokerRoleEnrollmentDB,"Verify agent name in enrollment table");
+	_assertEqual("Y",$brokerTpaFlagEnrollmentDB,"Verify agent name in enrollment table");
+
+	var $brokerDetailsEnrollmentAudDB = getBrokerDetailsFromEnrollmentAud($enrollmentIdDB);
+	var $agentBrokerNameEnrollmentAudDB = $brokerDetailsEnrollmentAudDB[0][0];
+	var $brokerRoleEnrollmentAudDB = $brokerDetailsEnrollmentAudDB[0][1];
+	var $brokerTpaFlagEnrollmentAudDB = $brokerDetailsEnrollmentAudDB[0][2];
+
+	_assertEqual($agentFirstAndLastName,$agentBrokerNameEnrollmentAudDB,"Verify agent name in enrollment_aud table");
+	_assertEqual("AGENT",$brokerRoleEnrollmentAudDB,"Verify agent name in enrollment_aud table");
+	_assertEqual("Y",$brokerTpaFlagEnrollmentAudDB,"Verify agent name in enrollment_aud table");
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

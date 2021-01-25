@@ -1,0 +1,73 @@
+{
+  "agencyManager":
+  {   "firstName":"",
+    "lastName": "",
+    "email": "",
+    "phone":"4083677779",
+    "securityQuestion":"",
+    "securityAnswer":"",
+    "password":"",
+    "clientServed":"",
+    "productExpertise":["dental","medicare"],
+    "languages":["Armenian","Russian","Italian"],
+    "prefferedMethodOfCommunication":1,
+    "certificationStatus":""
+
+  },
+  "agent":
+  {
+    "firstName":"",
+    "lastName": "",
+    "email": "",
+    "personalEmail":"",
+    "publicEmail": "",
+    "phone":"408-367-7717",
+    "primaryContact":"408-367-7719",
+    "securityQuestion":"",
+    "securityAnswer":"",
+    "password":"",
+    "clientsServed": "Individuals / Families",
+    "productExpertise":["dental","medicare"],
+    "languages":["English","Russian","Italian"],
+    "prefferedMethodOfCommunication":1,
+    "certificationStatus":"",
+    "education": "Bachelor Degree",
+    "businessLocation": 1
+  },
+
+  "agency":
+  {
+    "agencyName":"",
+    "businessName":"",
+    "ein":"",
+    "licenseNumber":"",
+    "certificationStatus":"",
+
+    "agencySites":
+    {
+      "primarySite":
+      {
+        "locationName":"",
+        "AddressLine1":"",
+        "city":"",
+        "state":6,
+        "zip":"",
+        "hoursOfOperation":
+        {
+          "monday":{ "from":5, "to":5}
+        }
+
+      },
+      "numberOfSubsites":"",
+      "subSites":
+      [
+
+      ]
+    }
+  },
+  "agentAdmin": {
+    "sb_certificationStatus": "Certified",
+    "tb_newStartDate": "11/15/2021",
+    "tb_newEndDate": "10/27/2079"
+  }
+}

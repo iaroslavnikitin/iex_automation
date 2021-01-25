@@ -1,0 +1,18 @@
+{
+    "txt_header":"$('h4')",  
+    "lk_qleTab":"$('a*=Qualified Life Events')",
+    "lk_override":"$('a*=Override')",
+    "lk_here":"$('a*=here')" ,
+    "lk_backToDashboard":"$('a*=Back to Dashboard')",
+    "lk_qleEventExpand":"$('a*=EVENT_NAME')",
+    "tb_chooseFile":"$('#qleFileUpload00')",
+    "btn_submit":"$('button*=Submit')",
+    "overridePopup":{
+        "txt_header":"$('#adminOverrideModal').$('h3')",
+        "txt_overrideReason":"$('#adminOverrideModal').$('textarea')",
+        "btn_xClose":"$('#adminOverrideModal').$('btn*=close')",
+        "lk_close":"$('#adminOverrideModal').$('a*=Close')",
+        "lk_submit":"$('#adminOverrideModal').$('a*=Submit')"
+    }
+}
+

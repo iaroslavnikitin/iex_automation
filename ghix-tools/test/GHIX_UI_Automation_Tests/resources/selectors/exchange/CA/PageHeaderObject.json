@@ -1,0 +1,7 @@
+{
+    "lk_language":"$('//a[@id=\"language-select\"]')",
+    "lk_needHelp":"$('//a[text()=\"Need Help?\"]')",
+    "lk_accountHome":"$('a*=Account Home')",
+    "lk_mySecurityProfile":"$('a=My Security Profile')"
+}
+

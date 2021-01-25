@@ -1,0 +1,115 @@
+//_includeOnce("../lib/Utils.sah");
+//_includeOnce("../pagemodels/QualifyingEvent.sah");
+
+
+
+var $firstNameTextBox = _textbox("firstName");
+var $lastNameTextBox = _textbox("lastName");
+var $birthDateTextBox = _textbox("birthDate");
+var $emailAddressTextBox = _emailbox("emailAddress");
+var $countyTextBox = _textbox("county");
+var $phoneNumberTextBox = _textbox("phoneNumber");
+var $zipcodeTextBox = _textbox("zipCode");
+var $genderRadioButton = _radio("gender");
+var $genderMaleLabel = _label("Male");
+var $genderFemaleLabel = _label("Female");
+var $householdTotalTextBox = _textbox("householdTotal");
+var $submitAuthInfo = _submit("Submit");
+var $continueAfterLinking = _link("Continue");
+/*
+function createIndividualAndEnroll($houseHold){
+	
+	var $eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+	var $household = accountTransfer(1,4);
+	var $eventType = getEventType("MovedIntoState");
+	$household.coverageStartDate = getCoverageStartDate($eventType,$eventDate,"Moved into State");
+	$household.coverageEndDate = getCoverageEndDate($eventType,"Moved into State");	
+	clickLinkIndividual();
+	var $defaultGroup=defineGroups("group1:0,1,2,3",$household,"group1:","group1:");
+	createIndividual($household,"In Progress",$defaultGroup,"CONFIRM EVENT AND SHOP");
+	clickConfirmEventAndShop();
+	var $eventDate = selectQualifyingDate("60days");											
+	selectQualifyingEvent("Moved into State");					
+	clickContinue("In Progress",$household,"SHOP FOR PLANS",$eventDate,$defaultGroup);	
+	clickShopForPlans($household,$defaultGroup,"Y","N");							
+	clickShopHealthPlan($household);										
+	clickNextPreferences();												
+	clickNextPreferences();
+	clickViewPlans("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,$noOfAdults,$noOfChildren,"NO","","YES",$defaultGroup[0]);
+	$defaultGroup[0].healthPlan = clickAddPlanFromPlanSelection("", "YES");
+	clickContinueToCart($defaultGroup[0].healthPlan,"",$household.coverageStartDate,$defaultGroup[0],"YES");
+	clickNextButtonOnCart();
+	enterBindingArbitrationAgreement($household);
+	clickEnroll($defaultGroup[0],$defaultGroup[0].healthPlan,"",$household.coverageStartDate);	
+	clickGoToDashboardFromEsig("In Progress",$household,"CONTINUE SHOPPING",$eventDate,$defaultGroup,"Y");
+	clickContinueShopping($household, $defaultGroup,"Y","N","","","Dental");
+	clickShopDentalPlan("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,2, 2,"NO","","YES",$defaultGroup[0]);
+	$defaultGroup[0].dentalPlan = clickAddPlanFromPlanSelection	("","YES");
+	clickContinueToCart("",$defaultGroup[0].dentalPlan,$household.coverageStartDate,$defaultGroup[0],"YES");
+	clickNextButtonOnCart();
+
+	enterBindingArbitrationAgreement($household);
+	clickEnroll($defaultGroup[0],"",$defaultGroup[0].dentalPlan,$household.coverageStartDate);
+	clickGoToDashboardFromEsig("Enrolled",$household, "REPORT A CHANGE",$eventDate,$defaultGroup,"Y");
+	$household.customGroup = $defaultGroup;
+	var $str = JSON.stringify($household);
+	
+	_log("person1 address: "+$household.people[0].homeAddress.street);
+	//_writeFile($str, "JSONfileHousehold.txt", true);//
+	return $household;
+}
+*/
+function enterAccessCodeOnDashboard($accessCode){
+	_setValue(_textbox("accessCode"), $accessCode);
+	_click(_submit("Submit"));
+	_assertVisible(_heading4("Authentication Information"));
+
+}
+
+
+function linkApplication($HouseHold){
+
+	var $dob = $houseHold.people[0].dob;
+	$dob = _fetch(window.moment($dob).format('MM/DD/YYYY'));
+	var $gender = $houseHold.people[0].personSex;
+	var $zipCode = $houseHold.people[0].homeAddress.zipcode;
+	var $numOfApplicants = $houseHold.people.length;
+	var $county = getCounty($houseHold.people[0].email);
+
+	
+	if (_isVisible($firstNameTextBox)){
+		_setValue($firstNameTextBox,$houseHold.people[0].firstName);
+	}
+	if (_isVisible($lastNameTextBox)){
+		_setValue($lastNameTextBox,$houseHold.people[0].lastName);
+	}
+	if (_isVisible($birthDateTextBox)){
+		_setValue($birthDateTextBox,$dob);
+	}
+	if (_isVisible($emailAddressTextBox)){
+		_setValue($emailAddressTextBox,$houseHold.people[0].email);
+	}
+	if (_isVisible($countyTextBox)){
+		_setValue($countyTextBox,$county);
+	}
+	if (_isVisible($phoneNumberTextBox)){
+		_setValue($phoneNumberTextBox,$houseHold.people[0].phoneNumber);
+	}
+	if (_isVisible($zipcodeTextBox)){
+		_setValue($zipcodeTextBox,$zipCode);
+	}
+	if (_isVisible($genderRadioButton)){
+		if ($gender == "Male"){
+			_click($genderMaleLabel);
+		}
+		else {
+			_click($genderFemaleLabel);
+		}
+	}
+	if (_isVisible($householdTotalTextBox)){
+		_setValue($householdTotalTextBox,$numOfApplicants);
+	}
+	_click($submitAuthInfo);
+	_click($continueAfterLinking);
+	_assertVisible(_link("CONFIRM EVENT DETAILS"));	
+}

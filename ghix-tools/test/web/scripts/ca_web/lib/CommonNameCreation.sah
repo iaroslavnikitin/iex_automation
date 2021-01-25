@@ -1,0 +1,66 @@
+_include("Utils.sah");
+
+var $firstName = randomString(7,"A");
+var $lastName = randomString(7, "A");
+
+var $AmanagerPassword = "ghix123#";
+var $AmanagerEmail = $firstName+$lastName+ "@yopmail.com";
+var $personalEmail = $firstName+$lastName+ "person@yopmail.com";
+var $brokerEmail = "brokeradmin@ghix.com";//can't be hard-coded - scenario files
+var $brokerPassword = "ghix123";
+var $agencyName = $firstName+"_"+$lastName+" Agency";
+var $phone1 = randomStringWithoutStartingZero(3, "N");
+var $phone2 = randomStringWithoutStartingZero(3, "N");
+var $phone3 = randomStringWithoutStartingZero(4, "N");
+
+//optional fields
+var $agencyLicenseNumber = randomStringWithoutStartingZero(10,"N");
+var $businessPhone1 = randomStringWithoutStartingZero(3, "N");
+var $businessPhone2 = randomString(3, "N");
+var $businessPhone3 = randomString(4, "N");
+var $altPhone1 = randomStringWithoutStartingZero(3, "N");
+var $altPhone2 = randomString(3, "N");
+var $altPhone3 = randomString(4, "N");
+var $fax1 = randomStringWithoutStartingZero(3, "N");
+var $fax2 = randomString(3, "N");
+var $fax3 = randomString(4, "N");
+var $subsiteNum = 2;
+var $uploadFileID = _file("file");
+var $uploadFilePath = _resolvePath("../resources/mini.jpg", "\\");
+var $fileNameIndex = $uploadFilePath.lastIndexOf("\\") + 1;
+var $uploadFilePathDir = $uploadFilePath.substr(0, $fileNameIndex);
+var $fileName = $uploadFilePath.substr($fileNameIndex);
+var $fromTime = "10:00 am";
+var $toTime = "7:00 pm";
+
+var $productExpertiseCommon = ["Health","Dental","Vision","Life","Medicare","Workers Compensation","Property/Casualty"];
+//["Health","Dental","Vision","Life","Medicare","Medi-Cal","CHIP","Workers Compensation","Property/Casualty"];
+var $consumersServedCommon = ["Individuals / Families","Employers"];
+var $agentCertificationStatusesCommon = ["Select","Pending","Withdrawn","Certified","Eligible","Denied","Terminated-Vested","Terminated-For-Cause","Deceased","Suspended"];
+var $businessAddressStreet = "1120 N Street ";
+var $businessAddressCity = "Sacramento"; 
+var $businessAddressState = "California";
+var $businessAddressZipcode; // value assigned in fillAgencyManagerInformationRequired() function
+var $correspAddressStreet = "38 E 2nd St";
+var $correspAddressCity = "Reno";
+var $correspAddressState = "Nevada";
+var $correspAddressZipcode = "89501";
+
+
+//error fields
+var $specialString = getRandomSpecialString(5);
+var $specialPhone1 = getRandomSpecialString(3);
+var $specialPhone2 = getRandomSpecialString(3);
+var $specialPhone3 = getRandomSpecialString(4);
+var $specialZip = getRandomSpecialString(5);
+
+// agent creation
+var $agentLicenseNumber = randomStringWithoutStartingZero(7,"N");
+
+function getAgencyEmail(){
+	return $AmanagerEmail;
+}
+
+function getAgencyName(){
+	return $agencyName;
+}

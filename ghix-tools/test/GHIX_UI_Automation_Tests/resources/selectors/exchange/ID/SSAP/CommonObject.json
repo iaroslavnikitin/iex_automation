@@ -1,0 +1,3 @@
+{
+    "btn_saveAndContinue": "$('[name=rightButton]')"
+}

@@ -1,0 +1,44 @@
+"Comments","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/BrokerSearch.sah"
+,,"loadSahi","../pagemodels/Login.sah"
+,,"loadSahi","../pagemodels/Broker.sah"
+,,"loadSahi","""C:/Sahi/CA/agents.sah"""
+,,"loadSahi","""C:/Sahi/CA/agencies.sah"""
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+
+"Verify all the agents are displayed which belongs to same location of an agency","Verify agents search","[Documentation]"," All the agents which belongs to a agency and are serving similar location should be shown in the results page"
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"activateAgencyManager"
+,,"$agent =createAgentAndAssociateToAgentWithAgency","$AgentACertifiedAgencyA","$CertifiedAgencyA.businessName"
+
+
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchAgentByBusinessName","$CertifiedAgencyA.businessName"
+,,"verifyAssociatedAgentFound","$agent"
+
+"Verify that a consumer can search for an Agency",,"[Documentation]","Agency public facing name should be displayed in the search result in broker anonumous search"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchByName","$agent"
+,,"verifyAssociatedAgentFound","$agent"
+
+"Verify agent search when consumer does not enter any Search By option",,"[Documentation]","Search Agency without giving any option in 'Search By Name' block"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchByName"
+,,"verifyAllBrokersAreDisplayed"
+
+"Verify that a consumer can search for Agent by location",,"[Documentation]","Search Agent without entering any zip code
+Search Agents with valid zip code
+Verify the language drop down is visible"
+
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchByZipCode",""""""
+,,"searchByZipCode","""95112"""
+
+"Verify that Find County Office button on the Find Local Help pop-up redirects to correct Page",,"[Documentation]","Verify that Find County Office button on the Find Local Help pop-up redirects to correct Page"
+,,"navigateToBrokerSearch"
+,,"navigateToFindCountyOfficeAndVerify"

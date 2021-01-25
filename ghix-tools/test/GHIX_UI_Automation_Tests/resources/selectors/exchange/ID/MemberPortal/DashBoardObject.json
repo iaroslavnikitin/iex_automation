@@ -1,0 +1,9 @@
+{
+    "btn_startApplication":"$('a*=Start Application')",
+    "btn_applyWithoutCost":"$('button*=APPLY WITHOUT COST-SAVINGS')",
+    "btn_nativeAmerican":"$$('#individualItem2')[1]",
+    "btn_continue":"$('a*=Continue')",
+    "btn_startYourApplication":"$('a*=START YOUR APPLICATION')",
+    "yearTab":"$('//p[text()=\"year\"]')"
+}
+

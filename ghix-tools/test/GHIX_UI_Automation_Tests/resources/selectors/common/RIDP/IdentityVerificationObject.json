@@ -1,0 +1,65 @@
+{
+    
+    "getStarted":{
+        "verifyIdentityHeading":"$('h4')",
+        "btn_getStarted":"$('[id*=ridp-start]')"
+    },
+
+    "contactInformation":{
+        "contactInformationHeading":"eval($('//*[@id=\"rightpanel\"]')).$('h4')",
+        "tb_firstName":"$('[name=\"personGivenName\"]')",
+        "tb_middleName":"$('[name=\"personMiddleName\"]')",
+        "tb_lastName":"$('[name=\"personSurName\"]')",
+        "sb_suffix":"$('[name=\"personNameSuffixText\"]')",
+        "tb_dateOfBirth":"$('[name=\"personBirthDate\"]')",
+        "tb_ssn":"$('[name=\"personSSNIdentification\"]')",
+        "tb_streetAddress":"$('[name=\"address1\"]')",
+        "tb_city":"$('[name=\"locationCityName\"]')",
+        "sb_state":"$('[name=\"locationStateUSPostalServiceCode\"]')",
+        "tb_zipCode":"$('[name=\"locationPostalCode\"]')",
+        "tb_primaryPhoneNumber":"$('[name=\"fullTelephoneNumber\"]')",
+        "btn_continue":"$('[value=\"CONTINUE\"]')"
+
+    },
+    "finish":{
+        "errorText":"eval($('//*[@id=\"rightpanel\"]')).$('p')" ,        
+        "btn_tryLater":"$('=Try Again Later')",
+        "btn_manualVerification":"$('a=Proceed with Manual Verification')"
+
+        },
+
+    "manualVerification":{
+        "sb_documentType":"$('[name=\"doctype\"]')",
+        "btn_upload":"$('[name=\"manualVerificationFile\"]')",
+        "tb_fileUploadInput":"$('#uploadFile')",        
+        "manualVerificationHeading":"$('h4*=prove your identity')",
+        "errorText":"$('div*=identity is verified')" ,
+        "btn_submit":"$('button=Submit')",
+        "verifyDocumentSubmitted":"$('//span[contains(text(),\"SUBMITTED\")]')"
+        
+    },
+    "callExperian":{
+        "identityOverPhone":"$('//a[contains(text(),\"I have verified my identity over the phone\")]')",
+        "experianUnresolved":"$('//div[contains(text(),\"Experian is still reporting this issue as unresolved\")]')",
+        "ridpCode":"$('//span[@id=\"ridp-code\"]')"
+
+    },
+
+    "adminManualVerification":{
+        "txt_email":"$('#householdEmail')",
+        "btn_Go":"$('//button[contains(text(),\"Go\")]')",
+        "lnk_Name":"$$('//td/a')[1]",
+        "basicInformationHeader":"$('//h4[contains(text(),\"Basic Information\")]')",
+        "btn_remoteIdentityVerificationStatus":"$('#manual_verification')"
+    },
+    "ajaxLoader":{
+        "loader":"$('#loading-spinner')",
+        "rightPanel":"$('//div[@id=\"rightpanel\"]')"
+    }
+
+
+    
+
+
+
+}

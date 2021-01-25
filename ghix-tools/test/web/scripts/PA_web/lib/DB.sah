@@ -1,0 +1,749 @@
+function verifyDB($household,$ssapData,$applicationStatus,$applicationType,$eligibilityStatus,$CSR,$financialAssistanceIndicator, $eligibilityType, $ifDentalPlan,$ifHeathPlan){
+	var $applicationDataFromDB = {
+	};
+	var $emailId = $household[0].$email;
+
+	var $cmrHouseholdData = verifyCMRHouseholdDB($emailId,$household,$ssapData);
+	var $ssapApplicationData = verifySSAPApplicationsData($cmrHouseholdData.ID,$household,$ssapData, $applicationStatus,$applicationType,$eligibilityStatus,$CSR, $financialAssistanceIndicator);
+	var $applicantsDataDB = verifySSAPApplicantsDB($ssapApplicationData.ID,$household,$ssapData,$cmrHouseholdData);
+
+	$applicationDataFromDB.cmrHouseholdData = $cmrHouseholdData;
+	$applicationDataFromDB.ssapApplicationData = $ssapApplicationData;
+	$applicationDataFromDB.applicantsDataDB = $applicantsDataDB;
+
+
+
+	var $programEligibilitiesDataDB = getProgramEligibilitiesDataDB($applicantsDataDB[0].id,$eligibilityType);
+	_assertEqual($programEligibilitiesDataDB.eligibility_indicator,"TRUE","Verify ExchangeEligibilityType ELIGIBILITY_INDICATOR for person "+ $ssapData[0].$firstName);
+
+
+
+
+	// verifyProgramEligibilitiesDB($applicantsDataDB,$household,$ssapData);
+	var $enrollmentDataDB;
+
+	if($ifDentalPlan == "dental"){
+		$enrollmentDataDB = getEnrollmentDataDB($applicationDataFromDB.ssapApplicationData.ID,"132");
+	}
+	else{
+		$enrollmentDataDB = getEnrollmentDataDB($applicationDataFromDB.ssapApplicationData.ID,"131");
+	}
+
+	if($financialAssistanceIndicator == "true"){
+		//		_assertEqual($enrollmentDataDB[0].aptc_amt, "null");
+		//		_assertEqual($enrollmentDataDB[0].csr_amt, "null");
+	}
+	else{
+		//_assertEqual($enrollmentDataDB[0].aptc_amt, "null");
+		//_assertEqual($enrollmentDataDB[0].csr_amt, "null");
+	}
+	//verify aptc amount not null and csr > 0
+
+	$personType = getSubscriberLookupValueIdDB();
+	var $ssn = $ssapData[0].$SSN.replace(/[\(\)-]/g, "");
+
+	var $enrolleeDataDB = getEnrolleeDataDB($enrollmentDataDB[0].id,$ssn,$personType);
+	_assertEqual($enrolleeDataDB[0].first_name, $ssapData[0].$firstName);
+	_assertEqual($enrolleeDataDB[0].last_name, $ssapData[0].$lastName);
+	var $dob = _call(window.moment($ssapData[0].$doB).format("YYYY-MM-DD"));
+	_assertEqual($enrolleeDataDB[0].birth_date.substring(0,10), $dob);
+
+
+	_log("DB DATA "+JSON.stringify($applicationDataFromDB));
+
+	//_log("DB DATA "+JSON.stringify($cmrHouseholdData));
+	// var $eventCount = getSSAPEventsCount($applicantsDataDB[0].id);
+	// _assertEqual(1,$eventCount, "Verify SSAPEvents should return a record" );
+
+	return $applicationDataFromDB;
+}
+
+
+
+function verifyCMRHouseholdDB($email,$household, $ssapData){
+
+	var $CMRHouseholdDataDB = getCMRHouseholdData($email);
+	var $dob = _call(window.moment($ssapData[0].$doB).format("YYYY-MM-DD"));
+	_assertEqual($CMRHouseholdDataDB.email,  $email.toLowerCase(),"Verify email in CMR_Household table");
+	_assertNotEqual($CMRHouseholdDataDB.userid, null ,"Verify userid is not null");
+	_assertEqual($CMRHouseholdDataDB.zipcode, $ssapData[0].$homeZip ,"Verify zipcode in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.firstName, $ssapData[0].$firstName ,"Verify first name in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.lastName, $ssapData[0].$lastName ,"Verify last name in CMR_Household table");
+	_assertNotEqual($CMRHouseholdDataDB.giHouseholdId, null ,"Verify giHouseholdId is not null in CMR_Household table");
+	_assertEqual($CMRHouseholdDataDB.birthDate, $dob ,"Verify DOB in CMR_Household table");
+		_log($ssapData[0].$SSN);
+	var $ssn = $ssapData[0].$SSN.replace(/[\(\)-]/g, "");
+
+	_assertEqual($CMRHouseholdDataDB.SSN, $ssn ,"Verify SSN in CMR_Household table");
+
+	return $CMRHouseholdDataDB;
+}
+
+
+function getCMRHouseholdData($email){
+	var $CMRHouseholdData = {
+	};
+	var $query ="select EMAIL_ADDRESS,PHONE_NUMBER,USER_ID,ZIPCODE,FIRST_NAME,LAST_NAME,GI_HOUSEHOLD_ID,CONTACT_LOCATION_ID,LOCATION_ID,BIRTH_DATE,SSN,EXTERNAL_HOUSEHOLD_CASE_ID, ID from cmr_household where  lower(EMAIL_ADDRESS) = '"+$email.toLowerCase()+"'";
+	_log($query);
+	var $CMRHouseholdDataDB = $db.select($query);
+	_log("cmr_household  table: "+$CMRHouseholdDataDB);
+	$CMRHouseholdData.email = $CMRHouseholdDataDB[0][0];
+	$CMRHouseholdData.phone = $CMRHouseholdDataDB[0][1];
+	$CMRHouseholdData.userid = $CMRHouseholdDataDB[0][2];
+	$CMRHouseholdData.zipcode = $CMRHouseholdDataDB[0][3];
+	$CMRHouseholdData.firstName = $CMRHouseholdDataDB[0][4];
+	$CMRHouseholdData.lastName = $CMRHouseholdDataDB[0][5];
+	$CMRHouseholdData.giHouseholdId = $CMRHouseholdDataDB[0][6];
+	$CMRHouseholdData.contactLocationId = $CMRHouseholdDataDB[0][7];
+	$CMRHouseholdData.locationId = $CMRHouseholdDataDB[0][8];
+	$CMRHouseholdData.birthDate = $CMRHouseholdDataDB[0][9].substring(0,10);
+	$CMRHouseholdData.SSN = $CMRHouseholdDataDB[0][10];
+	$CMRHouseholdData.householdCaseId = $CMRHouseholdDataDB[0][11];
+	$CMRHouseholdData.ID = $CMRHouseholdDataDB[0][12];
+	return $CMRHouseholdData;
+}
+
+function verifySSAPApplicationsData($cmrHouseholdId, $household,$ssapData,$applicationStatus,$applicationType,$eligibilityStatus,$CSR,$financialAssistanceIndicator,$rowNumber,$aptcAmount ){
+	var $SSAPApplicationsDataDB = getSSAPApplicationsDataDB($cmrHouseholdId,$rowNumber);
+
+	_assertEqual($SSAPApplicationsDataDB.ESIGN_FIRST_NAME,$ssapData[0].$firstName,"Verify ESIGN_FIRST_NAME");
+	_assertEqual($SSAPApplicationsDataDB.ESIGN_LAST_NAME,$ssapData[0].$lastName,"Verify ESIGN_LAST_NAME");
+	_assertEqual($SSAPApplicationsDataDB.APPLICATION_STATUS, $applicationStatus ,"Verify application status");
+	_assertEqual($SSAPApplicationsDataDB.APPLICATION_TYPE,  $applicationType,"Verify APPLICATION_TYPE");
+	_assertEqual($SSAPApplicationsDataDB.CMR_HOUSEOLD_ID,  $cmrHouseholdId,"Verify CMR_HOUSEOLD_ID");
+
+	if($financialAssistanceIndicator == "true"){
+		_assertEqual($SSAPApplicationsDataDB.FINANCIAL_ASSISTANCE_FLAG, "Y","Verify FINANCIAL_ASSISTANCE_FLAG");
+		_assertEqual($SSAPApplicationsDataDB.CSR_LEVEL,  $CSR,"Verify CSR_LEVEL");
+	}
+	else{
+		_assertEqual($SSAPApplicationsDataDB.FINANCIAL_ASSISTANCE_FLAG, "N","Verify FINANCIAL_ASSISTANCE_FLAG");
+	}
+
+	_assertEqual($SSAPApplicationsDataDB.ELIGIBILITY_STATUS,  $eligibilityStatus,"Verify ELIGIBILITY_STATUS");
+
+	if($aptcAmount == "NaN"){
+		_assertEqual($SSAPApplicationsDataDB.MAXIMUM_APTC, $aptcAmount,"Verify MAXIMUM_APTC");
+	}
+	else if($ssapData[0].maxAPTC != "" && $financialAssistanceIndicator =="true"){
+		_assertEqual($SSAPApplicationsDataDB.MAXIMUM_APTC, $ssapData[0].maxAPTC,"Verify MAXIMUM_APTC");
+	}
+	else{
+		//_assertEqual($SSAPApplicationsDataDB.MAXIMUM_APTC, "null" ,"Verify MAXIMUM_APTC is null");
+		_assertEqual($SSAPApplicationsDataDB.ELECTED_APTC,  "null","Verify ELECTED_APTC");
+	}
+	return $SSAPApplicationsDataDB;
+}
+
+function getSSAPApplicationsDataDB($cmrHouseholdId,$rowNumber){
+	var $SSAPApplicationsData = {
+	};
+	var $i = 0;
+	var $query ="select ID,START_DATE,CASE_NUMBER,ESIGN_FIRST_NAME,ESIGN_LAST_NAME,ESIGN_DATE,APPLICATION_DATA,APPLICATION_STATUS,APPLICATION_TYPE,CMR_HOUSEOLD_ID,ELIGIBILITY_STATUS,FINANCIAL_ASSISTANCE_FLAG,EXCHANGE_ELIGIBILITY_STATUS,CSR_LEVEL,MAXIMUM_APTC,ELECTED_APTC,COVERAGE_YEAR,EXTERNAL_APPLICATION_ID,ELIGIBILITY_RECEIVED_DATE,NATIVE_AMERICAN_FLAG,VALIDATION_STATUS from ssap_applications where CMR_HOUSEOLD_ID="+$cmrHouseholdId+" order by 1 desc";
+	_log($query);
+	var $SSAPApplicationsDataDB = $db.select($query);
+	_log("cmr_household  table: "+$SSAPApplicationsDataDB);
+	if($rowNumber!=null || $rowNumber!=undefined){
+		$i = $rowNumber;
+	}
+	$SSAPApplicationsData.ID = $SSAPApplicationsDataDB[$i][0];
+	$SSAPApplicationsData.START_DATE = $SSAPApplicationsDataDB[$i][1];
+	_set($SSAPApplicationsData.START_DATE, _call(window.moment($SSAPApplicationsData.START_DATE).format("YYYY-MM-DD")));
+	$SSAPApplicationsData.CASE_NUMBER = $SSAPApplicationsDataDB[$i][2];
+	//not verified
+	$SSAPApplicationsData.ESIGN_FIRST_NAME = $SSAPApplicationsDataDB[$i][3];
+	$SSAPApplicationsData.ESIGN_LAST_NAME = $SSAPApplicationsDataDB[$i][4];
+	$SSAPApplicationsData.ESIGN_DATE = $SSAPApplicationsDataDB[$i][5];
+	_set($SSAPApplicationsData.ESIGN_DATE, _call(window.moment($SSAPApplicationsData.ESIGN_DATE).format("YYYY-MM-DD")));
+	$SSAPApplicationsData.APPLICATION_DATA = $SSAPApplicationsDataDB[$i][6];
+	//not verified
+	$SSAPApplicationsData.APPLICATION_STATUS = $SSAPApplicationsDataDB[$i][7];
+	$SSAPApplicationsData.APPLICATION_TYPE = $SSAPApplicationsDataDB[$i][8];
+	$SSAPApplicationsData.CMR_HOUSEOLD_ID = $SSAPApplicationsDataDB[$i][9].substring(0,10);
+	$SSAPApplicationsData.ELIGIBILITY_STATUS = $SSAPApplicationsDataDB[$i][10];
+	//not verified
+	$SSAPApplicationsData.FINANCIAL_ASSISTANCE_FLAG = $SSAPApplicationsDataDB[$i][11];
+	$SSAPApplicationsData.EXCHANGE_ELIGIBILITY_STATUS = $SSAPApplicationsDataDB[$i][12];
+	$SSAPApplicationsData.CSR_LEVEL = $SSAPApplicationsDataDB[$i][13];
+	$SSAPApplicationsData.MAXIMUM_APTC = parseInt($SSAPApplicationsDataDB[$i][14]).toFixed(2);
+	_log(parseInt($SSAPApplicationsDataDB[$i][14]).toFixed(2));
+	$SSAPApplicationsData.ELECTED_APTC = $SSAPApplicationsDataDB[$i][15];
+	$SSAPApplicationsData.COVERAGE_YEAR = $SSAPApplicationsDataDB[$i][16];
+	$SSAPApplicationsData.EXTERNAL_APPLICATION_ID = $SSAPApplicationsDataDB[$i][17];
+	$SSAPApplicationsData.ELIGIBILITY_RECEIVED_DATE = $SSAPApplicationsDataDB[$i][18];
+	$SSAPApplicationsData.NATIVE_AMERICAN_FLAG = $SSAPApplicationsDataDB[$i][19];
+	$SSAPApplicationsData.VALIDATION_STATUS = $SSAPApplicationsDataDB[$i][20];
+	return $SSAPApplicationsData;
+}
+
+function verifySSAPApplicantsDB($ssapApplicationId,$household,$ssapData,$CMRHouseholdDataDB){
+	var $applicantsDataDB = getApplicantsDataDB($ssapApplicationId);
+	_assertEqual($applicantsDataDB.length,  $ssapData.length,"Verify that number af applicants match members in AT");
+
+	for (var $i=0;$i<$ssapData.length;$i++){
+		var $dob = _call(window.moment($ssapData[$i].$doB).format("YYYY-MM-DD"));
+		_assertEqual($applicantsDataDB[$i].first_name,$ssapData[$i].$firstName,"Verify FIRST_NAME for person "+$i);
+		_assertEqual($applicantsDataDB[$i].last_name,$ssapData[$i].$lastName,"Verify LAST_NAME for person "+$i);
+		_assertEqual($applicantsDataDB[$i].birth_date.substring(0,10),$dob,"Verify BIRTH_DATE for person "+$i);
+		_assertEqual($applicantsDataDB[$i].gender,$ssapData[$i].$gender,"Verify GENDER for person "+$i);
+		_assertEqual($applicantsDataDB[$i].ssap_application_id,$ssapApplicationId,"Verify SSAP_APPLICATION_ID for person "+$i);
+	}
+	return $applicantsDataDB;
+}
+function getApplicantsDataDB($applicationId){
+	var $applicantsData = [];
+
+	var $query ="select ID,EXTERNAL_APPLICANT_ID,FIRST_NAME,LAST_NAME,BIRTH_DATE,GENDER,MARRIED,TOBACCOUSER,APPLYING_FOR_COVERAGE,HOUSEHOLD_CONTACT_FLAG,SSAP_APPLICATION_ID,MAILIING_LOCATION_ID,PRIMARY_LOC_ID,SSN,PERSON_ID, PHONE_NUMBER,EMAIL_ADDRESS, CSR_LEVEL, MONTHLY_APTC_AMOUNT,ELIGIBILITY_STATUS,RELATIONSHIP,NATIVE_AMERICAN_FLAG,STATUS,ON_APPLICATION,APPLICANT_GUID from ssap_applicants where ssap_application_id="+$applicationId+" order by PERSON_ID";
+	_log($query);
+
+	var $applicantsDataDB = $db.selectWithHeader($query);
+	_log("applicantsDataDB  table: "+$applicantsDataDB);
+
+	// loop to return data in key:value format --> $applicantsData[0].EXTERNAL_APPLICANT_ID
+	for (var $j=1;$j<$applicantsDataDB.length;$j++){
+		var $applicants={
+		};
+
+		for (var $i=0;$i<$applicantsDataDB[0].length;$i++){
+			$applicants[$applicantsDataDB[0][$i]]=$applicantsDataDB[$j][$i];
+		}
+
+		$applicantsData.push($applicants);
+	}
+
+	var $str = JSON.stringify($applicantsData);
+	_log("JSON: "+$str);
+	return $applicantsData;
+}
+
+
+function getProgramEligibilitiesDataDB($ID,$eligibilityType){
+
+	var $query ="select ID,ELIGIBILITY_TYPE,ELIGIBILITY_INDICATOR,ELIGIBILITY_START_DATE,ELIGIBILITY_END_DATE,ELIGIBILITY_DETERMINATION_DATE, INELIGIBLE_REASON from program_eligibilities where SSAP_APPLICANT_ID = "+$ID+" and ELIGIBILITY_TYPE = '"+$eligibilityType+"' order by ELIGIBILITY_TYPE desc";
+	_log($query);
+
+	var $programEligibilitiesDataDB = $db.selectWithHeader($query);
+	_log("ProgramEligibilitiesDataDB table: "+$programEligibilitiesDataDB);
+
+	var $programEligibilitiesData = {
+	};
+
+	for (var $i=0;$i<$programEligibilitiesDataDB[0].length;$i++){
+		$programEligibilitiesData[$programEligibilitiesDataDB[0][$i]]=$programEligibilitiesDataDB[1][$i];
+	}
+	var $str = JSON.stringify($programEligibilitiesData);
+	_log("JSON: "+$str);
+	return $programEligibilitiesData;
+}
+
+function getSubscriberLookupValueIdDB(){
+	var $query ="select LOOKUP_VALUE_ID from lookup_value where LOOKUP_VALUE_LABEL = 'Subscriber'";
+	_log($query);
+	var $subscriberLookupValueIdDB = $db.select($query);
+	_log("SubscriberLookupValueIdDB : "+$subscriberLookupValueIdDB[0][0]);
+	return $subscriberLookupValueIdDB[0][0];
+}
+
+function getEnrollmentDataDB($ssapApplicationId,$insuranceTypeLkp){
+	var $enrollmentData = [];
+	var $query ="select ID,APTC_AMT,CSR_AMT,PLAN_ID,INSURANCE_TYPE_LKP,ENROLLMENT_STATUS_LKP,ENROLLMENT_TYPE_LKP,HOUSEHOLD_CASE_ID,GROSS_PREMIUM_AMT,NET_PREMIUM_AMT,CSR_LEVEL, SSAP_APPLICATION_ID from enrollment where SSAP_APPLICATION_ID="+$ssapApplicationId+" and INSURANCE_TYPE_LKP = '"+$insuranceTypeLkp+"' order by 1 desc";
+	_log($query);
+
+	var $enrollmentDataDB = $db.selectWithHeader($query);
+	_log("enrollmentDataDB table: "+$enrollmentDataDB);
+
+	for (var $j=1;$j<$enrollmentDataDB.length;$j++){
+		// loop to return data in key:value format --> $enrollmentData[0].SPONSOR_NAME
+		var $enrollment = {
+		};
+		for (var $i=0;$i<$enrollmentDataDB[0].length;$i++){
+			$enrollment[$enrollmentDataDB[0][$i]]=$enrollmentDataDB[$j][$i];
+		}
+		$enrollmentData.push($enrollment);
+	}
+
+	var $str = JSON.stringify($enrollmentData);
+	_log("JSON: "+$str);
+	return $enrollmentData;
+}
+
+function getEnrolleeDataDB($enrollmentId,$SSN,$personType){
+	var $enrolleeData = [];
+
+	var $query ="select ID,TAX_ID_NUMBER,LAST_NAME,FIRST_NAME,PRIMARY_PHONE_NO,HOME_ADDRESS_ID,BIRTH_DATE,GENDER_LKP,MAILING_ADDRESS_ID,TOTAL_INDV_RESPONSIBILITY_AMT,RATING_AREA,ENROLLEE_STATUS_LKP,MARITAL_STATUS_LKP,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,EXCHG_INDIV_IDENTIFIER,PERSON_TYPE_LKP,RESP_PERSON_ID_CODE,RELATIONSHIP_HCP_LKP,DEATH_DATE,ENROLLMENT_REASON,LAST_EVENT_ID,HEALTH_COV_PREM_EFF_DATE,DISENROLL_TIMESTAMP,RATING_AREA_EFF_DATE,QUOTING_DATE,LANGUAGE_SPOKEN_LKP,LANGUAGE_WRITTEN_LKP from enrollee where enrollment_id="+$enrollmentId+" and TAX_ID_NUMBER = '"+$SSN+"' and PERSON_TYPE_LKP = "+$personType+" order by CREATION_TIMESTAMP";
+	_log($query);
+
+	var $enrolleeDataDB = $db.selectWithHeader($query);
+	_log("EnrolleeDataDB : "+$enrolleeDataDB);
+
+	for (var $j=1;$j<$enrolleeDataDB.length;$j++){
+		// loop to return data in key:value format --> $enrolleeData[0].SPONSOR_NAME
+		var $enrollee = {
+		};
+		for (var $i=0;$i<$enrolleeDataDB[0].length;$i++){
+			$enrollee[$enrolleeDataDB[0][$i]]=$enrolleeDataDB[$j][$i];
+		}
+		$enrolleeData.push($enrollee);
+	}
+	var $str = JSON.stringify($enrolleeData);
+	_log("JSON: "+$str);
+	return $enrolleeData;
+}
+
+function getSSAPEventsCount($applicationID){
+	var $query ="select count(*) from ssap_applicant_events where ssap_applicant_id = '"+$applicationID+"'";
+	_log($query);
+	var $count = $db.select($query);
+	return $count;
+}
+
+function getAptcFromDB($email){
+	var $CMRHouseholdData = {
+	};
+	var $query ="select ID from cmr_household where  lower(EMAIL_ADDRESS) = '"+$email.toLowerCase()+"'";
+	_log($query);
+	var $CMRHouseholdDataDB = $db.select($query);
+	$CMRHouseholdData.ID = $CMRHouseholdDataDB[0][0];
+	var $query ="select maximum_aptc from ssap_applications where CMR_HOUSEOLD_ID="+$CMRHouseholdData.ID+" order by 1 desc";
+	_log($query);
+	var $SSAPApplicationsDataDB = $db.select($query);
+	var  $MAXIMUM_APTC = $SSAPApplicationsDataDB[0][0];
+	_log($MAXIMUM_APTC + "  "+ typeof($MAXIMUM_APTC));
+	return $MAXIMUM_APTC;
+	//	_log(JSON.stringify($SSAPApplicationsDataDB));
+	//	return $SSAPApplicationsDataDB;
+	//	
+}
+
+function getUserId($email){
+
+	var $email = $email.toLowerCase();
+	var $query = "select id from users where email = '"+$email+"'";
+	_log($query);
+	var $userID = $db.select($query);
+	_log("User Id:   "+$userID);
+	return $userID
+
+		}
+
+function getTicketNumber($email){
+	var $userID = getUserId($email);
+	var $query = "select ticket_number from tkm_tickets where created_by = '"+$userID+"'order by creation_timestamp desc";
+	_log($query);
+	var $ticketNumber = $db.select($query);
+	_log("Ticket Number :   "+$ticketNumber[0]);
+	return $ticketNumber[0];
+
+}
+
+function activateUserfromDb($email){
+
+	var $query = "update users set confirmed = 1, RETRY_COUNT = 0, STATUS = 'Active' where EMAIL = '"+$email+"'";
+	_log($query);
+	$db.update($query);
+
+	var $backDate = _fetch(window.moment().subtract(2,'d').format("YYYY-MM-DD"));
+
+	$query = "update users set pwd_last_updated = '"+$backDate+" 12:41:31.664' , lastlogin='"+$backDate+" 12:41:31.664' where  email ='"+$email+"'";
+	_log($query);
+	$db.update($query);
+
+}
+
+function getPlanDetailsByIdDB($planId){
+	var $query ="select name,ISSUER_PLAN_NUMBER from plan where ID="+$planId;
+	_log($query);
+	var $planDetails = $db.select($query);
+	_log("$name: "+$planDetails[0][0]);
+	_log("issuer plan number: "+$planDetails[0][1]);
+	return $planDetails;
+}
+
+function getCoverageEndDate($eventType, $event,$isOEP){
+
+	//var $coverageEndDate = "12/31/"+_fetch(window.moment().add(1, 'Y').format('YYYY'));
+	var $coverageEndDate = "12/31/";
+	if($isOEP){
+		$coverageEndDate = $coverageEndDate+getOECoverageYearDBForOE();
+	}
+	else{
+		$coverageEndDate = $coverageEndDate+getOECoverageYearDB();
+	}
+
+	if($eventType == 1){
+		if(($event =="remove") || ($event =="Death")){
+			$coverageEndDate=$eventDate;
+		}
+		else{
+			var $endDate =(_fetch(window.moment().get('Year')));
+			$coverageEndDate ="12/31/"+getOECoverageYearDB();
+		}
+	}
+	//if($eventType == 2){
+	//	var $endDate =(_fetch(window.moment().get('Year')));
+	//	$coverageEndDate ="12/31/"+getOECoverageYearDB();
+	//}
+	_log("Coverage End Date ="+ $coverageEndDate)
+		return $coverageEndDate;
+}
+function getOECoverageYearDB(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage_year%'";
+	_log($query);
+	//var $OECoverageYear = 2019;
+	var $OECoverageYear = $db.select($query); 
+	return $OECoverageYear;
+
+}
+
+function getOECoverageYearDBForOE(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage_year%'";
+	_log($query);
+	var $OECoverageYear = $db.select($query);
+	return $OECoverageYear;
+
+}
+
+//Outbound AT DB verifications
+function verifyDBOutboundAT($household,$ssapData,$applicationStatus,$applicationType,$eligibilityStatus,$CSR,$financialAssistanceIndicator,$rowNumber, $aptcAmount,$EndpointData){
+	var $applicationDataFromDB = {
+	};
+	var $emailId = $household[0].$email;
+
+	var $cmrHouseholdData = verifyCMRHouseholdDB($emailId,$household,$ssapData);
+	var $ssapApplicationData = verifySSAPApplicationsData($cmrHouseholdData.ID,$household,$ssapData, $applicationStatus,$applicationType,$eligibilityStatus,$CSR, $financialAssistanceIndicator,$rowNumber,$aptcAmount);
+	if($EndpointData){
+		var $gi_ws_PayloadData = verifyEndpointGenerated($ssapApplicationData.ID, $EndpointData);
+		$applicationDataFromDB.giPayloadData= $gi_ws_PayloadData;
+		var $OutboundATApplicantionData  = getOutboundATApplicationsData($ssapApplicationData.ID);
+		var $OutboundATApplicantData = getOutboundATApplicantData($ssapApplicationData.ID);
+	}
+	$applicationDataFromDB.cmrHouseholdData = $cmrHouseholdData;
+	$applicationDataFromDB.ssapApplicationData = $ssapApplicationData;
+
+	return $applicationDataFromDB;
+}
+
+function verifyEndpointGenerated($id,$EndpointData){
+	var $EndpointDataFromDB = getEndpointGeneratedForOutboundAT($id);
+	_assertEqual($EndpointDataFromDB,$EndpointData,"Verify Endpoint_function data");
+	return $EndpointDataFromDB;
+}
+//gi_ws_payload table
+function getEndpointGeneratedForOutboundAT($id){
+	//	var $gi_ws_payloadData = {
+	//	};
+	var $query = "select * from Gi_ws_payload where ssap_application_id = '"+$id+"'";
+	_log($query);
+	var $endpointFunctionInfoDB = $db.select($query);
+	var $gi_ws_payloadData = $endpointFunctionInfoDB[0][7];
+	_log($endpointFunctionInfoDB);
+	return $gi_ws_payloadData;
+}
+
+function getOutboundATApplicationsData($id){
+		var $query = "select * from outbound_at_application where ssap_application_id = '"+$id+"'";
+	_log($query);
+	var $OutboundATApplicantionData = $db.select($query);
+	_log($OutboundATApplicantionData);
+	_assertEqual("1", $OutboundATApplicantionData.length, "There should only be one row of data");
+	return $OutboundATApplicantionData;
+}
+
+function getOutboundATApplicantData($id){
+	var $query = "select * from outbound_at_applicant where ssap_application_id = '"+$id+"'";
+	_log($query);
+	var $OutboundATApplicantData = $db.select($query);
+	_log($OutboundATApplicantData);
+	_assertEqual("1", $OutboundATApplicantData.length, "There should only be one row of data");
+	return $OutboundATApplicantData;
+}
+
+function getCurrentCoverageYear(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage%'";
+	_log($query);
+	var $currentCoverageYear = $db.select($query);
+	_log("Coverage Year = "+ $currentCoverageYear);
+	return $currentCoverageYear;
+}
+
+
+
+function getOEPEndDate(){
+    var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'"; 
+    _log($query);
+    var $oepEndDate = $db.select($query); 
+	_log("OEP end date = "+ $oepEndDate);
+    return $oepEndDate;
+ 
+}
+
+function getApplicationType($household){
+	var $emailId = $household[0].$email;
+	var $query = "select application_type from ssap_applications where cmr_houseold_id = (select id from cmr_household where email_address = '"+$emailId.toLowerCase()+"')";
+	_log($query);
+	var $applicationType = $db.select($query);
+	_log(" Application Type  = "+$applicationType)
+		return $applicationType[0][0];
+}
+
+// To get ssap_aaplicants guid id's when application in OP state
+function getApplicationID($household){
+    var $emailId = $household[0].$email;
+    var $query1 = "select id from ssap_applications where cmr_houseold_id = (select id from cmr_household where email_address = '"+$emailId.toLowerCase()+"')"+" and application_status='OP' ";
+    _log($query1);
+    var $SSAPApplicationsId= $db.select($query1);
+    _log(JSON.stringify($SSAPApplicationsId));
+    return $SSAPApplicationsId[0]["id"];
+}
+function getApplicantGuidId($applicationId){
+    var $query = "select first_name, last_name, applicant_guid from ssap_applicants where ssap_application_id = '"+$applicationId+"'";
+    _log($query);
+    var $applicantData = $db.select($query);
+	 _log(JSON.stringify($applicantData));
+    return $applicantData;
+
+ 
+
+}
+
+
+function getHouseholdEligibiltyData($household){
+	var $emailId = $household[0].$email;
+	var $query1 = "select Id from ssap_applications where cmr_houseold_id = (select id from cmr_household where email_address = '"+$emailId.toLowerCase()+"')";
+	_log($query1);
+	var $SSAPApplicationsData= $db.select($query1);
+	var $ssap_application_id = $SSAPApplicationsData[0][0];
+	var $query2 = "select * from household_eligibility where application_id= '"+$ssap_application_id+"'";
+	_log($query2);
+	var $householdEligibiltyData= $db.select($query2);
+	return $householdEligibiltyData;
+}
+
+function verifyFiveYearBarAndDeniadMedicaidChipInHouseholdEligibilityData($eligibilityRequest,$ssapData, $fiveYearBar, $changeInImmigrationLastFiveYears,$deniedMedicaidChip){
+	var $eligibilityRequest = JSON.parse($eligibilityRequest);
+	$members = $eligibilityRequest.members;
+	var $firstName = $ssapData.$firstName;
+	for (var $i = 0; $i < $members.length; $i++) {
+		var $member = $members[$i];
+		if ($member.firstName == $firstName) {
+			_assertEqual($fiveYearBar, $member.fiveYearBar);
+			_assertEqual($changeInImmigrationLastFiveYears, $member.changeInImmigrationLastFiveYears);
+			_assertEqual($deniedMedicaidChip, $member.deniedMedicaidChip);
+			return true;
+		}
+	}
+	$members = JSON.stringify($members);
+	_assert(false, "Member '"+$firstName+"' not found in household: " + $members);
+	return false;
+}
+
+
+
+function verifyCSLevelInHouseholdEligibiltyData($eligibilityResponse,$ssapData,$memberLevel,$csrLevel){
+	var $eligibilityResponse = JSON.parse($eligibilityResponse);
+	$members = $eligibilityResponse.members;
+	var $firstName = $ssapData.$firstName;
+	for (var $i = 0; $i < $members.length; $i++) {
+		var $member = $members[$i];
+		if ($member.memberNumber == $memberLevel) {
+			_assertEqual($csrLevel, $member.csrLevel);
+			return true;
+		}
+	}
+	$members = JSON.stringify($members);
+	_assert(false, "Member '"+$firstName+"' not found in household: " + $members);
+	return false;
+
+}
+
+function verifyHouseholdSizeAndIncome($eligibilityRequest, $householdSize, $householdIncome){
+	var $eligibilityRequest = JSON.parse($eligibilityRequest);
+	_assertEqual($householdSize,$eligibilityRequest.householdSize);
+	_assertEqual($householdIncome,$eligibilityRequest.householdIncome);
+}
+
+function verifyMedicaidSizeAndIncome($eligibilityRequest,$ssapData, $householdSizeMedicaid, $householdIncomeMedicaid ){
+	var $eligibilityRequest = JSON.parse($eligibilityRequest);
+	$members = $eligibilityRequest.members;
+	var $firstName = $ssapData.$firstName;
+	for (var $i = 0; $i < $members.length; $i++) {
+		var $member = $members[$i];
+		if ($member.firstName == $firstName) {
+			_assertEqual($householdSizeMedicaid, $member.householdSizeMedicaid);
+			_assertEqual($householdIncomeMedicaid, $member.householdIncomeMedicaid);
+			return true;
+		}
+	}
+
+	$members = JSON.stringify($members);
+	_assert(false, "Member '"+$firstName+"' not found in household: " + $members);
+	return false;
+
+}
+
+//Override Program Eligibility
+
+function getmaxAptcFromSsapApplications($email){
+	var $query = "select id,cmr_houseold_id,maximum_aptc,exchange_eligibility_status from ssap_applications where cmr_houseold_id =(select id from cmr_household where email_address ='"+$email.toLowerCase()+"')";
+	_log($query);
+	var $maxAptcExchEligDetails = $db.select($query);
+	_log(" From ssap_applications table ==== "+$maxAptcExchEligDetails);
+	return $maxAptcExchEligDetails;
+}
+
+function getEligibilityDetailsFromssapApplicants($email){
+	var $query = "select id,first_name,last_name,eligibility_status,csr_level,applying_for_coverage from ssap_applicants where ssap_application_id in (select id from ssap_applications where cmr_houseold_id in(select id from cmr_household where email_address ='"+$email.toLowerCase()+"')) order by id";
+	_log($query);
+	var $applicantsEligDetails = $db.select($query);
+	_log(" From ssap_applications table ==== "+$applicantsEligDetails);
+	return $applicantsEligDetails;
+}
+
+
+//Queries for Outbound AT
+
+function getSsapApplicationId($caseNumber, $applicationStatus, $applicationType, $eligibiltyStatus){
+
+	var $query1 = "select * from ssap_applications where case_number ='"+$caseNumber+"'";
+	_log($query1);
+	var $SSAPApplicationsData = $db.select($query1);
+	var $row = $SSAPApplicationsData[0];
+	_log(JSON.stringify($row));
+	var $ssap_application_id = $row["id"];
+	_log($ssap_application_id)
+		var $application_status = $row["application_status"];
+	_assertEqual($applicationStatus, $application_status );
+
+	var $application_type = $row["application_type"];
+	_assertEqual($applicationType, $application_type );
+
+	var $eligibility_status = $row["eligibility_status"];
+	_assertEqual($eligibiltyStatus, $eligibility_status);
+
+	return $ssap_application_id;
+
+}
+
+function getRequestPayload($applicationId, $statusMessage, $endPointURL, $endPointFunction){
+	var $query = "select * from Gi_ws_payload where ssap_application_id = '"+$applicationId+"' and endpoint_function ='"+$endPointFunction+"'";
+	_log($query);
+	var $giWsPayloadData = $db.select($query);
+	var $row= $giWsPayloadData[0];
+
+	var $requestPayload = $row["request_payload"];
+
+	var $status = $row["status"];
+	_assertEqual($statusMessage, $status );
+
+	var $endpoint_url = $row["endpoint_url"];
+	_assertEqual($endPointURL, $endpoint_url );
+
+	return $requestPayload;
+}
+
+function getOutboundATApplicationsData($id, $statusMessage, $caseNumber){
+	var $query = "select * from outbound_at_application where ssap_application_id = '"+$id+"'";
+	_log($query);
+	var $OutboundATApplicationData = $db.select($query);
+	_log($OutboundATApplicationData);
+
+	_assertEqual(1, $OutboundATApplicationData.length);
+	var $row = $OutboundATApplicationData[0];
+
+	var $status =$row["status"];
+	_assertEqual($statusMessage, $status);
+
+	var $case_number = $row["case_number"];
+	_assertEqual($caseNumber, $case_number);
+
+	return $OutboundATApplicationData;
+}
+
+function getApplicantGuidId($applicationId){
+	var $query = "select first_name, last_name, applicant_guid from ssap_applicants where ssap_application_id = '"+$applicationId+"'";
+	_log($query);
+	var $OutboundATApplicantData = $db.select($query);
+	return $OutboundATApplicantData;
+
+}
+//member level
+function getOutboundATApplicantData($id, $applicants, $actionValue, $actionDate){
+	_log($applicants);
+	var $query = "select * from outbound_at_applicant where ssap_application_id = '"+$id+"' and applicant_guid = '"+$applicants[2]+"'";
+	_log($query);
+	var $OutboundATApplicantData = $db.select($query);
+	var $row = $OutboundATApplicantData[0];
+	//assertion statements
+	var $action = $row["action"];
+	_assertEqual($actionValue, $action);
+
+	var $action_date = $row["action_date"];
+	_assertEqual($actionDate, $action_date);
+	_log($OutboundATApplicantData);
+
+	return $OutboundATApplicantData;
+}
+
+
+function verifyLengthOutboundAtApplicant($id, $length){
+	var $query = "select * from outbound_at_applicant where ssap_application_id = '"+$id+"'";
+	_log($query);
+	var $data = $db.select($query);
+	_log($data);
+	var $rowCount = $data.length;
+	_assertEqual($length, $rowCount);
+}
+
+//Issuer representative
+function getIssuerRepDetailsFromIssuerRepresentative($email){
+	var $query = "select first_name,last_name,title,phone,email,role from issuer_representative where email='"+$email.toLowerCase()+"'";
+	_log($query);
+	var $issuerRepDetails = $db.select($query);
+	_log(" From issuer_representative table ==== "+$issuerRepDetails);
+	return $issuerRepDetails;
+}
+
+
+function getHouseholdId($email){
+	
+	var $email = $email.toLowerCase();
+	var $query = "select id from cmr_household where email_address = '"+$email+"'";
+	_log($query);
+	var $householdId = $db.select($query);
+	_log(" HouseholdId for email address "+$email+" is "+$householdId);
+	return $householdId;
+	
+	
+}
+
+//Gated events
+function getIsGatedValue($event_label,$appType, $eventType){
+	var $query;
+	if($appType == "QEP"){
+		$query = "select is_gated from sep_enrollment_events where is_financial='Y' and display_on_ui='Y' AND event_category='QUALIFYING_EVENT' AND event_label = '"+$event_label+"'";
+	}
+	else{
+		$query = "select is_gated from sep_enrollment_events where is_financial='Y' and display_on_ui='Y' AND event_category='"+$eventType+"' AND event_label = '"+$event_label+"'";
+	}
+	_log($query);
+	var $isGated = $db.select($query);
+	_log($isGated);
+	var $is_gated = $isGated[0][0];
+	_log($is_gated);
+	return $is_gated;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

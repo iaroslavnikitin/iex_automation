@@ -1,0 +1,5 @@
+var $Files = true;
+
+var $userDataPath = _userDataDir("\\");
+var $PIC_NAME = "pic.jpg";
+var $PIC_PATH = _resolvePath("../resources/pic.jpg");

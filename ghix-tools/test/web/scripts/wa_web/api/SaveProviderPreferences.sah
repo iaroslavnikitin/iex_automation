@@ -1,0 +1,51 @@
+function saveProviderPreferencesAPI(){
+	this.householdId = "";
+	this.providers = [];
+
+	this.setHouseholdId = function($householdId){
+		this.householdId = $householdId;
+	};
+
+	this.addProvider = function($id, $name, $city, $state, $providerType, $locationId, $specialty){
+		var $provider = {
+		};
+		$provider.id = $id;
+		$provider.name = $name;
+		if($specialty) $provider.specialty = $specialty;
+		$provider.city = $city;
+		$provider.state = $state;
+		$provider.providerType = $providerType;
+		$provider.locationId = $locationId;
+		this.providers.push($provider);
+	};
+	
+	this.getProviders = function(){
+		return this.providers;
+	};
+}
+
+var $providerPreferenceAPI = new saveProviderPreferencesAPI();
+var $responseBody;
+
+function setHouseholdIdToSaveProviderPreferencesAPI($householdId){
+	$providerPreferenceAPI.setHouseholdId($householdId);
+}
+
+function setProviderToSaveProviderPreferencesAPI($id, $name, $city, $state, $providerType, $locationId, $specialty){
+	$providerPreferenceAPI.addProvider($id, $name, $city, $state, $providerType, $locationId, $specialty);
+}
+
+function callSaveProviderPreferences(){
+	var $request = new RESTRequest();
+	$request.setURL($saveProviderPreferencesAPI);
+	$request.setHeader("Content-Type", "application/json");
+	_log(JSON.stringify($providerPreferenceAPI));
+	$request.setBody(JSON.stringify($providerPreferenceAPI));
+	var $response = $request.submit("post");
+	$responseBody = $response.getBodyAsString();
+	_assert($response.getResponseCode() == 200, "API response code is not 200");
+}
+
+function getProvidersFromSaveProviderPreferencesAPI(){
+	return $providerPreferenceAPI.getProviders();
+}

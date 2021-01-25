@@ -1,0 +1,57 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4","Argument5","Argument6","Argument7","Argument8","Argument9","Argument10","Argument11"
+,,,"loadSahi","../pagemodels/global_include.sah"
+,,,"loadSahi","../pagemodels/HeaderFooter.sah"
+,,,"_resource","../resources/createTicketData.csv"
+,,,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+
+
+"1) HIX-56409,  Ticket creation as Supervisor/L1/L2
+2) HIX-71644, Ticket search filter functionality.
+3) HIX-80120, Add Ticket-Verify Ticket Creation & search created Ticket.","all,CAP,HIX-56409,HIX-71644,HIX-80120","56409
+71644
+80120","[Documentation]","1) HIX-56409, Verify Ticket creation as Supervisor/L1/L2
+2) HIX-71644,Verify Ticket search filter functionality.
+3) HIX-80120, Add Ticket-Verify Ticket Creation & search created Ticket."
+"HIX-68585, Verify the ""Export Tickets"" file generated","all,CAP,export,HIX-68585","68585","[Documentation]","HIX-68585 Verify the ""Export Tickets"" file generated"
+,,,"[Keyword]","exportTicketForSelectedWorkgroups"
+,,,"[Data]","[userdata:export:email]","[userdata:export:password]","[userdata:export:wrkgrp1]","[userdata:export:wrkgrp2]","[userdata:export:p1]","[userdata:export:p2]","[userdata:export:role]","[userdata:export:multiWrkgrp]","[userdata:export:multiP]"
+
+"HIX-80124,ReopenTicket -Verify Reopen Ticket.","all,CAP,Security,HIX-80124","80124","[Documentation]","HIX-80124  ReopenTicket -Verify Reopen Ticket."
+,,,"[Keyword]","reOpenUserTicket"
+,,,"[Data]","[userdata:reopen:email]","[userdata:reopen:password]","[userdata:reopen:role]","[userdata:reopen:assignPermission]","[userdata:reopen:archivePermission]","[userdata:reopen:ticketType]","[userdata:reopen:subType]","[userdata:reopen:createdForRole]","[userdata:reopen:user]","[userdata:reopen:expUser]","[userdata:reopen:priority]"
+
+"HIX-71648, Verify the Archive Option","all,CAP,Security,HIX-71648","71648","[Documentation]","HIX-71648 Verify the Archive Option"
+,,,"[Keyword]","archiveUserTicket"
+,,,"[Data]","[userdata:archive:email]","[userdata:archive:password]","[userdata:archive:role]","[userdata:archive:archivePermission]","[userdata:archive:ticketType]","[userdata:archive:subType]","[userdata:archive:createdForRole]","[userdata:archive:user]","[userdata:archive:expUser]","[userdata:archive:priority]"
+
+"//HIX-68585, Verify the ""Export Tickets"" file generated","all,CAP,export,HIX-68585","68585","[Documentation]","HIX-68585 Verify the ""Export Tickets"" file generated"
+"//",,,"[Keyword]","exportTicketForSelectedWorkgroups"
+"//",,,"[Data]","[userdata:export:email]","[userdata:export:password]","[userdata:export:wrkgrp1]","[userdata:export:wrkgrp2]","[userdata:export:p1]","[userdata:export:p2]","[userdata:export:role]","[userdata:export:multiWrkgrp]","[userdata:export:multiP]"
+
+"HIX-56410, Verify Manage WorkGroup","all,CAP,remove,HIX-56410","56410","[Documentation]","HIX-56410 Verify Manage WorkGroup, Add / Remove From Workgroup"
+,,,"[Keyword]","manageWrkgrp"
+,,,"[Data]","[userdata:Add/Remove From Workgroup:email]","[userdata:Add/Remove From Workgroup:csrlogin]","[userdata:Add/Remove From Workgroup:password]","[userdata:Add/Remove From Workgroup:wrkgrp1]","[userdata:Add/Remove From Workgroup:wrkgrp2]","[userdata:Add/Remove From Workgroup:user]","[userdata:Add/Remove From Workgroup:role]","[userdata:Add/Remove From Workgroup:searchUser]"
+
+"HIX-75955, Verify that user can add ticket information","all,CAP,Security,HIX-75955","75955","[Documentation]","HIX-75955 Verify that user can add ticket information details in paragraph format"
+,,,"clickLogin"
+,,,"loginEnterEmailAddress","""auto_admin@yopmail.com"""
+,,,"loginEnterPassword","""ghix4321#"""
+,,,"loginClickLoginButton"
+,,,"clickMangeTickets"
+,,,"clickAddNewTicket"
+,,,"enterSubject"
+,,,"enterTicketType","""Billing Issues"""
+,,,"enterCreatedForRole","""L1 Customer Support"""
+,,,"enterCreatedFor","""autoCSRL1""","""autoCSRL1CS1 Martyn"""
+,,,"enterPriority","""Low"""
+,,,"enterDescription"
+,,,"clickSaveTicket"
+,,,"searchTicketBySubject"
+,,,"searchTicketByTicketNumber"
+,,,"clickSearchTicket"
+,,,"clickGearButton"
+,,,"ClaimTicket","""Y"""
+,,,"clickEditSummaryFromGearButton"
+,,,"enterDescription","""Ticket created regarding Coverage Year \n information in \n paragraph format"""
+,,,"clickSaveTicket"

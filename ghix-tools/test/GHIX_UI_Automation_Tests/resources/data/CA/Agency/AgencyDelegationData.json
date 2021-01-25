@@ -1,0 +1,95 @@
+{
+	"agencyManager": {
+		"firstName": "Agency",
+		"lastName": "One",
+		"email": "agencyone111@yopmail.com",
+		"phone": "4083677778",
+		"primaryContact": "4083677778",
+		"securityQuestion": 7,
+		"securityAnswer": "sprnwtsnhc",
+		"password": "ghix123#",
+		"clientServed": "",
+		"productExpertise": [
+			"dental",
+			"medicare"
+		],
+		"languages": [
+			"Armenian",
+			"Russian",
+			"Italian"
+		],
+		"prefferedMethodOfCommunication": 1,
+		"certificationStatus": "Pending",
+		"username": "agencyone111@yopmail.com",
+		"licenseRenewalDate": "12-31-2024",
+		"personalEmailAddress": "jason1609458028108@yopmail.com",
+		"primaryContactphoneNumber": "9089522780",
+		"agencyLocation": 1,
+		"correspondenceAddressLine1": "minsrytqjq",
+		"correspondenceCity": "fgyyxbuwjc",
+		"correspondenceState": 45,
+		"correspondenceZipCode": "52312",
+		"publicEmail": "jason1609458032978@yopmail.com",
+		"education": 9,
+		"aboutMe": "ionsdifpwo"
+	},
+	"agency": {
+		"agencyName": "Agency one 1111",
+		"businessName": "Agency businessone 1111",
+		"ein": "",
+		"licenseNumber": "0762217111",
+		"certificationStatus": "",
+		"agencySites": {
+			"primarySite": {
+				"locationName": "Sacramento Location",
+				"AddressLine1": "1120 N Street",
+				"city": "Sacramento",
+				"state": 6,
+				"zip": "38950",
+				"hoursOfOperation": {
+					"monday": {
+						"from": 5,
+						"to": 5
+					},
+					"tuesday": {
+						"closed": false,
+						"from": 70,
+						"to": 20
+					},
+					"wednesday": {
+						"closed": false,
+						"from": 64,
+						"to": 11
+					},
+					"thursday": {
+						"closed": false,
+						"from": 24,
+						"to": 33
+					},
+					"friday": {
+						"closed": false,
+						"from": 14,
+						"to": 12
+					},
+					"saturday": {
+						"closed": false,
+						"from": 46,
+						"to": 9
+					},
+					"sunday": {
+						"closed": false,
+						"from": 67,
+						"to": 25
+					}
+				}
+			},
+			"numberOfSubsites": "",
+			"subSites": []
+		}
+	},
+	"agentAdmin": {
+		"sb_certificationStatus": "Certified",
+		"tb_newStartDate": "11/15/2021",
+		"tb_newEndDate": "10/27/2079"
+	}
+}

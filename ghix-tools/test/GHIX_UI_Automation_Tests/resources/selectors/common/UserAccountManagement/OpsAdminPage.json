@@ -1,0 +1,11 @@
+{
+  "opsAdminHeader":"$('h1')",
+  "lk_Batch":"$('*=Batch')",
+  "lk_manageJobs":"$('*=Manage Jobs')",
+  "tle_BatchJobsPage": "Spring Batch Admin: Jobs",
+  "lk_logout": "$('*=Logout')",
+
+  "lk_noticeQueuedProcessorJob":"$('*=noticeQueuedProcessorJob')",
+  "txt_jobParameters": "$('#jobParameters')",
+  "btn_launch":"$('#launch')"
+}

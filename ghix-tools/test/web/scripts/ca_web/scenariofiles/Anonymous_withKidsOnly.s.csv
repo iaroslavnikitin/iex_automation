@@ -1,0 +1,61 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../lib/DB.sah"
+,,"loadSahi","../pagemodels/Preferences.sah"
+,,"loadSahi","../pagemodels/PlanSelection.sah"
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+,,"createDbObj"
+,,"$zip =","""94043"""
+,,"$coverageDate=","""01/01/2018"""
+,,"$noOfAdults =","0"
+,,"$noOfChildren =","4"
+,,"$showCatastrophic =","""YES"""
+
+"all","HouseHold with 4 kids","[Documentation]","1. Four Kids only with No CSR and APTC
+2. Select preferences(randomly) and verify Plan display page
+3. Select Health Plan and go to Cart page and verify Cart
+4. Click Shop for dental and Select Dental plan from Plan Display page
+5. Go to Plan Detail page and remove the selected Dental Plans
+6. Click Back to plan Link and add dental plan from this page
+7. Go till Cart page and remove both Health plan and Dental Plans.
+8. Click Back to shopping and verify Plan display Page."
+,,"[Documentation]","Zipcode","County","Date of Birth","aptc Amount","CSR","Coverage Date"
+
+,,"navigateToPreferencePage","$zip","""06085""","""01012013,01012015,01012017,01012018""",,,"""01012018"""
+,,"clickNextPreferences"
+,,"selectRandomOptionOnPreference"
+,,"clickNextPreferences"
+,,"selectRandomOptionOnPreference"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickViewPlans",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+,,"$healthPlan = clickAddPlanFromPlanSelection"
+
+,,"[Documentation]","Health Plan Details","Detal plan details","Coverage Date"
+,,"clickContinueToCart","$healthPlan",,"$coverageDate"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickShopForDentalPlans",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+,,"$dentalPlan = clickAddPlanFromPlanSelection"
+,,"closeFantasticPopup"
+
+,,"[Documentation]","Dental plan number"
+,,"clickViewPlanDetails","$dentalPlan.index"
+,,"removePlanFromPlanDetail"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickBackToAllPlansOnViewDetails",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren"
+,,"$dentalPlan = clickAddPlanFromPlanSelection"
+
+,,"[Documentation]","Health Plan Details","Detal plan details","Coverage Date"
+,,"clickContinueToCart","$healthPlan","$dentalPlan","$coverageDate"
+
+,,"[Documentation]","Plan to be romoved","Health Plan Details","Dental Plan Details","Coverage Date"
+,,"clickRemoveFromCart","""Health""","$healthPlan","$dentalPlan","$coverageDate"
+
+,,"[Documentation]","Plan to be romoved","Health Plan Details","Dental Plan Details","Coverage Date"
+,,"clickRemoveFromCart","""Dental""",,"$dentalPlan","$coverageDate"
+
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickBackToShopping",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"

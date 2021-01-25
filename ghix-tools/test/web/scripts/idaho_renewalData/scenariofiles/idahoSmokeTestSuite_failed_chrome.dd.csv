@@ -1,0 +1,8 @@
+#script,tags,testcases
+AnonymousFlow_smoke.s.csv,"smoke,AnonymousShopping","69689,Kid doing anonymous flow for both health and dental plan,71495"
+#script,tags,testcases
+IndividualPortal_smoke.s.csv,"smoke, IndividualPortal","HIX-42590,HIX-66377,HIX-34106, HIX-61304,HIX-67155 - Create Individual Account,HIX-88034 - Verify Cancel Or Terminate Button Is Displayed For L1 /L2/Supervisor,HIX-73736 - Individual Changes His Security Questions,,HIX-75661 - Goto Account Settings And Change Password,CSR Uploads Supporting Documents For Individual,CSR Cancel Individual Application,CSR Updating Individual Account Status."
+#script,tags,testcases
+CAP_BookOfBusiness_common_smoke.s.csv,"smoke, AgentBookOfBusiness, CAP, TicketManagement","Verify Dashboard, My Applications,My Enrollments Of RF Application.,HIX-73734,HIX-72744 - Verify Agent Book Of Business,HIX-89003 - Verify Enrollment Edit Tool Is Displayed for CSR Supervisor but not for L1/ L2,Claim And Archive Ticket If Any From Previous Run,56409,80123,71790,HIX-71790 - Reclassify Ticket.,HIX-56409 - Mark Ticket As Complete.,HIX-80135 - Cancel Ticket,HIX-80124 - Reopen Ticket,HIX-71644 - Ticket History,Add Attachment,Add Commnet,HIX-71648 - Archive Ticket"
+#script,tags,testcases
+IndividualOEPFlow.s.csv,OEP_NextYear,

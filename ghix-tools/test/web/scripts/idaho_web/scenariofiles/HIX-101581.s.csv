@@ -1,0 +1,9 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/global_include.sah"
+,"loadSahi","../pagemodels/User.sah"
+
+"HIX-101581","[Documentation]","Verify text on Notification Preferences Section of Communication Preferences Page in individual Portal "
+,"$email=createNewUser","Email"
+,"login","$email","ghix123#"
+,"goToMyPreferences"
+,"verifyMyPreferencesPage"

@@ -1,0 +1,47 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/global_include_ct.sah"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify household Eligibility for Family of 3 with pregnancy indicator","[Documentation]","Scenario# 1:
+Family of 3 (Applicant DOB: 01/01/1981 and pregnant, Dep1 DOB: 01/01/2010, Dep2 DOB: 01/01/2001 and Household income: 70000)
+Check estimated Tax Credit displayed. Next button should be enabled on preference result and complete the flow to Enroll Now.
+
+Scenario# 2:
+Family of 3 (Applicant DOB: 01/01/1981 and not pregnant, Dep1 DOB: 01/01/2010, Dep2 DOB: 01/01/2001 and Household income: 70000)
+
+Check estimated Tax Credit displayed. Next button should be enabled on preference result and complete the flow to Enroll Now.
+
+In both scenario`s estimated tax credit should be same even when applicant comes with pregnancy indicator checked and even when not checked as per HIX-104686"
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""01/01/1990""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddSpouse","""10/25/1990""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddChild","""10/25/2016""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""70000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","2"
+,"validateSavingDetails","Y","N","N","N","N","N"
+,"$aptcValue=getEstimatedTaxCredit"
+,"goBackToPreScreenerPage"
+,"removePerson","2"
+,"removePerson","1"
+,"enterPrimaryInformation","""01/01/1990""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddSpouse","""10/25/1990""","FALSE","FALSE","TRUE","TRUE"
+,"clickAddChild","""10/25/2016""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""70000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","2"
+,"validateSavingDetails","Y","N","N","N","N","N"
+,"verifyEstimatedTaxCredit","$aptcValue"
+,"clickNextOnCheckSavingResults"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"selectDoctor","Mofei Liu","""06001"""
+"//","selectHospital","""Scott W. Lindsay, Dpm""","""06001"""
+,"clickNextPreferences"
+,"selectPrescription","Lipitor","""Lipitor 80 Mg Tab (Oral Tablet)"""
+,"selectPrescription","Atorvastatin","""Atorvastatin 20 Mg Tab (Oral Tablet)"""
+,"clickViewPlans"

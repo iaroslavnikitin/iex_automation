@@ -1,0 +1,23 @@
+{
+    "mandatoryFields":{
+    "mailingAdd1":"Please enter address.",
+    "city":"Please enter city name",
+    "state":"Please select state",
+    "zipCode":"Please enter zip code"
+    },
+"invalidFields":{
+    "mailingAdd1":"Please enter a valid address.",
+    "city":"Please enter a valid city name",
+    "state":"Please select a valid state",
+    "zipCode":"Please enter a valid zip code"
+    },
+    "updateMailingAddressPopUp":{
+        "mailingAddHeader":"Update Mailing Address",
+        "mailingAdd1":"Please enter a valid address.",
+        "city":"Please enter a valid city.",
+        "county":"Please provide a response here to continue",
+        "zipCode":"Please enter a valid zip code."
+
+    }
+
+}

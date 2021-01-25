@@ -1,0 +1,15 @@
+
+var $household_data, $pdPreferenesDTO, $householdId;
+
+function getHouseholdDataFromDb(){
+	var $query = "select shopping_id from pd_household, pd_preferences where pd_household.id = pd_preferences.pd_household_id and pd_preferences.doctors is not null and pd_preferences.prescriptions is not null and pd_preferences.preferences is not null  order by shopping_id desc limit 10";
+	_log($query);
+	var $results = $db.select($query);
+	var $randomIndex = Math.floor(Math.random() * $results.length);
+	var $rs = $results[$randomIndex];
+	$householdId = $rs["shopping_id"];
+}
+
+function getHouseholdIdFromDb(){
+	return $householdId;
+}

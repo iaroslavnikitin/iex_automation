@@ -1,0 +1,46 @@
+{
+
+  "rightPanel":
+
+  {   "rightPanelHeader": "$('#adminStaff > div > h4')",
+    "createMode":
+    {
+      "tb_firstName": "$('#aid-first-name')",
+      "tb_lastName": "$('#aid-last-name')",
+      "ph_primaryContactPhone": [
+        "$('#aid-primary-contact-1')",
+        "$('#aid-primary-contact-2')",
+        "$('#aid-primary-contact-3')"
+      ],
+      "ph_businessContactPhone": [
+        "$('#aid-business-contact-1')",
+        "$('#aid-business-contact-2')",
+        "$('#aid-business-contact-3')"
+      ],
+      "tb_personalEmail": "$('#aid-personal-email')",
+      "tb_businessEmail": "$('#aid-business-email')",
+      "sb_communicationMethod": "$('#aid-communication-preference')",
+      "ro_businessName": "$('#aid-business-name')",
+      "sb_staffLevel": "$('#aid-admin-staff-level')",
+
+
+      "sb_agencyLocation": "$('#aid-siteLocation')",
+
+      "tb_correspondenceAddressL1": "$('#aid-address_ln_1')",
+      "tb_correspondenceAddressL2": "$('#aid-address_ln_2')",
+      "tb_correspondenceCity": "$('#aid-city')",
+      "sb_state": "$('#aid-state')",
+      "tb_correspondenceZip": "$('#aid-zipcode')",
+
+
+      "btn_finish": "$('//input[@type=\"submit\"]')"
+    },
+    "viewMode":
+    {
+
+    }
+  },
+
+  "successfullyCompletedApplication_Box":"$('#successfullyCompletedApplication')",
+  "btn_successfullyCompletedApplication_Ok":"$('#successfullyCompletedApplication > div.modal-footer > button')"
+}

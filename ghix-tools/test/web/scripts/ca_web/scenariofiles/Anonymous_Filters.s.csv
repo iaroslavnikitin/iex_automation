@@ -1,0 +1,47 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../lib/DB.sah"
+,,"loadSahi","../pagemodels/Preferences.sah"
+,,"loadSahi","../pagemodels/PlanSelection.sah"
+
+
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+,,"createDbObj"
+,,"$zip =","""94043"""
+,,"$coverageDate=","""01/01/2018"""
+,,"$noOfAdults =","1"
+,,"$noOfChildren =","1"
+,,"$showCatastrophic =","""NO"""
+,,"$aptcAmount =","""20.22"""
+
+"all, Anonymous_Filters","CA Anonymous Shopping with filters","[Documentation]",,,"1. 1Adult + 1 kid + CSR eligibile (CS4) + APTC everyone under 30
+2. No providers
+3. Select preference randomly
+4.Go to Plan Display page
+5.Verify All filters
+6. Go to Dental page
+7. Verify all filters"
+,,"[Documentation]","Zipcode","County","Date of Birth","aptc Amount","CSR","Coverage Date"
+,,"navigateToPreferencePage","$zip","""06085""","""01011997,01012018""","$aptcAmount","""CS4""","""01012018"""
+,,"clickNextPreferences"
+,,"$option1 =selectRandomOptionOnPreference"
+,,"clickNextPreferences"
+,,"$option2 =selectRandomOptionOnPreference"
+,,"[Documentation]","isCSREnabled","aptc Amount","zipcode","coverage Date","noOfAdults","noOfChildren"
+,,"clickViewPlans","""Y""","""$""+$aptcAmount","$zip","$coverageDate","$noOfAdults","$noOfChildren"
+,,"verifySortByFilterOnPlanPage"
+,,"verifyPlanTypeFilterOnPlanPage"
+,,"verifyPlanFeatureFilterOnPlanPage"
+,,"verifyMetalTierFilterOnPlanPage"
+,,"verifyDeductibleFilterOnPlanPage"
+,,"verifyCompanyFilterOnPlanPage"
+,,"verifyQualityRatingsFilterOnPlanDisplayPage"
+,,"[Documentation]","zipcode","coverage Date","noOfAdults","noOfChildren"
+,,"clickDentalPlansTab","$zip","$coverageDate","$noOfAdults","$noOfChildren"
+
+,,"verifySortByFilterOnPlanPage"
+,,"verifyPlanTypeFilterOnPlanPage"
+,,"verifyDentalPlanTierFilterOnPlanPage"
+,,"verifyDeductibleFilterOnPlanPage"
+,,"verifyCompanyFilterOnPlanPage"

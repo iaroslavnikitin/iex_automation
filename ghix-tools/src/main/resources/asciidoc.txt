@@ -1,0 +1,37 @@
+
+=== {counter:index}. ${heading}
+
+`${method}` Method - ${description}
+
+author : ${owner}
+
+Resource URL
+
+link: ${url}
+
+==== Resource Information
+
+|===
+| `Response formats` | ${responseFormat}
+
+| `Requires authentication?`
+| ${requireAuth}
+|===
+
+==== Sample Request
+
+Input Parameters : ${input}
+
+----
+${sampleRequest}
+----
+
+==== Sample Response
+
+Output Parameters : ${output}
+
+----
+${sampleResponse}
+----
+
+

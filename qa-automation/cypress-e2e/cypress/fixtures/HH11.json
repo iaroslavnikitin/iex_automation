@@ -1,0 +1,10 @@
+{
+    "description": "1 18 year old adult ",
+    "hhFamily": {"size": 1, "single": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "dob": "2001-10-01"
+        }
+        ]
+}

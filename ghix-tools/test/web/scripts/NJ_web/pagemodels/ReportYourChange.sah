@@ -1,0 +1,54 @@
+function verifyReportYourChangePage(){
+	_assertVisible(_link("Back"));
+	_assertVisible(_link("Next"));
+}
+
+function verifyReportYourChangePageComplete($name){
+	_assertVisible(_heading4("Life Change Event: " + $name));
+	_assertVisible(_link("Next"));
+	_assertVisible(_link("DELETE & START OVER"));
+}
+
+function verifyReportYourChangePageFinalReview($name){
+	_assertVisible(_heading4("Life Change Event: " + $name));
+	_assertVisible(_link("Download"));
+	_assertVisible(_link("Print"));
+	_assertVisible(_link("DELETE & START OVER"));
+	_assertVisible(_link("Back"));
+	_assertVisible(_link("Next"));
+}
+
+function verifyReportYourChangePageSignSubmit($name){
+	_assertVisible(_heading4("Life Change Event: " + $name));
+	_assertVisible(_link("DELETE & START OVER"));
+	_assertVisible(_link("Save"));
+}
+
+function clickNext(){
+	_click(_link("Next"));
+}
+
+function selectChangeOfMailingAddress(){
+	_click(_radio(0, _in(_label("Change of mailing address"))));
+}
+
+function updateMailingAddress($address1, $address2, $city, $zip, $state, $county){
+	_setValue(_textbox("home_addressLine1"), $address1);
+	_setValue(_textbox("home_addressLine2"), $address2);
+	_setValue(_textbox("home_primary_city"), $city);
+	_setSelected(_select("inputPrimaryMailingState"), "Idaho");
+	_setValue(_textbox("home_primary_zip"), $zip);
+}
+
+function verifyAddressNotFoundModal(){
+	_assertVisible(_heading3("Address not found"));
+	_assertVisible(_paragraph("The address you entered is not in the postal database. Please check it for accuracy. Click OK to proceed with the address you entered."));
+}
+
+function acceptAddressAccuracy(){
+	_click(_submit("OK", _in(_div("/addressNotFoundModal/"))));
+}
+
+function agreeSaveTimeInFutureApplications(){
+	_click(_radio(0, _in(_label("I agree"))));
+}

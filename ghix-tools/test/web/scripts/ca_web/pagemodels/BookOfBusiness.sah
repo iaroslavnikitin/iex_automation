@@ -1,0 +1,347 @@
+_include("../lib/Utils.sah");
+_include("../lib/CommonFunctions.sah");
+
+var $markAsInactiveModalBOB = _div("markAsInactiveModal");
+var $confirmButtonInMarkAsInactivePopup = _button("CONFIRM", _in($markAsInactiveModalBOB));
+var $viewEnrollmentDetailsLink = _link("View Enrollment Details");
+var $gearIconLink = _link("/dropdown-toggle/", _in(_div("/gridRow/")));
+
+var $activeConsShowAdvancedSearchLink = _link("Show Advanced Search");
+var $activeConsHideAdvancedSearchLink = _link("Hide Advanced Search");
+
+function navigateToViewEnrollment(){
+	click($gearIconLink);
+	click($viewEnrollmentDetailsLink);
+}
+
+
+function getExternalIndividualFromDB($individualCaseId){
+	if($individualCaseId == null){
+		$individualCaseId = _getText(_span(1, _in(_div("/case-value/", _in(_div("/gridRow/[0]"))))));
+	}
+	var $consumerObject={};
+	var $fullName;
+	$consumerInfoDB = getConsumerInfoFromExternalIndividual($individualCaseId);
+	$fullName = $consumerInfoDB[0][1]+" "+$consumerInfoDB[0][2];
+	
+	//$consumerObject.caseID=$consumerInfoDB[0][0];
+	$consumerObject.caseID=$individualCaseId;
+	$consumerObject.firstName=$consumerInfoDB[0][1];
+	$consumerObject.lastName=$consumerInfoDB[0][2];
+	$consumerObject.email=$consumerInfoDB[0][3];
+	$consumerObject.phone=$consumerInfoDB[0][4];
+	$consumerObject.address1=$consumerInfoDB[0][5];
+	$consumerObject.city=$consumerInfoDB[0][6];
+	$consumerObject.state=$consumerInfoDB[0][7];
+	$consumerObject.zip=$consumerInfoDB[0][8];
+	$consumerObject.fullName=$fullName;
+	
+	return $consumerObject;
+}
+
+function verifyActiveConsumersPage($role){
+	verifySearchPanelActiveConsumerPage();
+	
+	_assertVisible(_select("sortData"),"Sorting filter shoould be displayed");
+	_assertEqual("First Name A-Z", _getSelectedText(_select("sortData")),"First Name A-Z should be selected by default");
+	
+	_assertVisible(_checkbox("inlineCheckbox1-0", _near(_div("SELECT"))),"Assert that checkbox displayed under SELECT header");
+	
+	_assertVisible(_span("Case ID:", _under(_div("CASE DETAILS"))),"Case ID: label should be visible under CASE DETAILS");
+	_assertVisible(_span("Application Year:", _under(_div("CASE DETAILS"))),"Application Year: lable should be visible under CASE DETAILS");
+	_assertVisible(_span("Plan Type:", _under(_div("COVERAGE"))),"Plan Type: lable should be visible under COVERAGE");
+	_assertVisible(_span("Premium:", _under(_div("COVERAGE"))),"Premium: lable should be visible under COVERAGE");
+	_assertVisible(_span("Office Visit:", _under(_div("COVERAGE"))),"Office Visit: lable should be visible under COVERAGE");
+	_assertVisible(_span("Generic Drug:", _under(_div("COVERAGE"))),"Generic Drug: lable should be visible under COVERAGE");
+	_assertVisible(_span("Deductible:", _under(_div("COVERAGE"))),"Deductible: lable should be visible under COVERAGE");
+	_assertVisible(_div("AGENT"),"AGENT header should be displayed");
+	_assertVisible(_link("dropdown-toggle", _under(_div("ACTIONS"))),"Actions header should be displayed");
+		
+	if($role == "Admin Staff Level 1"){
+		_assertNotVisible(_link("exportagentsBOB"),"Export BOB should be not visible for Admin Staff Level1");
+		_assertNotVisible(_link("Export Book of Business for an Agent"),"Export BOB should be not visible for Admin Staff Level1");
+		_assertNotVisible(_link("aid-transfer-consumer"),"Link Change Delegation should be not visible for Staff Level 1");
+
+		_assertVisible(_link("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))),"Assert that consumer name displayed as link under HOUSEHOLD header");
+		
+		_click(_link("dropdown-toggle", _under(_div("ACTIONS"))));
+		_assertVisible(_link("Account", _under(_div("ACTIONS"))),"Account link under Gear icon should be displayed");
+		_assertVisible(_link("Household", _under(_div("ACTIONS"))),"Household link under Gear icon should be displayed");
+		_assertVisible(_link("√ Eligibility", _under(_div("ACTIONS"))),"Eligibility link under Gear icon should be displayed");
+		_assertVisible(_link("Mark as Inactive", _under(_div("ACTIONS"))),"Mark as Inactive link under Gear icon should be displayed");
+		_assertNotVisible(_link("Change Delegation", _under(_div("ACTIONS"))),"Link Change Delegation should be not visible for Staff Level 1");	
+	}
+	if($role == "Admin Staff Level 2"){
+		_assertNotVisible(_link("exportagentsBOB"),"Export BOB should be not visible for Admin Staff Level1");
+		_assertNotVisible(_link("Export Book of Business for an Agent"),"Export BOB should be not visible for Admin Staff Level1");
+		_assertVisible(_link("aid-transfer-consumer"),"Link Change Delegation should be not visible for Staff Level 1");
+		
+//		_assertVisible(_byXPath ("(//div[contains(@class, 'gridRow')])[1]/div[2]//a"),"Assert that consumer name displayed as link under HOUSEHOLD header");
+		_assertVisible(_link("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))),"Assert that consumer name displayed as link under HOUSEHOLD header");
+		
+		_click(_link("dropdown-toggle", _under(_div("ACTIONS"))));
+		_assertVisible(_link("Account", _under(_div("ACTIONS"))),"Account link under Gear icon should be displayed");
+		_assertVisible(_link("Household", _under(_div("ACTIONS"))),"Household link under Gear icon should be displayed");
+		_assertVisible(_link("√ Eligibility", _under(_div("ACTIONS"))),"Eligibility link under Gear icon should be displayed");
+		_assertVisible(_link("Mark as Inactive", _under(_div("ACTIONS"))),"Mark as Inactive link under Gear icon should be displayed");
+		_assertVisible(_link("Change Delegation", _under(_div("ACTIONS"))),"Link Change Delegation should be not visible for Staff Level 1");	
+	}
+	if($role == "Broker Admin"){
+		_assertVisible(_link("exportagentsBOB"),"Export BOB should be visible for Broker Admin");
+		_assertVisible(_link("Export Book of Business for an Agent"),"Export BOB should be visible for Broker Admin");
+		_assertVisible(_link("aid-transfer-consumer"),"Link Change Delegation should be visible for Broker Admin");
+		
+//		_assertVisible(_byXPath ("(//div[contains(@class, 'gridRow')])[1]/div[2]//strong"),"Assert that consumer name displayed NOT as link under HOUSEHOLD header");
+		_assertVisible(_strong("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))),"Assert that consumer name displayed NOT as link under HOUSEHOLD header");
+		
+		_click(_link("dropdown-toggle", _under(_div("ACTIONS"))));
+		_assertNotVisible(_link("Account", _under(_div("ACTIONS"))),"Account link under Gear icon should NOT be displayed for Broker Admin");
+		_assertVisible(_link("Household", _under(_div("ACTIONS"))),"Household link under Gear icon should be displayed");
+		_assertVisible(_link("√ Eligibility", _under(_div("ACTIONS"))),"Eligibility link under Gear icon should be displayed");
+		_assertVisible(_link("Mark as Inactive", _under(_div("ACTIONS"))),"Mark as Inactive link under Gear icon should be displayed");
+		_assertVisible(_link("Change Delegation", _under(_div("ACTIONS"))),"Link Change Delegation should be visible for Broker Admin");	
+	}
+}
+
+function expandSerachPanel(){
+	_click(_link("+", _in(_div("panel"))));
+	_assertVisible(_link("-", _in(_div("panel"))),"After clicking + link - should be visible");
+}
+
+function expandAdvancedSerachPanel(){
+	click($activeConsShowAdvancedSearchLink);
+	_assertVisible($activeConsHideAdvancedSearchLink);
+}
+
+function verifySearchPanelActiveConsumerPage(){
+	_assertVisible(_heading1("Active Consumers"),"Header Active Consumers should be displayed on the page");
+	//_assertVisible(_italic("icon-search", _in(_div("panel"))),"Search icon should displayed");
+	_assertVisible(_heading4("Filters", _in(_div("panel"))),"Search header should be visible");
+	_assertVisible(_link("+", _in(_div("panel"))),"Link + should be visible");
+	expandSerachPanel();
+	_assertVisible(_link("-", _in(_div("panel"))),"After clicking + link - should be visible");
+	_assertVisible(_textbox("firstName", _near(_label("First Name"))),"Text box near First Name should be visible");
+	_assertVisible(_textbox("lastName", _near(_label("Last Name"))),"Text box near Last Name should be visible");
+	_assertVisible(_textbox("dob", _near(_label("Date of Birth"))),"Text box near Date of Birth should be visible");
+	_assertVisible(_textbox("ssn", _near(_label("Last 4 digits of SSN"))),"Text box near Last 4 digits of SSN should be visible");
+
+	_assertNotVisible(_textbox("houseNumber", _near(_label("House Number"))),"Textbox near House Number should NOT be visible");
+	_assertNotVisible(_select("yearSelect", _near(_label("Application Year"))),"Select dropdown near Application Year should NOT be visible");
+	_assertNotVisible(_select("issuer", _near(_label("Issuer"))),"Textbox near Issuer should NOT be visible");
+	_assertNotVisible(_textbox("agentFirstName", _near(_label("Agent First Name"))),"Textbox near Agent First Name should NOT be visible");
+	_assertNotVisible(_textbox("agentLastName", _near(_label("Agent Last Name"))),"Textbox near Agent Last Name should NOT be visible");
+	_assertNotVisible(_textbox("agentLicenseNumber", _near(_label("Agent License Number"))),"Textbox near Agent License Number should NOT be visible");
+	
+	_assertVisible(_textbox("caseNumber", _near(_label("Case ID"))),"Textbox near Case ID should be visible");
+	_assertVisible(_submit("Clear All Filters", _in(_div("panel"))),"Clear All Filters link should be displayed");
+	_assertVisible(_submit("Search", _in(_div("panel"))),"Go button should be displayed");
+	_assertVisible($activeConsShowAdvancedSearchLink);
+
+	verifyAdvancedSearchFiltersOnActiveConsumersPage();
+}
+
+function verifyAdvancedSearchFiltersOnActiveConsumersPage(){
+	expandAdvancedSerachPanel();
+	_assertVisible(_textbox("houseNumber", _near(_label("House Number"))),"Textbox near House Number should be visible");
+	_assertVisible(_textbox("agentFirstName", _near(_label("Agent First Name"))),"Textbox near Agent First Name should be visible");
+	_assertVisible(_textbox("agentLastName", _near(_label("Agent Last Name"))),"Textbox near Agent Last Name should be visible");
+	_assertVisible(_textbox("agentLicenseNumber", _near(_label("Agent License Number"))),"Textbox near Agent License Number should be visible");
+	_assertVisible(_select("yearSelect", _near(_label("Application Year"))),"Select dropdown near Application Year should be visible");
+	_assertVisible(_select("issuer", _near(_label("Issuer"))),"Textbox near Issuer should be visible");
+	_assertVisible($activeConsHideAdvancedSearchLink);
+}
+
+function searchActiveConsumersByConsumerInfo($firstName,$lastName,$caseID,$consumerObject,$verificationFlag,$role){
+	if(_isVisible (_link("+"))){
+		_click(_link("+"));
+	}
+	if($consumerObject){
+		$firstName = $consumerObject.firstName;
+		$lastName = $consumerObject.lastName;
+		$caseID = $consumerObject.caseID;
+	}
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_setValue(_textbox("caseNumber"), $caseID);
+	_click(_submit("Search"));
+	if($consumerObject && $verificationFlag == "Y"){
+		var $phone1 = ($consumerObject.phone).substring(0,3);
+		var $phone2 = ($consumerObject.phone).substring(3,6);
+		var $phone3 = ($consumerObject.phone).substring(6,10);
+		var $stateAndZip = $consumerObject.state+", "+$consumerObject.zip;
+		if($role == "Broker Admin"){
+			_assertNotVisible(_link($consumerObject.fullName));
+			_assertVisible(_strong($consumerObject.fullName));
+		}else{
+			_assertVisible(_link($consumerObject.fullName));
+		}
+		_assertVisible(_div("("+$phone1+") "+$phone2+"-"+$phone3));
+		_assertVisible(_span($consumerObject.address1));
+		_assertVisible(_div($consumerObject.city));
+		_assertVisible(_div($stateAndZip));
+		_assertVisible(_span($consumerObject.caseID, _near(_span("Case ID:"))));
+	}
+}
+
+function userSwitchToConsumerAccount($consumerName){
+	var $actualName="null";
+	if($consumerName == null){
+		$consumerName = _getText(_link("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))));
+		_log("Consumer name: "+$consumerName);
+	}
+	var $i=0;
+	while($consumerName != $actualName){
+		if($i>10){
+			_click(_link("Next"));
+			$i=1;
+		}
+		$actualName = _getText(_link("", _in(_div("/household-value/", _in(_div("/gridRow/["+$i+"]"))))));
+		$i++;
+	}
+	_click(_link($consumerName));
+	verifyViewConsumerApplicationPopup($consumerName);
+	_wait(1000);
+	_click(_link("dropdown-toggle", _near(_link($consumerName))));
+	_wait(1000);
+	_click(_link("Account", _near(_link($consumerName))));
+	verifyViewConsumerApplicationPopup($consumerName);
+}
+
+function verifyViewConsumerApplicationPopup($consumerName){
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_div("individualAccountModal"),"View Consumer Application popup should be visible");
+	_assertVisible(_heading3("View Consumer Application"));
+	_assertVisible(_button("×"));
+	_assertVisible(_paragraph("Click on Consumer Application to go to the consumer portal for "+$consumerName+". You will be able to complete the application, make changes, or select a plan on behalf of the consumer."));
+	_assertVisible(_paragraph("Proceed to the consumer portal?"));
+	_assertVisible(_label("Don't show this message again"));
+	_assertVisible(_checkbox("showPopupInFuture"));
+	_assertVisible(_button("CANCEL"));
+	_assertVisible(_button("CONSUMER APPLICATION"));
+	$condition = _condition(_checkbox("showPopupInFuture").checked);
+	_assertFalse($condition, "By default should be unchecked");
+	_click(_button("×"));
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+}
+
+function clickHouseholdLinkAndVerifyPopup($consumerName){
+	if($consumerName == null){
+		$consumerName = _getText(_link("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))));
+	}
+	_log($consumerName);
+	
+	if(_isVisible(_strong($consumerName, _near(_div("/gridRow/"))))){
+		_click(_link("dropdown-toggle", _near(_strong($consumerName))));
+		_click(_link("Household", _near(_strong($consumerName))));
+	}else{
+		_click(_link("dropdown-toggle", _near(_link($consumerName))));
+		_wait(1000);
+		_click(_link("Household", _near(_link($consumerName))));
+	}
+	
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_div("householdModal"));
+	_assertVisible(_heading3("Household Member Information"));
+	_assertVisible(_heading3("Household Composition for "+$consumerName));
+	_assertVisible(_tableHeader("Name"));
+	_assertVisible(_tableHeader("Relationship"));
+	_assertVisible(_tableHeader("Date of Birth"));
+	_assertVisible(_tableHeader("Gender"));
+	_assertVisible(_tableHeader("SSN Information"));
+	_assertVisible(_tableHeader("Home Address"));
+	_assertVisible(_tableHeader("Mailing Address"));
+	_assertVisible(_tableHeader("Seeking Coverage?"));
+	_assertVisible(_button("×", _in(_div("householdModal"))));
+	_click(_button("×", _in(_div("householdModal"))));
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+}
+
+function clickEligibilityLinkAndVerifyPopup($consumerName){
+	if($consumerName == null){
+		$consumerName = _getText(_link("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))));
+	}
+	_log($consumerName);
+	
+	if(_isVisible(_strong($consumerName, _near(_div("/gridRow/"))))){
+		_click(_link("dropdown-toggle", _near(_strong($consumerName))));
+		_wait(1000);
+		_click(_link("√ Eligibility", _near(_strong($consumerName))));
+	}else{
+		_click(_link("dropdown-toggle", _near(_link($consumerName))));
+		_wait(1000);
+		_click(_link("√ Eligibility", _near(_link($consumerName))));
+	}
+	
+	
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_div("eligibilityModal"));
+	_assertVisible(_heading3("Household Eligibility Information"));
+	_assertVisible(_heading3("Household Eligibility for "+$consumerName));
+	_assertVisible(_div("Covered CA Plan Eligibility:"));
+	_assertVisible(_div("Available Advance Premium Tax Credit:"));
+	_assertVisible(_tableHeader("Name", _in(_div("eligibilityModal"))));
+	_assertVisible(_tableHeader("Medi-Cal Eligibility", _in(_div("eligibilityModal"))));
+	_assertVisible(_tableHeader("Advance Premium Tax Credit", _in(_div("eligibilityModal"))));
+	_assertVisible(_tableHeader("Cost Sharing Reduction", _in(_div("eligibilityModal"))));
+	_assertVisible(_button("×", _in(_div("eligibilityModal"))));
+	_click(_button("×", _in(_div("eligibilityModal"))));
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+}
+
+function clickMarkAsInactiveLinkAndVerifyPopup($consumerName,$verificationFlag){
+	if($consumerName == null){
+		$consumerName = _getText(_link("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))));
+	}
+	_log($consumerName);
+	
+	
+	if(_isVisible(_strong($consumerName, _near(_div("/gridRow/"))))){
+		_click(_link("dropdown-toggle", _near(_strong($consumerName))));
+		_wait(1000);
+		_click(_link("Mark as Inactive", _near(_strong($consumerName))));
+	}else{
+		_click(_link("dropdown-toggle", _near(_link($consumerName))));
+		_wait(1000);
+		_click(_link("Mark as Inactive", _near(_link($consumerName))));
+	}
+
+	if ($verificationFlag != "N") {
+		_lockWindow();
+		_focusWindow();
+		_setStrictVisibilityCheck(true);
+		_assertVisible($markAsInactiveModalBOB);
+		_assertVisible(_heading3("Confirm Removal of Delegation", _in($markAsInactiveModalBOB)));
+		_assertEqual("Are you sure you want to remove the delegation from "+$consumerName+" ? You will lose access to the consumer's case and application information.", _getText(_paragraph("", _in($markAsInactiveModalBOB))));
+		_assertVisible(_button("CANCEL", _in($markAsInactiveModalBOB)));
+		_assertVisible($confirmButtonInMarkAsInactivePopup);
+		_assertVisible(_button("×", _in($markAsInactiveModalBOB)));
+		_click(_button("×", _in($markAsInactiveModalBOB)));
+		_unlockWindow();
+	}
+	
+}
+
+function clickConfirmInMarkAsInactivePopup($household){
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_click($confirmButtonInMarkAsInactivePopup);
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+	updateStatusInDesignateBrokerTableToInactive($household.people[0].personMedicaidIdentification);
+}
+
+function verifyLinksPopupUnderGearIcon($consumerName){
+	clickHouseholdLinkAndVerifyPopup($consumerName);
+	clickEligibilityLinkAndVerifyPopup($consumerName);
+	clickMarkAsInactiveLinkAndVerifyPopup($consumerName,null);	
+}

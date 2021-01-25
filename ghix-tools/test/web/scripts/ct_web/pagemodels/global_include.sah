@@ -1,0 +1,90 @@
+_resource("../scenariofiles/document.txt");
+_resource("../resources/data.csv");
+_resource("../resources/createTicketData.csv");
+
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+var $db;
+var $database;
+var $server;
+var $port;
+var $username;
+var $password;
+
+var	$url = getUpdatedBaseURL("").split("/");
+var $suiteInfo = _suiteInfo();
+
+if ($url[2] =="iddemopgqa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "nyc3-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "iddemopgqa";
+	$password = "NzkxMzViM2FhOGMz";
+}
+else if ($url[2] =="id1dev.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg4.ghixqa.com";
+	$port = "5444";
+	$username = "id1dev";
+	$password = "NTU1OGUwMjBkNjNl";
+}
+else if ($url[2] =="idnextqa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "idnextqa";
+	$password = "YzUwZTUxNzZhZTQ1";
+}
+else if ($url[2] =="idcarrierqa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "idcarrierqa";
+	$password = "M2MxMGYyZGZhNDVl";
+}
+else if ($url[2] =="idsit.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "idsit";
+	$password = "YmQyNGViNzU3YjY1";
+}
+else if ($url[2] =="id1auto.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "id1auto";
+	$password = "Y2QxZmJjNjA3ODkw";
+}
+//else if ($url[2] =="id2auto.ghixqa.com"){
+//	$database = "POSTGRESQL";
+//	$server = "nyc3-pg1.ghixqa.com";
+//	$port = "5444";
+//	$username = "id2auto";
+//	$password = "NTgwNWJlNDZjMTI3";
+//}
+else if ($url[2] =="ide2e.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "ide2e";
+	$password = "N2U2NzY0NjZkZmFm";
+}
+else if ($url[2] =="id2qa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "id2qa";
+	$password = "NTAxM2FiYjFhZTYw";
+}
+else if ($url[2] =="iddemo.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "iddemo";
+	$password = "ODkxMmE2M2UyMjlh";
+}
+
+if($database =="POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}

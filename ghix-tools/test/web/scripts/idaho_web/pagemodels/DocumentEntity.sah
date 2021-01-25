@@ -1,0 +1,36 @@
+_includeOnce("Files.sah");
+_includeOnce("GetPaymentInfo.sah");
+_includeOnce("Registration.sah");
+_includeOnce("Utils.sah");
+
+var $DocumentEntity = true;
+
+var $documentEntityHeader = _heading4("Step 6: Document Upload");
+var $documentEntityInstructions = _paragraph("In this section, you can upload documents in support of your application");
+var $documentEntityFileInputLabel = _label("Upload document");
+var $documentEntityFileInput = _file("fileInput");
+var $documentEntityBack = _button("Back");
+var $documentEntityNext =_button("update");
+
+function verifyElementsForDocumentEntity() {
+	_assertVisible($documentEntityHeader);
+	_assertVisible($documentEntityInstructions);
+	_assertVisible($documentEntityFileInputLabel);
+	verifyArray($documentEntityFileInput);
+	_assertVisible($documentEntityBack);
+	_assertVisible($documentEntityNext);
+}
+
+function clickUploadDocumentForEntity() {
+	_setFile2($documentEntityFileInput, $PIC_PATH);
+}
+
+function clickBackOnDocumentEntityPage() {
+	_click($documentEntityBack);
+	verifyElementsOnRegistrationPage();
+}
+
+function clickNextOndocumentEntityPage() {
+	_click($documentEntityNext);
+	verifyElementsOnPaymentInfoPage();
+}

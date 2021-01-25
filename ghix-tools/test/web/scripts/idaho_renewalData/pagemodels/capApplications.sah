@@ -1,0 +1,36 @@
+_includeOnce("ManageMember.sah");
+
+var $capApplicationsLink = _link("Applications");
+var $myAccountLinkBackToCap = _link("My Account", _in(_div("/Viewing Individual Account/")));
+var $capMenu = _div("menu");
+
+function clickApplicationsTabInCap($permission,$role){
+	
+	if($role == "1095-A"){
+		_assertNotVisible($capApplicationsLink);
+	}
+	else{
+		_click($capApplicationsLink);
+		if(_isVisible(_select(0))){
+			if($overrideCoverage != "" && $inGlobalOEP == "OFF"){
+				//incase  denial or override coverage
+				$year = parseInt(_fetch(window.moment().get('year')));
+				_setSelected(_select(0), "/"+$year+"/");
+			}
+			else {
+				_setSelected(_select(0), "/"+$coverageYear+"/");
+			}
+		}
+		if($permission == "Y"){
+			_assertVisible(_span("csrActionButton"));
+		}
+		else if($permission  == "N"){
+			_assertNotVisible(_span("csrActionButton"));
+		}
+	}
+}
+
+function clickMyAccountBackToCap(){
+	_click($myAccountLinkBackToCap);
+	_assertVisible($capMenu,"Verify if menu bar in CAP is displayed");
+}

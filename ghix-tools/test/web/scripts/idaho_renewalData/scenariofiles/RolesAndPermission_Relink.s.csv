@@ -1,0 +1,19 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+"//",,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+
+"all,Securtiy,HIX-84477,HIX-84474","HIX-84477 HIX-84474  Verify Relink options","[Documentation]","1) HIX-84477-Do NOT allows permission to L1 CSR to Relink households.
+2) HIX-84474-Allows permission to L2 & Supervisor CSR to Relink households."
+,,"openBrowser"
+,,"setDB"
+,,"[Keyword]","Relink"
+,,"[Data]","[userdata:Relink:Role]","[userdata:Relink:user]","[userdata:Relink:password]","[userdata:Relink:relink]"

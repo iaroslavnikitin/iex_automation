@@ -1,0 +1,14 @@
+{
+    "txt_header":"$('#rightpanel').$('h4')",
+    "p_tobaccoUseText":"eval(eval($('strong*=Tobacco Use:')).$('..')).$('p')",
+    "p_hardshipExemptionText":"eval(eval($('strong*=Hardship Exemption:')).$('..')).$('p')",
+    "cb_hardshipExemption":"$('#exemptionCheckbox')",
+    "lk_tobaccoUseToolTip":"$('a*=Tobacco Use')",
+    "lk_backOrGoToDashboard":"$('a*=Go To Dashboard')",
+    "lk_continueOrSaveAndContinue":"$('a*=Continue')",
+    "txt_pageHeader": "$('h4*=Additional Information')",
+	"rb_tobaccoUserNo":"$('//*[@id=\"submitTobacco\"]//table//tr[th[text()=\"tUser\"]]//*[@id=\"tobaccoUser-no\"]')",
+    "rb_tobaccoUserYes":"$('//*[@id=\"submitTobacco\"]//table//tr[th[text()=\"tUser\"]]//*[@id=\"tobaccoUser-yes\"]')"
+}
+
+

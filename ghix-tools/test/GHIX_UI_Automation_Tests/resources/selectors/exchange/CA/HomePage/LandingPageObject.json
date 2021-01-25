@@ -1,0 +1,6 @@
+{ 
+   "lk_browseplans": "$('//p[@data-automation-id=\"browse_plans\"]')",
+   "lk_login":"$('#aid_login_01')"
+    
+  }
+  

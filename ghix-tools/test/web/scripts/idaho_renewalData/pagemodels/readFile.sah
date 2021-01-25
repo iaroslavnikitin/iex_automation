@@ -1,0 +1,21 @@
+_includeOnce("../lib/util.sah");
+
+//Function returns length of the file
+function getFileLength($vFileName) {
+	var $data = _readExcelFile($vFileName);
+	return $data.length;
+}
+
+//Function returns username and password based on the Role
+function getAccountDetails($role) {
+	var $data = _readExcelFile(getUserAccountsFilePath());
+	var $resultSet = [];
+	for (var $i=0; $i<$data.length; $i++) {
+		if($data[$i]["Role"] == $role)
+		{
+			$resultSet = {
+				"Email": $data[$i]["Email"],"Password":$data[$i]["Password"],"Role":$data[$i]["Role"]};
+		}
+	}
+	return $resultSet;
+}

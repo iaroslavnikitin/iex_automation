@@ -1,0 +1,22 @@
+{
+    "description": "2adults 1Kid uQHP household",
+    "hhFamily": {"size": 3, "singleParent": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "csrEligibilityIndicator": false,
+            "aptcEligibilityIndicator": false,
+            "dob": "1980-01-02"
+        },
+        {
+            "csrEligibilityIndicator": false,
+            "aptcEligibilityIndicator": false,
+            "dob": "1980-03-04"
+        },
+        {
+            "csrEligibilityIndicator": false,
+            "aptcEligibilityIndicator": false,
+            "dob": "2010-05-06"
+        }
+    ]
+}

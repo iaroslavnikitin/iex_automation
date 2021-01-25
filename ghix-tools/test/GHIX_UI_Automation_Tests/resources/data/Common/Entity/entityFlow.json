@@ -1,0 +1,48 @@
+{
+  "entityInformation": {
+    "firstName": "",
+    "lastName": "",
+    "email": "",
+    "mobile": "408-622-1001",
+    "password": "ghix123#",
+    "entityName": "",
+    "businessName": "",
+    "federalTaxID": "123456789",
+    "stateTaxID": "987654321"
+  },
+  "eventType":3,
+  "applicationYear":"",
+  "applicationType":"",
+  "coverageDate":"",
+  "primarySiteLocation": "",
+  "subSiteLocation": "",
+  "primaryAddress": {
+    "home": {
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "county": "",
+      "zip": ""
+    },
+    "mailing": {
+      "mailingAddSameAsHomeIndicator": true,
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "county": "",
+      "zip": ""
+    }
+  },
+  "certifiedEnrollmentCounselors": {
+    "firstName": "",
+    "lastName": "",
+    "email": "",
+    "phoneNumber": "408-622-1001"
+  },
+  "entityAdmin": {
+    "username": "auto_entityadmin@yopmail.com",
+    "password": "ghix123#"
+  }
+}

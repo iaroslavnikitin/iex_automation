@@ -1,0 +1,13 @@
+{
+  "topNavBar": "$('#menu')",
+  "agentsMenu":
+  {
+    "dd_agents": "$('//a[@title=\"Agents\"]')",
+    "lk_addNewAgent": "$('*=Add a New Agent')"
+  },
+  "adminStaffMenu":
+  {
+    "dd_adminStaff": "$('a*=Admin Staff')",
+    "lk_addNewAdminStaff": "$('*=Add a New Admin Staff')"
+  }
+}

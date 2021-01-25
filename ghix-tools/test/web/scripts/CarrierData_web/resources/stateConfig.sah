@@ -1,0 +1,95 @@
+var $PA_address1 
+var $PA_city
+var $PA_zip
+var $PA_state
+	
+var $NJ_address1 
+var $NJ_city 
+var $NJ_zip
+var $NJ_state 
+
+var $NV_address1 
+var $NV_city 
+var $NV_zip
+var $NV_state 
+	
+//if($zip == "17025"){
+//	 $PA_address1 = "4510 Marketplace Way";
+//	$PA_city = "Enola";
+//	$PA_zip = "17025";
+//	$PA_state ="Pennsylvania";
+// }
+//else if($zip == "07306"){
+//	$NJ_address1 = "899 Bergen Ave";
+//	$NJ_city = "Jersey City";
+//	$NJ_zip = $zip//"07306";
+//	$NJ_state ="New Jersey";
+//}
+//else if($isPennsylvania){
+//		$PA_zip ==$zip;
+//		$PA_address1 = "Post box 11";
+//		$PA_city = "Enola";
+//		$PA_state ="Pennsylvania";
+//}
+//else if($isNewJersey){
+//	$NJ_address1 = "Post box 11";
+//	$NJ_city = "Jersey City";
+//	$NJ_zip = $zip;
+//	$NJ_state ="New Jersey";
+//	
+//	
+//}
+	
+if($isPennsylvania){
+		if($zip == "17025"){
+			$PA_address1 = "4510 Marketplace Way";
+		}
+		else{
+			$PA_address1 = "Post box 11";
+		}
+	$PA_city = "Enola";
+	$PA_zip = $zip
+	$PA_state ="Pennsylvania";
+	
+	_log("state is =  "+$PA_state +"   city is = "+$PA_city+"   Zip  ="+ $PA_zip)
+}
+else if($isNewJersey){
+	if($zip == "07306"){
+		$NJ_address1 = "899 Bergen Ave";
+	}
+	else{
+		$NJ_address1 = "Post box 11";
+	}
+	$NJ_city = "Jersey City";
+	$NJ_zip = $zip;
+	$NJ_state ="New Jersey";
+		
+	_log("##state is =  "+$NJ_state +"   ##city is = "+$NJ_city +"   ##Zip  ="+ $NJ_zip);
+
+}
+else if($isNevada){
+	if($zip == "89501"){
+		$NV_address1 = "750 N Virginia St";
+		$NV_city = "Reno"
+	}
+	else if($zip =="89118"){
+		$NV_address1 = "6385 S Rainbow Blvd Ste 200";
+		$NV_city = "Las Vegas"
+	}
+	else{
+		$NV_address1 = "Post box 11";
+		$NV_city = "Reno"
+	}
+	
+	$NV_zip = $zip;
+	$NV_state ="Nevada";
+		
+	_log("##state is =  "+$NV_state +"   ##city is = "+$NV_city +"   ##Zip  ="+ $NV_zip);
+
+}
+
+	
+	
+	
+	
+	

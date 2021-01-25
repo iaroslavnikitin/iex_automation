@@ -1,0 +1,209 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+//_includeOnce("Utils.sah");
+_includeOnce("PlanSelection.sah");
+_includeOnce("ShowCart.sah");
+var $EnrollmentHistory = true;
+var $enrollmentHistoryMyEnrollmentsHeader = _heading4("My Enrollments");
+var $enrollmentHistoryPastEnrollmentsHeader = _heading4("Past Enrollments");
+var $enrollmentHistoryAccessors = [$enrollmentHistoryMyEnrollmentsHeader, $enrollmentHistoryPastEnrollmentsHeader];
+var $myEnrollmentsLink=_link("My Enrollments");
+var $currentEnrollments=_heading4("/Current Enrollments/");
+
+
+
+function clickMyEnrollments(){
+	_assertVisible($myEnrollmentsLink,"Verify if Enrollments link is visible");
+	_click($myEnrollmentsLink);
+	if(_isVisible(_select(0))){
+			//if($overrideCoverage != ""){
+			//	var $now= _call(window.moment()).format("MM/DD/YYYY");
+			//	$Year = parseInt(_fetch(window.moment($now).get('year')));
+			//	_setSelected(_select(0), "/"+$Year+"/");
+			//}
+			//else {
+				_setSelected(_select(0), "/"+$coverageYear+"/");
+			//}
+		}
+	_assertVisible($currentEnrollments,"Verify if Current Enrollments heading is visible");
+}
+
+
+function verifyCoverageDatesInEnrollmentHistory(){
+	var $dbEnrolleeDetails;
+	var $membersCount;
+	var $dbCoverageStartDate=[];
+	var $dbCoverageEndDate=[];	
+	$dbEnrolleeDetails= getEnrolleeDetailsFromEnrollee();
+	$membersCount =getMembersCountFromEnrollee();
+	var $dbMembersCount = $membersCount[0][0];
+	var $rows = _collect("_row","ng-scope", _in(_div("span7 covered-family-members")));
+	var $uiMembersCount=$rows.length;
+	_assertEqual($uiMembersCount,$dbMembersCount,"Verify count of members in UI and DB");
+	for(var $i =0, $j=0; $i< $ssapPeople.length; $i++){
+			if($ssapPeople[$i].$applying == "Yes"){
+				$dbCoverageStartDate[$j]=convertDateFromDB($dbEnrolleeDetails[$j][1]);
+				$dbCoverageEndDate[$j]=convertDateFromDB($dbEnrolleeDetails[$j][2]);
+				_assertVisible(_cell($dbCoverageStartDate[$j]+" - "+$dbCoverageEndDate[$j], _near(_cell("/"+$ssapPeople[$i].$firstName+"/i"))),"Verify Coverage start and end dates are displayed correctly in Enrollment history page");
+				$j++;
+			}
+	}
+}
+
+function verifyGrossPremAmt($grossPremium,$grossPremiumAfterEvent,$keepCurrentPlan,$subEvent,$indAmt){
+	var $dbGrossPremDetails =getGrossPremiumDetailsFromEnrollmentPremium();
+	var $dbEnrolleeDetails=getEnrolleeDetailsFromEnrollee();
+	var $dbEnrollmentReason=$dbEnrolleeDetails[0][4];
+	var $dbCoverageStartDate=$dbEnrolleeDetails[0][1];
+	var $coverageStartMonth = $coverageDate.split("/")[0];
+	var $coverageStartDay = parseInt($coverageDate.split("/")[1]);
+	$coverageStartMonth=parseInt($coverageStartMonth);
+	var $numOfMonths=12;
+	var $premiumChangeMonth=$numOfMonths-$coverageStartMonth;
+	
+	_log("Coverage Start Month: " +$coverageStartMonth);
+	clickMyApplications();
+	var $inGlobalOEP = inGlobalOEP();
+	if($inGlobalOEP != "ON"){
+		if(_isVisible(_div("Type : Special Enrollment"))){
+		
+		if($keepCurrentPlan=="Yes"){
+			for(var $i =0; $i<$coverageStartMonth-1; $i++){
+				_assertEqual(parseFloat($grossPremium).toFixed(2),parseFloat($dbGrossPremDetails[$i][1]).toFixed(2),"Verify gross premium amount calculated by script and DB are same");
+			}
+		}
+		else if(($keepCurrentPlan=="No") || ($keepCurrentPlan=="shopAndKeepPlan")) {
+			for(var $i =0; $i<$coverageStartMonth-1; $i++){
+				_assertEqual("null",$dbGrossPremDetails[$i][1],"Verify gross premium amount in UI and DB are same");
+			}
+		}
+		var $covStartMonth=$coverageStartMonth-1;
+		for(var $i =$covStartMonth; $i<12; $i++){
+			
+	
+			if(($eventReported=="1") && ($i ==$coverageStartMonth-1)){
+				verifyGrossPremEventTypeOneForCovStartMonth($grossPremiumAfterEvent,$subEvent,$indAmt);
+			}
+			else{
+				_assertEqual(parseFloat($grossPremiumAfterEvent).toFixed(2),parseFloat($dbGrossPremDetails[$i][1]).toFixed(2),"Verify gross premium amount calculated by script and DB are same");
+			}
+		}
+	}
+		
+	//Open Enrollment
+	else {
+			for(var $i =0; $i< 12; $i++){
+				_assertEqual(parseFloat($grossPremium).toFixed(2),parseFloat($dbGrossPremDetails[$i][1]).toFixed(2),"Verify gross premium amount calculated by script and DB are same");
+			}
+		}
+	}
+}
+
+function verifyGrossPremEventTypeOneForCovStartMonth($grossPremiumAfterEvent,$subEvent,$indAmt){
+	var $amtForCovStartMonth;
+	var $amtForCovEndMonth;
+	var $dbGrossPremDetails =getGrossPremiumDetailsFromEnrollmentPremium();
+	var $currentYear=_fetch(window.moment().year());
+	var $coverageDateStartMonth =  $coverageDate.split("/")[0];
+	var $coverageStartMonth=parseInt($coverageDateStartMonth-1);
+	var $coverageStartDay = parseInt($coverageDate.split("/")[1]);
+	var $coverageDateEndMonth =  $memberCoverageEndDate.split("/")[0];
+	var $coverageEndMonth=parseInt($coverageDateEndMonth-1);
+	var $coverageEndDay=parseInt($memberCoverageEndDate.split("/")[1]);
+	var $numOfDaysInCovStartMonth=_fetch(window.moment($currentYear+"/"+$coverageDateStartMonth, "YYYY/MM").daysInMonth());
+	var $numOfDaysInCovEndMonth=_fetch(window.moment($currentYear+"/"+$coverageDateEndMonth, "YYYY/MM").daysInMonth());
+	if($subEvent=="remove"){
+		var $individualAmt=parseFloat($indAmt[0][0]);
+		$amtForCovEndMonth=parseFloat($grossPremiumAfterEvent)+parseFloat(($individualAmt/$numOfDaysInCovEndMonth) * ($coverageEndDay));
+		_assertEqual(parseFloat($amtForCovEndMonth).toFixed(2),parseFloat($dbGrossPremDetails[$coverageEndMonth][1]).toFixed(2),"Verify gross premium amount calculated by script and DB are same for coverage start month");
+	}
+	else{
+		$amtForCovStartMonth=parseFloat($grossPremiumAfterEvent)-parseFloat(($grossPremiumAfterEvent/$numOfDaysInCovStartMonth) * ($coverageStartDay-1));
+		_assertEqual(parseFloat($amtForCovStartMonth).toFixed(2),parseFloat($dbGrossPremDetails[$coverageStartMonth][1]).toFixed(2),"Verify gross premium amount calculated by script and DB are same for coverage start month");
+	}
+}
+
+function verifyCoverageDatesFromEnrollee($covStartDate,$keepPlan,$event){
+	var $dbEnrolleeDetails=getEnrolleeDetailsFromEnrollee();
+	var $dbEnrollmentReason=[];
+	var $dbCoverageStartDate=[];
+	var $dbCoverageEndDate=[];	
+	var $dbEnrolleeStatusLkp=[];
+	var $membersCount =getMembersCountFromEnrollee();
+	for(var $i =0; $i< $membersCount; $i++){
+				$dbCoverageStartDate[$i]=convertDateFromDB($dbEnrolleeDetails[$i][1]);
+				$dbCoverageEndDate[$i]=convertDateFromDB($dbEnrolleeDetails[$i][2]);
+				$dbEnrollmentReason[$i]=$dbEnrolleeDetails[$i][4];
+				$dbEnrolleeStatusLkp[$i]=$dbEnrolleeDetails[$i][5];
+				 
+				if( $dbEnrollmentReason[$i]=="I" ){
+					if($keepPlan=="Yes"){
+						_log("$dbEnrollmentReason is I and $keepPlan==Yes");
+						_assertEqual($covStartDate,$dbCoverageStartDate[$i],"Verify coverage start dates calculated by the script and DB are same" );
+						_assertEqual($familyCoverageEndDate,$dbCoverageEndDate[$i],"Verify coverage end dates calculated by the script and DB are same" );
+						_assertEqual("128",$dbEnrolleeDetails[$i][5],"Verify if the member has Pending status - enrollee_status_lkp in DB is 128" );
+					}
+					else{
+					_assertEqual($coverageDate,$dbCoverageStartDate[$i],"Verify coverage start dates calculated by the script and DB are same" );
+					_assertEqual($familyCoverageEndDate,$dbCoverageEndDate[$i],"Verify coverage end dates calculated by the script and DB are same" );
+					_assertEqual("128",$dbEnrolleeDetails[$i][5],"Verify if the member has Pending status - enrollee_status_lkp in DB is 128" );
+					}
+				}
+				else if($dbEnrollmentReason[$i]=="S"){
+					 if($keepPlan=="Yes"){
+						_log("$dbEnrollmentReason is S and $keepPlan==Yes");
+						if($event=="Add"){
+							_log("Inside keep plan - Add");
+							_assertEqual($coverageDate,$dbCoverageStartDate[$i],"Verify coverage start dates calculated by the script and DB are same" );
+							_assertEqual($familyCoverageEndDate,$dbCoverageEndDate[$i],"Verify coverage end dates calculated by the script and DB are same" );
+							_assertEqual("128",$dbEnrolleeDetails[$i][5],"Verify if the member has Pending status - enrollee_status_lkp in DB is 128" );
+						} 
+						 if($event=="Remove"){
+							_log("Inside keep plan - Remove");
+							 if($dbEnrolleeDetails[$i][5]=="124"){
+								_assertEqual($covStartDate,$dbCoverageStartDate[$i],"Verify coverage start dates calculated by the script and DB are same" );
+								_assertEqual($memberCoverageEndDate,$dbCoverageEndDate[$i],"Verify coverage end dates calculated by the script and DB are same" );
+								_assertEqual("124",$dbEnrolleeDetails[$i][5],"Verify if the member has Terminated status - enrollee_status_lkp in DB is 124" );
+							 } 
+							 else if($dbEnrolleeDetails[$i][5]=="123"){
+								_assertEqual($coverageDate,$dbCoverageStartDate[$i],"Verify coverage start dates calculated by the script and DB are same" );
+								_assertEqual($coverageDate,$dbCoverageEndDate[$i],"Verify coverage end dates calculated by the script and DB are same" );
+								_assertEqual("123",$dbEnrolleeDetails[$i][5],"Verify if the member has Cancelled status - enrollee_status_lkp in DB is 123" );							
+							} 
+							 else{
+									_assertEqual($coverageDate,$dbCoverageStartDate[$i],"Verify coverage start dates calculated by the script and DB are same" );
+									_assertEqual($familyCoverageEndDate,$dbCoverageEndDate[$i],"Verify coverage end dates calculated by the script and DB are same" );
+									_assertEqual("128",$dbEnrolleeDetails[$i][5],"Verify if the member has Pending status - enrollee_status_lkp in DB is 128" );
+							 }
+						} 
+					 }
+					
+					//Shop for plan
+					else{		 
+						_assertEqual($coverageDate,$dbCoverageStartDate[$i],"Verify coverage start dates calculated by the script and DB are same" );
+						_assertEqual($familyCoverageEndDate,$dbCoverageEndDate[$i],"Verify coverage end dates calculated by the script and DB are same" );
+						_assertEqual("128",$dbEnrolleeDetails[$i][5],"Verify if the member has Pending status - enrollee_status_lkp in DB is 128" );
+					 }
+				}
+		}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

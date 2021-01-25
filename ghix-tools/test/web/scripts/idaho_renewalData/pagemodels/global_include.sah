@@ -1,0 +1,142 @@
+_resource("../scenariofiles/document.txt");
+_resource("../resources/data.csv");
+_resource("../resources/createTicketData.csv");
+//_resource("../lib/iex_resources_es.properties");
+//_resource("../lib/iex_resources.properties");
+//_resource("../lib/Plan_display_es.properties");
+//_resource("../lib/Plan_display.properties");
+_resource("../resources/small.zip");
+_resource("../resources/TestWordDoc.doc");
+_resource("../resources/Test.xls");
+_resource("../resources/Test.xml");
+_resource("../pic.jpg");
+
+//_setLanguage("../lib/iex_resources.properties", "../lib/iex_resources_es.properties", true);
+//_setLanguage("../lib/Plan_display.properties", "../lib/Plan_display_es.properties", true);
+
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+var $db;
+var $database;
+var $server;
+var $port;
+var $username;
+var $password;
+
+var	$url = getUpdatedBaseURL("").split("/");
+var $suiteInfo = _suiteInfo();
+_log("URL: "+$url);
+/*
+if ($url[2] =="iddemopgqa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-edbqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "iddemopgqa";
+	$password = "NzkxMzViM2FhOGMz";
+}
+else if ($url[2] =="id1dev.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg4.ghixqa.com";
+	$port = "5444";
+	$username = "id1dev";
+	$password = "NTU1OGUwMjBkNjNl";
+}
+else if ($url[2] =="idnextqa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "idnextqa";
+	$password = "YzUwZTUxNzZhZTQ1";
+}
+else if ($url[2] =="idcarrierqa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-edbqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "idcarrierqa";
+	$password = "M2MxMGYyZGZhNDVl";
+}
+else if ($url[2] =="idsit.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "idsit";
+	$password = "YmQyNGViNzU3YjY1";
+}
+else if ($url[2] =="id1auto.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "id1auto";
+	$password = "Y2QxZmJjNjA3ODkw";
+}
+//else if ($url[2] =="id2auto.ghixqa.com"){
+//	$database = "POSTGRESQL";
+//	$server = "nyc3-pg1.ghixqa.com";
+//	$port = "5444";
+//	$username = "id2auto";
+//	$password = "NTgwNWJlNDZjMTI3";
+//}
+else if ($url[2] =="ide2e.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-edbqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "ide2e";
+	$password = "N2U2NzY0NjZkZmFm";
+}
+else if ($url[2] =="id2qa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "id2qa";
+	$password = "NTAxM2FiYjFhZTYw";
+}
+else if ($url[2] =="iddemo.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "iddemo";
+	$password = "ODkxMmE2M2UyMjlh";
+}  else if ($url[2] == "ctqa.ghixqa.com") {
+	$database = "POSTGRESQL";
+	$server = "sfo-pgqa1.ghixqa.com";
+	$port = "5444";
+	$username = "ctqa";
+	$password = "MTA1NzBjYmFlZjkz";
+} else if ($url[2] =="idmainqa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-edbqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "idmainqa";
+	$password = "MGFkZjFiYjk0Yzdh";
+
+}
+
+else if ($url[2] =="id2demo.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-edbqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "id2demo";
+	$password = "ODdxMmE2F2UyTj19";
+}
+*/
+
+
+$database = $suiteInfo["databaseType"];
+$port = $suiteInfo["databasePort"];
+$server = $suiteInfo["databaseServer"];
+$username  = $suiteInfo["databaseUsername"];
+$password = $suiteInfo["databasePassword"];
+
+$SID = "ghixdb";
+
+_log("url :   "+$url);
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+
+if($database =="POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}

@@ -1,0 +1,79 @@
+_includeOnce("../../lib/CommonFunctions.sah");
+
+const $ENTITY_ADMIN_LEFT_NAVIGATION = {
+	"entityInformation_ln":{
+		"element": _link("Entity Information", _in(_div("sidebar"))),
+		"label": null
+	},
+	"populationsServed_ln":{
+		"element": _link("Populations Served", _in(_div("sidebar"))),
+		"label": null
+	},
+	"locationsAndHours_ln":{
+		"element": _link("Locations and Hours", _in(_div("sidebar"))),
+		"label": null
+	},
+	"contactInformation_ln":{
+		"element": _link("Contact Information", _in(_div("sidebar"))),
+		"label": null
+	},
+	"certEnrlCounselors_ln":{
+		"element": _link("Certified Enrollment Counselors", _in(_div("sidebar"))),
+		"label": null
+	},
+	"documentUpload_ln":{
+		"element": _link("Document Upload", _in(_div("sidebar"))),
+		"label": null
+	},
+	"registrationStatus_ln":{
+		"element": _link("Registration Status", _in(_div("sidebar"))),
+		"label": null
+	}
+}
+
+const $ENTITY_ADMIN_CEC_LEFT_NAVIGATION = {
+	"counselorInformation_ln":{
+		"element": _link("Certified Enrollment Counselor Information", _in(_div("sidebar"))),
+		"label": null
+	},
+	"profile_ln":{
+		"element": _link("Profile", _in(_div("sidebar"))),
+		"label": null
+	},
+	"certStatus_ln":{
+		"element": _link("Certification Status", _in(_div("sidebar"))),
+		"label": null
+	},
+	"status_ln":{
+		"element": _link("Status", _in(_div("sidebar"))),
+		"label": null
+	}
+}
+
+function clickStatusInCecLeftNavigation(){
+	click($ENTITY_ADMIN_CEC_LEFT_NAVIGATION.status_ln.element);
+}
+
+const $ENTITY_ADMIN_TOP_MENU = {
+	
+	"enrollmentCounselors_ln": {
+		"element": _link("Enrollment Counselors", _in(_div("menu"))),
+		"label": null	
+	},
+	"enrollmentCounselors":{
+		"manageEnrCounselors_ln": {
+			"element": _link("/Manage Enrollment Counselors/", _in(_div("menu"))),
+			"label": null	
+		}
+	},
+	"entities_ln": {
+		"element": _link("Entities", _in(_div("menu"))),
+		"label": null	
+	},
+	"entities":{
+		"manageEntities_ln": {
+			"element": _link("/Manage Entities/", _in(_div("menu"))),
+			"label": null	
+		}
+	}
+}

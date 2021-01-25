@@ -1,0 +1,17 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/global_include_Mn.sah"
+,,"loadSahi","../pagemodels/Preeligibility.sah"
+
+
+"TC#5","HIX-107207 - Medicaid Household","[Documentation]","Family of 2 with income : 15,000 should get Medicaid ""(Medical Assistance or MinnesotaCare) and should see the Start Application button to redirect to mnsure.org"
+,,"MNsurePlanComparisonTool"
+,,"verifyElementsOnPreeligibility"
+,,"selectCoverageYear","""Current"""
+,,"enterZipCode","""55120"""
+,,"enterPrimaryInformation","""01/01/1973""","FALSE","FALSE","TRUE","FALSE"
+,,"clickAddSpouse","""02/02/1973""","FALSE","FALSE","TRUE","FALSE"
+,,"enterHouseholdIncome","""$15000"""
+,,"$type=","_toJSON({'LowerMonthlyPayment': true, 'LowerOutOfPocketCosts': true})"
+,,"clickCheckForSavings","$type"
+,,"verifyEligibilityOnResults","""PublicProgram"""
+,,"clickStartApplicationOnPreeligibility"

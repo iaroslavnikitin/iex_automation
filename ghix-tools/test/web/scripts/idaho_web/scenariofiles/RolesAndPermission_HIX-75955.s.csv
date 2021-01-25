@@ -1,0 +1,8 @@
+"Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+
+"all,Security,CAP,edit,HIX-75955","HIX-75955  Edit","[Documentation]","Verify If L1/L2/Supervisor/Admin/1095  Can Edit Ticket Information And Enter Information In Paragraph"
+,,"[Keyword]","EditTicket"
+,,"[Data]","[userdata:editTicket:email]","[userdata:editTicket:password]","[userdata:editTicket:ticketPermission]","[userdata:editTicket:editPermission]","[userdata:editTicket:description]","[userdata:editTicket:assignPermission]"

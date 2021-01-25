@@ -1,0 +1,68 @@
+/*
+
+_include("global_include.sah");
+_include("JenkinsAndDBSetUp.sah");
+_include("Utils.sah");
+
+var $userName= "auto_1095@yopmail.com";
+	_click(_link("Log In"));
+	for(var $i =0; $i< 26;$i++){
+		_log($i);
+
+_click(_link("Forgot Password?"));
+_setValue(_textbox("j_username"), $userName);
+_click(_submit("Continue"));
+_setValue(_textbox("userSecQstnAnsList[0].answer"), "abc");
+_click(_submit("Continue"));
+
+var $query = "select * from notices where to_address='"+$userName+"' and notice_type_id=2 order by sent_date desc;"
+var $notices = $db.select($query);
+
+var $postNotices = getNoticesForPasswordReset($userName);
+var $emailBody = $postNotices[0]["email_body"];
+_log($emailBody);
+
+$domain = "ide2e.ghixqa.com"
+//$password  ="aghix123#"+randomString(3, true);
+$password  ="ghix123#"
+var $expression = "https://" + $domain + "/hix/account/user/reset/(\\w+)";
+_log($expression);
+var $resetURL = $emailBody.match($expression)[0];
+_log($resetURL);
+_navigateTo($resetURL);
+_setValue(_password("password"), $password);
+_setValue(_password("confirmPassword"), $password);
+_click(_button("Continue"));
+_assertVisible(_div("Your password has been changed."), "Please check if password successfully changed or the success message had changed.");
+_click(_link("Login"));
+		
+	}
+
+*/
+_include("global_include.sah");
+_include("JenkinsAndDBSetUp.sah");
+_include("AgentIcon.sah");
+
+
+//_include("Utils.sah");
+//_include("ReportChange.sah");
+
+//var $healthEnrollmentId = "779683";
+//var $dentalEnrollmentId = "779707";
+var $url =["https", "ide2e.ghixqa.com"]
+
+//updateEnrollmentStatusHealthAndDental();
+	
+//var $result = getBrokerDetailsFromEnrollment("teddbrown83396120@yopmail.com");
+
+//_log($result);
+	
+	
+//verfifyBrokerRecordsInDb("Designated", "auto_sahiagentaccount@yopmail.com", "teddbrown83396120@yopmail.com");
+//verfifyBrokerRecordsInDb("Designated","auto_sahiagentaccount@yopmail.com","teddbrown56521938@yopmail.com") ;
+
+updateEnrollmentStatusHealth()
+
+
+
+

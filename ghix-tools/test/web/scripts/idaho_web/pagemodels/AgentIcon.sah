@@ -1,0 +1,112 @@
+_includeOnce("FindLocalAssistance.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("SignUp.sah");
+
+var $AgentIcon = true;
+
+var $agentIcon = _image("Agent Promotion icon");
+
+function verifyAgentIcon() {
+	if(_isVisible(_div("view-broker pull-right")) || _isVisible(_div("navtopview"))){
+		_log("Agent / CSR View");
+	}
+	else {
+		_assertVisible($agentIcon);
+		_assertVisible(_span("FIND HELP NEAR YOU"));
+	}
+}
+
+function clickAgentIcon() {
+	_click(_span("FIND HELP NEAR YOU"));
+	_assertVisible(_heading3("Find Help Near You"));
+	_click(_submit("FIND HELP NOW"));
+	verifyElementsOfLocalAssistance();
+
+}
+function verifyAgentDropdownMenu($status, $agentName, $phone){
+	_click(_link("/Your Agent/"));
+	if($status == "Pending"){
+		_assertVisible(_link("Your Designation Request is Pending"));
+	
+	}
+	else{
+		_assertNotVisible(_link("Your Designation Request is Pending"));
+	}	
+	_assertVisible(_link("/"+$agentName+"/"));
+	_assertVisible(_link($phone));
+	_assertVisible(_link("View Profile"));
+	_assertVisible(_link("De-designate Agent End of dropdown"));
+
+}
+
+function verfifyBrokerRecordsInDb($status, $agentEmail, $userEmail, $userName){
+	if($userEmail == null){
+		$userEmail = $signupEmail.toLowerCase();
+	}
+	var $enrollmentIdAndInsuranceType = getEnrollmentId($userEmail);
+	var $enrollmentId = $enrollmentIdAndInsuranceType[0][0];
+	var $insuranceType = $enrollmentIdAndInsuranceType[0][1]
+	var $results = getBrokerDetailsFromEnrollment($userEmail);
+	var $brokerInfo = getBrokerDetailsFromBroker($agentEmail);
+	
+	var $fromEnrollmentAud = getBrokerDetailsFromEnrollmentAud($enrollmentId);
+	var $fromEnrollmentEvent = getTaxIdentifierFromEnrollmentEvent($enrollmentId);
+	var $fromDesignateBroker = getBrokerDetailsFromDesinateBroker($enrollmentId);
+	
+	if($status == "Designated"){
+		_assertEqual( "Y", $results[0][0],"Verify broker_tpa_flag is Y");
+		_assertEqual( "sahiagentaccount sahiagentaccount", $results[0][1],"Verify agent_broker_name");
+		_assertEqual( $brokerInfo[0][0], $results[0][2],"Verify broker_tpa_account_number_1");
+		
+		_assertEqual( $brokerInfo[0][1], $results[0][3],"Verify assister_broker_id");
+		_assertEqual("AGENT", $results[0][4],"Verify broker_role");
+		_assertEqual($brokerInfo[0][2],$results[0][5],"Verify_fed_tax_payer_id");
+		
+		_log("Verify enrollment_aud table");
+		_assertEqual( "1", $fromEnrollmentAud[0][0],"Verify revtype is 1");
+		_assertEqual( $insuranceType, $fromEnrollmentAud[0][3],"Verify revtype is 1");
+		_assertEqual( "Y", $fromEnrollmentAud[0][4],"Verify broker_tpa_flag is Y");
+		_assertEqual( "sahiagentaccount sahiagentaccount", $fromEnrollmentAud[0][5],"Verify agent_broker_name");
+		_assertEqual( $brokerInfo[0][0], $fromEnrollmentAud[0][6],"Verify broker_tpa_account_number_1");
+		_assertEqual( $brokerInfo[0][1], $fromEnrollmentAud[0][7],"Verify assister_broker_id");
+		_assertEqual( "AGENT", $fromEnrollmentAud[0][8],"Verify broker_role");
+		_assertEqual($brokerInfo[0][2],$fromEnrollmentAud[0][9],"Verify_fed_tax_payer_id");
+		_assertNotNull($fromEnrollmentAud[0][10],"Verify creation timestamp  is not null");
+		_assertNotNull($fromEnrollmentAud[0][11],"Verify last update timestamp is not null");
+		
+		_log("Verify enrollment_event table");
+		_assertEqual( "BROKER_DESIGNATE", $fromEnrollmentEvent[0][0],"Verify txn_identifier column is updated with Broker Designate event");
+				
+		_log("Verify deesignate Broker table");
+		_assertEqual("Active", $fromDesignateBroker[0][2],"Verify status is active");
+		if($userName){
+			_assertEqual($userName, $fromDesignateBroker[0][3],"Verify esign_by");
+		}
+		else
+			_assertEqual("/"+$firstName+"/", $fromDesignateBroker[0][3],"Verify esign_by");
+		_assertNotNull($fromDesignateBroker[0][4],"Verify esign_date is not null");
+		
+	}
+	else if($status == "Pending"){
+		_assertEqual( "null", $results[0][0],"Verify broker_tpa_flag is Y");
+		_assertEqual( "null", $results[0][1],"Verify agent_broker_name");
+		_assertEqual( "null", $results[0][2],"Verify broker_tpa_account_number_1");
+		
+		_assertEqual( "null", $results[0][3],"Verify assister_broker_id");
+		_assertEqual("null", $results[0][4],"Verify broker_role");
+		_assertEqual("null",$results[0][5],"Verify_fed_tax_payer_id");
+	}
+	
+}
+
+
+function deDesignateAgent(){
+	
+	_click(_link("/Your Agent/"));
+	_click(_link("/De-designate Agent/"));
+	_assertVisible(_heading4("Are you sure you don't want sahiagentaccount sahiagentaccount to assist you further? x"));
+	_assertVisible(_button("Confirm"));
+	_click(_button("Confirm"));
+	
+	
+}

@@ -1,0 +1,36 @@
+"Comments","Tags","TestCase","Key Word","Argument 1",,"Argument 2"
+,,,"loadSahi","../../pagemodels/Broker.sah"
+,,,"loadSahi","../../pagemodels/Login.sah"
+,,,"loadSahi","../../lib/CommonNameCreation.sah"
+,,,"loadSahi","../../pagemodels/Agency.sah"
+,,,"loadSahi","../../pagemodels/Agents.sah"
+,,,"loadSahi","../../pagemodels/Signup.sah"
+,,,"loadSahi","../../pagemodels/AdminStaff.sah"
+,,,"loadSahi","../../pagemodels/BookOfBusiness.sah"
+,,,"loadSahi","../../pagemodels/ENGSVC-1216_lib.sah"
+,,,"loadSahi","../../scenariofiles/create_data/CreateAgency.sah"
+,,,"loadSahi","../../scenariofiles/create_data/CreateAgent.sah"
+,,,"loadSahi","../../pagemodels/DelegationHistory.sah"
+,,,"loadSahi","../../pagemodels/cap_memberView.sah"
+,,,"loadSahi","../../resources/delegation_history/DataForDelegationHistoryTests.sah"
+
+,,"[Global]","[SetUp]"
+,,,"maximizeWindow"
+,,,"createDbObj"
+
+,,,"[Documentation]","accessing data from
+resources/delegation_history/DataForDelegationHistoryTests.sah"
+,,,"$agencyData =","$AGENCY_DATA_ID_53"
+,,,"$capSupervisor =","""auto_supervisor_53@yopmail.com"""
+,,,"$capSupervisorRole =","""SUPERVISOR"""
+
+
+"Designate agent and
+create enrollment","all","id=02","[Documentation]","Broker admin edit agent info and verify that enrollment is updated"
+,,,"$automationAgency = createAutomationAgencyIfNotExist","$agencyData"
+,,,"createEnrollment","$automationAgency.agents[0].recordID","$agencyData.numOfConsumers","$agencyData.isNeedDental","$agencyData"
+"//",,,"$household = createIndividualAndEnrollHealth","$automationAgency.agents[0].recordID"
+"//",,,"[Documentation]","data","variableName","test id","clear file? Y or null"
+"//",,,"saveDataInFile","$household","""$household""","""53""","""Y"""
+"//",,,"_include","""C:/Sahi/CA/householdData53.sah"""
+"//",,,"logOut"

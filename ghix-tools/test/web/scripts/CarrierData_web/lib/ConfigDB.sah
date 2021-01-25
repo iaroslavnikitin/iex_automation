@@ -1,0 +1,270 @@
+// IEX configs
+function verifyPrescreenerShowCurrentYear($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.prescreener.show_current_year%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyIndportalShowPreviousYearTabUntil($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.indportal.show_previous_year_tab_until%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyAccountTransferCoverageYears($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.accounttransfer.coverage.years%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyIndportalShowCurrentYearTabFrom($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.indportal.show_current_year_tab_from%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifySsapAutorenewalBatchSize($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.batchsize%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifySsapAutorenewalChildRelationCode($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.childrelationcode%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifySsapAutorenewalParentAppYear($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.parentappyear%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+
+function verifySsapAutorenewalRenewalYear($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.renewalyear%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyIndportalGlobalOECoverageEffectiveDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.indportal.global_oe_coverage_effective_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifySsapAutorenewalActiveEnrollmentStatusList($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.activeenrollmentstatuslist%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyOtrEndDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.otr_end_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyRenewalCoverageYear($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.renewal_coverage_year%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyOtrYear($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.otr_year%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+
+function verifySsapAutoRenewalCloneSchedule($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.clone.schedule%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifySsapAutoRenewalProcessSchedule($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.process.schedule%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifySsapAutoRenewalAutoEnrollShedule($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.ssap.autorenewal.autoenroll.schedule%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyOtrStartDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.otr_start_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+
+function verifyPrevOEendDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.prev_oe_end_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyPrevCoverageYear($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.prev_coverage_year%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyCurrentOEendDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+
+function verifyCurrentCoverageYear($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.current_coverage_year%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyPrevOEStartDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.prev_oe_start_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyOEenrollEndDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.oe_enroll_end_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyCurrentOEStartDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.current_oe_start_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+
+
+
+function verifyOEenrollStartDate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.oe_enroll_start_date%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyReferralAllowAutoAddDental($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.referral.allow.auto.add.dental%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+function verifyReferralChangeToAutomate($propertyValue){
+	var $query1 = "select property_value from gi_app_config where property_key like '%iex.referral.change.to.automate%'";
+	_log($query1);
+	var $value= $db.select($query1);
+	_log("$property_value "+$value);
+	_assertEqual($propertyValue,$value);
+}
+
+function verifyServerDate($date){
+	var $currentDate= _call(window.moment()).format("MM/DD/YYYY");
+	var $serverDate = _getValue(_hidden("serverDate", _in(_div("topbar"))));
+	_log("currentDate " +$currentDate);
+	_log("serverDate " +$serverDate);
+	_assertEqual($currentDate,_getValue(_hidden("serverDate", _in(_div("topbar")))));
+}
+
+
+/* 
+//Sever Date check - SSH 
+function verifyServerDate($date){
+	//format: Thu Jan 30 11:41:02 PST 2020
+	var $serverDate = getServerDate();
+	var $dateSplit = $serverDate.split(" ");
+	_log($dateSplit[0]);
+	_log($dateSplit[1]);
+	_log($dateSplit[2]);
+
+
+}
+function getServerDate(){
+	var ssh = new Packages.org.twdata.enchanter.impl.DefaultStreamConnection();
+	// Connect to your server. change the host, port, username and password
+	if($url[2] == "nv3qa.ghixqa.com"){
+				ssh.connect( "nv3qa.eng.vimo.com", 22, "app", "ghix123#");
+	}
+	else{
+		ssh.connect( $url[2], 22, "app", "ghix123#");
+	}
+		// Wait for the prompt as seen when you connect via putty.
+		var $prompt = "$";
+		ssh.waitFor($prompt);
+		ssh.sendLine("date");
+
+		// Send the command to be executed
+
+		java.lang.System.out.println("Done sending");
+		var $line = ssh.getLine();
+
+		// disconnect from the ssh session
+		ssh.disconnect();
+		_log($line);
+		return $line;
+	}
+*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

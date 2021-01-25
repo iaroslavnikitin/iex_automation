@@ -1,0 +1,60 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,,"loadSahi","../pagemodels/global_include.sah"
+
+,,,"[Documentation]","eventType","Event Date","Event","isInOEP"
+,,,"$coverageStartDate = getCoverageStartDate","3",,,"$inOEP"
+,,,"$coverageDate = getCurrentCoverageYear"
+
+
+
+
+
+
+"Kid Only","smoke,anonymous","Kid doing anonymous flow for both health and dental plan","[Documentation]","Kids only with No CSR and APTC.Select preferences(randomly) and verify Plan display page 3. Select Health Plan and go to Cart page and verify Cart 4. Click Shop for dental and Select Dental plan from Plan Display page 5. Go to Plan Detail page and remove the selected Dental Plans 6. Click Back to plan Link and add dental plan from this page 7. Go till Cart page and remove both Health plan and Dental Plans. 8. Click Back to shopping and verify Plan display Page."
+
+"//",,,"openBrowser"
+,,,"clickStartShopping","$coverageDate"
+,,,"selectCoverageYear",,"$coverageDate"
+,,,"enterZipCode","""89501"""
+,,,"enterPrimaryInformation","""02/02/1997""","FALSE","FALSE","FALSE"
+,,,"clickAddChild","""02/05/2014""","FALSE","FALSE","TRUE"
+,,,"clickBrowsePlans"
+,,,"selectDoctorVisits","3"
+,,,"clickNextPreferences"
+,,,"selectMonthlyPrescriptions","1"
+,,,"clickNextPreferences"
+,,,"selectPrescription","""Lipitor""","""Lipitor 80 Mg Tab (Oral Tablet)""","""Atorvastatin"""
+,,,"$code = getgenericRxCode"
+,,,"clickNextPreferences"
+,,,"selectChildrensDental"
+
+,,,"[Documentation]","isCSREnabled","aptc Amount","zipcode","Coverage Date","noOfAdults","noOfChildren","ShowCatastrophic"
+,,,"clickViewPlans","""N""",,"""89501""","$coverageStartDate","0","1","""YES"""
+,,,"$healthPlan=clickAddPlanFromPlanSelection"
+,,,"[Documentation]","Health Plan Details","Dental Plan Details","Coverage Date"
+,,,"clickContinueToCart","$healthPlan",,"$coverageStartDate"
+
+,,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,,"clickShopForDentalPlans",,,"""89501""","$coverageStartDate","0","1"
+,,,"$dentalPlan = clickAddPlanFromPlanSelection"
+,,,"closeFantasticPopup"
+
+,,,"[Documentation]","Dental plan number"
+,,,"clickViewPlanDetails","$dentalPlan.index"
+,,,"removePlanFromPlanDetail"
+
+,,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,,"clickBackToAllPlansOnViewDetails",,,"""89501""","$coverageStartDate","0","1"
+,,,"$dentalPlan = clickAddPlanFromPlanSelection"
+
+,,,"[Documentation]","Health Plan Details","Detal plan details","Coverage Date"
+,,,"clickContinueToCart","$healthPlan","$dentalPlan","$coverageStartDate"
+
+,,,"[Documentation]","Plan to be romoved","Health Plan Details","Dental Plan Details","Coverage Date"
+,,,"clickRemoveFromCart","""Health""","$healthPlan","$dentalPlan","$coverageStartDate"
+
+,,,"[Documentation]","Plan to be romoved","Health Plan Details","Dental Plan Details","Coverage Date"
+,,,"clickRemoveFromCart","""Dental""",,"$dentalPlan","$coverageStartDate"
+
+,,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,,"clickShopPlans",,,"""89501""","$coverageStartDate","0","1"

@@ -1,0 +1,126 @@
+import groovy.json.JsonSlurper
+
+@NonCPS
+def parseResponse(txt){
+	def lazyMap = new groovy.json.JsonSlurper().parseText(txt)
+	def map = [:]
+	for ( prop in lazyMap ) {
+    	map[prop.key] = prop.value
+	}
+	return map;
+}
+pipeline {
+
+   agent any
+   stages {
+       stage('Install Dependencies') {
+           steps {
+               script {
+                    final String url = "https://${server}/hix/actuator/info"
+                    def response = sh(script: "curl -s $url", returnStdout: true).trim()
+                    echo response
+                    def responseMap = parseResponse(response);
+                    def props = [
+                        "Tag":"${tag}",
+                        "Server": "${server}",
+                        "Branch_Name": responseMap["branch.name"],
+                        "Build_Number": responseMap["build.number"],
+                        "Build_Timestamp": responseMap["build.timestamp"],
+                    ]
+                    currentBuild.description = """server=${props.Server}\n
+                        branch.name=${props.Branch_Name}\n
+                        build.number=${props.Build_Number}\n
+                        build.timestamp=${props.Build_Timestamp}"""
+                    def content = props.collect{entry->entry.key+"="+entry.value}.join('\n');
+                    env.content = content
+                   
+                }
+            dir ("ghix-tools/test/GHIX_UI_Automation_Tests/") { 
+                sh "npm install"
+               }
+            }
+       }
+       stage('Pull Database Properties'){
+           steps{
+                script{
+                    def databaseUserName = sh(returnStdout: true, script: 'ssh root@sjc-puppet.eng.vimo.com "hiera -c /etc/puppet/hiera.yaml dbUsername   ::fqdn=${server}"').trim()
+                    def databasePassword = sh(returnStdout: true, script: 'ssh root@sjc-puppet.eng.vimo.com "hiera -c /etc/puppet/hiera.yaml dbPassword   ::fqdn=${server}"').trim()
+                    def databaseHost = sh(returnStdout: true, script: 'ssh root@sjc-puppet.eng.vimo.com "hiera -c /etc/puppet/hiera.yaml dbServer   ::fqdn=${server}"').trim()
+                    def databasePort = sh(returnStdout: true, script: 'ssh root@sjc-puppet.eng.vimo.com "hiera -c /etc/puppet/hiera.yaml dbPort   ::fqdn=${server}"').trim()
+                    def databaseType = sh(returnStdout: true, script: 'ssh root@sjc-puppet.eng.vimo.com "hiera -c /etc/puppet/hiera.yaml database_type   ::fqdn=${server}"').trim()
+                    env.databaseUserName = databaseUserName
+                    env.databasePassword = databasePassword
+                    env.databaseHost = databaseHost
+                    env.databasePort = databasePort
+                    env.databaseType = databaseType
+                    echo "databaseUsername=${databaseUserName}"
+                    echo "databasePassword=${databasePassword}"
+                    echo "databaseServer=${databaseHost}"
+                    echo "databasePort=${databasePort}"
+                    echo "databaseType=${databaseType}"
+                }
+           }
+           
+                 
+       }
+       stage('Test') {
+           steps {
+            dir ("ghix-tools/test/GHIX_UI_Automation_Tests/") {
+                script {
+                    if(params.VNC_SUPPORT) {
+                        sh '''
+                        npm run test:docker:vnc -- \
+                        --server=${server} \
+                        --state=${state} \
+                        --tagExpression=${tag} \
+                        --applicationYear=${year} \
+                        --databaseUserName=''' + databaseUserName + ' ' +
+                        '--databasePassword=' + databasePassword + ' ' +
+                        '--databaseServer=' + databaseHost + ' ' + 
+                        '--databasePort=' + databasePort + ' ' +
+                        '--databaseType=' + databaseType
+                    } else {
+                        sh '''
+                        npm run test:docker -- \
+                        --server=${server} \
+                        --state=${state} \
+                        --tagExpression=${tag} \
+                        --applicationYear=${year} \
+                        --databaseUserName=''' + databaseUserName + ' ' +
+                        '--databasePassword=' + databasePassword + ' ' +
+                        '--databaseServer=' + databaseHost + ' ' + 
+                        '--databasePort=' + databasePort + ' ' +
+                        '--databaseType=' + databaseType
+                    }
+                                   
+               } 
+            }
+            }
+        }
+   }
+   post {
+      always {
+        dir ("ghix-tools/test/GHIX_UI_Automation_Tests/") { 
+            script {
+                writeFile file: './allure-results/environment.properties', text: content
+            	allure([
+					includeProperties: false,
+					jdk: '',
+					properties: [],
+					reportBuildPolicy: 'ALWAYS',
+					report: './allure-report',
+					results: [[path: './allure-results']]
+					])
+                if(params.sendEmail){
+                    emailext body: '''${SCRIPT, template="allure-report.groovy"}''',
+                        subject: "[Jenkins] ${env.JOB_NAME} Test Execution Summary",
+                        to: "${recipients}"
+                }
+            }
+        }
+            echo 'One way or another, I have finished'
+            deleteDir()
+        }
+    }
+        
+}

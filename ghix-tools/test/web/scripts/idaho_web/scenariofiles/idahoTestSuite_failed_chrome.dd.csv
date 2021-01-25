@@ -1,0 +1,146 @@
+#script,tags,testcases
+HIX-101629.s.csv,"CAP, regression",HIX-101629
+#script,tags,testcases
+RolesAndPermission.s.csv,"Security, regression",HIX-84534 HIX-84532 HIX-84519 HIX-84517 HIX-84479 HIX-84518 HIX-88035 HIX-88031   Roles And Permissions
+#script,tags,testcases
+HIX-62865.s.csv,"lifeChangeEvents, regression","62865,CSR exporting Active Individual Reports"
+#script,tags,testcases
+RolesAndPermission_OverrideFeature_L1_CS1.s.csv,"Security, regression",HIX-88035 HIX-88034 HIX-88033 HIX-88032 HIX-88031 HIX-88029 HIX-89453 HIX-88227   Verify Override Feature For Different Roles
+#script,tags,testcases
+RolesAndPermission_OverrideFeature_L2_CS2.s.csv,"Security, regression",HIX-88035 HIX-88034 HIX-88033 HIX-88032 HIX-88031 HIX-88029 HIX-89453 HIX-88227   Verify Override Feature For Different Roles
+#script,tags,testcases
+RolesAndPermission_OverrideFeature_Supervisor.s.csv,"Security, regression",HIX-88035 HIX-88034 HIX-88033 HIX-88032 HIX-88031 HIX-88029 HIX-89453 HIX-88227   Verify Override Feature For Different Roles
+#script,tags,testcases
+RolesAndPermission_OverrideFeature_admin.s.csv,"Security, regression",HIX-88035 HIX-88034 HIX-88033 HIX-88032 HIX-88031 HIX-88029 HIX-89453 HIX-88227   Verify Override Feature For Different Roles
+#script,tags,testcases
+RolesAndPermission_SubmitSSAP.s.csv,"Security, regression",L1 / L2 / Supervisor Creating Individual Account And Submitting SSAP
+#script,tags,testcases
+HIX-67395.s.csv,"individualPortal, regression",67395
+#script,tags,testcases
+HIX-59923.s.csv,"lifeChangeEvents, regression",59923
+#script,tags,testcases
+CSR_SubmittingSSAPForIndividual.s.csv,"individualPortal, regression",L1 / L2 / Supervisor Creating Individual Account And Submitting SSAP
+#script,tags,testcases
+HIX-71788.s.csv,"lifeChangeEvents, regression",71788
+#script,tags,testcases
+HIX-70642.s.csv,"lifeChangeEvents, regression",70642
+#script,tags,testcases
+HIX-70783.s.csv,"lifeChangeEvents, regression",70783
+#script,tags,testcases
+HIX-80859.s.csv,"lifeChangeEvents, regression",80859
+#script,tags,testcases
+HIX-70733.s.csv,"individualPortal, regression",70733
+#script,tags,testcases
+HIX-70744.s.csv,"individualPortal, regression",70744
+#script,tags,testcases
+HIX-75734.s.csv,"lifeChangeEvents, regression",75734
+#script,tags,testcases
+HIX-80913.s.csv,"individualPortal,  regression",80913
+#script,tags,testcases
+HIX-70933.s.csv,"lifeChangeEvents,  regression",70933
+#script,tags,testcases
+HIX-70727_Catastrophic.s.csv,"individualPortal, regression",70727
+#script,tags,testcases
+HIX-75504_PolicyInformation.s.csv,"individualPortal,  regression",75504
+#script,tags,testcases
+HIX-75740.s.csv,"individualPortal, regression",75740
+#script,tags,testcases
+ChangeOfMailingAddress.s.csv,"lifeChangeEvents, regression",HIX-75734 Verify individual account after chaging his  demographics(Mailing Address and Gender Change) for non-financial application  HIX-107132 Verify cmr_household table is updated when user chooses to allow texting
+#script,tags,testcases
+HIX-73019.s.csv,"lifeChangeEvents,  regression",73019
+#script,tags,testcases
+HIX-67157.s.csv,"lifeChangeEvents,  regression",67157
+#script,tags,testcases
+HIX-67397.s.csv,"individualPortal, regression",HIX-67397
+#script,tags,testcases
+HIX-73112.s.csv,"lifeChangeEvents, regression",73112
+#script,tags,testcases
+HIX-73970.s.csv,"individualPortal, regression",73970
+#script,tags,testcases
+HIX-75683.s.csv,"lifeChangeEvents, regression",75683
+#script,tags,testcases
+HIX-75730.s.csv,"lifeChangeEvents, regression",75730
+#script,tags,testcases
+HIX-75732.s.csv,"lifeChangeEvents, regression",75732
+#script,tags,testcases
+HIX-62758.s.csv,"lifeChangeEvents, regression",HIX-62758
+#script,tags,testcases
+HIX-62848.s.csv,"lifeChangeEvents, regression",62848
+#script,tags,testcases
+HIX-63046.s.csv,"lifeChangeEvents, regression",63046
+#script,tags,testcases
+CAP.s.csv,"CAP, regression","80124,71648"
+#script,tags,testcases
+HIX-75717.s.csv,"lifeChangeEvents, regression",HIX-75717- Verify the application for  LCE add another child to dental only enrollment Shop Different Plan
+#script,tags,testcases
+anonymous_OneMemberNA_CSR_APTC_HIX-101954.s.csv,"individualPortal,Anonymous, regression",101954
+#script,tags,testcases
+anonymous_OneMember_NoCSR_APTC_Catastrophic_HIX-101957.s.csv,"individualPortal,Anonymous, regression",HIX-101957
+#script,tags,testcases
+anonymous_TwoMembers_CSR_APTC_Catastrophic_HIX-101958.s.csv,"individualPortal,Anonymous, regression",HIX-101958
+#script,tags,testcases
+anonymous_PrimaryChild_CSR_APTC_Catastrophic_OnlyDental_HIX-101960.s.csv,"individualPortal,Anonymous, regression",HIX-101960
+#script,tags,testcases
+anonymous_FourMembers_CSR_APTC_Catastrophic_HealthDental_HIX-101962.s.csv,"individualPortal,Anonymous, regression",HIX-101962
+#script,tags,testcases
+anonymous_TwoMembers_CSR_APTC_Catastrophic_ResumeEditSSAP_HIX-101959.s.csv,"individualPortal,Anonymous, regression",HIX-101959
+#script,tags,testcases
+anonymous_TwoMembers_NoCSR_NoAPTC_editFamilyInfo_NoSSAP.s.csv,"individualPortal,Anonymous, regression",
+#script,tags,testcases
+anonymous_TwoMembers_CSREnabled_APTC_Catastrophic.s.csv,"individualPortal,Anonymous, regression",
+#script,tags,testcases
+anonymous_TwoMembers_CSR_APTC_InvalidAge_editFamilyInfo_NoSSAP.s.csv,"individualPortal,Anonymous, regression",
+#script,tags,testcases
+entityRegistrationTest.s.csv,"enrollmentEntities, regression",End to end flow of entity registration
+#script,tags,testcases
+anonymous_ElevenMembers_NoCSR_NoAPTC_NoCatastrophic_SSAP_HIX-108383.s.csv,"individualPortal,Anonymous, regression",
+#script,tags,testcases
+anonymous_ThreeMembers_SpouseNoCoverage_CSR_APTC_Catastrophic_Registration.s.csv,"individualPortal,Anonymous",
+#script,tags,testcases
+agentRegistrationEditCertificationStatus.s.csv,"Agents, regression",
+#script,tags,testcases
+HIX-70934.s.csv,"lifeChangeEvents,regression",70934
+#script,tags,testcases
+HIX-101620.s.csv,"Security, regression",HIX-101620
+#script,tags,testcases
+HIX-101652.s.csv,"Agents, regression",HIX-101652
+#script,tags,testcases
+RolesAndPermission_HIX-75955.s.csv,"Security, regression",HIX-75955  Edit
+#script,tags,testcases
+Verify_TicketHistory_CAPHistoryRoles_EnrollmentHistory.s.csv,"CAP, regression",HIX-102524
+#script,tags,testcases
+Verify_1095_correction_pdf.s.csv,"1095_correction, regression",HIX-102524
+#script,tags,testcases
+createSSAP_agentDesignation_HIX-106755.s.csv,"individualPortal,Agents, regression",HIX-106755
+#script,tags,testcases
+RolesAndPermission_L1_CSR_CreateIndividualAccountWithoutSSN.s.csv,"Security, regression",HIX-88082 L1 CSR Create individual account without SSN from add user page
+#script,tags,testcases
+RolesAndPermission_L1_CSR_CreateIndividualAccountWithSSN.s.csv,"Security, regression",HIX-88082 L1 CSR Create individual account with SSN from add user page
+#script,tags,testcases
+RolesAndPermission_L2_CSR_CreateIndividualAccountWithoutSSN.s.csv,"Security, regression",HIX-88089 L2 CSR Create individual account without SSN from add user page
+#script,tags,testcases
+RolesAndPermission_L2_CSR_CreateIndividualAccountWithSSN.s.csv,"Security, regression",HIX-88089 L2 CSR Create individual account with SSN from add user page
+#script,tags,testcases
+RolesAndPermission_Supervisor_CreateIndividualAccountWithoutSSN.s.csv,"Security, regression",CSR Supervisor - Create individual account without SSN from add user page
+#script,tags,testcases
+RolesAndPermission_Supervisor_CreateIndividualAccountWithSSN.s.csv,"Security, regression",CSR Supervisor - Create individual account with SSN from add user page
+#script,tags,testcases
+anonymous_FourMembers_CSR_APTC_Catastrophic_NoSSAP.s.csv,"individualPortal,Anonymous, regression",
+#script,tags,testcases
+anonymous_SingleNA_NoCSR_Catastrophic_FiltersComparePlans.s.csv,"individualPortal,Anonymous",Individual work flow with single person with filters and compare plans
+#script,tags,testcases
+SEP_Type1_AddRemoveEvent_KeepCurrentPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type1_AddRemoveEvent_ShopForPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type2_AddRemoveEvent_KeepCurrentPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type2_AddRemoveEvent_ShopForPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type3_AddRemoveEvent_KeepCurrentPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type3_AddRemoveEvent_ShopForPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type4_AddRemoveEvent_KeepCurrentPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type4_AddRemoveEvent_ShopForPlan.s.csv,"lifeChangeEvents, regression",

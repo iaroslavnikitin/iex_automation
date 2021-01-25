@@ -1,0 +1,13 @@
+_includeOnce("AgentIcon.sah");
+
+var $VerifyAccessCode = true;
+
+var $verifyAccessCodeTryAgain = _link("Try Again");
+
+function verifyForInvalidAccessCode() {
+	verifyAgentIcon();
+	_assertVisible(_italic("icon-cogs"));
+	var $txt = _getText(_paragraph("margin20-tb"));
+	_assertTrue(!!$txt.match(/invalid/i));
+	_assertVisible($verifyAccessCodeTryAgain);
+}

@@ -1,0 +1,161 @@
+
+{
+   "header":
+   {
+      "label":"New Agency Manager Account Set-Up",
+      "fieldType":"staticText",
+      "selectors":
+      {
+        "common":"$('.titlebar')",
+        "PA":"$('.titlebar')"
+      },
+      "headerText":"Account Set-Up"
+      
+   },
+    "firstName":
+     {
+        "label":"First Name",
+        "fieldType":"text",
+        "selectors":
+         {
+            "common":"$('#firstName')",
+            "PA":"$('#firstName')"
+         },
+         "required":true,
+         "matchingDataProperty":"firstName"
+     },
+    "lastName":
+     {
+         "label":"Last Name",
+         "fieldType":"text",
+         "selectors":
+          {
+             "common":"$('#lastName')",
+             "PA":"$('#lastName')"
+          },
+          "required":true,
+          "matchingDataProperty":"lastName"
+     },
+ 
+    "emailAddress":
+     {
+         "label":"Email Address",
+         "fieldType":"email",
+         "selectors":
+          {
+             "common":"$('#email')",
+             "PA":"$('#email')"
+          },
+          "required":true,
+          "matchingDataProperty":"email"
+     },
+    "confirmEmailAddress":
+     {
+         "label":"Confrim Email Address",
+         "fieldType":"email",
+         "selectors":
+          {
+             "common":"$('#confirmEmail')",
+             "PA":"$('#confirmEmail')"
+          },
+          "required":true,
+          "matchingDataProperty":"email"
+ 
+       },
+    "phoneNumber":
+     {
+         "label":"Phone Number",
+         "fieldType":"phoneSplit",
+         "selectors":
+          {
+             "common":["$('#phone1')","$('#phone2')","$('#phone3')"],
+             "PA":["$('#phone1')","$('#phone2')","$('#phone3')"]
+          },
+          "required":true,
+          "matchingDataProperty":"phone"
+     },
+    "sequrityQuestion":
+    {
+         "label":"Security Question",
+         "fieldType":"dropDown",
+         "selectors":
+          {
+             "common":"$('#securityQuestion1')",
+             "PA":"$('#securityQuestion1')"
+          },
+          "required":true,
+          "matchingDataProperty":"securityQuestion"
+    },
+    "sequrityAnswer":
+    {
+         "label":"Security Question",
+         "fieldType":"text",
+         "selectors":
+          {
+             "common":"$('#securityAnswer1')",
+             "PA":"$('#securityAnswer1')"
+          },
+          "required":true,
+          "matchingDataProperty":"securityAnswer"
+     },
+    "password":
+    {
+       "label":"Password",
+       "fieldType":"password",
+       "selectors":
+        {
+           "common":"$('#password')",
+           "PA":"$('#password')"
+        },
+        "required":true,
+        "matchingDataProperty":"password"
+    },
+    "confirmPassword":
+    {
+       "label":"Confirm Password",
+       "fieldType":"password",
+       "selectors":
+        {
+           "common":"$('#confirmPassword')",
+           "PA":"$('#confirmPassword')"
+        },
+        "required":true,
+        "matchingDataProperty":"password"
+    },
+    "privacyPolicyTerms":
+     {
+       "label":"",
+       "fieldType":"checkbox",
+       "selectors":
+        {
+           "common":"$('#terms')",
+           "PA":"$('#terms')"
+        },
+        "required":true,
+        "matchingDataProperty":""
+     },
+     "cancelButton":
+     {
+       "label":"",
+       "fieldType":"button",
+       "selectors":
+        {
+           "common":"$('.btn_cancel')",
+           "PA":"$('.btn_cancel')"
+        }
+     },
+ 
+     "submitButton":
+     {
+       "label":"Submit",
+       "fieldType":"button",
+       "selectors":
+        {
+           "common":"$('#submitbtn')",
+           "PA":"$('#submitbtn')"
+        }
+     },
+  "btn_Continue": "$('a*=Continue')"
+}
+     
+ 

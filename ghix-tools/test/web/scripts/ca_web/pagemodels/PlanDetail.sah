@@ -1,0 +1,354 @@
+
+var $planDetailBack = _link("Back to Plans");
+function verifyViewPlanDetailsPage($plan){
+	_assertVisible($planDetailBack," Verify back to Plans link is displayed");
+	if(onHealthPlanPage()){
+		verifyPlanDetailsForHealthPlan($plan);
+	}
+	else{
+		verifyPlanDetailsForDentalPlan($plan);
+	}
+		
+	//verifyMoreInformationLinks($plan);------------------get info fro Ritesh
+}
+
+function verifyPlanDetailsForHealthPlan($plan){
+	_log("Verify Plan Details on the Health plan Detail page");	
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_paragraph("Plan Highlights"));
+	_assertVisible(_link("/(.*)/", _near(_link("Total Expense Estimate"))));
+	var $name = $plan.name.replace("...","");
+	_assertVisible(_cell("/"+$name+"/", _near(_tableHeader("Plan Name"))),"Verify Plan name is displayed under Plan Highlights");
+	_assertVisible(_cell($plan.primaryCareVisits, _near(_tableHeader("Primary Care Visits"))),"Verify Primary Care Visit is dispalyed under Plan Highlights");
+	_assertVisible(_cell($plan.genericDrugs, _near(_tableHeader("Generic Drugs"))));
+	_assertVisible(_cell($plan.yearlyDeductible, _near(_tableHeader("Yearly Deductible"))));
+	
+	var $tierAndType = $plan.tierAndType.split(" ");
+	var $isHSAplan = false;
+	for (var $i = 0; $i < $tierAndType.length; $i++) {
+		if($tierAndType[$i] == "HSA"){
+			_assertVisible(_cell("Yes", _near(_link("Health Savings Account (HSA)"))),"Verify Yes is displayed if it is a HSA plan");
+			$isHSAplan = true;
+		}else{
+			_assertVisible(_span("/"+$tierAndType[$i]+"/") ||_div("/"+$tierAndType[$i]+"/"));
+		}
+	}
+	if($isHSAplan == false){
+		_assertVisible(_cell("No", _near(_link("Health Savings Account (HSA)"))),"Verify Yes is displayed if it is a HSA plan");
+	}
+
+	
+	var $qualityRating = _collectAttributes("_italic", "/con icon-star/", "className", _in(_row("/Quality Rating/")));
+	_assertEqual($qualityRating, $plan.qualityRating," Verify quality rating stars");
+	
+	verifyProvidersUnderPlanHighlights();
+	verifyDoctorsAndFacilities($plan);
+	
+	_assertVisible(_link($plan.name),"Verify Plan name is displayed under plan Image");
+	_assertVisible(_span($plan.premium),"Verify Plan premium is displayed under plan type");
+	_assertVisible(_span("monthly premium"));
+	if($plan.taxCredit != "No Tax Credit"){
+		_assertVisible(_div($plan.taxCredit));
+	}
+	if($plan.isSelected){
+		_assertVisible(_link("REMOVE"));
+	}else{
+		_assertVisible(_link("ADD"));
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyProvidersUnderPlanHighlights(){
+	if($doctors.length>0){
+		for (var $i=0; $i<$doctors.length; $i++){
+			if($doctors[$i].availabilty == "Available in plan network"){
+				_assertEqual($doctors[$i].availabilty,_getAttribute (_link(0, _rightOf(_tableHeader("/"+$doctors[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))), "aria-label"));
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$doctors[$i].name.substring(0,12)+"/"))));
+			}
+			if($doctors[$i].availabilty == "Not available in plan network"){
+				_assertEqual($doctors[$i].availabilty,_getAttribute (_link(0, _rightOf(_tableHeader("/"+$doctors[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))), "aria-label"));
+				_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$doctors[$i].name.substring(0,12)+"/"))));
+			}
+		}
+	}
+	
+	if($hospitals.length>0){
+		for (var $i=0; $i<$hospitals.length; $i++){
+			if($hospitals[$i].availabilty == "Available in plan network"){
+				_assertEqual($hospitals[$i].availabilty,_getAttribute (_link(0, _rightOf(_tableHeader("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))), "aria-label"));
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$hospitals[$i].name.substring(0,12)+"/"))));
+			}
+			if($hospitals[$i].availabilty == "Not available in plan network"){
+				_assertEqual($hospitals[$i].availabilty,_getAttribute (_link(0, _rightOf(_tableHeader("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))), "aria-label"));
+				_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$hospitals[$i].name.substring(0,12)+"/"))));
+			}
+		}
+	}
+	
+	if($dentists.length>0){
+		for (var $i=0; $i<$dentists.length; $i++){
+			if($dentists[$i].availabilty == "Available in plan network"){
+				_assertEqual($dentists[$i].availabilty,_getAttribute (_link(0, _rightOf(_tableHeader("/"+$dentists[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))), "aria-label"));
+				_assertVisible(_italic("icon-ok-sign", _rightOf(_tableHeader("/"+$dentists[$i].name.substring(0,12)+"/"))));
+			}
+			if($dentists[$i].availabilty == "Not available in plan network"){
+				_assertEqual($dentists[$i].availabilty,_getAttribute (_link(0, _rightOf(_tableHeader("/"+$dentists[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))), "aria-label"));
+				_assertVisible(_italic("icon-ban-circle", _rightOf(_tableHeader("/"+$dentists[$i].name.substring(0,12)+"/"))));
+			}
+		}
+	}
+	
+	if($removedDoctors.length>0){
+		for (var $i=0; $i<$removedDoctors.length; $i++){
+			_assertNotVisible(_tableHeader("/"+$removedDoctors[$i].substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))));
+		}
+	}
+	if($removedHospitals.length>0){
+		for (var $i=0; $i<$removedHospitals.length; $i++){
+			_assertNotVisible(_tableHeader("/"+$removedHospitals[$i].substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))));
+		}
+	}
+	if($removedDentists.length>0){
+		for (var $i=0; $i<$removedDentists.length; $i++){
+			_assertNotVisible(_tableHeader("/"+$removedDentists[$i].substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))));
+		}
+	}
+	
+}
+
+function verifyDoctorsAndFacilities($plan){
+	_assertVisible(_div("Doctors and Facilities"));
+	
+	if($doctors.length>0){
+		for (var $i=0; $i<$doctors.length; $i++){
+			_assertVisible(_div("/"+$doctors[$i].name+" "+$doctors[$i].speciality+" "+$doctors[$i].address+"/"),"Verify doctors info displayed");
+			_assertVisible(_div($doctors[$i].availabilty, _rightOf(_div($doctors[$i].name))),"Verify doctors availabilty");
+			_assertVisible(_link("edit", _under(_div($doctors[$i].name))),"Edit link should be visible");
+		}
+	}
+	
+	if($hospitals.length>0){
+		for (var $i=0; $i<$hospitals.length; $i++){
+			_assertVisible(_div("/"+$hospitals[$i].name+" "+$hospitals[$i].speciality+" "+$hospitals[$i].address+"/"));
+			_assertVisible(_div($hospitals[$i].availabilty, _rightOf(_div($hospitals[$i].name))));
+			_assertVisible(_link("edit", _under(_div($hospitals[$i].name))),"Edit link should be visible");
+		}
+	}
+	
+	if($dentists.length>0){
+		for (var $i=0; $i<$dentists.length; $i++){
+			_assertVisible(_div("/"+$dentists[$i].name+" "+$dentists[$i].speciality+" "+$dentists[$i].address+"/"));
+			_assertVisible(_div($dentists[$i].availabilty, _rightOf(_div($dentists[$i].name))));
+			_assertVisible(_link("edit", _under(_div($dentists[$i].name))),"Edit link should be visible");
+		}
+	}
+	//_assertVisible(_div("/Doctors available within 1 mile radius within 2 mile radius within 5 mile radius within 10 mile radius within 20 mile radius within 30 mile radius within 50 mile radius within 100 mile radius radius of "+$plan.zipcode+"/"));
+	
+	_assertVisible(_div("providerHeatMapDetail"));
+	_assertEqual("/"+"Doctors available within 1 mile radius within 2 miles radius within 5 miles radius within 10 miles radius within 20 miles radius within 30 miles radius within 50 miles radius within 100 miles radius radius of "+$plan.zipcode+"./", _getText(_div("providerHeatMapDetail")));
+
+	if(_getText(_div("providerHeatMapDetail")).indexOf("N/A") != -1){
+		_assertNotVisible(_link("View Map", _in(_div("providerHeatMapDetail"))),"Verify View Map link is visible");
+	}else{
+		_assertVisible(_link("View Map", _in(_div("providerHeatMapDetail"))),"Verify View Map link is visible");
+	}
+	
+}
+
+function verifyPlanDetailsForDentalPlan($plan){
+	_log("Verify Plan Details on the Dental plan Detail page");
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_paragraph("Plan Highlights"));
+	var $name = $plan.name.replace("...","");
+	_assertVisible(_cell("/"+$name+"/", _near(_tableHeader("Plan Name"))),"Verify Plan name is displayed under Plan Highlights");
+	_assertVisible(_cell($plan.adultDental, _near(_tableHeader("Dental Checkup (Adult)"))));
+	_assertVisible(_cell($plan.childDental, _near(_tableHeader("Dental Checkup (Child)"))));
+	
+	if($plan.deductibleChild =="Not Applicable"){
+		_assertVisible(_cell("Not Applicable", _near(_tableHeader("Yearly Deductible (Child)"))));
+	}
+	else{
+		_assertVisible(_link($plan.deductibleChild, _near(_tableHeader("Yearly Deductible (Child)"))));
+	}
+	_assertVisible(_link($plan.name),"Verify Plan name is displayed under plan Image");
+	_assertVisible(_div($plan.tierAndType));
+	_assertVisible(_span($plan.premium),"Verify Plan premium is displayed under plan type");
+	_assertVisible(_span("monthly premium"));
+	if($plan.isSelected){
+		_assertVisible(_link("REMOVE"));
+	}else{
+		_assertVisible(_link("ADD"));
+	}
+	
+
+}
+
+function clickBackToAllPlansOnViewDetails($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles,$verificationFlag) {
+	_click(_link("Back to Plans"));
+	if ($verificationFlag != "N") {
+		verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles)
+	}
+}
+
+function addToCartOnviewDetails($HealthPlanDetails, $DentalPlanDetails) {
+	_setStrictVisibilityCheck(true);
+	var $shoppingPopModal = _div("/shoppingPop/");
+	
+	if(onHealthPlanPage()){
+		_log(" Add Health plan to the cart");
+		_lockWindow();
+		_focusWindow();
+		_click(_link("ADD"));
+		//waitUntilElementVisible($shoppingPopModal,15);
+		//_focus($shoppingPopModal);
+		//_log("shoppingPop id: "+_getAttribute(_div("/Fantastic! You've selected/"), "id"));
+		_assertVisible($shoppingPopModal);
+		_assertVisible(_heading3("Fantastic!"));
+		var $name = $HealthPlanDetails.name.replace("...","");
+		_assertVisible(_paragraph("/You've selected (.*)for your family./"))
+		_assertVisible(_paragraph("/"+$plan.name+"/"))
+		if(($DentalPlanDetails == null) || ($DentalPlanDetails == "")){
+			_setStrictVisibilityCheck(true);
+			_assertVisible(_button("Continue To Dental Plans"));
+			_assertVisible(_link("Continue To Cart"));
+			_setStrictVisibilityCheck(false);
+		}
+		else{
+			_assertVisible(_button("Continue To Cart"));
+			_assertNotVisible(_button("Continue To Dental Plans"));
+			_assertNotVisible(_button("Continue To Health Plans"));
+		}
+		_unlockWindow();
+	}
+	else{
+		_log(" Add Dental plan to the cart");
+		_lockWindow();
+		_focusWindow();
+		_click(_link("ADD"));
+		//waitUntilElementVisible($shoppingPopModal,15);
+		//_focus($shoppingPopModal);
+		//_log("shoppingPop id: "+_getAttribute(_div("/Fantastic! You've selected/"), "id"));
+		_assertVisible($shoppingPopModal);
+		_assertVisible(_heading3("Fantastic!"));
+		var $name = $DentalPlanDetails.name.replace("...","");
+		_assertVisible(_paragraph("/You've selected (.*)for your family./"))
+		_assertVisible(_paragraph("/"+$plan.name+"/"))
+		if(($HealthPlanDetails == null) || ($HealthPlanDetails == "")){
+			_setStrictVisibilityCheck(true);
+			_assertVisible(_button("Continue To Health Plans"));
+			_assertVisible(_link("Continue To Cart"));	
+			_setStrictVisibilityCheck(false);
+		}
+		else{
+			_assertVisible(_button("Continue To Cart"));
+			_assertNotVisible(_button("Continue To Dental Plans"));
+			_assertNotVisible(_button("Continue To Health Plans"));
+		}
+		_unlockWindow();
+	}
+			
+	_setStrictVisibilityCheck(false);
+}
+
+function clickEditProvidersOnPlanDetails($zip){
+    _click(_link("edit", _in(_div("ps-detail__group"))));
+    $prefPageIndex = 0;
+    verifyElementsOfPreferencePage($zip);
+}
+ 
+function removePlanFromPlanDetail(){
+    _log(" Remove plan from the cart");
+    _assertVisible(_link("REMOVE", _in(_div("ps-detail__tile"))));
+    _click(_link("REMOVE"));
+    _assertNotVisible(_div("shoppingPop-modal"));
+    _assertVisible(_link("ADD", _in(_div("ps-detail__tile"))));
+}
+ 
+function verifyInfoOnPlanDetailPageInDB($plan,$zipCode,$county,$coverageDate,$dob,$insuranceType){
+	var $toDate = _fetch(window.moment($coverageDate).format("YYYY-MM-DD")).toString();
+	var $applicableYear =_fetch(window.moment($coverageDate).format("YYYY")).toString();
+	var $planId = $plan.planId.replace(/[^0-9]/g,"");
+	if($insuranceType == "HEALTH"){
+		verifyDocumentLinksHealthPlanDB($planId,$applicableYear);
+	}else if($insuranceType == "DENTAL"){
+		verifyDocumentLinksDentalPlanDB($planId,$applicableYear);
+	}
+}
+
+function verifyDocumentLinksHealthPlanDB($planId,$applicableYear){
+	var $documentLinksHealthPlanDB = getDocumentLinksHealthPlanDB($planId,$applicableYear);
+	var $summaryOfBenefitsAndCoverageDB = $documentLinksHealthPlanDB[0][3];
+	var $planBrochureDB = $documentLinksHealthPlanDB[0][4];
+	var $providerDirectoryDB = $documentLinksHealthPlanDB[0][5];
+	
+	if($summaryOfBenefitsAndCoverageDB == "null"){
+		_assertVisible(_span("Summary of Benefits and Coverage", _in(_list("ps-detail__benefits-list"))));
+		_assertNotVisible(_link("Summary of Benefits and Coverage", _in(_list("ps-detail__benefits-list"))));
+	}else{
+		_assertVisible(_link("Summary of Benefits and Coverage", _in(_list("ps-detail__benefits-list"))));
+		verifyDocumentLinksPopup("Summary of Benefits and Coverage",$summaryOfBenefitsAndCoverageDB);
+	}
+	
+	if($planBrochureDB == "null"){
+		_assertVisible(_span("Plan Brochure", _in(_list("ps-detail__benefits-list"))));
+		_assertNotVisible(_link("Download Plan Brochure", _in(_list("ps-detail__benefits-list"))));
+	}else{
+		_assertVisible(_link("Download Plan Brochure", _in(_list("ps-detail__benefits-list"))));
+		verifyDocumentLinksPopup("Download Plan Brochure",$planBrochureDB);
+	}
+	
+	if($providerDirectoryDB == "null"){
+		_assertVisible(_span("Provider Directory", _in(_list("ps-detail__benefits-list"))));
+		_assertNotVisible(_link("Provider Directory", _in(_list("ps-detail__benefits-list"))));
+	}else{
+		_assertVisible(_link("Provider Directory", _in(_list("ps-detail__benefits-list"))));
+		verifyDocumentLinksPopup("Provider Directory",$providerDirectoryDB);
+	}
+}
+
+function verifyDocumentLinksDentalPlanDB($planId,$applicableYear){
+	var $documentLinksDentalPlanDB = getDocumentLinksDentalPlanDB($planId,$applicableYear);
+	var $summaryOfBenefitsAndCoverageDB = $documentLinksDentalPlanDB[0][3];
+	var $planBrochureDB = $documentLinksDentalPlanDB[0][4];
+	var $providerDirectoryDB = $documentLinksDentalPlanDB[0][5];
+	
+	if($summaryOfBenefitsAndCoverageDB == "null"){
+		_assertVisible(_listItem("Summary of Benefits and Coverage", _in(_list("ps-detail__benefits-list"))));
+		_assertNotVisible(_link("Summary of Benefits and Coverage", _in(_list("ps-detail__benefits-list"))));
+	}else{
+		_assertVisible(_link("Summary of Benefits and Coverage", _in(_list("ps-detail__benefits-list"))));
+		verifyDocumentLinksPopup("Summary of Benefits and Coverage",$summaryOfBenefitsAndCoverageDB);
+	}
+	
+	if($planBrochureDB == "null"){
+		_assertVisible(_listItem("Plan Brochure", _in(_list("ps-detail__benefits-list"))));
+		_assertNotVisible(_link("Download Plan Brochure", _in(_list("ps-detail__benefits-list"))));
+	}else{
+		_assertVisible(_link("Download Plan Brochure", _in(_list("ps-detail__benefits-list"))));
+		verifyDocumentLinksPopup("Download Plan Brochure",$planBrochureDB);
+	}
+	
+	if($providerDirectoryDB == "null"){
+		_assertVisible(_listItem("Provider Directory", _in(_list("ps-detail__benefits-list"))));
+		_assertNotVisible(_link("Provider Directory", _in(_list("ps-detail__benefits-list"))));
+	}else{
+		_assertVisible(_link("Provider Directory", _in(_list("ps-detail__benefits-list"))));
+		verifyDocumentLinksPopup("Provider Directory",$providerDirectoryDB);
+	}
+}
+
+function verifyDocumentLinksPopup($linkName,$url){
+	_click(_link($linkName, _in(_list("ps-detail__benefits-list"))));
+	_assertVisible(_div("warningBox"));
+	_assertVisible(_span("×", _in(_div("warningBox"))));
+	_assertVisible(_heading4("You are now leaving Covered California Web site.", _in(_div("warningBox"))));
+	_assertVisible(_paragraph("You are about to access:", _in(_div("warningBox"))));
+	_assertVisible(_link($url, _in(_div("warningBox"))));
+	_assertVisible(_paragraph("Covered California does not endorse the organizations or views represented by this site and takes no responsibility for, and exercises no control over, the accuracy, accessibility, copyright or trademark compliance or legality of the material contained on this site.", _in(_div("warningBox"))));
+	_assertVisible(_link("/No, Take Me Back/", _in(_div("warningBox"))));
+	_assertVisible(_link("Yes, Proceed", _in(_div("warningBox"))));
+	_assertVisible(_paragraph("Thank you for visiting our site.", _in(_div("warningBox"))));
+	_click(_link("/No, Take Me Back/", _in(_div("warningBox"))));
+	_assertNotVisible(_div("warningBox"));
+}
+

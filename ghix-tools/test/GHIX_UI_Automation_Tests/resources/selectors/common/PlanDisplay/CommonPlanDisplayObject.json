@@ -1,0 +1,113 @@
+{
+    "backToPreferences":"$('a.cp-link.plan-display-show.border-b')",
+    "topNav":
+    {
+        "hd_healthPlans":"$$('li.ps-nav__list>a.ps-nav__link')[0]",
+        "hd_dentalPlans":"$$('li.ps-nav__list>a.ps-nav__link')[1]",
+        "btn_cart" :"$('button#aid-cart')",
+        "hd_plansCount":"$('#filteredPlanCount')"
+    },
+    "header":
+    {
+        "pageHeader":"$('h2')",
+        "memberInfo":"$('#memInfo')",
+        "ZIP":"$('//span[contains(@id,\"inzip\")]')",
+        "coverageDateNoAPTC":"$('.ps-eligibility__saving')",
+        "coverageDateAPTC":"$('#cov_date_01')",
+        "memberNames":"$('.ps-eligibility__saving').$$('#memInfo')",
+        "memberName":"$('.ps-eligibility__saving').$('span*=MEMBER_NAME_REPLACE')"
+
+    },
+    "leftNav":
+    {
+        "sortBy":
+        {
+        "sortByHeading":"$('#sort').$('.ps-sidebar__group-header')",
+        "rb_monthlyPrice":"$('#premiumAfterCredit')",
+        "rb_deductible":"$('#deductible')",
+        "rb_oop":"$('#oopMax')",
+        "label_monthlyPrice" :"$('//label[@for=\"premiumAfterCredit\"]')",
+        "label_deductible":"$('//label[@for=\"deductible\"]')",
+        "label_OOP":"$('//label[@for=\"oopMax\"]')"
+        },
+        "filterBy":
+        {
+            "filterByHeading":"$('#filter').$('.ps-sidebar__group-header')",
+            "planType":
+            {
+            "label_planType":"$('#planTypeFilter').$('.ps-sidebar__filter-header')",
+            "cb_HMO":"$('#plantype_filter_checkbox_HMO')",
+            "cb_EPO":"$('#plantype_filter_checkbox_EPO')",
+            "cb_PPO":"$('#plantype_filter_checkbox_PPO')",
+            "label_HMO":"$('//label[@for=\"plantype_filter_checkbox_HMO\"]')",
+            "label_EPO":"$('//label[@for=\"plantype_filter_checkbox_EPO\"]')",
+            "label_PPO":"$('//label[@for=\"plantype_filter_checkbox_PPO\"]')"
+            },
+            "company":
+            {
+                "label_company": "$('#carrierFilter').$('.ps-sidebar__filter-header')",
+                "listOfCompanies": "$('#carrierFilter').$$('[id*=carrier_filter_checkbox]')",
+                "cb_companyName": "$('#carrierFilter').$$('[id*=carrier_filter_checkbox]')[index]",
+                "lbl_companyName": "$('#carrierFilter').$$('[for*=carrier_filter_checkbox]')[index]"          
+            }
+        }
+
+    },
+    "rightPanel":
+    {
+        "appliedFilter":"$('.ps-plans__filter')"
+    },
+    "planTiles":
+    {
+        "noOfPages": "$$('.cp-pagination__content')[0]",
+        "icn_paginationArrowRight":"$$('.cp-pagination__arrow.next')[0]",
+        "noOfTiles":"$('#mainSummary')",
+        "planTileNoIndex":"$('div.cp-tile')",
+        "planTile":"$$('.cp-tile')[index]",
+        "img_planCompany":"$$('.cp-tile__img')[index]",
+        "planName":"$$('.cp-tile__plan-name')[index]",
+        "premiumAmt":"$$('.cp-tile__premium-amount')[index]",
+        "deductible": "$$('//table/tbody/tr[3]/td')[index]",
+        "OOPmax":"$$('//table/tbody/tr[4]/td')[index]",
+        "btn_addPlanLocNoIndex":"$('//a[@title=\"ADD\"]')",
+        "btn_addPlan":"$$('//a[@title=\"ADD\"]')[index]",
+        "btn_compare":"$$('//label[@title=\"Compare\"]/input')[index]",
+        "btn_detail":"$$('//div[@class=\"cp-tile__footer\"]/a[1]')[index]",
+        "label_compare":"$$('//label[@title=\"Compare\"]')[index]"
+     },
+    "compare":
+    {
+        "icn_compare":"$$('//i[contains(@id,\"removeChk\")]')[i]",  
+        "compareNow":"$('//a[contains(text(),\"Compare Now\")]')",
+        "img_comparePlan":"$$('.cp-compare-plans__img')[i]",
+        "comparePremiumAmt":"$$('.cp-compare-plans__premium')[i]",
+        "hd_tooManyPansComparePopup":"$('#greater')",
+        "btn_cancelPopup":"$('//div[@id=\"more-than-four\"]/div[3]/button')"
+
+    },
+    "continuePopup":
+    {
+        "fantasticPopUp": "$('#shoppingPop-modal').$('#shoppingforHeader')",
+        "fantasticPopUpText":"$('#shoppingPop-modal > div.modal-body > p')",
+        "fantasticPopUpPlanName":"$('#PlanName')",
+        "btn_continueToCartFromHealth":"$('#aid_continueToCart_02')",
+        "btn_continueToCartFromDental":"$('#aid-continueCart_03')",
+        "btn_continueToDentalPlans": "$('#aid-continueDentalPlan')" ,
+        "lk_continueToCartLink": "$('*=CONTINUE TO CART')",
+        "btn_continueToCart":"$('button*=Continue To Cart')"
+    },
+    "planDetailsPage":
+    {
+        "backToAllPlansLink":"$('.back-to-all-plans-link-detail')"
+    },
+     "updateResultsPopup":
+     {
+        "updateResults" :"$('//button[@id=\"shopping-modal-update\"]')",
+        "seekingCoveragePopUpHeader": "$('#shopping-modal').$('#shoppingforHeader')",
+        "seekingCoveragePopUp": "$('#shopping-modal')"
+     },
+    "comparePlansPage":
+    {
+        "backToAllPlansLink":"$('.back-to-all-plans-link-compare')"
+    }
+}

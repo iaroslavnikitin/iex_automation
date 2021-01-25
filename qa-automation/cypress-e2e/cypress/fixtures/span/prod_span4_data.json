@@ -1,0 +1,108 @@
+{
+  "lastName": "Ebner",
+  "address": {
+    "ns2:LocationStreet": {
+      "ns2:StreetFullText": "4013 Forest Rd"
+    },
+    "ns2:LocationCityName": "MINNEAPOLIS",
+    "ns2:LocationCountyCode": "053",
+    "ns2:LocationStateUSPostalServiceCode": "MN",
+    "ns2:LocationPostalCode": "55416"
+  },
+  "eligibilityStartDate": "2020-01-01",
+  "eligibilityEndDate": "2020-01-31",
+  "currentEligibilitySpan": 1,
+  "totalEligibilitySpan": 4,
+  "insuranceApplicationRequestingFinancialAssistanceIndicator": true,
+  "householdMemberReferenceId": "Person1",
+  "primaryTaxFilerId": "Person1",
+  "mainSubscriberId": "Person1",
+  "taxDependants": [
+    "Person2"
+  ],
+  "ssfSignerId": "Person1",
+  "rolename": "INDIVIDUAL",
+  "assisterBrokerId": 568500327,
+  "assisterExternalId": "AS2084718481",
+  "assisterBrokerNPN": 40648162,
+  "u": {
+    "firstname": "One",
+    "lastname": "Cypress"
+  },
+  "people": [
+    {
+      "rel": {
+        "2": "01"
+      },
+      "personId": "Person1",
+      "firstName": "Addison",
+      "lastName": "Ebner",
+      "dob": "1963-11-14",
+      "age": 56,
+      "phone": "8612704709",
+      "personSex": "Female",
+      "personRace": "Asian",
+      "USCitizenIndicator": true,
+      "americanIndianIndicator": false,
+      "aptcEligibilityIndicator": true,
+      "aptcEligibilityStartDate": "2020-01-01",
+      "aptcEligibilityEndDate": "2020-01-31",
+      "aptcEligibilityReasonText": "999",
+      "csrEligibilityIndicator": true,
+      "csrEligibilityReasonText": "999",
+      "csrCategoryAlphaCode": "73PercentActuarialVarianceLevelSilverPlanCSR",
+      "csrEligibilityStartDate": "2020-01-01",
+      "csrEligibilityEndDate": "2020-01-31",
+      "csrLevel": "CS4",
+      "exchangeEligibilityIndicator": true,
+      "exchangeEligibilityReasonText": "999",
+      "exchangeEligibilityStartDate": "2020-01-01",
+      "exchangeEligibilityEndDate": "2020-01-31",
+      "personMarriedIndicator": false,
+      "isSeekingCoverageIndicator": true,
+      "isPrimaryContact": false,
+      "isPrimaryTaxFiler": true,
+      "isSSFSigner": false,
+      "isHouseholdMemberReference": false,
+      "insurancePremiumAmount": 255.55,
+      "aptcMaximumAmount": 110
+    },
+    {
+      "rel": {
+        "1": "01"
+      },
+      "personId": "Person2",
+      "firstName": "Molly",
+      "lastName": "Ebner",
+      "dob": "1957-02-17",
+      "age": 62,
+      "phone": "2841503204",
+      "activityDate": "2020-05-15T00:34:42.336Z",
+      "personSex": "Male",
+      "personRace": "White",
+      "USCitizenIndicator": true,
+      "americanIndianIndicator": false,
+      "aptcEligibilityIndicator": true,
+      "aptcEligibilityStartDate": "2020-01-01",
+      "aptcEligibilityEndDate": "2020-01-31",
+      "aptcEligibilityReasonText": "999",
+      "csrEligibilityIndicator": true,
+      "csrEligibilityReasonText": "999",
+      "csrCategoryAlphaCode": "73PercentActuarialVarianceLevelSilverPlanCSR",
+      "csrEligibilityStartDate": "2020-01-01",
+      "csrEligibilityEndDate": "2020-01-31",
+      "csrLevel": "CS4",
+      "exchangeEligibilityIndicator": true,
+      "exchangeEligibilityReasonText": "999",
+      "exchangeEligibilityStartDate": "2020-01-01",
+      "exchangeEligibilityEndDate": "2020-01-31",
+      "personMarriedIndicator": false,
+      "isSeekingCoverageIndicator": true,
+      "isPrimaryContact": false,
+      "isPrimaryTaxFiler": false,
+      "isSSFSigner": false,
+      "isHouseholdMemberReference": false
+    }
+  ]
+
+}

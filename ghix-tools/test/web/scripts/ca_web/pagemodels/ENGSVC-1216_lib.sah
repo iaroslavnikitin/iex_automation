@@ -1,0 +1,725 @@
+_includeOnce("../lib/CommonFunctions.sah");
+
+
+/**
+* This function will returns the agent who has more than 10 Agent
+*  "Testone GI"/ "Agency160 GI"	
+*/
+var $countOne;
+var $countTwo;
+var $allAgents = {};
+
+var $tableContent = _div("gridBody");
+
+function getAgentNameHavingMoreConsumers($agentOne, $agentTwo,$toCompare){
+	
+	$countOne = parseInt(_getText(_cell(2, _near(_cell($agentOne)))));
+	_log("$countOne: "+$countOne);
+	$countTwo = parseInt( _getText(_cell(2, _near(_cell($agentTwo)))));
+	_log("$countTwo: "+$countTwo);
+
+	if ($toCompare == "Y") {
+
+		if ($countOne > $countTwo) {
+			return $agentOne;
+		} else {
+			_log($agentTwo);
+			var $temp = $countOne
+			$countOne = $countTwo;
+			$countTwo = $temp;
+			return $agentTwo;
+		}
+	}else{
+		if( $countOne > 10){
+			_log($agentOne);
+			return $agentOne;
+		}
+		if($countTwo > 10){
+			
+			_log($agentTwo);
+			var $temp = $countOne
+			$countOne = $countTwo;
+			$countTwo = $temp
+			return $agentTwo
+		}
+		_stopTestCase("There are less than 10 consumers for both agents");
+	}
+	
+}
+
+function getAgentInformation(){
+	var $count
+	
+	var $agentOne =_getText(_cell(0, _near(_link("Agent Name"))));
+	var $agentTwo = _getText(_cell(6, _near(_link("Agent Name"))));
+	
+	var $consumersOne=_getText(_cell(2, _near(_tableHeader("Consumers"))));
+	var $consumersTwo = _getText(_cell(8, _near(_tableHeader("Consumers"))));
+	$allAgents.$agentOne =[$agentOne, $consumersOne]
+	$allAgents.$agentTwo =[$agentTwo, $consumersTwo]
+	_log(" Agent one information" +$allAgents.$agentOne);
+	_log(" Agent two information" +$allAgents.$agentTwo);
+
+}
+
+// consumer page functions
+
+var $searchPanel = _div("panel");
+var $activeConsSearchButton = _submit("Search", _in($searchPanel));
+
+function clearAllFilters(){
+	click(_submit("Clear All Filters"));
+}
+
+function searchConsumers($searchBy, $value){
+	
+	expandSearchFilters();
+	expandAdvancedSearchFilters();
+
+	if($searchBy == "AgentFirstName"){
+		_log("searching by Agent first name");
+		$agentname= $value.split(" ")[0];
+		searchConsumersByAgentFirstName($agentname);
+		
+	}else if($searchBy == "AgentLastName"){
+		_log("searching by Agent Last name");
+		$agentname= $value.split(" ")[1];
+		searchConsumersByAgentLastName($agentname);
+	}else if($searchBy == "ApplicationYear"){
+		_log("searching by Application Year");
+		searchConsumersByApplicationYear();
+	}else if($searchBy == "Case ID"){
+		searchConsumersByCaseId($value);
+	}else if($searchBy == "FirstName"){
+		searchConsumersByConsumerFirstName($value);
+	}
+}
+
+function searchConsumersByConsumerFirstName($name,$individuals){
+	_setValue(_textbox("firstName"), $name);
+	click($activeConsSearchButton);
+
+	if ($individuals) {
+		var $result = [];
+
+		for (var $i = 0; $i < $individuals.length; $i++) {
+			if ($individuals[$i].firstName.indexOf($name) != -1) {
+				$result.push($individuals[$i]);
+			}
+		}
+
+		var $str = JSON.stringify($result);
+		_log("$result: "+$str);
+		return $result;
+	}else{
+		return null;
+	}
+}
+
+function searchConsumersByConsumerLastName($lastName,$individuals){
+	_setValue(_textbox("lastName"), $lastName);
+	click($activeConsSearchButton);
+
+	if ($individuals) {
+		var $result = [];
+
+		for (var $i = 0; $i < $individuals.length; $i++) {
+			if ($individuals[$i].lastName.indexOf($lastName) != -1) {
+				$result.push($individuals[$i]);
+			}
+		}
+
+		var $str = JSON.stringify($result);
+		_log("$result: "+$str);
+		return $result;
+	}else{
+		return null;
+	}
+}
+
+function searchConsumersByConsumerDob($dob,$individuals){
+	var $dobToSearch = _fetch(window.moment($dob).format("MM-DD-YYYY"));
+	_setValue(_textbox("dob"), $dobToSearch);
+	click($activeConsSearchButton);
+
+	if ($individuals) {
+		var $result = [];
+
+		for (var $i = 0; $i < $individuals.length; $i++) {
+			if ($individuals[$i].dob.indexOf($dob) != -1) {
+				$result.push($individuals[$i]);
+			}
+		}
+
+		var $str = JSON.stringify($result);
+		_log("$result: "+$str);
+		return $result;
+	}else{
+		return null;
+	}
+}
+
+function searchConsumersByConsumerSsn($ssn,$individuals){
+	
+	_setValue(_textbox("ssn"), $ssn);
+	click($activeConsSearchButton);
+
+	if ($individuals) {
+		var $result = [];
+
+		for (var $i = 0; $i < $individuals.length; $i++) {
+			if ($individuals[$i].lastFourSsn.indexOf($ssn) != -1) {
+				$result.push($individuals[$i]);
+			}
+		}
+
+		var $str = JSON.stringify($result);
+		_log("$result: "+$str);
+		return $result;
+	}else{
+		return null;
+	}
+}
+
+function searchConsumersByHouseNumber($houseNumber,$individuals){
+	$houseNumber = $houseNumber.split(" ")[0];
+	_setValue(_textbox("houseNumber"), $houseNumber);
+	click($activeConsSearchButton);
+
+	if ($individuals) {
+		var $result = [];
+
+		for (var $i = 0; $i < $individuals.length; $i++) {
+			if ($individuals[$i].houseNumber.indexOf($houseNumber) != -1) {
+				$result.push($individuals[$i]);
+			}
+		}
+
+		var $str = JSON.stringify($result);
+		_log("$result: "+$str);
+		return $result;
+	}else{
+		return null;
+	}
+}
+
+function verifyActiveConsumersSearchResult($expectedResult,$case,$collectCaseId,$household){
+
+	if ($household) {
+		$expectedResult = [
+			{
+				"firstName":$household.people[0].firstName,
+				"lastName":$household.people[0].lastName,
+				"lastFourSsn":$household.people[0].SSN.substring(5,9),
+				"houseNumber":$household.people[0].homeAddress.street,
+				"dob":$household.people[0].dob,
+				"caseId":$household.externalHouseholdCaseId
+			}
+		]	
+
+		$expectedResult[0].issuerHealth = ($household.customGroup[0].healthPlan) ? $household.customGroup[0].healthPlan.issuerName:null;
+		$expectedResult[0].issuerDental = ($household.customGroup[0].dentalPlan) ? $household.customGroup[0].dentalPlan.issuerName:null;
+
+		var $str = JSON.stringify($expectedResult);
+		_log("$result: "+$str);
+	}
+
+	var $tableRows = _collect ("_div", "/gridRow row/", _in($tableContent));
+	var $totalTableRows;
+	var $expectedRowsCount = 0;
+
+	if ($case == "by case" && $expectedResult[0].issuerHealth && $expectedResult[0].issuerDental) {
+		$expectedRowsCount = 2;
+	}else if ($case == "by application year") {
+		$expectedRowsCount = ($expectedResult.length*2);
+	}else if ($case == "by issuer") {
+		for (var $i = 0; $i < $expectedResult.length; $i++) {
+			if ($expectedResult[$i].issuerHealth == $expectedResult[$i].issuerDental) {
+				$expectedRowsCount = $expectedRowsCount+2;
+			}else{
+				$expectedRowsCount++;
+			}
+		}
+	}else{
+		$expectedRowsCount = $expectedResult.length;
+	}
+
+	if ($expectedRowsCount > 10) {
+		_log("$tableRows count1: "+$tableRows.length);
+		click(_link("2", _in(_list("/pagination-sm pagination/"))));
+		_wait(5000);
+		var $totalTableRows = $tableRows.concat(_collect ("_div", "/gridRow row/", _in($tableContent)));
+		_log("$totalTableRows: "+$totalTableRows.length);
+		click(_link("1", _in(_list("/pagination-sm pagination/"))));
+	}else{
+		$totalTableRows = $tableRows;
+	}
+
+	_assertEqual($expectedRowsCount,$totalTableRows.length,"verify rows count");
+
+	for (var $i = 0; $i < $expectedResult.length; $i++) {
+		var $isHealthPresent = false;
+		var $isDentalPresent = false;
+		var $tableRowsCount = 0;
+
+		if (_getAttribute (_listItem("1", _in(_list("/pagination-sm pagination/"))), "class").indexOf("active") == -1) {
+			click(_link("1", _in(_list("/pagination-sm pagination/"))));
+			$tableRows = _collect ("_div", "/gridRow row/", _in($tableContent));
+			$tableRowsCount = 0;
+		}
+
+		_log("-----------verify consumer: "+($i+1)+" ---------------")
+		for (var $j = 0; $j < $totalTableRows.length; $j++) {
+
+			if ($j > 9) {
+				if (_getAttribute (_listItem("2", _in(_list("/pagination-sm pagination/"))), "class").indexOf("active") == -1) {
+					click(_link("2", _in(_list("/pagination-sm pagination/"))));
+					$tableRows = _collect ("_div", "/gridRow row/", _in($tableContent));
+					$tableRowsCount = 0;
+				}
+			}
+
+			_log("$tableRowsCount: "+$tableRowsCount);
+
+			if (_isVisible(_div($expectedResult[$i].firstName+" "+$expectedResult[$i].lastName, _in($tableRows[$tableRowsCount]))) && !_isVisible(_div("/Family Dental/", _in($tableRows[$tableRowsCount])))) {
+				_log("verifying health plan");
+
+				$isHealthPresent = true;
+				_assertVisible(_div($expectedResult[$i].firstName+" "+$expectedResult[$i].lastName, _in($tableRows[$tableRowsCount])));
+				_assertVisible(_div($expectedResult[$i].houseNumber, _in($tableRows[$tableRowsCount])));
+
+				var $dob = _fetch(window.moment($expectedResult[$i].dob).format("MM/DD"));
+				_assertVisible(_div("DOB: "+$dob, _in($tableRows[$tableRowsCount])));
+				_assertVisible(_div("SSN: XXX-XX-"+$expectedResult[$i].lastFourSsn, _in($tableRows[$tableRowsCount])));
+				_assertVisible(_image($expectedResult[$i].issuerHealth+" logo", _in($tableRows[$tableRowsCount])));
+				
+				if ($collectCaseId) {
+					var $collectedCaseId = _getText(_div("/Case ID:/", _in($tableRows[$tableRowsCount])));
+					$collectedCaseId = $collectedCaseId.split(":")[1].trim();
+					$expectedResult[$i].caseId = $collectedCaseId;
+				}
+			}
+
+			if (_isVisible(_div($expectedResult[$i].firstName+" "+$expectedResult[$i].lastName, _in($tableRows[$tableRowsCount]))) && _isVisible(_div("/Family Dental/", _in($tableRows[$tableRowsCount])))) {
+				_log("verifying dental plan");
+				$isDentalPresent = true;
+				_assertVisible(_div($expectedResult[$i].firstName+" "+$expectedResult[$i].lastName, _in($tableRows[$tableRowsCount])));
+				_assertVisible(_div($expectedResult[$i].houseNumber, _in($tableRows[$tableRowsCount])));
+
+				var $dob = _fetch(window.moment($expectedResult[$i].dob).format("MM/DD"));
+				_assertVisible(_div("DOB: "+$dob, _in($tableRows[$tableRowsCount])));
+				_assertVisible(_div("SSN: XXX-XX-"+$expectedResult[$i].lastFourSsn, _in($tableRows[$tableRowsCount])));
+				
+				_assertVisible(_image($expectedResult[$i].issuerDental+" logo", _in($tableRows[$tableRowsCount])));
+
+			}
+
+			$tableRowsCount++;
+			if ($isDentalPresent && $isHealthPresent) {
+				break;
+			}
+		}
+
+		if ($case == "by case" && $expectedResult[0].issuerHealth && $expectedResult[0].issuerDental) {
+			if (!$isHealthPresent || !$isDentalPresent) {
+				_assertEqual(1,2,"result not found");
+			}
+		}else if($case == "by application year" && $expectedResult[$i].issuerHealth && $expectedResult[$i].issuerDental){
+			if (!$isHealthPresent || !$isDentalPresent) {
+				_assertEqual(1,2,"result not found");
+			}
+		}else if ($case == "by issuer") {
+			if ($expectedResult[$i].issuerHealth == $expectedResult[$i].issuerDental) {
+				if ((!$isHealthPresent || !$isDentalPresent)) {
+					_assertEqual(1,2,"result not found");
+				}
+			}else{
+				if (!$isHealthPresent && !$isDentalPresent) {
+					_assertEqual(1,2,"result not found");
+				}
+			}
+		}
+		
+	}
+
+	if ($collectCaseId) {
+		var $str = JSON.stringify($expectedResult);
+		_log("$expectedResult: "+$str);
+		return $expectedResult;
+	}
+}
+
+function searchConsumersByAgentFirstName($name){
+	_setValue(_textbox("agentFirstName"), $name);
+	click($activeConsSearchButton);
+	_assertVisible(_span("/"+$name+"/"));
+}
+
+function searchConsumersByAgentLastName($name){
+	_setValue(_textbox("agentLastName"), $name);
+	click($activeConsSearchButton);
+	_assertVisible(_span("/"+$name+"/"));
+	
+}
+
+function searchConsumersByAgentLicenseNumber($licenseNumber){
+	_setValue(_textbox("agentLicenseNumber"), $licenseNumber);
+	click($activeConsSearchButton);
+	_assertVisible(_span("/"+$licenseNumber+"/"));
+}
+
+function searchConsumersByApplicationYear($applicationYear){
+	if($applicationYear == null){
+		var $currentYear = _fetch(window.moment().format('YYYY'));
+		_setSelected(_select("yearSelect"), $currentYear);
+		click($activeConsSearchButton);
+		_assertVisible(_span($currentYear));
+		
+	}
+}
+
+function searchConsumersByIssuer($issuer,$individuals){
+	_setSelected(_select("issuer"), $issuer);
+	click($activeConsSearchButton);
+
+	if ($individuals) {
+		var $result = [];
+
+		for (var $i = 0; $i < $individuals.length; $i++) {
+			if ($individuals[$i].issuerHealth.indexOf($issuer) != -1 || $individuals[$i].issuerDental.indexOf($issuer) != -1) {
+				$result.push($individuals[$i]);
+			}
+		}
+
+		var $str = JSON.stringify($result);
+		_log("$result: "+$str);
+		return $result;
+	}else{
+		return null;
+	}
+}
+
+function expandSearchFilters(){
+	var $expandLink = _link("+", _in($searchPanel));
+	if (_isVisible($expandLink)) {
+		click($expandLink);
+	}
+}
+
+function expandAdvancedSearchFilters(){
+	var $advancedSearchLink = _link("Show Advanced Search", _in($searchPanel));
+	if (_isVisible($advancedSearchLink)) {
+		click($advancedSearchLink);
+	}
+}
+
+
+function searchConsumersByCaseId($caseId,$individuals){
+	_setValue(_textbox("Case ID"), $caseId);
+	click($activeConsSearchButton);
+	_assertVisible(_span($caseId));
+
+	if ($individuals) {
+		var $result = [];
+
+		for (var $i = 0; $i < $individuals.length; $i++) {
+			if ($individuals[$i].caseId.indexOf($caseId) != -1) {
+				$result.push($individuals[$i]);
+			}
+		}
+
+		var $str = JSON.stringify($result);
+		_log("$result: "+$str);
+		return $result;
+	}else{
+		return null;
+	}
+	
+}
+
+function getAgentNameNextToConsumer(){
+	var $agentFirstName = _getText(_div("col-sm-2 col-md-2 col-lg-2")).split(" ")[0];
+	return $agentFirstName;
+}
+
+function getConsumersPlanName(){
+	var $plan = _getText(_div("labelValue ng-binding"));
+	return $plan;
+}
+
+function clickChangeDelegationfromGearButton($role,$consumerData){
+
+	var $caseId = _getText(_span("labelValue ng-binding", _under(_div("CASE DETAILS"))));
+	_log("Case Id =   "+$caseId);
+	var $consumerName;
+	if($role == "Admin Staff"){
+		$consumerName = _getText(_link("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))));
+	}else{
+		$consumerName = _getText(_strong("", _in(_div("/household-value/", _in(_div("/gridRow/[0]"))))));
+	}	
+	_log("Consumer Name =  "+$consumerName);
+	_click(_italic("icon-cog", _near(_div("ACTIONS"))));
+	_click(_link("Change Delegation", _in(_list("/pull-right dropdown-menu/"))));
+	
+	verifyTransferConsumerDelegation($consumerName);
+
+	if($consumerData){
+		_log("---object---");
+		return {"caseId":$caseId, "consumerName":$consumerName}
+	}else{
+		_log("---var---");
+		return $caseId;
+	}
+}
+
+function verifyTransferConsumerDelegation($consumerName,$count){
+	_assertVisible(_span("Transfer Consumer Delegations"));
+	_assertVisible(_paragraph("alert alert-info ng-binding ng-scope"));
+	
+	if($consumerName == null ||$consumerName == ""){
+		_assertEqual("Please select an agent below and click the RE-ASSIGN button to transfer all the consumers you selected in the previous screen to the selected agent.", _getText(_paragraph("alert alert-info ng-binding ng-scope")));
+	}
+	else if($count =="bulk"){
+		_assertEqual("Please select an agent below and click the RE-ASSIGN button to transfer all consumers for agent "+$consumerName +" to the selected agent.",_getText(_paragraph("alert alert-info ng-binding ng-scope")));
+	}
+	
+	else
+		_assertEqual("Please select an agent below and click the RE-ASSIGN button to transfer the consumer "+$consumerName+" to the selected agent.", _getText(_paragraph("alert alert-info ng-binding ng-scope")));
+	
+	_assertVisible(_heading2("Search for an Agent"));
+	_assertVisible(_textbox("agentFirstName"));
+	_assertVisible(_textbox("agentLastName"));
+	_assertVisible(_emailbox("agentEmail"));
+	_assertVisible(_textbox("agentLicenseNo"));
+	_assertVisible(_select(0, _near(_label("Site"))));
+	_assertVisible(_submit("Search"));
+	
+	_assertVisible(_tableHeader("Pick Agent"));
+	_assertVisible(_tableHeader("Email"));
+	_assertVisible(_tableHeader("Primary Site"));
+	_assertVisible(_tableHeader("Re-assign"));
+	
+	_assertVisible(_span("To see a list of agents, please enter information in the search box above."));
+
+}
+
+function getToAgent($agent,$agentOne,$agentTwo){
+	if($agent == $agentOne){
+		return $agentTwo;
+	}else{
+		return $agentOne;
+	}
+}
+
+function searchAgentTotransferConsumers($agent,$agentOne,$agentTwo){
+
+	var $agentToSearch = getToAgent($agent,$agentOne,$agentTwo);
+	var $firstName = $agentToSearch.split(' ')[0];
+	var $lastName = $agentToSearch.split(' ')[1];
+
+	_setValue(_textbox("agentFirstName"), $firstName);
+	_setValue(_textbox("agentLastName"), $lastName);
+	_click(_submit("Search"));
+
+	var $toAgent = _getText(_label("ng-binding", _near(_tableHeader("Agent Name"),_in(_table("table margin20-t")))));
+	
+	return $toAgent;
+}
+
+function reAssignAgentToTransferConsumer($toAgent,$count, $fromAgent,$verificationFlag){
+	 var $clickAgent = "/"+$toAgent+"/";
+	_click(_radio("targetAgent", _near(_label($clickAgent))));
+	_click(_submit("Re-assign"));
+
+	_lockWindow();
+	_focusWindow();
+	_assertVisible(_heading3("Success"));
+	_assertEqual("/Consumer case successfully re-assigned to agent "+$toAgent+"/", _getText(_paragraph("/alert alert-success/", _in(_div("modal-body")))));
+	_assertVisible(_submit("Close"));
+	
+	_click(_submit("Close"));
+		
+	var $testIdNum = getTestCaseId(); 
+   	_log("$testIdNum: "+$testIdNum);
+   	if($verificationFlag != "N"){		
+		_assertEqual($countTwo+$count, _getText(_cell(2, _near(_cell($toAgent)))));
+		_assertEqual($countOne-$count, _getText(_cell(2, _near(_cell($fromAgent)))));
+	}
+
+	_unlockWindow();
+}
+
+function verifyConsumerCountGetsUpdated($agent, $count){
+	var $consumerCount;
+	var $expectedAgent = $allAgents.$agentOne[0].split(" ")[0];
+	_log($expectedAgent);
+	if($allAgents.$agentOne[0] == $agent){
+		$consumerCount = parseInt($allAgents.$agentOne[1]);
+	}
+	else{
+		$consumerCount = parseInt($allAgents.$agentTwo[1]);
+	}
+	
+	_assertEqual($consumerCount+$count, _getText(_cell(2, _near(_cell("/"+$agent+"/")))));
+
+}
+	
+function verifydbAfterSingleConsumerTransfer($caseId, $agent){
+	_wait(5000);
+	_log(" verify enrollment tables");
+	var $result = getInfofromEnrollmentAfterTransferDelegations($caseId);
+	compareEnrollment($result, $agent); 
+	
+	_log(" verify enrollment_aud tables");
+	var $audResults = getInfofromEnrollmentAud($caseId);
+	compareEnrollment($audResults,$agent);
+	
+	
+	_log(" verify enrollment_event and enrollment_event_aud tables");
+	var $result = getInfoFromEnrollmentEventAfterTransferDelegations($caseId);
+	compareEnrollmentEvent($result);
+	
+	_log(" verify enrollment_event_aud tables");
+	$result = getInfofromEnrollmentEventAud($caseId);
+	compareEnrollmentEvent($result);
+	
+	
+}
+
+function compareEnrollment($result, $agent){
+	_assertNotNull($result[0][3]," Verify Last_Updated_By is not null");
+	_assertEqual("/"+$agent+"/", $result[0][1],"Verify Broker Name is displayed");
+	var $timeStamp = $result[0][2];
+	$timeStamp = $timeStamp.split(" ")[0];
+	var $currentDate = _fetch(window.moment().format('YYYY-MM-DD'));
+	_assertEqual($timeStamp, $currentDate);
+}
+
+function compareEnrollmentEvent($result){
+	_assertNotNull($result[0][3]," Verify Last_Updated_By is not null");
+	var $timeStamp = $result[0][4];
+	$timeStamp = $timeStamp.split(" ")[0];
+	var $currentDate = _fetch(window.moment().format('YYYY-MM-DD'));
+	_assertEqual($timeStamp, $currentDate);
+	_assertEqual($result[0][2],"BROKER_DESIGNATE", "Verify TXN_IDENTIFIER is BROKER_DESIGNATE")	
+}
+	
+function clickChangeDelegationfromBookOfBusinessLinks(){
+	_assertEqual("/disabled/",_getAttribute(_link("aid-transfer-consumer"),"className"),"verify the link is disabled when there is no consumer selected");
+	
+	var $caseDetails = _collect("_div", "/Case ID:/", _under(_div("CASE DETAILS")),_in(_div("gridBody")));
+	var $length =  $caseDetails.length;
+	var $i, $j;
+	var $caseId = [];
+	for($i = 0, $j =0; $i< $length; $i+=2, $j++){
+		$caseId[$j] = 	_getText(_span(1, _in($caseDetails[$i])));
+		_log(" Case Id of consumers "+$caseId[$j]);
+	}
+	
+	var $checkBoxes = _collect("_checkbox","/inlineCheckbox1/",_in(_div("gridBody")));
+	for($i=0; $i<$checkBoxes.length; $i++){
+		_click($checkBoxes[$i]);
+	}
+	_assertNotEqual("/disabled/",_getAttribute(_link("aid-transfer-consumer"),"className"),"verify the link is enabled when there is no consumer selected");
+	_click(_link("Change Delegation"));
+	verifyTransferConsumerDelegation();
+	return $caseId;
+	
+}
+
+function verifyDbAfterMultipleConsumerTransfer($caseId, $agent){
+	
+	for( var $i=0; $i< $caseId.length; $i++){
+		_log("Verify db is updated for customer No.  "+ $i +"  with caseid = "+$caseId[$i]);
+		verifydbAfterSingleConsumerTransfer($caseId[$i], $agent);
+	
+	}
+
+
+}	
+
+function clickTransferConsumerDelegations($agent,$verificationFlag){
+	var $ConsumerCount = parseInt(_getText(_cell(2, _near(_cell($agent)))));
+	if($verificationFlag != "N"){
+		verfifydbBeforeBulkTransfer($ConsumerCount,$agent);
+	}
+	
+	_log("Total count of consumers with '"+$agent+"' is "+ $ConsumerCount);
+	_click(_link("dropdown-toggle", _near(_cell($agent))));
+	_click(_link("Transfer Consumer Delegations", _near(_cell($agent))));
+	if($verificationFlag != "N"){
+		verifyTransferConsumerDelegation($agent, "bulk");
+	}
+	
+	return $ConsumerCount ; 
+
+}
+
+
+function verfifydbBeforeBulkTransfer($count, $agent){
+	_log("verify enrollment table before bulk transfer");
+   var $result = getInfoFromEnrollmentforBulkTransfer($agent);
+   _assertEqual($count, $result.length," Verify the count of consumer from UI is equal to that from DB" );
+   _log("verify last_updated_By is not null ")
+   for(var $i = 0; $i< $result.length; $i++){
+		_assertNotNull($result[$i][3]," Verify Last_Updated_By is not null");
+   }
+   _log("verify enrollment_aud table before bulk transfer");
+   var $resultAud = getInfoFromEnrollAudforBulkTransfer($agent);
+   var $lastCount = parseInt($count)-1;
+	_assertEqual("/"+$agent+"/", $resultAud[$lastCount][1],"Verify Broker Name is displayed");
+	//_assertNotEqual("/"+$agent+"/", $result[$count][1],"Verify Broker Name is displayed after   "+$count);
+	/*
+	_log("verify enrollment_event table before bulk transfer");
+	var $result = getInfoFromEnrollmentEventforBulkTransfer($agent);
+	 _assertEqual($count, $result.length," Verify the count of consumer from UI is equal to that from DB" );
+	 
+	 
+	_log("verify enrollment_event_aud table before bulk transfer");
+	var $result = getInfoFromEnrollEventAudforBulkTransfer($agent);
+	 _assertEqual($count, $result.length," Verify the count of consumer from UI is equal to that from DB" );
+*/
+	
+}
+
+function verfifydbAfterBulkTransfer($agent, $forAgent,$totalCount){
+	_wait(20000);
+	
+	_log("verify enrollment table after bulk transfer for Agent  "+ $agent);
+   var $result = getInfoFromEnrollmentforBulkTransfer($agent);
+   _assertEqual(0, $result.length," Verify consumer count is zero from DB" );
+   
+    _log("verify enrollment_aud table after bulk transferfor Agent  "+ $agent);
+   var $result = getInfoFromEnrollAudforBulkTransfer($agent);
+    _assertEqual(0, $result.length," Verify consumer count is zero from DB" );
+	
+	_log("verify enrollment_event table after bulk transfer for Agent  "+ $agent);
+	var $result = getInfoFromEnrollmentEventforBulkTransfer($agent);
+	_assertEqual(0, $result.length," Verify consumer count is zero from DB" );
+	 
+	_log("verify enrollment_event_aud table after bulk transfer for Agent  "+ $agent);
+	var $result = getInfoFromEnrollEventAudforBulkTransfer($agent);
+	_assertEqual(0, $result.length," Verify consumer count is zero from DB" );
+	/*
+	_wait(20000);
+	
+	_log("verify enrollment table after bulk transfer for Agent  "+ $forAgent);
+   var $result = getInfoFromEnrollmentforBulkTransfer($forAgent);
+   _assertEqual($totalCount, $result.length," Verify all consumers have been transfered for this agent." );
+   */
+   
+	
+}
+	
+function bulkTransferConsumers($fromAgent,$toAgent,$countOfConsumers,$verificationFlag){
+	clickTransferConsumerDelegations($fromAgent,$verificationFlag);	
+	searchAgentTotransferConsumers($fromAgent,$fromAgent,$toAgent);
+	reAssignAgentToTransferConsumer($toAgent,$countOfConsumers,$fromAgent,$verificationFlag);
+}
+
+	
+	
+	
+	
+	
+

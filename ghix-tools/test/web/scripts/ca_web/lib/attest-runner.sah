@@ -1,0 +1,42 @@
+//<browser>
+ var a11yResults = {}
+ var a11yTotals; 
+
+ function attestRun($content, $ruleset, $verbose){
+ 	
+ 		window.attest.init($ruleset);
+	   	window.attest.run($content, {}, function(err, results) {
+		        a11yResults = results;
+	   	});
+	 
+	 if($verbose){
+	    detailOutput(a11yResults);
+	 }
+
+	 return a11yResults;
+}
+
+ function attestNumViolations($content,  $ruleset, $config){
+	   window.attest.init($ruleset);
+	   window.attest.run($content, {}, function(err, results) {
+		    a11yTotals = results.violations.length;
+	   	});
+	 return a11yTotals;
+}
+
+function detailOutput($results){
+	var violations = $results.violations;
+	violations.map( function(violation)  {
+		_log("!!!+++++++++++++++"+"Accessibility Violation: " + violation.id + ", Count: " + violation.nodes.length+"+++++++++++++++++++++++++++!!!");
+  		 violation.nodes.map(function(node) {
+   						 _log("Accessibility Violation: " + violation.id);
+    					 _log("Summary: " + node.failureSummary);
+   						 _log("HTML: " + node.html)
+   						 _log("Impact: " + node.impact);
+    					 _log("Help URL: " + violation.helpUrl)
+    					 _log("------------------------------------------------------------------");
+   		});
+ 	 });
+}
+
+//</browser>

@@ -1,0 +1,75 @@
+//Enrollment tab - Events
+
+var $eventArrayCapHistory1=["Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+var $eventArrayCapHistory1a=["Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+var $eventArrayCapHistory2=["Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory3=["Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory3NoOverride=["CSR Overrides - CSR Overrides - Update Enrollment Status","Enrollments - Carrier Confirmation (Recon)"];
+
+var $eventArrayCapHistory3NoCancel=["Enrollments - Cancel Override"];
+
+var $eventArrayCapHistory4NoReinstate=["CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement"];
+
+var $eventArrayCapHistory3NoTerm=["Enrollments - Enrollment End Date Edit"];
+
+
+var $eventArrayCapHistory4=["Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory5=["Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory5L2Csr=["Enrollments - Enrollment End Date Edit","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory6=["Enrollments - 834 Resend Last Transaction","Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory7=["CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - 834 Resend Last Transaction","Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory7L2Csr=["CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - Enrollment End Date Edit","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory8=["Enrollments - 834 Resend Last Transaction","CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - 834 Resend Last Transaction","Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory9=["CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement","Enrollments - 834 Resend Last Transaction","CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - 834 Resend Last Transaction","Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory9L2Csr=["CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement","CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - Enrollment End Date Edit","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory10=["Enrollments - 834 Resend Last Transaction","CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement","Enrollments - 834 Resend Last Transaction","CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - 834 Resend Last Transaction","Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory11=["Enrollments - Cancel Override","Enrollments - 834 Resend Last Transaction","CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement","Enrollments - 834 Resend Last Transaction","CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - 834 Resend Last Transaction","Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory11L2Csr=["Enrollments - Cancel Override","CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement","CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - Enrollment End Date Edit","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory12=["Enrollments - 834 Resend Last Transaction","Enrollments - Cancel Override","Enrollments - 834 Resend Last Transaction","CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement","Enrollments - 834 Resend Last Transaction","CSR Overrides - CSR Overrides - Update Enrollment Status", "Enrollments - Carrier Confirmation (Recon)","Enrollments - 834 Resend Last Transaction","Enrollments - Enrollment End Date Edit","Enrollments - 834 Resend Last Transaction","Enrollments - Member End Date Edit","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory3Cancel=["Enrollments - Cancel Override","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory4Reinstate=["CSR Overrides - Reinstatements (Health/Dental)","Enrollments - Reinstatement","Enrollments - Cancel Override","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapHistory3Override=["CSR Overrides - CSR Overrides - Update Enrollment Status","Enrollments - Carrier Confirmation (Recon)","Enrollments - Enrollment Submitted","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"];
+
+var $eventArrayCapEnrollHistory1=["Addition (Initial Enrollment)"];
+var $eventArrayCapEnrollHistory2=["Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory3=["Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory4=["Cancellation or Termination","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+var $eventArrayCapEnrollHistory4L2Csr=["Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory5=["Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+var $eventArrayCapEnrollHistory5L2Csr=["Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory6=["Reinstatement","Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+var $eventArrayCapEnrollHistory6L2Csr=["Reinstatement","Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory7=["Reinstatement","Reinstatement","Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory8=["Cancellation or Termination","Reinstatement","Reinstatement","Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory8L2Csr=["Cancellation or Termination","Reinstatement","Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+var $eventArrayCapEnrollHistory9=["Cancellation or Termination","Cancellation or Termination",,"Reinstatement","Reinstatement","Addition (Initial Enrollment)","Cancellation or Termination","Cancellation or Termination","Cancellation or Termination","Addition (Initial Enrollment)"];
+
+// Applications tab - Events
+//var $eventArrayCapHistoryChangeCovStartDate = ["CSR Overrides - Change Coverage Start Date","Application - Application Linked"];only applicable for AT
+var $eventArrayCapHistoryChangeCovStartDate = ["CSR Overrides - Change Coverage Start Date","Application - Non-Financial Application Conditional Eligibility Received","Application - Non-Financial Application Submitted","Application - Non-Financial Application Created","Communication Preferences - Updated Contact Information","Communication Preferences - Updated Preferences Data","Accounts - Household Created"]
+

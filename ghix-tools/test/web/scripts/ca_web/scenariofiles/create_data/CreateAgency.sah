@@ -1,0 +1,363 @@
+_include("../../pagemodels/Agency.sah");
+_includeOnce("../../pagemodels/HIX-103052_lib.sah");
+_includeOnce("../../pagemodels/Broker.sah");
+_includeOnce("../../pagemodels/Login.sah");
+_includeOnce("../../lib/Utils.sah");
+_includeOnce("../../pagemodels/AT_functions.sah");
+
+var $time = new Date().getTime();
+
+function createAgency($name, $licenseNumber){
+	var $phone1 = randomStringWithoutStartingZero(3, "N");
+	var $phone2 = randomStringWithoutStartingZero(3, "N");
+	var $phone3 = randomStringWithoutStartingZero(4, "N");
+	var $agencyLicenseNumber = $licenseNumber || randomStringWithoutStartingZero(7,"N");
+	var $altPhone1 = randomStringWithoutStartingZero(3, "N");
+	var $altPhone2 = randomString(3, "N");
+	var $altPhone3 = randomString(4, "N");
+	var $agencyEIN = randomStringWithoutStartingZero(9, "N");
+	var $randomNumb = randomStringWithoutStartingZero(3, "N");
+	var $randomNumb2 = randomStringWithoutStartingZero(3, "N");
+	var $todayDate;
+	_set($todayDate, _call(window.moment().format("DDMM")));
+	var $agency = {
+	};
+	$agency.firstName = $name + getRandomString();//$randomNumb+$todayDate;
+	$agency.lastName = $name + getRandomString();//$randomNumb2+$todayDate;
+	$agency.name = $agency.firstName + " " + $agency.lastName;
+	$agency.email = $name + "_" + $time + "@yopmail.com";
+	$agency.personalEmail = $name + "_" + $time + "PE@yopmail.com";
+	
+	$agency.phone1 = $phone1;
+	$agency.phone2 = $phone2;
+	$agency.phone3 = $phone3;
+	$agency.password= "ghix123";
+	$agency.licenseNumber = $agencyLicenseNumber;
+	$agency.primaryContactNumber1 = $altPhone1;
+	$agency.primaryContactNumber2 = $altPhone2;
+	$agency.primaryContactNumber3 = $altPhone3;
+	$agency.EIN = $agencyEIN;
+	$agency.businessName = $name + "_" + $time;
+	$agency.agencyName = $name + "_" + $time;
+
+	_click(_link("Agency"));
+	_setValue(_textbox("firstName"), $agency.firstName);
+	_setValue(_textbox("lastName"), $agency.lastName);
+	_setValue(_emailbox("email"), $agency.email);
+	_setValue(_emailbox("confirmEmail"), $agency.email);
+	_setValue(_textbox("phone1"), $agency.phone1);
+	_setValue(_textbox("phone2"), $agency.phone2);
+	_setValue(_textbox("phone3"), $agency.phone3);
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	_setValue(_textbox("Security Answer"), "1");
+	_setValue(_password("password"), $agency.password);
+	_setValue(_password("confirmPassword"), $agency.password);
+	_click(_button("Submit"));
+
+	_setValue(_textbox("agencyName"), $agency.agencyName);
+	_setValue(_textbox("licenseNumber"), $agency.licenseNumber);
+	_click(_submit("/Next/i"));
+
+	_setSelected(_select("fromTime"), "12:15 am");
+	_setSelected(_select("toTime"), "12:30 am");
+	_click(_label("Apply to all weekdays"));
+	_check(_checkbox("inlineCheckbox1-0"));
+	_click(_button("Save Primary-Site"));
+	_click(_submit("/Next/i"));
+
+	_setValue(_textbox("phone1"), $agency.primaryContactNumber1);
+	_setValue(_textbox("phone2"), $agency.primaryContactNumber2);
+	_setValue(_textbox("phone3"), $agency.primaryContactNumber3);
+	$agency.agentLicenseNumber = _getValue(_textbox("licenseNumber"));
+	_click(_italic("icon-calendar"));
+	_click(_tableHeader("»"));
+//	_click(_cell("day new"));
+	_click(_cell("15"));
+	_setValue(_textbox("personalEmailAddress"), $agency.personalEmail);
+	_setSelected(_select("communicationPreference"), "Email");
+	_setSelected(_select("select_agencyLocation"), "Sacramento Location");
+//	_check(_checkbox("mailingAddressCheck"));
+	_setValue(_textbox("address1_mailing"), "1120 N Street");
+	_setValue(_textbox("city_mailing"), "Sacramento");
+	_setSelected(_select("state_mailing"), "California");
+	_setValue(_textbox("zip_mailing"), "95814");	
+
+	_click(_button("/Next/i"));
+	
+	_check(_checkbox("Individuals / Families"));
+	//_check(_checkbox("Employers"));
+	_click(_submit("/Next/i"));
+
+	_click(_button("Finish"));
+	_click(_submit("OK", _in(_div("successfullyCompletedApplication"))));
+	
+	goToMyAgentInformation();
+//	$agency.agentLicenseNumber = _getText(_cell(0, _rightOf(_cell("Insurance Agent License Number"))));
+	
+	clickStatusOfAgency("Active");
+	
+	logOut();
+	var $output = "var $"+$name+"="+JSON.stringify($agency)+";\n";
+	_writeFile($output, "agencies.sah");
+	return $agency;
+}
+
+function certifyAgency($agency){
+	setCertificationStatus($agency, "Certified")
+}
+
+function setCertificationStatus($agency, $status){
+	loginAsBrokerAdmin("brokeradmin@ghix.com", "ghix123");
+	navigateToManageAgencies();
+	refineAgenciesForBroker($agency.businessName);
+//	_click(_link(0, _in(_div("Edit"))));
+//	_click(_link("Edit"));
+
+	_click(_link("dropdown-toggle", _near(_tableHeader("Actions"))));
+	_wait(1000);
+	_click(_link("/Edit/", _near(_tableHeader("Actions"))));
+	
+	_click(_link("Certification Status"));
+	_click(_submit("Edit"));
+	_setSelected(_select("certificationStatus"), $status);
+	_setValue(_textarea("update-certification-data"), "Updated by Sahi script");
+	_click(_submit("Submit"));
+	_log(" Certify Agent Manager");
+	navigateToManageAgents();
+	refineAgenciesForBroker($agency.businessName);
+	
+	_click(_link("dropdown-toggle", _near(_tableHeader("Actions"))));
+	_wait(1000);
+	_click(_link("/Edit/", _near(_tableHeader("Actions"))));
+	
+//	_click(_link("dropdown"));
+//	_click(_link("Edit End of dropdown"));
+	_setSelected(_select("certificationStatus"), "Certified");
+	_setStrictVisibilityCheck(true);
+
+	if(_isVisible(_submit("Submit"))){
+		_click(_submit("Submit"));
+	}
+
+	if(_isVisible(_button("Submit"))){
+		_click(_button("Submit"));
+	}
+
+	if(_isVisible(_div("multipleBrokerBox"))){
+		_check(_checkbox("brokerIds"));
+		_click(_link("Update Status"));
+	}
+	_assertEqual("/Certified/", _getText(_table("table table-border-none table-condensed verticalThead")));
+	_setStrictVisibilityCheck(false);
+	logOut();
+}
+
+function addAgentToAgency($agency, $name, $agentLicenseNumber){
+	loginAsAgency($agency.email, $agency.password);
+	goToAddANewAgent();
+	
+	var $phone1 = randomStringWithoutStartingZero(3, "N");
+	var $phone2 = randomStringWithoutStartingZero(3, "N");
+	var $phone3 = randomStringWithoutStartingZero(4, "N");
+	var $agencyLicenseNumber = $agentLicenseNumber || randomStringWithoutStartingZero(7,"N");
+	var $altPhone1 = randomStringWithoutStartingZero(3, "N");
+	var $altPhone2 = randomString(3, "N");
+	var $altPhone3 = randomString(4, "N");
+	var $agencyEIN = randomStringWithoutStartingZero(9, "N");
+	//var $randomNumb = randomStringWithoutStartingZero(3, "N");
+	var $randomStr = randomStringWithoutStartingZero(5, "A");
+	var $todayDate;
+	_set($todayDate, _call(window.moment().format("DDMM")));
+	
+	var $agent = {
+	};
+	
+	$agent.firstName = $name + $randomStr;//$randomNumb+$todayDate;
+	$agent.lastName = $name + $randomStr;//$randomNumb+$todayDate;
+	$agent.name = $agent.firstName + " " + $agent.lastName;
+	$agent.email = $name + "_" + $time + "@yopmail.com";
+	$agent.personalEmail = $time + "AgentPerson@yopmail.com";
+	$agent.phone1 = $phone1;
+	$agent.phone2 = $phone2;
+	$agent.phone3 = $phone3;
+	$agent.password= "ghix123";
+	$agent.licenseNumber = $agencyLicenseNumber;
+	$agent.primaryContactNumber1 = $altPhone1;
+	$agent.primaryContactNumber2 = $altPhone2;
+	$agent.primaryContactNumber3 = $altPhone3;
+	$agent.EIN = $agencyEIN;
+	$agent.businessName = $agency.businessName;
+
+	_setValue(_textbox("firstName"), $agent.firstName);
+	_setValue(_textbox("lastName"), $agent.lastName);
+	_setValue(_textbox("licenseNumber"), $agent.licenseNumber);
+	_click(_italic("icon-calendar"));
+	_click(_tableHeader("»"));
+//	_click(_cell("day new"));
+	_click(_cell("15"));
+	_setValue(_textbox("personalEmailAddress"), $agent.personalEmail);
+	_setValue(_textbox("phone1"), $agency.primaryContactNumber1);
+	_setValue(_textbox("phone2"), $agency.primaryContactNumber2);
+	_setValue(_textbox("phone3"), $agency.primaryContactNumber3);
+	_setSelected(_select("communicationPreference"), "Email");
+	_setSelected(_select("select_agencyLocation"), "Sacramento Location");
+//	_check(_checkbox("mailingAddressCheck"));
+	_setValue(_textbox("address1_mailing"), "1120 N Street");
+	_setValue(_textbox("city_mailing"), "Sacramento");
+	_setSelected(_select("state_mailing"), "California");
+	_setValue(_textbox("zip_mailing"), "95814");
+
+	if (_isVisible(_heading3("Check Your Address"))) {
+		_click(_radio("0", _near(_heading4("Likely matches:"))));
+		_click(_button("submitAddr"));
+	}
+	
+	_click(_button("Next"));
+	_check(_checkbox("clientsServed"));
+	_click(_submit("Finish"));
+	_click(_submit("Exit"));
+	_click(_link("Status"));
+	_assertVisible(_strong("Active")," Verify Agent's status is Active");
+	logOut();
+	
+	var $output = "var $"+$name+"="+JSON.stringify($agent)+";\n";
+	_writeFile($output, "agents.sah");
+	return $agent;
+}
+
+function createAutomationAgencyIfNotExist($agencyData,$numOfAgents,$numOfAdminStaffL1,$numOfAdminStaffL2,$staffNameLone,$staffNameLtwo,$agentName,$numOfConsumers){
+	var $agency = {};
+	var $name;
+	var $isNeedDental = false;
+
+	if (typeof($agencyData) === "object") {
+		$name = $agencyData.agencyName;
+		$numOfAgents = $agencyData.numOfAgents;
+		$numOfAdminStaffL1 = $agencyData.numOfAdminStaffL1;
+		$numOfAdminStaffL2 = $agencyData.numOfAdminStaffL2;
+		$staffNameLone = $agencyData.staffFirstNameLone;
+		$staffNameLtwo = $agencyData.staffFirstNameLtwo;
+		$agentName = $agencyData.agentNameOne;
+		$numOfConsumers = $agencyData.numOfConsumers;
+		$isNeedDental = $agencyData.isNeedDental;
+	}else{
+		$name = $agencyData;
+	}
+	
+	
+	var $agencyName = getAgenciesWithNameLike($name);
+	if($agencyName[0] != null){
+		
+		$agency.email = $agencyName[0][0]+"@yopmail.com";
+		$agency.businessName = $agencyName[0][0];
+		$agency.agencyManager = {};
+		var $agent = {};
+		var $agents = [];
+		var $agentEmails = getAgentEmailFromUsers($agentName);
+		$agency.agents = $agents;
+		
+		$agency.agencyManager = getAgentObjectFromDB($agency.email)[0];
+
+		for(var $i=0;$i<$numOfAgents;$i++){
+			$agency.agents[$i] = getAgentObjectFromDB($agentEmails[$i][0])[0];
+			$agency.agents[$i].email = $agentEmails[$i][0];
+			$agency.agents[$i].name = $agency.agents[$i].firstName+" "+$agency.agents[$i].lastName;
+			// $agent.email = $agentEmails[$i][0];
+			// $agency.agents[$i] = JSON.parse(JSON.stringify($agent));
+		}
+		var $str = JSON.stringify($agency);
+		_log("JSON: "+$str);
+
+		// if($numOfConsumers){
+		// 	var $agentDB=getAgentObjectFromDB($agency.agents[0].email);
+		// 	createEnrollment($agentDB[0].recordID,$numOfConsumers,$isNeedDental);
+		// }
+
+		return $agency;
+	}else{
+	
+		$agency = createAgency($name, "");
+		var $adminStaffL1 = [];
+		var $adminStaffL2 = [];
+		var $agents = [];
+		$agency.agents = $agents;
+		$agency.adminStaffL1 = $adminStaffL1;
+		$agency.adminStaffL2 = $adminStaffL2;
+		
+		updateBusinessLegalNameOfAgency($agency.businessName,$agency.agencyName);
+		setAgencyNameEqualToBusinessLegalNameInDB($agency.businessName);
+		certifyAgency($agency);
+		for (var $i=0;$i<$numOfAgents;$i++){
+			$agentName = $agentName//+$i;
+			//$agency.agents[$i] = createAgent($agentName, $agency.licenseNumber,$agency);
+			$agency.agents[$i] = createAgent($agentName, null,$agency);
+			associateAgentToAgency($agency.businessName);
+			certifyAgent($agency.agents[$i]);
+			Login($agency.email,$agency.password);
+			agencyManagerSetAgentLocation($agency.agents[$i]);
+			Logout();
+			var $agentDB=getAgentObjectFromDB($agency.agents[$i].email);
+			$agency.agents[$i].recordID = $agentDB[0].recordID;
+		}
+		
+		if($numOfAdminStaffL1){
+			for (var $i=0;$i<$numOfAdminStaffL1;$i++){	
+				var $staffNameOne = $staffNameLone//+$i;
+				Login($agency.email,$agency.password);
+				navigateToAddNewAdminStaff();
+				$adminStaff=createNewAdminStaff("Email","Level1","Sacramento Location","1300 Terra Bella Ave","Mountain View","California","CA","94043",$staffNameOne);
+				Logout();
+				Login("brokeradmin@ghix.com","ghix123");
+				$adminStaff=brokerSearchForAdminStaffApproveAdminStaff("1","Pending","Approved",$adminStaff);
+				Logout();
+				createAdminStaffAccount($adminStaff);
+				Logout();
+				$agency.adminStaffL1[$i] = $adminStaff;
+			}
+		}
+		
+		if($numOfAdminStaffL2){
+			for (var $i=0;$i<$numOfAdminStaffL2;$i++){
+				var $staffNameTwo = $staffNameLtwo //+$i;
+				Login($agency.email,$agency.password);
+				navigateToAddNewAdminStaff();
+				$adminStaff=createNewAdminStaff("Email","Level2","Sacramento Location","1300 Terra Bella Ave","Mountain View","California","CA","94043",$staffNameTwo);
+				Logout();
+				Login("brokeradmin@ghix.com","ghix123");
+				$adminStaff=brokerSearchForAdminStaffApproveAdminStaff("1","Pending","Approved",$adminStaff);
+				Logout();
+				createAdminStaffAccount($adminStaff);
+				Logout();
+				$agency.adminStaffL2[$i] = $adminStaff;
+			}
+		}
+
+		var $str1 = JSON.stringify($agency);
+		_log("JSON: "+$str1);
+
+		// if($numOfConsumers){
+		// 	var $agentDB=getAgentObjectFromDB($agency.agents[0].email);
+		// 	createEnrollment($agentDB[0].recordID,$numOfConsumers,$isNeedDental,$agencyData);
+		// }
+		
+		return $agency;
+	}
+}
+
+function agencyManagerSetAgentLocation($agent){
+	_setValue(_textbox("last-name"), $agent.lastName);
+	_click(_submit("Go"));
+	_click(_link("dropdown-toggle", _near(_tableHeader("Actions"))));
+	_click(_link("Edit", _near(_tableHeader("Actions"))));
+	_click(_button("Edit"));
+	var $options = _getOptions (_select("select_agencyLocation"));
+	_setSelected(_select("select_agencyLocation"), $options[1]);
+	//_click(_button("Save & Continue"));
+	_click(_button("Save"));
+	_click(_link("Status"));
+	_assertVisible(_heading4("Status History"));
+	_click(_link("Edit"));
+	_setSelected(_select("activityStatus"), "Active");
+	_click(_submit("Submit"));
+	_assertVisible(_link("Edit"));
+}

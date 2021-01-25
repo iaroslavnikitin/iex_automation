@@ -1,0 +1,143 @@
+
+var $enrollerDashboardElements = {
+	"header_hd":{
+		"element": _heading4("Enrollment Dashboard"),
+		"label": null
+	},
+	"quickLinks":{
+		"delegationTool_ln":{
+			"element": _link("Delegation Tool", _in(_div("sidebar"))),
+			"label": null,
+			"url": "/static/lw-web/consumer-self-delegation/delegation-form?recordType="
+		},
+		"pendingDelegations_ln":{
+			"element": _link("Pending Delegation Requests", _in(_div("sidebar"))),
+			"label": null,
+			"url": "/hix/broker/individuals?desigStatus=Pending"
+		},
+		"myProfile_ln":{
+			"element": _link("My Profile", _in(_div("sidebar"))),
+			"label": null,
+			"url": "/hix/broker/viewprofile"
+		},
+		"myDelegationHistory_ln":{
+			"element": _link("My Delegation History", _in(_div("sidebar"))),
+			"label": null,
+			"url": "/hix/delegation"
+		},
+		"startNewApplication_ln":{
+			"element": _link("Start New Application", _in(_div("sidebar"))),
+			"label": null,
+			"url": "/apspahbx/ahbx.portal?_nfpb=true&_st=&_nfls=false&_pageLabel=individualHomePage&ahbxId=&ahbxUserType=1&recordId="
+		},
+		"enrollerToolkits_ln":{
+			"element": _link("Enroller Toolkits", _in(_div("sidebar"))),
+			"label": null,
+			"url": "https://hbex.coveredca.com/toolkit/"
+		}
+
+	}
+}
+
+function verifyQuickLinks($certStatus,$activityStatus){
+	var $quickLinks = $enrollerDashboardElements.quickLinks;
+	for (var $i = 0; $i < Object.keys($quickLinks).length; $i++) {
+
+		_log("-------- verify link "+_getText($quickLinks[Object.keys($quickLinks)[$i]].element)+" --------");
+
+		if ($certStatus == "Certified") {
+			_log("Certified");
+
+			_assertVisible($quickLinks[Object.keys($quickLinks)[$i]].element);
+
+			if ($activityStatus == "Active") {
+				_log("Active");
+
+				var $url = _getAttribute ($quickLinks[Object.keys($quickLinks)[$i]].element, "href");
+				_assert($url.indexOf($quickLinks[Object.keys($quickLinks)[$i]].url) != -1, "Actual URL: " + $url);
+				_assertNotEqual("not-allowed", _getAttribute ($quickLinks[Object.keys($quickLinks)[$i]].element, "style").cursor,"the link should be clickable");
+			}else{
+				_log("InActive");
+				if (Object.keys($quickLinks)[$i] == "myProfile_ln" || Object.keys($quickLinks)[$i] == "myDelegationHistory_ln" || Object.keys($quickLinks)[$i] == "enrollerToolkits_ln") {
+					_log("Enabled links verification");
+					var $url = _getAttribute ($quickLinks[Object.keys($quickLinks)[$i]].element, "href");
+					_assert($url.indexOf($quickLinks[Object.keys($quickLinks)[$i]].url) != -1, "Actual URL: " + $url);
+					_assertNotEqual("not-allowed", _getAttribute ($quickLinks[Object.keys($quickLinks)[$i]].element, "style").cursor,"the link should be clickable");
+				}else{
+					_log("Disabled links verification");
+					var $url = _getAttribute ($quickLinks[Object.keys($quickLinks)[$i]].element, "href");
+					_assert($url.indexOf($quickLinks[Object.keys($quickLinks)[$i]].url) == -1, "Actual URL: " + $url);
+					_assertEqual("not-allowed", _getAttribute ($quickLinks[Object.keys($quickLinks)[$i]].element, "style").cursor,"the link should NOT be clickable");
+				}
+				
+			}
+		}
+	}
+	
+}
+
+function clickDelegationToolInQickLinks(){
+	var $quickLinks = $enrollerDashboardElements.quickLinks;
+	_click($quickLinks.delegationTool_ln.element);
+
+	verifyURL($quickLinks.delegationTool_ln.url);
+}
+
+function clickPendingDelegationsInQickLinks(){
+	var $quickLinks = $enrollerDashboardElements.quickLinks;
+	_click($quickLinks.pendingDelegations_ln.element);
+
+	verifyURL($quickLinks.pendingDelegations_ln.url);
+}
+
+function clickMyProfileInQickLinks(){
+	var $quickLinks = $enrollerDashboardElements.quickLinks;
+	_click($quickLinks.myProfile_ln.element);
+
+	verifyURL($quickLinks.myProfile_ln.url);
+}
+
+function clickMyDelegationHistoryInQickLinks(){
+	var $quickLinks = $enrollerDashboardElements.quickLinks;
+	_click($quickLinks.myDelegationHistory_ln.element);
+
+	verifyURL($quickLinks.myDelegationHistory_ln.url);
+}
+
+function clickStartNewApplicationInQickLinks(){
+	var $quickLinks = $enrollerDashboardElements.quickLinks;
+	_click($quickLinks.startNewApplication_ln.element);
+
+	verifyURL($quickLinks.startNewApplication_ln.url);
+}
+
+function clickEnrollerToolkitInQickLinks(){
+	var $quickLinks = $enrollerDashboardElements.quickLinks;
+	_click($quickLinks.enrollerToolkits_ln.element);
+
+	
+	
+	var $windows = null;
+	var $title = "";
+	
+	for (var $n = 0; $n < 9; $n++) {
+		$windows = _getWindows();
+
+		if ($windows.length > 1) {
+			for($i=0;$i<$windows.length;$i++){
+				if($windows[$i].windowTitle == "California's Health Benefit Exchange - Toolkit"){
+					$title=$windows[$i].windowTitle;
+					$url=$windows[$i].windowURL;
+					break;
+				}
+			}
+		}else{
+			_wait(10000);
+		}
+	}
+
+	
+	_selectWindow($title);
+
+	verifyURL($quickLinks.enrollerToolkits_ln.url);
+}

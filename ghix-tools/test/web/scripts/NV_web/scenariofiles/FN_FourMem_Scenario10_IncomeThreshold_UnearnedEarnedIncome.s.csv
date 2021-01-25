@@ -1,0 +1,225 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/global_include.sah"
+,"loadSahi","../pagemodels/HomePage.sah"
+,"loadSahi","../lib/DB.sah"
+,"[Documentation]","Husband (income: 20K/Yr), Wife (income 20K/Yr) and a Kid. 
+Husband and wife filing Jointly and Claiming 2 Kids as a dependent.
+Kid's Age 1: 18 (child) and Income: 1060 Capital Gain
+Kid's Age 2: 5   (child) and Income: 1060 Capital Gain
+
+TaxHousehold Size: 4
+TaxHousehold Income: 40
+
+Husband:
+   Medicaid HH Size: 4 
+   Medicaid HH Income: 40
+
+Wife:
+   Medicaid HH Size: 4 
+   Medicaid HH Income: 40
+
+Kid #1 (18 yr):
+   Medicaid HH Size: 4 
+   Medicaid HH Income: 40
+
+Kid #2 (5Yr):
+   Medicaid HH Size: 4 
+   Medicaid HH Income: 40"
+
+
+,"$coverageDate = getCurrentCoverageYear"
+,"clickStartShopping","$coverageDate"
+,"$coverageYear = selectCoverageYear",,"$coverageDate"
+,"clickSkipAndSignUp"
+,"[Documentation]","emailPrefix","firstName","LastName","date of birth","SSN","IsDobAndSSNDisplayed"
+,"$people = clickSubmitOnSignUpPage",,"""Mark""","""Le""","""01/01/1980"""
+,"[Documentation]","Address 1","Address 2","City","State","Zip","County","Date Of Birth","Communication Preference","Check For Address","Spoken Lang","Written Lang","TextMe checkbox","Coverage Date","HouseHold"
+,"clickContinueOnCommunicationPreference","""750 N Virgina St""","""""","""Reno""","""Nevada""","""89501""",,,,,"""English""","""English""",,"$coverageDate[0][0]","$people"
+,"[Documentation]","Mark individual as verified"
+,"loginAdminAndVerifyIdentity"
+
+,"selectApplicationYear","$coverageDate[0][0]"
+,"clickStartApplication"
+,"selectPrivacyCheckboxForSSAP"
+,"[Documentation]","SSAP page"
+,"clickContinueButton","2"
+
+,"clickContinueButton","3"
+,"[Documentation]","firstName","middleName","lastName","suffix","DOB","email","isAutopopulated"
+,"enterContactNameForPrimary","$people[0].$firstName","""""","$people[0].$lastName","""""","$people[0].$dob","$people[0].$email","""YES"""
+,"enterContactHomeAddress","""750 N Virginia St""","""""","""Reno""","""89501""","""Nevada""","""Washoe""","""YES"""
+,"enterContactMailingAddress","TRUE",,,,,,,"""YES"""
+,"enterContactPhone","$people[0].$phoneNumber","$people[0].$phoneNumber","""5443"""
+,"enterContactPreferences","""English""","""English""","""Email"""
+
+,"clickContinueButton","4"
+,"clickHelpingMyself"
+
+,"goToHelpPayingForCoverage"
+,"[Documentation]","""Y"" or ""N"""
+,"clickGetHelpPayingForCoverage","""Y"""
+
+,"clickContinueButton","5"
+,"selectMeAndOthers"
+
+,"clickContinueButton","6"
+
+,"[Documentation]","member number","firstName","middleName","lastname","suffix","DOB","Seeking Coverage","Relation to applicant"
+,"$ssapInfo = enterInformation","0","$people[0].$firstName","""""","$people[0].$lastName","""""","$people[0].$dob","TRUE","""Self"""
+,"clickAddMember"
+,"$ssapInfo = enterInformation","1","""Helen""","""""","""Le""","""""","""01/01/1982""","TRUE","""Spouse"""
+,"clickAddMember"
+,"$ssapInfo = enterInformation","2","""Robert""","""""","""Le""","""""","""01/01/1996""","TRUE","""Child (son or daughter)"""
+,"_wait","1000"
+,"clickContinueButton","7"
+,"[Documentation]","First Person","Second Person","Relationship","Member"
+,"selectRelationship","0","1","""Spouse"""
+,"selectRelationship","0","2","""Parent (father or mother)"""
+,"selectRelationship","1","2","""Parent (father or mother)"""
+,"_windowAction","""maximize"""
+,"goToHouseholdAddresses"
+,"goToSummary"
+,"[Documentation]","Family and HouseHold Section"
+,"clickContinueButton","8"
+
+,"clickContinueButton","9"
+,"selectGender","""Male"""
+,"selectHasSSN","""No"""
+,"selectNoSSNReason"
+
+,"clickContinueButton","10"
+,"[Documentation]","Is US citizen"
+,"selectCitizen","""Yes"""
+,"selectNaturalized","""No"""
+
+,"clickContinueButton","11"
+,"clickContinueButton","9"
+,"selectGender","""Female"""
+,"selectHasSSN","""No"""
+,"selectNoSSNReason"
+
+,"clickContinueButton","10"
+,"[Documentation]","Is US citizen"
+,"selectCitizen","""Yes"""
+,"selectNaturalized","""No"""
+
+,"clickContinueButton","11"
+,"clickContinueButton","9"
+,"selectGender","""Male"""
+,"selectHasSSN","""No"""
+,"selectNoSSNReason"
+,"clickContinueButton","10"
+,"[Documentation]","Is US citizen"
+,"selectCitizen","""Yes"""
+,"selectNaturalized","""No"""
+
+,"clickContinueButton","11"
+,"goToMaritalStatus","[2]","""No"""
+,"goToMilitaryService"
+,"selectIfVeteranOrMilitaryMember","[]"
+,"goToHouseholdInformation","$people[0].$firstName","$people[0].$lastName"
+,"selectToMakeChangesOnHouseHoldInformation",,"""No"""
+,"selectFederalTaxFiler","[0,1]"
+,"clickOnFileTaxesOption","""Jointly""","[0,1]"
+,"selectPrimaryTaxFiler","0"
+
+,"goToAIAN"
+,"selectAIANPersons","[]"
+,"goToMedicaidChipDenialInformation","[0,1,2]"
+,"selectMedicaidChipDenialInformation","[]"
+,"goToPregnancyInformation","[1]"
+,"selectPregnancyInformation","[]"
+,"goToDisabilityInformation","[0,1,2]"
+,"selectDisabilityInformation","[]"
+,"selectNeedHelpWithActivities","[]"
+,"goToFosterCareInformation","[2]"
+,"selectIfInFosterCare","[]"
+,"goToFamilyAndHouseholdSummary"
+
+,"[Documentation]","Income Information section"
+,"goToIncomeInformation"
+
+,"goToIncomeSources","0"
+,"selectIncomeCurrently","0","true"
+,"addIncomeSource","0","""Job""","""20000.00""","""Yearly"""
+,"goToDeductionSources","0"
+,"selectToTellAboutDeductions","0","false"
+,"goToExpectedIncome","0"
+,"changeExpectedIncome","0",,"true"
+,"goToIndividualIncomeSummary","0"
+
+,"goToIncomeSources","1"
+,"selectIncomeCurrently","1","true"
+,"addIncomeSource","1","""Job""","""20000.00""","""Yearly"""
+,"goToDeductionSources","1"
+,"selectToTellAboutDeductions","1","false"
+,"goToExpectedIncome","1"
+,"changeExpectedIncome","1",,"true"
+,"goToIndividualIncomeSummary","1"
+
+,"goToIncomeSources","2"
+,"selectIncomeCurrently","2","true"
+,"addIncomeSource","2","""Job""","""13000.00""","""Yearly"""
+,"goToDeductionSources","2"
+,"selectToTellAboutDeductions","2","false"
+,"goToExpectedIncome","2"
+,"changeExpectedIncome","2",,"true"
+,"goToIndividualIncomeSummary","2"
+,"goToIncomeSummary"
+
+,"[Documentation]","Additional Information section"
+,"goToOtherHealthCoverage","0"
+,"selectHealthCoverageEnrollment","0","""No""","[]"
+,"goToReconcilationOfAPTC","0"
+,"selectReconciledAPTCPastYear","0","""Yes"""
+,"goToEmployerCoverageDetail","0"
+,"selectEmployerCoverageDetails","0","""No"""
+,"goToStateEmployeeHealthBenefit","0"
+,"selectStateEmployeeHealthBenefit","0","""No"""
+
+,"goToAdditionalInformationPage","0"
+,"selectIfNeedHelpPayingBills","0","""No"""
+
+,"goToOtherHealthCoverage","1"
+,"selectHealthCoverageEnrollment","1","""No""","[]"
+,"goToEmployerCoverageDetail","1"
+,"selectEmployerCoverageDetails","1","""No"""
+,"goToStateEmployeeHealthBenefit","1"
+,"selectStateEmployeeHealthBenefit","1","""No"""
+,"goToAdditionalInformationPage","1"
+,"selectIfNeedHelpPayingBills","1","""No"""
+
+,"goToOtherHealthCoverage","2"
+,"selectHealthCoverageEnrollment","2","""No""","[]"
+,"goToEmployerCoverageDetail","2"
+,"$ssapInfo = selectEmployerCoverageDetails","2","""No"""
+,"goToStateEmployeeHealthBenefit","2"
+,"selectStateEmployeeHealthBenefit","2","""No"""
+,"goToAdditionalInformationPage","2"
+,"selectIfNeedHelpPayingBills","2","""No"""
+
+,"goToAddtionalInformationSummary","[0,1,2]"
+
+,"[Documentation]","Review And Sign section"
+,"goToReviewAndSign"
+,"goToFinalReview","$ssapInfo"
+,"goToSignAndSubmit","[0,1,2]"
+,"selectIncarceratedIndividual","[]"
+,"goToPreeligibiltyModal","[2]"
+,"$applicationType = getApplicationType","$people"
+,"[Documentation]","Event","Days","QEventFlag","Year of Coverage","household","Action Button","Groups","Is Health Enrollment done","Is financial"
+,"$eventDetails= clickSubmitSSAP",,,,"$coverageDate[0][0]","$ssapInfo","""SHOP FOR PLANS""",,,"""Yes""","""true""","""true""",,,,"$applicationType"
+,"verifyHouseholdEligibilityOfIndividual","$ssapInfo[0]",""""""
+,"verifyHouseholdEligibilityOfIndividual","$ssapInfo[1]",""""""
+,"verifyHouseholdEligibilityOfIndividual","$ssapInfo[2]","""Medicaid assessed"""
+,"clickViewDetailsDashBoard"
+,"verifyEligibilityStatus","""Conditional"""
+,"verifyProgramStatusOnViewDetails","$ssapInfo[0]","[""Advanced Premium Tax Credit"", ""Cost Sharing Reduction"", ""Medical and Dental Insurance""]"
+,"verifyProgramStatusOnViewDetails","$ssapInfo[1]","[""Advanced Premium Tax Credit"", ""Cost Sharing Reduction"", ""Medical and Dental Insurance""]"
+,"verifyProgramStatusOnViewDetails","$ssapInfo[2]","[""Medicaid Assessed"", ""Medical and Dental Insurance""]"
+,"$data = getHouseholdEligibiltyData","$people"
+,"verifyHouseholdSizeAndIncome","$data[0].eligibility_request","2","40000"
+,"verifyMedicaidSizeAndIncome","$data[0].eligibility_request","$ssapInfo[0]","2","40000"
+,"verifyMedicaidSizeAndIncome","$data[0].eligibility_request","$ssapInfo[1]","2","40000"
+,"verifyMedicaidSizeAndIncome","$data[0].eligibility_request","$ssapInfo[2]","1","13000"
+,"verifyCSLevelInHouseholdEligibiltyData","$data[0].csr","""CS4"""

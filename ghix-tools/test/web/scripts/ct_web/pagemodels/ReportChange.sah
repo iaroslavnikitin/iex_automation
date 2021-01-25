@@ -1,0 +1,646 @@
+_includeOnce("Signup.sah");
+_includeOnce("Ssap.sah");
+_includeOnce("LifeChangeEvent.sah");
+
+var $globalNum ="";
+//Basic Information
+var $outsideIdaho="";
+var $numberOutside="";
+var $birth = false;
+
+var $reportChangeHeader=_div("Report a Change");
+var $reportChangeBasicInfoTab=_link("Basic Information");
+var $reportChangeBasicInfoEventDate=_label("Event Date");
+var $reportChangeBasicInfoFirstName=_textbox("firstName");
+var $reportChangeBasicInfoMiddleName=_textbox("middleName");
+var $reportChangeBasicInfoLastName=_textbox("lastName");
+var $reportChangeBasicInfoSuffix=_label("Suffix");
+var $reportChangeBasicInfoGender=_label("Gender");
+var $reportChangePrimaryBasicInfoEmail=_textbox("email");
+var $reportChangeBasicInfoHasSSn=_label("Yes");
+var $reportChangeBasicInfoNoSSn=_label("No");
+var $reportChangeBasicInfoSave=_link("Save & close");
+var $reportChangeBasicInfoCancel=_link("Cancel");
+var $reportChangeEditDependentSSN = _link("Social Security Number");
+var $reportChangeDependentSSNEventDate = _textbox("eventDateSSN");
+var $reportChangeDependentHasSSN = _radio("snn4spouseT");
+var $reportChangeDependentNoSSN = _radio("snn4spouseF");
+
+var $changeInDependentAdd = _radio("Add a Household Member(s)");
+var $changeInDependentRemove = _radio("Remove a Household Member");
+var $changeInDependentDeath = _radio("DEATH");
+var $changeInDependentAddBirth = _radio("BIRTH");
+var $changeInDependentAddAdoption= _radio("ADOPTION");
+var $changeInDependentAddCourtAppointed = _radio("GAIN_COURT_APPOINTED_DEPENDENT");
+var $changeInDependentAddTaxDependent = _radio("Add other new tax dependents");
+var $changeInDependentAddTaxReason = _select("reasonForAdding");
+var $changeInDependentAddNumberOfPeopleToAdd = _textbox("numDependents");
+var $changeInDependentEventDate =  _textbox("Event Date");
+var $changeInDependentRemoveMember = _radio("REMOVE_DEPENDENT");
+var $changeInDependentDeath =  _radio("DEATH");
+
+var $changeInDependentfirstName = _textbox("firstName");
+var $changeInDependentmiddleName = _textbox("middleName");
+var $changeInDependentlastName = _textbox("lastName");
+var $changeInDependentSuffix = _select("suffixOnSSNCard");
+var $changeInDependentSeekingCoverageTrue = _radio("applyingforhealthcaret");
+var $changeInDependentSeekingCoverageFalse = _radio("applyingforhealthcaref");
+var $changeInDependentgenderfemale = _radio("female");
+var $changeInDependentgenderMale = _radio("male");
+var $chnageInDependentDob = _textbox("dateOfBirth");
+
+function verifyPrimaryBasicInfoPage(){
+	_assertVisible($reportChangeBasicInfoEventDate);
+	_assertVisible($reportChangeBasicInfoMiddleName);
+	_assertVisible($reportChangeBasicInfoLastName);
+	_assertVisible($reportChangeBasicInfoSuffix);
+	_assertVisible($reportChangeBasicInfoGender);
+	_assertVisible($reportChangePrimaryBasicInfoEmail);
+}
+
+function clickUpdatePrimaryInfo($days,$event,$value){
+	$eventDate = calculateEventDate($days);
+	_setValue(_textbox("eventDateNameChange"), $eventDate);
+	if($event=="First Name"){
+		_setValue($reportChangeBasicInfoFirstName, $value);
+		$ssapPeople[0].$firstName=$value;
+		$firstName=$value;
+		if($globalSSN =="Yes"){
+			$ssapPeople[0].$SSNName = $ssapPeople[0].fullName();
+		}
+	}
+	if($event=="Middle Name"){
+		_setValue($reportChangeBasicInfoMiddleName, $value);
+		$ssapPeople[0].$middleName = $value;
+		if($globalSSN=="Yes"){
+			$ssapPeople[0].$SSNName = $ssapPeople[0].fullName();
+		}
+	}
+
+	if($event=="Last Name"){
+		_setValue($reportChangeBasicInfoLastName, $value);
+		$ssapPeople[0].$lastName=$value;
+		$lastName = $value;
+		if($globalSSN=="Yes"){
+			$ssapPeople[0].$SSNName = $ssapPeople[0].fullName();
+		}
+	}
+
+	if($event=="Suffix"){
+		_setSelected(_select("suffix"), $value);
+		//		$ssapPage3PrimaryContactNameSuffix;
+		$ssapPeople[0].$suffix=$value;
+	}
+
+	if($event=="Gender"){
+		if($value=="Male"){
+			_setValue(_radio("male"), "true");
+		}
+		else {
+			_setValue(_radio("female"), "true");
+		}
+	}
+
+	if($event=="Email"){
+		_setValue($reportChangePrimaryBasicInfoEmail, $value);
+		$ssapPeople[0].$email=$value;
+		$ssapEmail= $value;
+	}
+
+	if($event=="Cell Number"){
+		_setValue(_textbox("phoneNo"), $value);
+		$ssapPage3PrimaryContactPhoneMobilePhoneNumber=$value;
+	}
+
+	if($event=="HomeNumber"){
+		_setValue(_textbox("homePhoneNo"), $value);
+		$ssapPage3PrimaryContactPhoneHomePhoneNumber = $value;
+	}
+
+	if($event=="SSN"){
+		if($Value=="Different SSN"){
+			_setValue(_radio("samenameF"), "true");
+		}
+	}
+	_click($reportChangeBasicInfoSave);
+}
+
+function enterDependentBasicInformation($num, $days,$firstName, $middleName, $lastName, $suffix, $doB, $gender,$sameSSNName) {
+	_click(_link("Basic Information"));
+	// Put primary info in array of people
+	while ($ssapPeople[$num] === undefined) {
+		$ssapPeople.push(new SsapPerson());
+	}
+	$ssapPeople[$num].$homeAddress1 = $ssapHomeAddress1;
+	$ssapPeople[$num].$homeAddress2 = $ssapHomeAddress2;
+	$ssapPeople[$num].$homeCity = $ssapHomeCity;
+	$ssapPeople[$num].$homeZip = $ssapHomeZip;
+	$ssapPeople[$num].$mailingAddress1 = $ssapMailingAddress1;
+	$ssapPeople[$num].$mailingAddress2 = $ssapMailingAddress2;
+	$ssapPeople[$num].$mailingCity = $ssapMailingCity;
+	$ssapPeople[$num].$mailingZip = $ssapMailingZip;
+	$ssapPeople[$num].$num = $num;
+	$ssapPeople[$num].$firstName = $firstName;
+	$ssapPeople[$num].$middleName = $middleName;
+	$ssapPeople[$num].$lastName = $lastName;
+	$ssapPeople[$num].$suffix = $suffix;
+	$ssapPeople[$num].$doB = $doB;
+
+	// Set accessors
+	var $reportChangeDependentEventDate = _textbox("eventDateNameChange");
+	var $reportChangeDependentFirstName = _textbox("firstName");
+	var $reportChangeDependentMiddleName = _textbox("middleName");
+	var $reportChangeDependentLastName = _textbox("lastName");
+	var $reportChangeDependentSuffix = _select("suffix");
+	var $reportChangeDependentGenderFemale = _radio("female");
+	var $reportChangeDependentGenderMale = _radio("male");
+	var $reportChangeDependentSameSSNName = _radio("samenameT");
+	var $reportChangeDependentNoSameSSNName = _radio("samenameF");
+	//var $ssapPage6InfoDoB = _textbox("appscr57DOB" + ($num + 1));
+
+	// Parse params
+	if ($suffix === undefined || $suffix === "") {
+		$suffix = "Suffix";
+	}
+
+	// Set fields
+	$evenDate =calculateEventDate($days);
+	_setValue($reportChangeDependentEventDate, $eventDate);
+	_setValue($reportChangeDependentFirstName, $firstName);
+	_setValue($reportChangeDependentMiddleName, $middleName);
+	_setValue($reportChangeDependentLastName, $lastName);
+	_setSelected($reportChangeDependentSuffix, $suffix);
+	if ($gender == "Male") {
+		_check($reportChangeDependentGenderMale);
+		$ssapPeople[$num].$gender=$gender;
+	}
+	else {
+		_check($reportChangeDependentGenderFemale);
+		$ssapPeople[$num].$gender=$gender;
+	}
+
+	if ($sameSSNName == "Yes") {
+		$ssapPeople[$num].$SSNName = $ssapPeople[$num].fullName();
+	}
+	_click($reportChangeBasicInfoSave);
+}
+
+function clickEditForDependentSSN($num, $days, $SSN) {
+	_click($reportChangeEditDependentSSN);
+	_assertExists($reportChangeDependentSSNEventDate);
+	$eventDate = calculateEventDate($days);
+	_setValue($reportChangeDependentSSNEventDate, $eventDate);
+	var $str = $SSN;
+	var $res = $str.split("-");
+	_setValue(_textbox("ssn1"), $res[0]);
+	_setValue(_textbox("ssn2"), $res[1]);
+	_setValue(_textbox("ssn3"), $res[2]);
+	$ssapPeople[$num].$SSN = $SSN;
+	_click($reportChangeBasicInfoSave);
+}
+
+function clickEditForDependentDOB($num, $days,$dob){
+	_check(_link("Date of Birth"));
+	_assertVisible(_textbox("eventDateDOB"));
+	$eventDate = calculateEventDate($days);
+	_setValue(_textbox("eventDateDOB"), $eventDate);
+	_setValue(_textbox("dateOfBirth"), $dob);
+	$ssapPeople[$num].$doB = $dob;
+	_click(_link("Save & close"));
+}
+
+function clickEditForDependentEthnicityAndRace($num, $days, $race){
+	_click(_link("Ethnicity and Race"));
+	_assertExists(_textbox("eventDateEthnicity"));
+	$eventDate = calculateEventDate($days);
+	_setValue(_textbox("eventDateEthnicity"), $eventDate);
+
+	if($race == "Chinese") {
+		_check(_checkbox("RACE3", _in(_label("Chinese"))));
+	}
+
+	if($race == "Asian Indian") {
+		_check(_checkbox("RACE1", _in(_label("Asian Indian"))));
+	}
+
+	if($race == "Vietnamese") {
+		_check(_checkbox("RACE12", _in(_label("Vietnamese"))));
+	}
+	_click($reportChangeBasicInfoSave);
+}
+
+function clickEditForAddingOrRemovingDependent($num, $days, $event,$subEvent){
+	if(_isVisible((_link("Next : Change in Dependents")))){
+		_click(_link("Next : Change in Dependents"));
+	}
+	_assertVisible(_heading4("Life Change Event: Change in Dependents"));
+	_assertVisible(_heading3("Enter Event Details"));
+	_assertVisible($changeInDependentAdd);
+	_assertVisible($changeInDependentDeath);
+	_assertVisible($changeInDependentRemoveMember);
+	if($event =="Add HouseHold Member"){
+		_check($changeInDependentAdd);
+		_assertVisible($changeInDependentAddBirth, _near($changeInDependentAdd));
+		_assertVisible($changeInDependentAddAdoption, _near($changeInDependentAdd));
+		_assertVisible($changeInDependentAddCourtAppointed, _near($changeInDependentAdd));
+		_assertVisible($changeInDependentAddTaxDependent, _near($changeInDependentAdd));
+
+		if($subEvent == "Birth"){
+			$birth =true;
+			_check($changeInDependentAddBirth);
+		}
+
+		if($subEvent == "Adoption") {
+			_check($changeInDependentAddAdoption);
+		}
+
+		if($subEvent == "Court Appointed Dependent"){
+			_check($changeInDependentAddCourtAppointed);
+		}
+
+		if($subEvent == "Tax Dependent"){
+			_check($changeInDependentAddTaxDependent);
+			_assertEqual("SelectLoss of Catastrophic Coverage Aged Out of Current Plan Exemption Expired Loss of Minimum Essential CoverageLoss of Subscriber/Loss of Primary Tax FilerLoss of Subscriber/Loss of Primary Tax Filer due to Death Loss of Plan from Divorce Moved into State", _getText(_div("input-append")));
+			_setSelected($changeInDependentAddTaxReason, "Loss of Catastrophic Coverage");
+		}
+	}
+
+	if($event == "Remove Household Member"){
+		_check($changeInDependentRemove);
+		_click(_submit("Remove[1]"));
+		_click(_radio("numofDepOther"));
+		_click(_submit("Remove[2]"));
+	}
+
+	if($event == "Death"){
+		_check($changeInDependentDeath);
+	}
+
+	var $eventReportedOn =calculateEventDate($days);
+	_setValue($changeInDependentEventDate, $eventReportedOn);
+	$eventDate = _getValue($changeInDependentEventDate);
+}
+
+function enterNumberOfDependentToAdd($num){
+	_setValue($changeInDependentAddNumberOfPeopleToAdd, $num);
+}
+
+function enterNewDependentDetail($num, $firstName, $middleName,$lastName, $suffix,$doB,$seeking,$gender){
+	$currentPerson= $currentPerson+1;
+	// Put primary info in array of people
+	while ($ssapPeople[$num] === undefined) {
+		$ssapPeople.push(new SsapPerson());
+	}
+	$ssapPeople[$num].$homeAddress1 = $ssapHomeAddress1;
+	$ssapPeople[$num].$homeAddress2 = $ssapHomeAddress2;
+	$ssapPeople[$num].$homeCity = $ssapHomeCity;
+	$ssapPeople[$num].$homeZip = $ssapHomeZip;
+	$ssapPeople[$num].$mailingAddress1 = $ssapMailingAddress1;
+	$ssapPeople[$num].$mailingAddress2 = $ssapMailingAddress2;
+	$ssapPeople[$num].$mailingCity = $ssapMailingCity;
+	$ssapPeople[$num].$mailingZip = $ssapMailingZip;
+	$ssapPeople[$num].$num = $num;
+	$ssapPeople[$num].$firstName = $firstName;
+	$ssapPeople[$num].$middleName = $middleName;
+	$ssapPeople[$num].$lastName = $lastName;
+	$ssapPeople[$num].$suffix = $suffix;
+	$ssapPeople[$num].$doB = $doB;
+
+	if ($suffix === undefined || $suffix === "") {
+		$suffix = "Suffix";
+	}
+
+	// Set fields
+	_setValue($changeInDependentfirstName, $firstName);
+	_setValue($changeInDependentmiddleName, $middleName);
+	_setValue($changeInDependentlastName, $lastName);
+	_setSelected($changeInDependentSuffix, $suffix);
+	if(!$birth){
+		_setValue($chnageInDependentDob, $doB);
+		//TODO: Typo change variable
+	}
+
+	if ($seeking) {
+		_check($changeInDependentSeekingCoverageTrue);
+		$ssapPeople[$num].$applying="Yes";
+		if($birth == true){
+			$ssapPeople[$num].$doB = _getValue(_textbox("dummyBirthDate"));
+		}
+
+		if ($ssapPeople[$num].$age > 18 && $ssapPeople[$num].$applying=="Yes") {
+			$numberOfAdults++;
+		}
+		else if ($ssapPeople[$num].$age <= 18 && $ssapPeople[$num].$applying=="Yes") {
+			$numberOfChildren++;
+		}
+		_log("Number OfChildren"+$numberOfChildren);
+	}
+	else {
+		_uncheck($changeInDependentSeekingCoverageFalse);
+		$ssapPeople[$num].$applying="No";
+	}
+	if ($gender == "Male") {
+		_check($changeInDependentgenderMale);
+		$ssapPeople[$num].$gender=$gender;
+	}
+	else {
+		_check($changeInDependentgenderfemale);
+		$ssapPeople[$num].$gender=$gender;
+	}
+}
+
+function selectAddressToChange($address){
+	if(_isVisible(_label("Change of mailing address"))){
+		_assertVisible(_link("DELETE & START OVER"));
+		_assertVisible(_listItem("ADDRESS_CHANGE"));
+		_click(_radio("newOptionst"));
+	}
+	else {
+		_assertVisible(_heading3("Address"));
+		_assertVisible(_link("DELETE & START OVER"));
+		if($address == "My address"){
+			_check(_radio("sameaddress"));
+		}
+		else {
+			_check(_radio("diffaddress"));
+			_assertVisible(_label("Address 1"));
+		}
+	}
+}
+
+function selectDifferentAddress($num,$days,$addr1, $addr2, $city, $zip, $state, $county,$value){
+	if($num!=0){
+		_assertVisible(_label("Same address as primary contact."));
+		_assertVisible(_label("Different address"));
+		_check(_radio("addressNo"));
+	}
+	$eventDate = calculateEventDate($days);
+	_setValue(_textbox("changeinaddressdate"), $eventDate);
+
+	_assertVisible(_label("Address 1"));
+	if($num==0){
+		$ssapMailingAddress1 = $ssapPeople[0].$homeAddress1;
+		$ssapMailingAddress2 = $ssapPeople[0].$homeAddress2;
+		$ssapMailingCity = $ssapPeople[0].$homeCity;
+		$ssapMailingZip = $ssapPeople[0].$homeZip;
+		$ssapPeople[0].$mailingAddress1 = $ssapPeople[0].$homeAddress1;
+		$ssapPeople[0].$mailingAddress2 = $ssapPeople[0].$homeAddress2;
+		$ssapPeople[0].$mailingCity = $ssapPeople[0].$homeCity;
+		$ssapPeople[0].$mailingZip = $ssapPeople[0].$homeZip;
+	}
+	$ssapPeople[$num].$homeAddress1 = $addr1;
+	_log($ssapPeople[$num].$homeAddress1);
+	$ssapPeople[$num].$homeAddress2 = $addr2;
+	$ssapPeople[$num].$homeCity = $city;
+	$ssapPeople[$num].$homeZip = $zip;
+
+	///accessors
+	var $differentAddress1 = _textbox("home_addressLine1");
+	var $differentAddress2 =  _textbox("home_addressLine2");
+	var $differentCity = _textbox("home_primary_city");
+	var $differentState = _select("home_primary_state");
+	var $differentZip = _textbox("home_primary_zip");
+	var $differentCounty = _select("home_primary_county");
+
+	/// Set the Fields
+	_setValue($differentAddress1, $addr1);
+	_setValue($differentAddress2, $addr2);
+	_setValue($differentCity, $city);
+	_setSelected($differentState, $state);
+	_setValue($differentZip, $zip);
+	_setSelected($differentCounty, $county);
+
+	if( _isVisible(_heading4("Do you want to update address of other members to same as above?"))){
+		if($value == "Yes"){
+			_click(_radio("sameprimaryt"));
+			for(i=0;i<$ssapPeople.length;i++){
+				$ssapPeople[i].$homeAddress1 = $addr1;
+				_log($ssapPeople[i].$homeAddress1);
+				$ssapPeople[i].$homeAddress2 = $addr2;
+				$ssapPeople[i].$homeCity = $city;
+				$ssapPeople[i].$homeZip = $zip;
+			}
+		}
+		else if($value == "No"){
+			_click(_radio("sameprimaryf"));
+		}
+		_click(_link("OK"));
+	}
+}
+
+function selectOutsideAddress($num,$value,$outsideCity,$outsideState,$outsideZip){
+	var $outSide = _radio("tempresidenceyes");
+	var $in = _radio("tempresidenceno");
+	if($value =="No"){
+		_check($in);
+	}
+	else if($value=="Yes"){
+		_check($outSide);
+		$outsideIdaho="Yes";
+		$numberOutside = $num;
+		_setValue(_textbox("home_temp_city"), $outsideCity);
+		_setSelected(_select("home_temp_state"), $outsideState);
+		_setValue(_textbox("home_temp_zip"), $outsideZip);
+	}
+	_click(_link("OK"));
+}
+
+function selectTypeOfAddress($typeAddress){
+	if($typeAddress == "Home Address"){
+		_click(_radio("newOptionst"));
+		_assertVisible(_table("table table-striped ng-scope"));
+	}
+}
+
+function selectNativeForNewDependent($num,$value){
+	if($value == "Yes"){
+		_click(_radio("indiannativeyes"));
+		$ssapPeople[$num].$native = "Yes";
+	}
+	else {
+		_click(_radio("indiannativeno"));
+		$ssapPeople[$num].$native = "No";
+	}
+}
+
+function verifyElementsForRemoveSpouse(){
+	_assertVisible(_radio("DIVORCE_OR_ANULLMENT"));
+	_assertVisible(_radio("DEATH"));
+	_click(_radio("DIVORCE_OR_ANULLMENT"));
+	_assertVisible(_textbox("dateOfEvent[2]"));
+	_assertVisible(_div("Do you want to remove your spouse/partner from your health insurance plan? Yes No"));
+	_assertVisible(_radio("dependentsYes"));
+	_assertVisible(_radio("dependentsNo"));
+	_click(_radio("dependentsYes"));
+	_assertVisible(_cell("Report Now", _in(_div("ng-scope[5]"))));
+	_assertVisible(_link("Remove", _in(_div("ng-scope[5]"))));
+	_click(_radio("DEATH"));
+	_assertVisible(_textbox("dateOfEvent[1]"));
+}
+
+var $removeHH ="";
+function clickRemoveSpouse($num,$event,$days,$seeking){
+	$removeHH = "true";
+	$globalNum = $num;
+	verifyElementsForRemoveSpouse();
+	$date = calculateEventDate($days);
+	if($event == "Divorce"){
+		_click(_radio("DIVORCE_OR_ANULLMENT"));
+		_setValue(_textbox("dateOfEvent[2]"), $date);
+		$eventReported ="2";
+		$eventDate = _getValue(_textbox("dateOfEvent[2]"));
+	}
+	else if($event == "Death"){
+		_click(_radio("DEATH"));
+		_setValue(_textbox("dateOfEvent[1]"), $date);
+		$eventReported ="1";
+		var $deathReported = _getValue(_textbox("dateOfEvent[1]"));
+		$eventDate =  _fetch(window.moment($deathReported).add(1, 'd').format('MM/DD/YYYY'));
+	}
+
+	if($seeking == "true"){
+		_click(_radio("dependentsNo"));
+	}
+	else if($seeking =="false"){
+		_click(_radio("dependentsYes"));
+		$ssapPeople[$num].$applying="No";
+		_click(_link("Remove"));
+		_assertVisible(_link("Remove[1]"));
+		_click(_link("Remove[1]"));
+	}
+	else {
+		$ssapPeople[$num].$applying="No";
+	}
+
+	$ssapPeople.splice($num,1);
+}
+
+var $removePrimary="false";
+var $sign="";
+function clickChangeInDependent($num,$applicant){
+	_assertVisible(_table("deathTable"));
+	_check(_submit("Remove", _near(_cell($applicant))));
+	_assertVisible(_submit("Remove[3]"));
+	_check(_submit("btn btn-primary"));
+	if($num==0){
+		$removePrimary="true";
+		$sign = $ssapPeople[0].fullName();
+		for(i=0;i<$ssapPeople.length;i++){
+			$ssapPeople[i].$applying="No";
+		}
+	}
+	$ssapPeople.splice($num,1);
+}
+
+function reportChangeRemoveHousehold($num,$applicant){
+	_assertVisible(_table("removeTable"));
+	_check(_submit("Remove", _near(_cell($applicant))));
+	_assertEqual("Please select one of the following reasons Dependent aging out Other", _getText(_div("ssnNumber")));
+	_click(_radio("numofDepOther"));
+	_assertVisible(_submit("Remove[3]"));
+	_check(_submit("btn btn-primary"));
+	if($num==0){
+		$removePrimary="true";
+		$sign = $ssapPeople[0].fullName();
+		for(i=0;i<$ssapPeople.length;i++){
+			$ssapPeople[i].$applying="No";
+		}
+	}
+	$ssapPeople.splice($num,1);
+}
+
+function gainOfMECVerify(){
+	_assertVisible(_heading4("Life Change Event: Gain of Minimum Essential Coverage"));
+	_assertVisible(_div("alert alert-info"));
+}
+
+function reportNowForGainOfMEC($num,$days,$applicant,$reason){
+	if(_isVisible(_link("Next : Gain of Minimum Essential Coverage"))){
+		_click(_link("Next : Gain of Minimum Essential Coverage"));
+	}
+	gainOfMECVerify();
+	_click(_link("Report Now", _near(_cell($applicant, _in(_table("table table-striped ng-scope"))))));
+	_assertVisible(_paragraph("margin40-t alert alert-info"));
+	$date = calculateEventDate($days);
+	_log($date);
+	_setValue(_textbox("dateOfChange"), $date);
+
+	if($reason == "Employer-Sponsored Coverage"){
+		_click(_radio("opt1"));
+	}
+	else if($reason == "Eligible For Public Program"){
+		_click(_radio("opt2"));
+	}
+
+	_click(_link("Continue"));
+	$ssapPeople[$num].$applying="No";
+	_click(_link("Continue[1]"));
+}
+
+function lossOfMECVerify(){
+	_assertTrue(_isVisible(_div("Selected Events Loss of Minimum Essential Coverage Enter Event Details Review & Submit DELETE & START OVER")) || _isVisible(_div("span3")));
+}
+
+function reportNowForLossOfMEC($num,$days,$applicant,$reason){
+	lossOfMECVerify();
+	if(_isVisible(_dList("Next : Loss of Minimum Essential Coverage"))){
+		_click(_link("Next : Loss of Minimum Essential Coverage"));
+	}
+	_click(_link("Report Now", _near(_cell($applicant, _in(_table("table table-striped ng-scope"))))));
+	_assertVisible(_div("ng-modal-dialog"));
+	$date = calculateEventDate($days);
+	_setValue(_textbox("dateOfChange"), $date);
+	if($reason == "Loss Of Coverage Through Household"){
+		_click(_radio("LOSE_COVERAGE_NON_PAYMENT"));
+	}
+	else if($reason == "Loss Of Employer Sponsored Coevrage"){
+		_click(_radio("LOSE_EMPLOYER_COVERAGE"));
+	}
+	else if($reason == "Loss Of MEC Through Public Program"){
+		_click(_radio("LOSE_OTHER_PUBLIC_MEC"));
+	}
+	_click(_link("Continue"));
+	$ssapPeople[$num].$applying="Yes";
+}
+
+function NativeAmericanVerify(){
+	_assertVisible(_heading4("Life Change Event: Change in American Indian or Alaska Native status"));
+	_assertVisible(_link("Update"));
+}
+
+function reportForNativeAmerican($num,$days,$applicant,$isNative){
+	NativeAmericanVerify();
+	_click(_link("Update", _near(_cell($applicant))));
+	var $eventReportedDate =calculateEventDate($days);
+	_setValue(_textbox("input1"), $eventReportedDate);
+	$eventDate = _getValue(_textbox("input1"));
+	if($isNative == "Yes"){
+		_click(_radio("indiannativeyes"));
+		$ssapPeople[$num].$native = "Yes";
+	}
+	else if($isNative == "No") {
+		_click(_radio("indiannativeno"));
+		$ssapPeople[$num].$native = "No";
+	}
+
+	_click(_link("OK"));
+	$eventReported ="3";
+}
+
+function reportForMarriage($num,$days){
+	_assertVisible(_heading4("Life Change Event: Change in Marital Status"));
+	_assertVisible(_label("Marriage"));
+	_click(_radio("MARRIAGE"));
+	_assertVisible(_textbox("dateOfEvent"));
+	var $eventDate =calculateEventDate($days);
+	_setValue(_textbox("dateOfEvent"), $eventDate);
+	$eventDate = _getValue(_textbox("dateOfEvent"));
+	_click(_link("Next"));
+	_assertVisible(_heading3("Spouse Information"));
+	$eventType ="2";
+}
+
+function reportChangeInRelation($num,$days,$rel){
+	_assertVisible(_heading3("Household Relationship Details"));
+	_assertVisible(_heading4("Life Change Event: Change in Relationship"));
+}

@@ -1,0 +1,6 @@
+"#script","tags"
+"AnonymousFlow_smoke.s.csv","smoke,AnonymousShopping"
+"IndividualPortal_smoke.s.csv","smoke, IndividualPortal"
+"CAP_BookOfBusiness_common_smoke.s.csv","smoke, AgentBookOfBusiness, CAP, TicketManagement"
+"IndividualOEPFlow.s.csv","OEP_NextYear"
+"//IndividualOEPFlow2.s.csv","OEP_PrevYear"

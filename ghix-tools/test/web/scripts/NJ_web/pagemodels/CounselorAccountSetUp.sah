@@ -1,0 +1,100 @@
+_include("CounselorDashboard.sah");
+_includeOnce("Utils.sah");
+_includeOnce("HomePage.sah");
+
+var $counselorAccountSetupHeader =  _heading2("New Account Set-Up");
+var $counselorAccountSetupFname = _textbox("First Name Required ", _rightOf(_label("First Name Required")));
+var $counselorAccountSetupLname = _textbox("Last Name Required ", _rightOf(_label("Last Name Required")));
+var $counselorAccountSetupEmail = _emailbox("email", _rightOf(_label("Email Address Required")));
+var $counselorAccountSetupConfirmEmail = _emailbox("confirmEmail", _rightOf(_label("Confirm Email Address Required")));
+var $counselorAccountSetupPhone1 =_textbox("phone1");//_textbox("Phone Number Required\n							tooltip link", _rightOf(_label("Phone Number Required tooltip link")));
+var $counselorAccountSetupPhone2 = _textbox("phone2")//_textbox("phone2", _rightOf(_textbox("Phone Number Required\n							tooltip link")));
+var $counselorAccountSetupPhone3 = _textbox("phone3")//_textbox("phone3", _rightOf(_textbox("phone2")));
+var $counselorAccountSetupSecurityQuestion = _select("securityQuestion1", _rightOf(_label("Security QuestionRequired")));
+var $counselorAccountSetupSecurityAnswer = _textbox("Security Answer", _under(_select("securityQuestion1")));
+var $counselorAccountSetupPassword = _password("password", _rightOf(_label("Password Required")));
+var $counselorAccountSetupConfirmPassword = _password("confirmPassword", _rightOf(_label("Confirm Password Required")));
+var $counselorAccountSetupPrivacy = _checkbox("terms", _in(_label("I have read and agree to the Privacy Policy")));
+var $counselorAccountSetupSubmitButton = _button("Submit");
+var $counselorAccountSetupCancelButton = _button("Cancel")
+var $counselorAccountSetup = [$counselorAccountSetupHeader, $counselorAccountSetupFname, $counselorAccountSetupLname, $counselorAccountSetupEmail, $counselorAccountSetupConfirmEmail,
+							 $counselorAccountSetupPhone1, $counselorAccountSetupPhone2, $counselorAccountSetupPhone3, $counselorAccountSetupSecurityQuestion, $counselorAccountSetupSecurityAnswer, 
+							 $counselorAccountSetupPassword, $counselorAccountSetupConfirmPassword, $counselorAccountSetupPrivacy, $counselorAccountSetupSubmitButton, $counselorAccountSetupCancelButton];
+
+var $counselorAccountInfo = {};
+function verifyCounselorAccountSetup() {
+	verifyArray($counselorAccountSetup);
+	_assertEqual(_getAttribute($counselorAccountSetupEmail, "readonly"), "true");
+	_assertEqual(true, _getAttribute($counselorAccountSetupSubmitButton, "disabled"), "Verify Submit Button is disabled");
+}
+
+function editCounselorFirstName($name) {
+	_setValue($counselorAccountSetupFname, $name);
+	$counselorAccountInfo.firstName = $name;
+}
+
+function editCounselorFirstName($name) {
+	_setValue($counselorAccountSetupLname, $name);
+	$counselorAccountInfo.lastName = $name;
+}
+
+function enterCounselorConfirmEmail() {
+	var $email = _getValue($counselorAccountSetupEmail);
+	_setValue($counselorAccountSetupConfirmEmail, $email);
+	$counselorAccountInfo.email = $email;
+}
+
+function editCounselorPhoneNumber($phoneNum) {
+	if ($phoneNum == null) {
+		$phoneNum = phoneGen();
+	}
+	setPhoneNum($counselorAccountSetupPhone1, $counselorAccountSetupPhone2, $counselorAccountSetupPhone3, $phoneNum);
+	$counselorAccountInfo.phone = $phoneNum;
+}
+
+function selectCounselorSecurityQuestionAndAnswer($answer, $question) {
+	if ($question == null) {
+		_setSelected($counselorAccountSetupSecurityQuestion, "What was your childhood nickname?");
+	}
+	else {
+		_setSelected($counselorAccountSetupSecurityQuestion, $question);
+	}
+	
+	if ($answer == null) {
+		$answer = randomString($FIELD_LENGTH);
+	}
+	_setValue($counselorAccountSetupSecurityAnswer, $answer);
+	$counselorAccountInfo.securityQuestion = $question;
+	$counselorAccountInfo.securityAnswer = $answer;
+}
+
+function enterCounselorPassword($password) {
+	if ($password == null) {
+		$password = randomString(5) + randomString(3, true) + '#';
+	}
+	_setValue($counselorAccountSetupPassword, $password);
+	_setValue($counselorAccountSetupConfirmPassword, $password);
+	$counselorAccountInfo.password = $password;
+}
+
+function checkCounselorPrivacyPolicyBox() {
+	_click($counselorAccountSetupPrivacy);
+}
+
+function clickCancelOnCounselorAccountSetUpPage() {
+	_click($counselorAccountSetupCancelButton);
+	verifyElementsOfHomePage();
+}
+
+function clickSubmitOnCounselorAccountSetUpPage() {
+	_click($counselorAccountSetupSubmitButton);
+	verifyElementsOnCounselorDashboard();
+
+}
+
+function createCounselorAccount($password) {
+	enterCounselorConfirmEmail();
+	selectCounselorSecurityQuestionAndAnswer();
+	enterCounselorPassword($password);
+	checkCounselorPrivacyPolicyBox();
+}

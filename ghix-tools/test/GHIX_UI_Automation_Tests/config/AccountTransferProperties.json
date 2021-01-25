@@ -1,0 +1,97 @@
+{
+  "MN": {
+    "default": {
+      "um_port": 8083,
+      "um_path": "/service/UserManagementService",
+      "um_user": "exadmin@ghix.com",
+      "um_pass": "testpassword",
+      "at_path": "/ghix-eligibility/endpoints/AccountTransfer",
+      "at_port": null,
+      "at_user": "GI.MN*.DEV.001.001",
+      "at_pass": "MYk@I30*ubFqZ7Ua"
+    },
+    "mn2auto.eng.vimo.com": {
+      "um_url": "mn2auto.eng.vimo.com",
+      "um_port": 8083,
+      "um_path": "/service/UserManagementService",
+      "um_user": "exadmin@ghix.com",
+      "um_pass": "testpassword",
+      "at_url": "mn2auto.eng.vimo.com",
+      "at_path": "/ghix-eligibility/endpoints/AccountTransfer",
+      "at_port": null,
+      "at_user": "GI.MN*.DEV.001.001",
+      "at_pass": "MYk@I30*ubFqZ7Ua"
+    }
+  },
+  "ID": {
+    "default": {
+      "at_path": "/ghix-eligibility/endpoints/AccountTransfer",
+      "at_port": null,
+      "at_user": "GI.ID*.ABC.001.001",
+      "at_pass": "kYL@I30ubFqZ7Ua",
+      "p12_path": "/Users/geddam_d/certs/AT_GetInsured-2046.p12"
+    },
+    "id2auto.eng.vimo.com": {
+      "at_url": "id2auto.eng.vimo.com",
+      "at_path": "/ghix-eligibility/endpoints/AccountTransfer",
+      "at_port": null,
+      "at_user": "GI.ID*.ABC.001.001",
+      "at_pass": "kYL@I30ubFqZ7Ua",
+      "p12_path": "/Users/geddam_d/certs/AT_GetInsured-2046.p12"
+    },
+    "iddemo.ghixqa.com": {
+      "at_url": "iddemo.eng.vimo.com",
+      "at_path": "/ghix-eligibility/endpoints/AccountTransfer",
+      "at_port": 8443,
+      "at_user": "GI.ID*.ABC.001.001",
+      "at_pass": "kYL@I30ubFqZ7Ua",
+      "p12_path": "/Users/geddam_d/certs/AT_GetInsured-2046.p12"
+    }
+  },
+  "CA": {
+    "default": {
+      "at_path": "/ghix-eligibility/endpoints/AccountTransfer",
+      "at_port": null,
+      "at_user": "GI.ID*.ABC.001.001",
+      "at_pass": "kYL@I30ubFqZ7Ua"
+    }
+  },
+  "PA": {
+    "default": {
+      "at_path": "/medicaid/soap/v24/account-transfer",
+      "at_port": 8443,
+      "at_user": "GI.PA*.DEV.002.001",
+      "at_pass": "NYk@I30*nvFqZ7PA"
+    },
+    "pa1auto.eng.vimo.com": {
+      "at_url": "pa1auto.eng.vimo.com",
+      "at_path": "/medicaid/soap/v24/account-transfer",
+      "at_port": 8443,
+      "at_user": "GI.PA*.DEV.002.001",
+      "at_pass": "NYk@I30*nvFqZ7PA"
+    },
+    "pa1qa.ghixqa.com": {
+      "at_url": "pa1qa.ghixqa.com",
+      "at_path": "/medicaid/soap/v24/account-transfer",
+      "at_port": 8443,
+      "at_user": "GI.PA*.DEV.002.001",
+      "at_pass": "NYk@I30*nvFqZ7PA"
+    }
+  },
+  "NJ": {
+    "default": {
+      "at_path": "/medicaid/soap/v24/account-transfer",
+      "at_port": 8443,
+      "at_user": "GI.NJ*.DEV.002.001",
+      "at_pass": "NYk@I30*njFqZ8Uq"
+    }
+  },
+  "NV": {
+    "default": {
+      "at_path": "/medicaid/soap/v24/account-transfer",
+      "at_port": 8443,
+      "at_user": "GI.NV*.DEV.002.001",
+      "at_pass": "NYk@I30*nvFqZ7Uq"
+    }
+  }
+}

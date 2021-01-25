@@ -1,0 +1,5 @@
+{
+    "hd_certifiedAssisters":"$('h4*=Step 5: Certified Enrollment Counselors')",
+    "hd_searchForInprsonAssistance":"$('h1*=Search for in-person assistance Nevada Health Link')"
+    
+}

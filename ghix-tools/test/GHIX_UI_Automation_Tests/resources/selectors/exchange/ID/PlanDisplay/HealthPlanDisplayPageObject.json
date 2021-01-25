@@ -1,0 +1,6 @@
+{
+    "planTiles":
+    {
+        "network":"$$('//table/tbody/tr[5]/td')[index]"
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "signAndSubmit":{
+        "signAndSubmitHeading": "$('h1=Sign and Submit')",
+        "cb_noIncarceration": "$('#checkbox_page_17_incarcerationAsAttestedIndicator_label')",
+        "cb_agreeToUseIncomeData": "$('#page_17_consentAgreement_label0')",
+        "cb_disagreeToUseIncomeData": "$('#page_17_consentAgreement_label1')",
+        "cb_acknowledgeoutsideparent": "$('#checkbox_page_17_acknowledgeOutsideParent_label')",
+        "cb_isReadyToReportForChanges": "$('#checkbox_page_17_isReadyToReportForChanges_label')",
+        "cb_isTruthful": "$('#checkbox_page_17_isTruthful_label')",
+        "tb_signature": "$('#page_17_signature')",
+        "btn_submitApplication": "$('[name=rightButton]')",
+        "sb_sepEvent": "$('//select[@id=\"sepEvent\"]')",
+        "tb_sepEventDate": "$('//input[@id=\"sepEventDate\"]')",
+        "btn_submitApplicationFinal":"$('//div[@id=\"eventModal\"]//a[@id=\"btnSubmitCSRApplicationType\"]')"
+   
+    }
+}
+
+

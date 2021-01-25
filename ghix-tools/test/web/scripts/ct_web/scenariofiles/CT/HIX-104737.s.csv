@@ -1,0 +1,33 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify household Eligibility for Medicare, CHIP,  APTC and only APTC should be considered for plan display","[Documentation]","One member Medicare, one member CHIP and one member APTC--> only 1 member (APTC) should be considered for plan display
+
+Zip: 06001
+Applicant Age:01/01/1950 - Medicare
+Spouse: 01/01/1980 - APTC
+Child: 01/01/2016 - CHIP
+Income:35,000"
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""01/01/1950""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddSpouse","""01/01/1980""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddChild","""01/01/2016""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""35000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","It looks like you and your household may qualify for financial help to pay for your healthcare coverage."
+,"validateSavingDetails","Y","Y","Y","N","Y","N"
+,"$aptcValue=getEstimatedTaxCredit"
+,"clickNextOnCheckSavingResults"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"selectDoctor","Mofei Liu","""06001"""
+,"selectHospital","""Scott W. Lindsay, Dpm""","""06001"""
+,"clickNextPreferences"
+,"selectPrescription","Lipitor","""Lipitor 80 Mg Tab (Oral Tablet)"""
+,"selectPrescription","Atorvastatin","""Atorvastatin 20 Mg Tab (Oral Tablet)"""
+,"clickViewPlans","Y"
+,"verifyHouseholdDetailsOnPlansSummary","1","0","""06001""","$aptcValue"

@@ -1,0 +1,530 @@
+_includeOnce("EntityInformation.sah");
+_includeOnce("CertificationApplication.sah");
+_includeOnce("SignupPreferences.sah");
+_includeOnce("Login.sah");
+_includeOnce("../lib/util.sah");
+//_includeOnce("Utils.sah");
+//_includeOnce("../lib/common.sah");
+
+var $Signup = true;
+$signUpPassword="";
+
+// Constants
+$SIGNUP_SECURITY_MENU_LENGTH = 6;
+
+$SIGNUP_MODE_OPTIONS = ["Individual", "Agent", "Entity"];
+
+// Variables
+var $signupMode;
+// Possible values: "Individual", "Agent", "Entity"
+var $firstName;
+var $lastName;
+var $signupEmail;
+
+
+//$signupEmail="katewilliam72605380@example.com";
+// Accesors
+var $signupHeader;
+var $signupFirstNameLabel = _label("First Name Required");
+var $signupFirstNameTextbox = _textbox("firstName");
+var $signupLastNameLabel = _label("Last Name Required");
+var $signupLastNameTextbox = _textbox("lastName");
+var $signupEmailAddressLabel = _label("Email Address Required");
+var $signupEmailAddressTextbox = _emailbox("email");
+var $signupConfirmEmailAddressLabel = _label("Confirm Email Address Required");
+var $signupConfirmEmailAddressTextbox = _emailbox("confirmEmail");
+//var $signupPhoneNumberLabel = _label("control-label");
+var $signupPhoneNumberLabel = _label("/Phone Number Required/");
+var $signupPhoneNumberTextbox = [_textbox("phone1"), _textbox("phone2"), _textbox("phone3")];
+var $signupSecurityQuestionLabel = _heading4("Security Question");
+var $signupSecurityQuestionMenu = _select("securityQuestion1");
+var $signupSecurityAnswerTextbox = _textbox("securityAnswer1");
+var $signupPasswordLabel = _label("Password Required");
+var $signupPasswordTextbox = _password("password");
+var $signupConfirmPasswordLabel = _label("Confirm Password Required");
+var $signupConfirmPasswordTextbox = _password("confirmPassword");
+var $signupPrivacyCheckbox = _checkbox("terms");
+var $signupPrivacyLabel = _label("I have read and agree to the Privacy Policy");
+var $signupSubmit = _button("submitbtn");
+var $signupSecurityQuestion="";
+var $answer="";
+
+function verifyElementsOnSignUpPage() {
+	
+	var $valid = false;
+	for (var $i = 0; $i < $SIGNUP_MODE_OPTIONS.length; $i++) {
+		if ($signupMode === $SIGNUP_MODE_OPTIONS[$i]) {
+			$valid = true;
+			break;
+		}
+	}
+	if (!$valid) {
+		_log($valid);
+		$signupMode = $SIGNUP_MODE_OPTIONS[0];
+	}
+	if ($signupMode === "Individual") {
+		$signupHeader = _heading1("Set Up Your Individual Account on GetCoveredNJ");
+	}
+	else if ($signupMode === "Agent") {
+		$signupHeader = _heading1("New Agent Account Set-Up");
+	}
+	else if ($signupMode === "Entity") {
+		$signupHeader = _heading1("New Entity Account Set-Up");
+	}
+	
+	//$signupHeader = _heading1("Set Up Your Individual Account on Get Covered New Jersey")
+	_assertVisible($signupHeader);
+	_assertVisible($signupFirstNameLabel);
+	_assertVisible($signupFirstNameTextbox);
+	_assertVisible($signupLastNameLabel);
+	_assertVisible($signupLastNameTextbox);
+	_assertVisible($signupEmailAddressLabel);
+	_assertVisible($signupEmailAddressTextbox);
+	_assertVisible($signupConfirmEmailAddressLabel);
+	_assertVisible($signupConfirmEmailAddressTextbox);
+	_assertVisible($signupPhoneNumberLabel);
+
+	for (var $i = 0; $i < $signupPhoneNumberTextbox.length; $i++) {
+		_assertVisible($signupPhoneNumberTextbox[$i]);
+	}
+
+	_assertVisible($signupSecurityQuestionLabel);
+	_assertVisible($signupSecurityQuestionMenu);
+	_assertVisible($signupSecurityAnswerTextbox);
+	_assertVisible($signupPasswordLabel);
+	_assertVisible($signupPasswordTextbox);
+	_assertVisible($signupConfirmPasswordLabel);
+	_assertVisible($signupConfirmPasswordTextbox);
+	_assertVisible($signupPrivacyCheckbox);
+	_assertVisible($signupPrivacyLabel);
+	_assertVisible($signupSubmit);
+}
+/*
+* Fills random information in the fields and submits
+*/
+function clickSubmitOnSignUpPage($emailPrefix,$first,$last, $dob, $SSN,$showDobSsn,$passwordDbCheck) {
+
+	var $people = [];
+	//var $household = {};
+	var $SSN
+	
+	if(!$first){
+		$firstName = randomFirstName();//randomString($FIELD_LENGTH);
+	}
+	else {
+		$firstName = $first;
+	}
+	_setValue($signupFirstNameTextbox, $firstName);
+
+	if(!$last)
+	{
+		$lastName = randomLastName();//randomString($FIELD_LENGTH);
+	}
+	else {
+		$lastName = $last;
+	}
+
+	_setValue($signupLastNameTextbox, $lastName);
+
+	var $digits = phoneGen();
+	for (var $i = 0; $i < $digits.length; $i++) {
+		_setValue($signupPhoneNumberTextbox[$i], $digits[$i]);
+	}
+	
+	// Check if its individual account sign up
+	if($signupMode === "Individual") {
+	
+		//Check if DOB and SSN text fields should not be displayed
+		//if($showDobSsn =="N"){
+			//_assertNotVisible(_textbox("birthDate"));
+			
+			_assertNotVisible(_password("ssn1"));
+			_assertNotVisible(_password("ssn2"));
+			_assertNotVisible(_textbox("ssn3"));
+			
+			_assertNotVisible(_password("confirmSsn1"));
+			_assertNotVisible(_password("confirmSsn2"));
+			_assertNotVisible(_password("confirmSsn3"));
+				
+		//}
+		
+		//else {
+			//$SSN = getRandomSSN();
+			//_log(" In Sign func***************"+$SSN);
+			//$s=$SSN.split("-");
+			//_setValue(_password("ssn1"), $s[0]);
+			//_setValue(_password("ssn2"), $s[1]);
+			//_setValue(_textbox("ssn3"), $s[2]);	
+		
+			//_setValue(_password("confirmSsn1"), $s[0]);
+			//_setValue(_password("confirmSsn2"), $s[1]);
+			//_setValue(_textbox("confirmSsn3"), $s[2]);
+			
+				if($showDobSsn =="Y"){
+					_assertEqual($dob, _getValue(_textbox("birthDate")));
+				}
+				else{
+					_assertEqual("", _getValue(_textbox("birthDate")));
+					if(!$dob){
+						$dob = getRandomDateOfBirth();
+					}
+					_setValue(_textbox("birthDate"), $dob);
+				}
+			}
+		//}
+
+	_setSelected($signupSecurityQuestionMenu, "1");
+	$signupSecurityQuestion=_getValue($signupSecurityQuestionMenu);
+	$answer = randomString($FIELD_LENGTH);
+	_setValue($signupSecurityAnswerTextbox, $answer);
+	$url = getUpdatedBaseURL("").split("/");
+
+	var $email;
+	if ($emailPrefix) {
+		if(new RegExp("@").test($emailPrefix)){
+		}
+		else {
+			$email = $emailPrefix + randomString(2, true) + "@yopmail.com";
+			$signupEmail = $email;
+		}
+	}
+	else {
+		var $currentTime = new Date().getTime();
+		$email = $firstName+"_"+$currentTime+"@yopmail.com";
+		//$email = randomString($FIELD_LENGTH) + "@yopmail.com";
+		$signupEmail = $email;
+	}
+
+	_setValue($signupEmailAddressTextbox, $email);
+	_setValue($signupConfirmEmailAddressTextbox, $email);
+	var $pw = "ghix123#";
+	$signUpPassword = $pw;
+	_maskLogs("Sensitive Data");
+	_setValue($signupPasswordTextbox, $pw);
+	_setValue($signupConfirmPasswordTextbox, $pw);
+	_unmaskLogs("Information end");
+	// Privacy policy
+	_check($signupPrivacyCheckbox);
+	
+	//Click Submit button 
+	_click($signupSubmit);
+	
+	_wait(5000, !_isVisible($signupSubmit));
+	
+	//Check error messages are not displayed
+	_assertNotVisible(_span("!Error: Invalid Entry Please enter a valid SSN"));
+	_assertNotVisible(_span("!Please enter a valid date of birth"));
+	_assertNotVisible(_span("!Please enter date of birth"));
+	
+	var $url;
+	_set($url,window.document.location.href);
+
+	_log($url);
+	if($url.indexOf("ssousersuccess") != -1){
+		_click(_link("Continue"));
+		_assertVisible(_heading1("Log In"));
+		if($passwordDbCheck == "Y"){
+			var $password = getPasswordfromDb($email);
+			_assertEqual("PASSWORD_NOT_IN_USE",$password[0][0],"Verify if password in DB is stored as PASSWORD_NOT_IN_USE");
+			_assertNotEqual($signUpPassword,$password[0][0],"Verify if user's real password is not stored in DB");			 
+	//		_assertNotEqual((( "PASSWORD_NOT_IN_USE",$password[0][0]) && ($password[0][0], $signUpPassword)),"Verify if  encrypted password is stored in DB and password is not stored as PASSWORD_NOT_IN_USE") ;
+		}
+		loginEnterEmailAddress();
+		_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		_unmaskLogs("Information end");
+		loginClickLoginButton();
+	}
+
+	// Verify DB and verify elements on Preferences Page
+	if ($signupMode === "Individual") {
+		verifyDBIndividualDetails($signupEmail,$firstName,$lastName,$dob,$SSN,$showDobSsn);
+		verifyDbConfirmedStatusFromUsers($signupEmail);
+		verifyDbIdRoleId("INDIVIDUAL", $signupEmail)
+		verifyElementsOnPreferencesPage();
+		
+	}
+	else if ($signupMode === "Agent") {
+		verifyDbConfirmedStatusFromUsers($signupEmail);
+		verifyDbIdRoleId("BROKER", $signupEmail);
+		verifyElementsOnAgentRegistration();
+	}
+	else if ($signupMode === "Entity") {
+		verifyDbConfirmedStatusFromUsers($signupEmail);
+		verifyDbIdRoleId("ASSISTERENROLLMENTENTITY", $signupEmail);
+		verifyElementsOnEntityInformationPage();
+		
+	}
+	$loggedIn=true;
+	$people=[{
+		"$firstName":$firstName,
+		"$lastName":$lastName,
+		"$dob":$dob,
+		"$SSN":$SSN,
+		"$email":$email,
+		"$phoneNumber":$digits,
+	}];
+	
+	//$household.people = $people;
+	_log("Agent Info "+JSON.stringify($people));
+	return $people;
+	
+}
+
+
+//DB Verification for individual - First name, Last name, DOB and SSN
+function verifyDBIndividualDetails($signupEmail,$firstName,$lastName,$dob,$SSN,$showDobSsn) {
+
+	var $dbIndividualDetails = getIndividualDetailsFromCmrHousehold($signupEmail);
+	var $dbFirstName = $dbIndividualDetails[0][0];
+	var $dbLastName = $dbIndividualDetails[0][1];
+	var $dbBirthDate = $dbIndividualDetails[0][2];
+	var $dbSSN = $dbIndividualDetails[0][3];
+	var $dbSSNNotProvidedReason= $dbIndividualDetails[0][4];
+	var $dbSSNOverridden=$dbIndividualDetails[0][5];
+	
+	//Verify First Name
+	_assertNotNull($dbFirstName,"First name in DB is null");
+	_assertEqual($dbFirstName.toLowerCase(), $firstName.toLowerCase(), "First name in DB does not match the one entered in UI");
+	
+	//Verify Last Name
+	_assertNotNull($dbLastName,"Last name in DB is null");
+	_assertEqual($dbLastName.toLowerCase(), $lastName.toLowerCase(), "Last name in DB does not match the one entered in UI");
+	
+	//DOB from DB
+	 $dbBirthDate = $dbBirthDate.split(" ");
+	_log("birthDate from DB: "+$dbBirthDate );
+	$dbBirthDate=_call(window.moment($dbBirthDate[0]).format("MMDDYYYY"));
+	_log("birthDate from DB: " +$dbBirthDate);
+	
+	//Remove the slashes in DOB
+	$dob=$dob.replace(/\//g, "");
+	
+	//Asserting DOB in DB is same as what was entered in UI
+	_assertEqual($dbBirthDate, $dob, "Date of Birth in DB does not match what was entered in UI");
+	/*
+	if($showDobSsn =="N"){
+		
+		//Verify SSN is null
+		_assertEqual("null",$dbSSN, "SSN in DB is not null when SSN not required option is selected in the UI");
+		
+		//Verify SSN Not Provided Reason is same as what you selected
+		_log("SSN not provided reason from DB: "+$dbSSNNotProvidedReason);
+		$ssnNotReqdReason = $ssnNotReqdReason.toUpperCase();
+		$ssnNotReqdReason = $ssnNotReqdReason.split(" ").join('_');
+		_assertEqual($dbSSNNotProvidedReason, $ssnNotReqdReason,"SSN Not Provided Reason in DB does not match what was entered in UI");
+				
+}
+	else{
+
+		//Verify SSN 
+			$SSN=$SSN.split("-");
+			$SSN=$SSN[0]+$SSN[1]+$SSN[2];
+			_assertEqual($dbSSN, $SSN,"SSN in DB is not the same as in UI");
+		
+		//Verify SSN Not Provided Reason is null
+		if($showDobSsn =="Y"){
+		_assertEqual("",$dbSSNNotProvidedReason, "SSN Not Provided Reason in DB is not null when SSN is required option is selected in UI");
+		} 
+		else {
+		_assertEqual("null",$dbSSNNotProvidedReason, "SSN Not Provided Reason in DB is not null when SSN is required option is selected in UI");
+		}
+	}
+	*/
+}
+
+// DB verification - Confirmed and Status values
+function verifyDbConfirmedStatusFromUsers($signupEmail){
+	var $dbConfirmedStatusDetails = getConfirmedStatusFromUsers($signupEmail);
+	var $dbConfirmed = $dbConfirmedStatusDetails[0][1];
+	var $dbStatus= $dbConfirmedStatusDetails[0][2];
+	_assertEqual("1", $dbConfirmed, "Confirmed value for this user in DB is not 1");
+	_assertEqual("Active", $dbStatus, "Status in DB for this user is not Active");
+}
+
+// DB verification - id and role_id 
+function  verifyDbIdRoleId($name, $signupEmail){
+	var $dbId = getIdFromRoles($name);
+	var $dbRoleId = getRoleIdFromUserRoles($signupEmail);
+	_assertEqual($dbId, $dbRoleId, "id and role_id for this user in DB is not the same");
+}
+
+// Negative tests
+// Helper method for negative tests: empties passed in field and clicks submit
+function signupNegativeHelper($field) {
+	_setValue($field, "");
+	_check($signupPrivacyCheckbox);
+	_click($signupSubmit);
+}
+
+function clickSubmitOnSignUpWithMissingFirstName() {
+	// Submit with empty First Name field
+	signupNegativeHelper($signupLastNameTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter your first name."));
+}
+
+function clickSubmitOnSignUpWithMissingLastName() {
+	// Submit with empty Last Name field
+	signupNegativeHelper($signupLastNameTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter your last name."));
+}
+
+function clickSubmitOnSignUpWithMissingEmail() {
+	// Submit with empty Email Address field
+	signupNegativeHelper($signupEmailAddressTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter your email."));
+}
+
+function clickSubmitOnSignUpWithInvalidEmail($signupEmail) {
+//function clickSubmitOnSignUpWithInvalidEmail($email) {
+	// Set field
+	_setValue($signupEmailAddressTextbox, $signupEmail);
+//	_setValue($signupEmailAddressTextbox, $email);
+
+	// Verify message
+	_assertVisible(_label("Please enter a valid email address."));
+}
+
+function clickSubmitOnSignUpWithDifferentConfirmEmail($signupEmail) {
+//function clickSubmitOnSignUpWithDifferentConfirmEmail($email) {
+	// Set field
+	_setValue($signupConfirmEmailAddressTextbox, $signupEmail);
+//	_setValue($signupConfirmEmailAddressTextbox, $email);
+
+	// Verify message
+	_assertVisible(_span("!Email and confirm email don't match."));
+}
+
+function clickSubmitOnSignUpWithInvalidPhoneNumber($number) {
+	$number = $number.split("-");
+	for (var $i = 0; $i < $number.length; $i++) {
+		_setValue($signupPhoneNumberTextbox[$i], $number[$i]);
+	}
+	_assertVisible(_span("!Please enter a valid telephone number."));
+}
+
+
+function clickSubmitOnSignUpWithExistingSSN($firstName, $lastName, $dob,$answer,$password){
+
+	_setValue($signupFirstNameTextbox, $firstName);
+	_setValue($signupLastNameTextbox, $lastName);
+	
+	$email = randomString($FIELD_LENGTH) + "@yopmail.com";
+	_setValue($signupEmailAddressTextbox, $email);
+	_setValue($signupConfirmEmailAddressTextbox, $email);
+
+	var $digits = phoneGen();
+	for (var $i = 0; $i < $digits.length; $i++) {
+		_setValue($signupPhoneNumberTextbox[$i], $digits[$i]);
+	}
+	
+	//Get an existing SSN from DB and set it
+	$dbExistingSSN = getExistingSSNFromCmrHousehold();
+	var $SSN = $dbExistingSSN[0][0];
+	var $s1= $SSN.substr(0, 3);
+	var $s2= $SSN.substr(3, 2);
+	var $s3= $SSN.substr(5, 4);
+	
+	_setValue(_password("ssn1"), $s1);
+	_setValue(_password("ssn2"), $s2);
+	_setValue(_textbox("ssn3"), $s3);	
+		
+	_setValue(_password("confirmSsn1"), $s1);
+	_setValue(_password("confirmSsn2"), $s2);
+	_setValue(_textbox("confirmSsn3"), $s3);
+	
+	//Remove the slashes in DOB
+	$dob=$dob.replace(/\//g, "");
+	_setValue(_textbox("birthDate"), $dob);
+		
+	_setSelected($signupSecurityQuestionMenu, "1");
+	_setValue($signupSecurityAnswerTextbox, $answer);
+		
+		
+	_maskLogs("Sensitive Data");
+	_setValue($signupPasswordTextbox, $password);
+	_setValue($signupConfirmPasswordTextbox, $password);
+	_unmaskLogs("Information end");
+	// Privacy policy
+	_check($signupPrivacyCheckbox);
+
+	_click($signupSubmit);
+	_wait(5000, !_isVisible($signupSubmit));
+	
+	//Verify error message for existing SSN	
+	_assertVisible(_span("!Error: Invalid Entry An account already exists for you. Click here to open your account or reset your password."));
+	
+	//Clear the value in "Date of Birth" text box
+	_call(_textbox("birthDate").value="");
+}
+
+function clickSubmitOnSignUpWithMissingSecurityQuestion() {
+	// Submit with unselected Security Question
+	_setSelected($signupSecurityQuestionMenu, 0);
+	_check($signupPrivacyCheckbox);
+	_click($signupSubmit);
+
+	// Verify message
+	_assertVisible(_span("!Please select your security question."));
+}
+
+function clickSubmitOnSignUpWithMissingSecurityAnswer() {
+	// Submit with empty Security Answer field
+	signupNegativeHelper($signupSecurityAnswerTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please provide your security answer."));
+}
+
+function clickSubmitOnSignUpWithMissingPassword() {
+	// Submit with empty Password field
+	signupNegativeHelper($signupPasswordTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter valid password."));
+}
+
+function clickSubmitOnSignUpWithInvalidPassword($pass) {
+	_setValue($signupPasswordTextbox, $pass);
+	_assertTrue(_isVisible(_listItem("It should contain at least 3 of the following:Upper-case letterLower-case letterNumberSpecial character (e.g., ?, #, @, $, ^)")) ||
+				_isVisible(_listItem("It should contain at least 3 of the following:Upper-case letter Lower-case letter Number Special character (e.g., ?, #, @, $, ^)")));
+}
+
+function clickSubmitOnSignUpWithMissingConfirmPassword() {
+	// Submit with empty Confirm Password field
+	signupNegativeHelper($signupConfirmPasswordTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please confirm your password."));
+}
+
+function clickSubmitOnSignUpWithDifferentConfirmPassword($pass) {
+	// Set field
+	_setValue($signupConfirmPasswordTextbox, $pass);
+
+	// Verify message
+	_assertVisible(_span("!Password and confirm password don't match."));
+}
+
+function clickSignApplication(){
+	_assertVisible(_heading1("Confirm your Plan Selection"));
+	_click(_button("Sign Application"));
+}
+
+function clickReadytoEnroll(){
+	if($planName){
+		_assertVisible(_heading3("Before you enroll, please confirm the following:"));
+		_click(_submit("I AM READY TO ENROLL"));
+	}
+	else{
+		_assertVisible(_heading3("No health plan selected"));
+		//_click(_link("/Dental Plan/i"));
+		_click(_button("/Enroll Into A Dental Plan/i"));
+	}
+}

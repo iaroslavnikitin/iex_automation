@@ -1,0 +1,6 @@
+{ 
+   "btn_skipShopping": "$('//p[@data-automation-id=\"browse_plans\"]')",
+   "btn_continue":"$('*=Continue')"
+    
+  }
+  

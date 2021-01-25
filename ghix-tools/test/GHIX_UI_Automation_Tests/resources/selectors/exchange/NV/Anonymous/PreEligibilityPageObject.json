@@ -1,0 +1,8 @@
+{ 
+    "leftPanel":
+    {
+    "lbl_inThisSection":"$('h2*=In this section')",
+    "lbl_requiredFields": "$('small*=All labels marked')",
+    "lbl_requiredNotice":" $('li*=The cost of health and dental insurance')"
+    }
+}

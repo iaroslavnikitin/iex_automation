@@ -1,0 +1,6 @@
+{ 
+  "btn_skipShopping":"$('//a[contains(@href,\"preeligibility\")]')",
+  "browsePlansonLandPage":"$('//div[@class=\"home-directory\"]/a[1]')"
+    
+  }
+  

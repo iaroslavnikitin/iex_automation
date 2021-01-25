@@ -1,0 +1,289 @@
+_include("../../pagemodels/Agency.sah");
+_include("../../pagemodels/Broker.sah");
+_includeOnce("../../pagemodels/Login.sah");
+_includeOnce("../../pagemodels/Agents.sah");
+_includeOnce("../../lib/Utils.sah");
+
+
+
+function createAgent($name, $licenseNumber,$agency){
+
+	var $time = new Date().getTime();
+	var $todayDate;
+	_set($todayDate, _call(window.moment().format("DDMM")));
+
+	var $phone1 = randomStringWithoutStartingZero(3, "N");
+	var $phone2 = randomStringWithoutStartingZero(3, "N");
+	var $phone3 = randomStringWithoutStartingZero(4, "N");
+	var $agencyLicenseNumber = $licenseNumber || randomStringWithoutStartingZero(7,"N");
+	var $altPhone1 = randomStringWithoutStartingZero(3, "N");
+	var $altPhone2 = randomString(3, "N");
+	var $altPhone3 = randomString(4, "N");
+	var $agencyEIN = randomStringWithoutStartingZero(9, "N");
+	var $randomNumb = randomStringWithoutStartingZero(3, "N");
+
+	var $agent = {
+	};
+	//$agent.firstName = $name + "_" + $time;
+	$agent.firstName = $name + getRandomString();//$randomNumb+$todayDate;
+	$agent.lastName = $name + getRandomString();//$randomNumb+$todayDate;
+	//$agent.lastName = $name + "_" + $time;
+	$agent.name = $agent.firstName + " " + $agent.lastName;
+	$agent.email = $name + "_" + $time + "@yopmail.com";
+	$agent.accountEmail = $agent.email;
+	$agent.personalEmail = $name + "_" + $time + "PE@yopmail.com";
+	$agent.phone1 = $phone1;
+	$agent.phone2 = $phone2;
+	$agent.phone3 = $phone3;
+	$agent.password= "ghix123";
+	$agent.licenseNumber = $agencyLicenseNumber;
+	$agent.primaryContactNumber1 = $altPhone1;
+	$agent.primaryContactNumber2 = $altPhone2;
+	$agent.primaryContactNumber3 = $altPhone3;
+	if($agency){
+		$agent.EIN = $agency.EIN;
+		$agent.businessName = $agency.businessName;
+	}else{
+		$agent.EIN = $agencyEIN;
+		$agent.businessName = $name + "_" + $time;
+	}
+
+	// Basic Information
+	_click(_link("Health Insurance Agent/Broker"));
+	_setValue(_textbox("firstName"), $agent.firstName);
+	_setValue(_textbox("lastName"), $agent.lastName);
+	_setValue(_emailbox("email"), $agent.email);
+	_setValue(_emailbox("confirmEmail"), $agent.email);
+
+	_setValue(_textbox("phone1"), $agent.phone1);
+	_setValue(_textbox("phone2"), $agent.phone2);
+	_setValue(_textbox("phone3"), $agent.phone3);
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	_setValue(_textbox("Security Answer"), "1");
+	_setValue(_password("password"), $agent.password);
+	_setValue(_password("confirmPassword"), $agent.password);
+	_click(_button("Submit"));
+
+	// Agent Information
+	_setValue(_textbox("licenseNumber"), $agent.licenseNumber);
+	_click(_italic("icon-calendar"));
+	_click(_tableHeader("»"));
+//	_click(_cell("day new"));
+	_click(_cell("15"));
+	_setValue(_textbox("personalEmailAddress"), $agent.personalEmail);
+	_setValue(_textbox("phone1"), $agent.primaryContactNumber1);
+	_setValue(_textbox("phone2"), $agent.primaryContactNumber2);
+	_setValue(_textbox("phone3"), $agent.primaryContactNumber3);
+	_setSelected(_select("communicationPreference"), "Phone");
+	_setValue(_textbox("companyName"), $agent.businessName);
+	_setValue(_textbox("federalEIN"), $agent.EIN);
+	_setValue(_textbox("address1_business"), "135 Terra Bella Avenue");
+	_setValue(_textbox("city_business"), "Mountain View");
+	_setSelected(_select("location.state"), "California");
+	_setValue(_textbox("zip_business"), "95112");
+	_check(_checkbox("mailingAddressCheck"));
+	_click(_button("Next"));
+	
+	_check(_checkbox("Individuals / Families"));
+	//_check(_checkbox("Employers"));
+
+	// Profile
+	_click(_submit("Finish"));
+	_click(_submit("Exit"));
+	_click(_link("Status"));
+	_assertVisible(_strong("Active")," Verify Agent's status is Active");
+	logOut();
+
+	var $output = "var $"+$name+"="+JSON.stringify($agent)+";\n";
+	_writeFile($output, "agents.sah");
+	return $agent;
+}
+
+
+// data creation
+function createAgentAccount($agent){
+	// Basic Information
+	_click(_link("Health Insurance Agent/Broker"));
+	_setValue(_textbox("firstName"), $agent.firstName);
+	_setValue(_textbox("lastName"), $agent.lastName);
+	_setValue(_emailbox("email"), $agent.email);
+	_setValue(_emailbox("confirmEmail"), $agent.email);
+
+	_setValue(_textbox("phone1"), $agent.phone1);
+	_setValue(_textbox("phone2"), $agent.phone2);
+	_setValue(_textbox("phone3"), $agent.phone3);
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	_setValue(_textbox("Security Answer"), "1");
+	_setValue(_password("password"), $agent.password);
+	_setValue(_password("confirmPassword"), $agent.password);
+	_click(_button("Submit"));
+
+	// Agent Information
+	_setValue(_textbox("licenseNumber"), $agent.licenseNumber);
+	_click(_italic("icon-calendar"));
+	_click(_tableHeader("»"));
+//	_click(_cell("day new"));
+	_click(_cell("15"));
+	_setValue(_textbox("personalEmailAddress"), $agent.personalEmail);
+	_setValue(_textbox("phone1"), $agent.primaryContactNumber1);
+	_setValue(_textbox("phone2"), $agent.primaryContactNumber2);
+	_setValue(_textbox("phone3"), $agent.primaryContactNumber3);
+	_setSelected(_select("communicationPreference"), "Phone");
+	_setValue(_textbox("companyName"), $agent.businessName);
+	_setValue(_textbox("federalEIN"), $agent.EIN);
+	_setValue(_textbox("address1_business"), "135 Terra Bella Avenue");
+	_setValue(_textbox("city_business"), "Mountain View");
+	_setSelected(_select("location.state"), "California");
+	_setValue(_textbox("zip_business"), "95112");
+	_check(_checkbox("mailingAddressCheck"));
+	_click(_button("Next"));
+	
+	_check(_checkbox("Individuals / Families"));
+	_check(_checkbox("Employers"));
+
+	// Profile
+	_click(_submit("Finish"));
+	_click(_submit("Exit"));
+	_click(_link("Status"));
+	_assertVisible(_strong("Active")," Verify Agent's status is Active");
+	logOut();
+	return $agent;
+}
+
+function certifyAgent($agent){
+	loginAsBrokerAdmin("brokeradmin@ghix.com", "ghix123");
+	refineAgentsForBroker($agent.firstName, $agent.lastName, "", $agent.licenseNumber, "Pending");
+	_click(_link($agent.firstName + " " + $agent.lastName));
+	_click(_link("Certification Status"));
+	_click(_link("Edit"));
+	_setSelected(_select("certificationStatus"), "Certified");
+	_click(_submit("Submit") || _button("Submit"));
+	logOut();
+}
+
+function activateAgent($agency, $agent){
+	loginAsAgency($agency.email, $agency.password);
+	refineAgentsForAgency($agent.firstName, $agent.lastName);
+	_click(_link(0, _rightOf(_cell($agent.firstName + " "+ $agent.lastName))));
+	_click(_link("/"+"Edit"+"/"));
+	_click(_link("Status"));
+	_click(_link("Edit"));
+	_setSelected(_select("activityStatus"), "Active");
+	_click(_submit("Submit"));
+	logOut();
+}
+
+function createHouseholdAndGroupIfNotDefined($typeofVar){
+	var $householdAndGroup = {};
+	if($typeofVar == "undefined"){
+		
+		$householdAndGroup = createHouseholdAndGroup();
+		return $householdAndGroup;
+	}else{
+		_log("household exist!!");
+		$householdAndGroup.isHouseholdExist = true;
+		return $householdAndGroup;
+	}
+}
+
+function getHouseholdAndGroupForSEP($householdAndGroup,$household,$group){
+	if($householdAndGroup.isHouseholdExist){
+		$householdAndGroup.household = $household;
+		$householdAndGroup.group = $group;
+		$householdAndGroup.isHouseholdExist = true
+	}
+
+	return $householdAndGroup;
+}
+
+function createHouseholdAndGroup(){
+	var $householdAndGroup = {};
+
+	$eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+
+	$household = accountTransfer("3","4","","","","","Y");
+	_wait(20000);
+	$eventType = getEventType("BirthOrAdoption");
+	$household.coverageStartDate = getCoverageStartDate($eventType,$eventDate);
+
+	$household.coverageEndDate = getCoverageEndDate($eventType);
+
+	clickLinkIndividual();
+	//"[Documentation]","Num of members from household","household","aptc","csr"
+	$defaultGroup=defineGroups("group1:0,1,2,3",$household,"group1:$150.25","group1:null")
+
+	//"[Documentation]","Household information","Status on dashboard","Groups"
+	createIndividual($household,"In Progress",$defaultGroup,"CONFIRM EVENT AND SHOP");
+	clickConfirmEventAndShop();
+	//"[Documentation]","Household","Application Status","Application type","Household Eligibility","CSR level"
+	//$applicationDataFromDB=verifyDBAfterAT","$household","""ER""","""QEP""","""APTC""","""null"""
+
+	//"[Documentation]","backDate"
+	$eventDate = selectQualifyingDate("60days");
+
+	//"[Documentation]","Event"
+	selectQualifyingEvent("Birth Or Adoption");
+
+	//"[Documentation]","status on Dashboard","Household information","action Button","event Date","Groups","is Health Enrollment Complete? Y/N"
+	clickContinue("In Progress",$household,"SHOP FOR PLANS",$eventDate,$defaultGroup,null,null,"Birth Or Adoption");
+
+	//"[Documentation]","Household information","Groups","Not Enrolled Groups? (Y/N)","Enrolled Groups? (Y/N)"
+	clickShopForPlans($household,$defaultGroup,"Y","N");
+
+	//"[Documentation]","Household information"
+	clickShopHealthPlan($household);
+	clickNextPreferences();
+	clickNextPreferences();
+
+	//"[Documentation]","isCSREnabled","aptc Amount","zipcode","coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles","Custom Grouping","group"
+	clickViewPlans("",$defaultGroup[0].aptc,$household.people[0].homeAddress.zipcode,$household.coverageStartDate,"2","2","NO","","YES",$defaultGroup[0]);
+	//"[Documentation]","index","custom group? (YES/NO)"
+	verifyPlanFeatureFilterOnPlanPage("Gold","");
+	//"[Documentation]","index","custom group? (YES/NO)"
+	$defaultGroup[0].healthPlan = clickAddPlanFromPlanSelection("","YES");
+
+	//"[Documentation]","Health Plan Details","Dental plan Details","coverage Date","Household information","Custom grouping"
+	clickContinueToCart($defaultGroup[0].healthPlan,"",$household.coverageStartDate,$defaultGroup[0],"YES");
+	clickNextButtonOnCart();
+
+	//"[Documentation]","Household information"
+	enterBindingArbitrationAgreement($household);
+
+	//"[Documentation]","Household information","Health Plan Details","Dental plan Details","coverage Date"
+	clickEnroll($defaultGroup[0],$defaultGroup[0].healthPlan,"",$household.coverageStartDate);
+
+	//"[Documentation]","Status","Household information","Action button","event Date","Groups","is Health Enrollment Complete? Y/N"
+	clickGoToDashboardFromEsig("In Progress",$household,"CONTINUE SHOPPING",$eventDate,$defaultGroup,"Y");
+	//"[Documentation]","Household information","Groups","Not Enrolled Groups? (Y/N)","Enrolled Groups? (Y/N)","new Members Count","is SEP","Landing page (Health or Dental)"
+	clickContinueShopping($household,$defaultGroup,"Y","N","","","Dental");
+
+	//"[Documentation]","Num of members from household","household","aptc","csr"
+	$dentalGroups=defineGroups("group1:0,1,2,3",$household,"group1:$150.25","group1:null");
+	$defaultGroup[1] = $dentalGroups[0];
+	//"[Documentation]","isCSREnabled","aptc Amount","zipcode","coverage Date","noOfAdults","noOfChildren","showCatastrophic",,"Custom Grouping","group"
+	clickShopDentalPlan("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,"2","2","NO","","YES",$defaultGroup[1]);
+
+	//"[Documentation]","index","custom group? (YES/NO)"
+	$defaultGroup[1].dentalPlan = clickAddPlanFromPlanSelection("","YES");
+	//"[Documentation]","Health Plan Details","Dental plan Details","coverage Date","Household information","Custom Grouping"
+	clickContinueToCart("",$defaultGroup[1].dentalPlan,$household.coverageStartDate,$defaultGroup[1],"YES");
+	clickNextButtonOnCart();
+
+	//"[Documentation]","Household information"
+	enterBindingArbitrationAgreement($household);
+
+	//"[Documentation]","Household information","Health Plan Details","Dental plan Details","coverage Date"
+	clickEnroll($defaultGroup[1],"",$defaultGroup[1].dentalPlan,$household.coverageStartDate);
+
+	//"[Documentation]","Status","Household information","Action button","event Date","Groups","is Health Enrollment Complete? Y/N"
+	clickGoToDashboardFromEsig("Enrolled",$household,"REPORT A CHANGE",$eventDate,$defaultGroup,"Y");
+
+	$householdAndGroup.household = $household;
+	$householdAndGroup.group = $defaultGroup;
+	$householdAndGroup.isHouseholdExist = false;
+	return $householdAndGroup;
+}
+
+
+
+

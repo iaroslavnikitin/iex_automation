@@ -1,0 +1,710 @@
+//_include("JenkinsAndDBSetUp.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("ManageMember.sah");
+_includeOnce("Utils.sah");
+
+_includeOnce("../lib/util.sah");
+_includeOnce("../lib/common.sah");
+_resource("../pic.jpg");
+
+/*
+* Page object for /hix/indportal#/applications
+*/
+var $Applications = true;
+var $caseNumber;
+var $pastDate =true;
+var $newFamilyCoverageEndDate="";
+
+// Accessors
+var $applicationsHeader = _heading4("/My Applications/");
+var $applicationsAccessors = [$applicationsHeader];
+var $viewChangesApplications = _link("here", _in(_div("To view your changes click here.")))
+var $summaryOfReportedEvents  = _div("/Summary of Reported Events/");
+var $okButtonSummaryOfReportedEvents = _link("OK", _in(_div("modal fade eventSummaryDialog in")));
+var $startDateOpenSpecialEnrollTextbox = _textbox("start");
+var $endDateOpenSpecialEnrollTextbox =_textbox("end");
+var $continueLinkOpenSpecialEnroll = _link("Continue", _in(_div("Continue Cancel")));
+var $submissionSuccessheadingOpenSpecialEnroll = _heading3("/Submission Successful/", _near(_span("Open Special Enrollment")));
+var $okButtonOpenSpecialEnroll = _link("OK", _near(_span("Open Special Enrollment")));
+var $furtherActionParaDashboard = _paragraph("further-action-txt");
+var $reportAChangeButtonDashbaord = _button("REPORT A CHANGE");
+var $currentApplicationHeadingCapAppTab = _heading4("/Current Application/");
+var $myApplicationsDivMemberPortal = _div("/My Applications/");
+var $caseNumberDivMyApplications = _div("/Case Number/", _in(_div("currentAppStatus")));
+
+
+function verifyElementsOnMyApplicationPage() {
+	verifyArray($applicationsAccessors);
+	$caseNumber=clickGetCaseNumber();
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (!isProductionEnvironment()) {
+		var $appTimeStamp = getApplicationTimeStampFromDb();
+		var $str = $appTimeStamp[0][1].split(" ");
+		$expDate=_call(window.moment($str[0]).format("YYYY-MMM-DD"));
+		var $str =_getText(_div("/Creation Date/", _in(_div("currentAppStatus"))));
+		var $creationDate = getDateFormat($str);
+		_assertEqual($expDate, $creationDate);
+		if(_isVisible(_div("/Last updated/", _in(_div("currentAppStatus"))))){
+			$str = _getText(_div("/Last updated/", _in(_div("currentAppStatus"))));
+			var $updatedDate = getDateFormat($str);
+			var $str = $appTimeStamp[0][2].split(" ");
+			$expDate=_call(window.moment($str[0]).format("YYYY-MMM-DD"));
+			_assertEqual($expDate,$updatedDate);
+		}
+		_log($appTimeStamp);
+	}
+	return $caseNumber;
+}
+
+function clickMyApplications($permission,$role,$isOnCap){
+	if($role == "1095-A"){
+		_assertNotVisible(_link("My Applications"));
+	}
+	else{
+		_click(_link("My Applications"));
+		if($isOnCap !="YES"){
+			if(_isVisible(_select(0))){
+				if($overrideCoverage != "" && $inGlobalOEP == "OFF"){
+					//incase  denial or override coverage
+					$year = parseInt(_fetch(window.moment().get('year')));
+					_setSelected(_select(0), "/"+$year+"/");
+				}
+				else {
+					_setSelected(_select(0), "/"+$coverageYear+"/");
+				}
+			}
+
+			if($sepDenied){
+				_assertVisible(_submit("DO YOU HAVE ANY QUALIFYING EVENTS TO REPORT?"));
+			}
+			else {
+				$caseNumber=verifyElementsOnMyApplicationPage();
+			}
+			if((_isVisible(_div(9)))&&($sepDenied)){
+				_assertVisible(_link("Override SEP/QEP Denial"));
+			}
+			else {
+				_assertNotVisible(_link("Override SEP/QEP Denial"));
+			}
+
+			if($permission == "Y"){
+				_assertVisible(_span("csrActionButton"));
+			}
+			else if($permission  == "N"){
+				_assertNotVisible(_span("csrActionButton"));
+			}
+		
+		}
+		else{
+			$caseNumber = getCaseNumberFromCap();
+		}
+	return $caseNumber;
+	}
+}
+
+function clickGetCaseNumber(){
+	_lockWindow();
+	_focusWindow();
+	_takePageScreenShot();
+	_unlockWindow();
+	takePageScreenShot();
+	if (isProductionEnvironment()) {
+		var $str = _getText(_div("/Case Number/", _in(_div("currentAppStatus"))));
+		var $res = $str.split(":");
+		$caseNumber = $res[1];
+		$caseNumber = $caseNumber.replace(" ","");
+		$caseNumber = parseInt($caseNumber);
+	} else {
+		$caseNumber = getCaseNumberFromDB($signupEmail.toLowerCase());
+	}
+	_log($caseNumber);
+	return $caseNumber;
+//	$caseNumber = _extract(_getText(_div("/Case Number : /", _in(_div("rightpanel")))), "Case Number : (.*)", true)[0];
+//	$caseNumber = parseInt($caseNumber);
+	
+}
+
+function getDateFormat($date){
+	var $str = $date.split(" ");
+	var $day = $str[3].slice(0,-1);
+	if( parseInt($day)<10) {
+		$day = "0"+ $day;
+	}
+	
+	$month = $str[2];
+	$applicationDate =  $str[4]+"-"+$month+"-"+$day;
+	return $applicationDate;
+}
+
+function setFileUploadForEvent($eventText, $filePath) {
+	_click(_link($eventText));
+	_wait(5000, _isVisible(_div("accordion-body in collapse")));
+	_call(_submit("Submit", _near(_div($eventText + " Override"))).disabled = false);
+	var $actionURL = getBaseURL() + "ssapdocumentmgmt/documents/uploadDocumentAttachmentsAjax";
+	_log($actionURL);
+	_setFile("files[]", $filePath, $actionURL);
+	_call(_submit("Submit", _near(_div($eventText + " Override")))).click();
+	_assertEqual("SUBMITTED",_getText(_cell("ng-binding[2]", _in(_table("table table-condensed margin20-t ng-scope")))));
+}
+
+function clickViewResults($permission,$event){
+	var $filePath = _resolvePath("../pic.jpg", "\\");
+	if($permission=='Y'){
+	//	_assertVisible(_link("here[2]", _in(_div("currentAppStatus"))));
+		_assertVisible(_link("here", _in(_div("To view your documents click here.")), _in(_div("currentAppStatus"))));
+		_click(_link("here", _in(_div("To view your documents click here.")), _in(_div("currentAppStatus"))));
+//		_click(_link("here[2]", _in(_div("currentAppStatus"))));
+		var $notVerifiedCount = _count("_div","/Not Verified/",_in(_div("tab-content")));
+		if($notVerifiedCount>0){
+			_wait(5000, _isVisible(_div("Not Verified")));
+			if($event=="SSN"){
+				setFileUploadForEvent("Social Security Number (Not Verified)", $filePath);
+			}
+			else if($event == "Death"){
+				setFileUploadForEvent("Death (Not Verified)", $filePath);
+			}
+			else if($event == "Citizenship"){
+				setFileUploadForEvent("Citizenship (Not Verified)", $filePath);
+			}
+			else if($event=="Incarceration Status"){
+				setFileUploadForEvent("Incarceration Status (Not Verified)", $filePath);
+			}
+		}
+	}
+	else {
+		_assertNotVisible(_link("here[2]", _in(_div("currentAppStatus"))));
+	}
+}
+
+function overrideAndSubmitEvent($eventText){
+	_assertVisible(_link("Override", _near(_link($eventText + " (Not Verified)"))));
+	_click(_link("Override", _near(_link($eventText + " (Not Verified)"))));
+	_assertVisible(_div("adminOverrideModal"));
+	_setValue(_textarea(0), "Override");
+	_click(_link("Submit"));
+	_assertNotVisible(_link("Override", _near(_link($eventText + " (Not Verified)"))));
+}
+
+function clickOverride($permission,$event){
+	if(_isVisible(_link("here", _in(_div("To view your documents click here.")), _in(_div("currentAppStatus"))))){
+		_click(_link("here", _in(_div("To view your documents click here.")), _in(_div("currentAppStatus"))));
+	}
+		
+/*	if(_isVisible(_link("here[2]", _in(_div("currentAppStatus"))))){
+		_click(_link("here[2]", _in(_div("currentAppStatus"))));
+	}*/
+	if($permission=='Y'){
+		_click(_link("Applicant Verifications"));
+		if($event == "SSN"){
+			overrideAndSubmitEvent("Social Security Number");
+		}
+		else if($event == "Death"){
+			overrideAndSubmitEvent("Death");
+		}
+		else if($event == "Citizenship"){
+			overrideAndSubmitEvent("Citizenship");
+		}
+		else if($event == "Incarceration Status"){
+			overrideAndSubmitEvent("Incarceration Status");
+		}
+	}
+	else {
+		_assertNotVisible(_link("Override", _near(_link("Incarceration Status (Not Verified)"))));
+		_assertNotVisible(_link("Override", _near(_link("Citizenship (Not Verified)"))));
+		_assertNotVisible(_link("Override", _near(_link("Social Security Number (Not Verified)"))));
+		_assertNotVisible((_link("Override", _near(_link("Death (Not Verified)")))));
+	}
+}
+
+function clickEditNonFinancialApplication($permission){
+	if($permission == "Y"){
+		_assertVisible(_span("csrActionButton"));
+		_click(_span("csrActionButton"));
+		_assertVisible(_div("csrMenu_0"));
+		_assertVisible(_link("EDIT NON FINANCIAL APPLICATION", _in(_div("csrMenu_0"))));
+		_click(_link("EDIT NON FINANCIAL APPLICATION", _in(_div("csrMenu_0"))));
+		_assertVisible(_span("oRReason"));
+		_assertEqual("Please specify the reason for editing this customer's application. This will help us keep track of the changes made to customer's information. Do you want to continue?", _getText(_paragraph("ng-binding")));
+		_assertVisible(_textarea("overrideText ng-pristine ng-valid"));
+		_assertEqual("disabled",_getAttribute(_link("Continue"),"disabled"));
+		_setValue(_textarea("overrideText ng-pristine ng-valid"), "edit non financial");
+		_click(_link("Continue"));
+		verifyElementsOfIndividualDashboard();
+	}
+	else if($permission == "N"){
+		_assertVisible(_span("csrActionButton"));
+		_click(_span("csrActionButton"));
+		_assertVisible(_div("csrMenu_0"));
+		_assertNotVisible(_link("EDIT NON FINANCIAL APPLICATION", _in(_div("csrMenu_0"))));
+	}
+}
+
+function clickActionTabAndVerifyCancelOrTerminateButton($cancelOrTerminatePermission){
+	if($cancelOrTerminatePermission == "Y"){
+		_assertVisible(_link("CANCEL OR TERMINATE PLAN", _near(_span("csrActionButton"))));
+		_click(_span("csrActionButton"));
+		var $menuTexts = _collectAttributes("_div", "span4 center csr-btns", "sahiText");
+		if($role == "L1_CS1"){
+			_assertEqual("2",$menuTexts.length);
+			_assertEqual("VIEW OVERRIDE HISTORY,CANCEL OR TERMINATE PLAN",$menuTexts);
+		}
+		else {
+			_assertNotEqual("2",$menuTexts.length);
+		}
+	}
+	else {
+		_assertNotVisible(_link("CANCEL OR TERMINATE PLAN", _near(_span("csrActionButton"))));
+	}
+}
+
+function clickChangeCoverageStartDate($changeCovDatePermission,$days,$overrideCoverageStartDate,$caseNumber){
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	if($changeCovDatePermission == "Y" ){
+//		if($currentMonth != 1){
+			_assertVisible($changeCovStartDateLinkAppTab,"Verify Change Coverage Start Date link is displayed");
+			_click($changeCovStartDateLinkAppTab);
+			_assertVisible($changeCoverageStartDateHeader,"Verify if Change coverage start date header is displayed");
+			_setValue($changeCovStartDateReasonTextbox, "Changing coverage start date");
+			_click($changeCovStartDateContinueLink);
+			_assertVisible($newCoverageStartDateHeader,"Verify if Change coverage start date is displayed");
+			_assertVisible($newCoverageStartDateTextbox,"Verify if textbox to enter new converage start date is displayed");
+				if($overrideCoverageStartDate){
+					_setValue($newCoverageStartDateTextbox, $overrideCoverageStartDate);
+				}
+				else{
+					$overrideCoverage = calculateEventDate($days);
+					_setValue($newCoverageStartDateTextbox, $overrideCoverage);
+				}
+			$coverageDate = _getValue($newCoverageStartDateTextbox);
+			$overrideCoverage = $coverageDate;
+			_click($newCovStartDateContinueLink);
+			_assertVisible($submissionSuccessfulHeading,"Verify if Submission Successful message is displayed");
+			_click($submissionSuccessfulOkLink);
+			$pastDate = verifyCoverageDateGreaterThanToday($coverageDate);
+			_log("Past Cov Date"+ $pastDate);
+//		}
+	verifyOverridenCovStartDateDB($overrideCoverageStartDate,$caseNumber);
+	}
+	else {
+		_assertNotVisible($changeCovStartDateLinkAppTab,"Verify Change Coverage Start Date link is not displayed");
+	}
+}
+
+/*function clickChangeCoverageStartDate($changeCovDatePermission,$days,$overrideCoverageStartDate){
+	_click(_span("csrActionButton"));
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+//	var $currentYear = _fetch(window.moment().get('year'));
+	
+	if($changeCovDatePermission == "Y" ){
+		
+//		if($currentMonth != 1){
+			_assertVisible($changeCovStartDateLinkAppTab,"Verify CHANGE COVERAGE START DATE link is displayed");
+			_click($changeCovStartDateLinkAppTab);
+			_assertVisible(_span("Change coverage start date"));
+			_setValue(_textarea(0), "Change Coverage Date");
+			_click(_link("Continue"));
+			_assertVisible(_span("Enter new coverage start date:"));
+			_assertVisible(_textbox("cov"));
+				if($overrideCoverageStartDate){
+	//				$overrideCoverageStartDate = $overrideCoverageStartDate+"/"+$currentYear;
+					_setValue(_textbox("cov"), $overrideCoverageStartDate);
+				}
+				else{
+					$overrideCoverage = calculateEventDate($days);
+					_setValue(_textbox("cov"), $overrideCoverage);
+				}
+			$coverageDate = _getValue(_textbox("cov"));
+			$overrideCoverage = $coverageDate;
+			_click(_link("Continue[1]"));
+			_assertVisible(_heading3("Submission Successful!"));
+			_click(_link("OK[3]"));
+			$pastDate = verifyCoverageDateGreaterThanToday($coverageDate);
+			_log("Past Cov Date"+ $pastDate);
+//		}
+	}
+	else {
+		_assertNotVisible($changeCovStartDateLinkAppTab);
+	}
+} */
+
+function clickCancelAndTerminatePlan($cancelOrTerminatePermission,$days){
+	_click(_span("csrActionButton"));
+	if($cancelOrTerminatePermission == "Y"){
+		_assertVisible(_link("CANCEL OR TERMINATE PLAN", _near(_span("csrActionButton"))));
+		_click(_link("CANCEL OR TERMINATE PLAN", _near(_span("csrActionButton"))));
+		_assertVisible(_heading3("Cancel or Terminate Plan"));
+		_setValue(_textarea("overrideText ng-pristine ng-valid"), "Cancel or Terminate");
+		_click(_link("Continue"));
+		_assertVisible(_div("modal-body[10]"));
+		if(verifyCoverageDateGreaterThanToday($coverageDate) || verifyCoverageDateStartsToday($coverageDate)){
+			_setValue(_textbox("dateinput ng-pristine ng-valid ng-valid-mask"), $coverageDate);
+		}
+		else{
+			var $eventCancelled=calculateEventDate($days);
+			_setValue(_textbox("dateinput ng-pristine ng-valid ng-valid-mask"), $eventCancelled);
+		}
+
+		_wait(5000,_isVisible(_textbox("dateinput ng-dirty ng-valid ng-valid-mask")));
+		var $cancelDate = _getValue(_textbox("dateinput ng-dirty ng-valid ng-valid-mask"));
+		$newFamilyCoverageEndDate=$cancelDate;
+		_click(_link("Disenroll"));
+		_click(_link("OK[3]"));
+		_click(_link("My Dashboard"));
+		_click(_link(""+$selectedYear));
+		if($overrideCoverage!=""){
+			if(verifyCoverageDateGreaterThanToday($cancelDate)){
+				_assertNotVisible(_span("step-terminate"));
+			}
+			else {
+				_assertVisible(_span("step-terminate"));
+			}
+		}
+		else {
+			//	_assertVisible($indportalFinalizeYourPlan);
+			_assertTrue(_isVisible($indportalQualifyingEvents) || _isVisible($indportalQualifyingEvents1) || _isVisible($indportalViewApplication) || _isVisible($indportalResumeApplication)|| _isVisible($indportalQualifyingEvents2)|| _isVisible($indportalQualifyingEvents3) || _isVisible($indportalReportChange) || _isVisible(_link("Disenroll From Plan")));
+		}
+		_click(_link("My Enrollments"));
+		if(_isVisible(_select(0))){
+			//if($overrideCoverage != ""){//////////////removed as failing for OEP
+			//	var $now= _call(window.moment()).format("MM/DD/YYYY");
+			//	$Year = parseInt(_fetch(window.moment($now).get('year')));
+			//	_setSelected(_select(0), "/"+$Year+"/");
+			//}
+			//else {
+				_setSelected(_select(0), "/"+$coverageYear+"/");
+			//}
+		}
+		if($overrideCoverage!=""){
+			var $inGlobalOEP = inGlobalOEP();
+			var $eventDateMonthDay=_fetch(window.moment($eventDate).format("MM/DD"));
+			if($inGlobalOEP != "ON" && $eventDateMonthDay !="01/01"){
+				_assertEqual("Terminated",_getText(_cell("ng-binding", _near(_tableHeader("Enrollment Status:[1]")))));
+				if(!(verifyCoverageDateGreaterThanToday($cancelDate))){
+					_click(_link("Dental Plan"));
+				}
+				_assertEqual("Terminated",_getText(_cell("ng-binding", _near(_tableHeader("Enrollment Status:[1]")))));
+			}
+			else{
+				_assertEqual("Cancelled",_getText(_cell("ng-binding", _near(_tableHeader("Enrollment Status:[1]")))));
+			}
+		}
+		else {
+			_assertEqual("Cancelled",_getText(_cell("ng-binding", _near(_tableHeader("Enrollment Status:[1]")))));
+			_click(_link("Dental Plan"));
+			_assertEqual("Cancelled",_getText(_cell("ng-binding", _near(_tableHeader("Enrollment Status:[1]")))));
+		}
+		var $familyCoverage =$coverageDate+" - "+$cancelDate;
+		_assertTrue(new RegExp($familyCoverage).test(_getText(_row("/Self/", _in(_div("pastEnrollments"))))));
+	}
+	else {
+		_assertNotVisible(_link("CANCEL OR TERMINATE PLAN", _near(_span("csrActionButton"))));
+	}
+}
+
+function clickReinstatement($reinstatement){
+	_click(_span("csrActionButton"));
+	if($reinstatement == "Y"){
+		_assertVisible(_link("REINSTATE ENROLLMENT", _near(_span("csrActionButton"))));
+		_click(_link("REINSTATE ENROLLMENT", _near(_span("csrActionButton"))));
+		_assertVisible(_heading3("Reinstate Enrollment"));
+		_setValue(_textarea("overrideText ng-pristine ng-valid"), "Reinstate");
+		_click(_link("Continue"));
+		_click(_checkbox("reinstateHealth"));
+		_click(_checkbox("reinstateDental"));
+		_click(_link("Continue[1]"));
+		_assertVisible(_heading3("Submission Successful!"));
+		_click(_link("OK[3]"));
+		_click(_link("My Dashboard"));
+		_click(_link(""+$selectedYear));
+		_assertNotVisible(_span("step-terminate"));
+		_click(_link("My Enrollments"));
+		//_setSelected(_select(0), ""+$selectedYear);
+		var $inGlobalOEP = inGlobalOEP();
+		if($inGlobalOEP == "ON"){
+			$coverageYear = _fetch(window.moment().get('year'));
+		}
+		_setSelected(_select(0), ""+$coverageYear);//for OEP fix
+		_assertEqual("Pending",_getText(_cell("ng-binding", _near(_tableHeader("Enrollment Status:[1]")))));
+		_assertEqual("Pending",_getText(_cell("ng-binding", _near(_tableHeader("Enrollment Status:[1]", _near(_div("Dental Plan")))))));
+		$newFamilyCoverageEndDate =$familyCoverageEndDate;
+	}
+	else {
+		_assertNotVisible(_link("REINSTATE ENROLLMENT", _near(_span("csrActionButton"))));
+	}
+}
+
+function clickOpenSpecialEnrollment($openSpecialEnrollment,$days1,$days2,$caseNumber){
+	_click($actionsButton);
+	if($openSpecialEnrollment == "Y"){
+		_assertVisible($openSpecialEnrollmentLinkAppTab,"Verify if Open Special Enrollment link is displayed");
+		_click($openSpecialEnrollmentLinkAppTab);
+		_assertVisible($openSpecialEnrollHeading,"Verify if Open Special Enrollment heading is displayed");
+		_setValue($openSpecialEnrollReasonTextbox, "Open Special Enrollment");
+		_click(_link("Continue"));
+		_assertVisible(_span("Enter Special Enrollment Start Date:"),"Verify if Enter Special Enrollment Start Date is displayed");
+		_assertVisible(_span("Enter Special Enrollment End Date:"),"Verify if Enter Special Enrollment End Date is displayed");
+		var $startOEP = calculateEventDate($days1);
+		var $endOEP = calculateEventDate($days2);
+		_setValue($startDateOpenSpecialEnrollTextbox, $startOEP);
+		_setValue($endDateOpenSpecialEnrollTextbox, $endOEP);
+		_click($continueLinkOpenSpecialEnroll);
+		_assertVisible($submissionSuccessheadingOpenSpecialEnroll,"Verify if Submission Successful heading is displayed");
+		_click($okButtonOpenSpecialEnroll);
+		_assertVisible($currentApplicationHeadingCapAppTab,"Verify if Current Application heading is displayed");
+		verifyEnrollmentStartAndEndDateDb($caseNumber,$startOEP,$endOEP);
+	}
+	else {
+		_assertNotVisible($openSpecialEnrollmentLinkAppTab);
+	}
+}
+
+function clickOverrideEnrollmentStatus($overrideEnrollmentStatus){
+	_click(_link("My Enrollments"));
+	_setSelected(_select(0), ""+$selectedYear);
+	if($overrideEnrollmentStatus == "Y"){
+		_assertVisible(_div("csrActionBtnDiv[1]"));
+		_click(_span("Actions", _near(_div("Health Plan"))));
+		_assertVisible(_link("Override Enrollment Status", _near(_div("Health Plan"))));
+		_click(_link("Override Enrollment Status", _near(_div("Health Plan"))));
+		_assertVisible(_heading3("Override Enrollment Status"));
+		_setValue(_textarea("overrideText ng-pristine ng-valid"), "overrideEnrollmentStatus");
+		_click(_submit("Override Status to Confirmed"));
+		_assertVisible(_heading3("Submission Successful!"));
+		_click(_link("OK"));
+		_setSelected(_select(0), ""+$selectedYear);
+		_assertEqual("Enrolled", _getText(_cell("ng-binding[5]", _near(_div("Health Plan")))));
+		_click(_span("Actions[1]", _near(_div("Dental Plan"))));
+		_assertVisible(_link("Override Enrollment Status[1]", _near(_div("Dental Plan"))));
+		_click(_link("Override Enrollment Status[1]", _near(_div("Dental Plan"))));
+		_assertVisible(_heading3("Override Enrollment Status"));
+		_setValue(_textarea("overrideText ng-pristine ng-valid"), "overrideEnrollmentStatus");
+		_click(_submit("Override Status to Confirmed"));
+		_assertVisible(_heading3("Submission Successful!"));
+		_click(_link("OK"));
+		_setSelected(_select(0), ""+$selectedYear);
+		_assertEqual("Enrolled", _getText(_cell("ng-binding[18]", _near(_div("Dental Plan")))));
+	}
+	else {
+		_assertNotVisible(_div("csrActionBtnDiv[1]"));
+	}
+}
+
+function clickDownloadReviewSummaryPDF(){
+	_click(_link("/Download/",_in(_div("Application SummaryPrintDownload"))));
+	_sendHTMLResponseAfterFileDownload(true);
+	_wait(90000, _lastDownloadedFileName() != null);
+	_assertEqual("/ReviewSummary.pdf*/", _lastDownloadedFileName());
+	if (_lastDownloadedFileName() != null) {
+		var $userDataPath = _userDataDir();
+		var $pdfPath = $userDataPath+"/scripts/idaho_web/resources/ReviewSummary.pdf";
+		_saveDownloadedAs($pdfPath);
+		_clearLastDownloadedFileName();
+		// clear the variable
+		_assertNull(_lastDownloadedFileName());
+		// check to see if cleared.
+	}
+	// Close the popup window
+	_selectWindow("/File Downloaded/");
+	_click(_link("Close Window"));
+	// Select back the main window
+	_selectWindow();
+	_sendHTMLResponseAfterFileDownload(false);
+}
+
+function clickViewResultsAndUploadDocument(){
+	_unmaskLogs("Login Information end");
+	//	$url = getUpdatedBaseURL().split("/");
+	//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		//Function returns username and password based on the Role
+//		$data= getAccountDetails("../opt/sahi/useraccounts.xls","L2_CS2") ;
+		$data= getAccountDetails("L2_CS2") ;
+		//Function returns length of the file
+		//                $fileLength=getFileLength("C:/opt/sahi/useraccounts.xls")
+		//              _assertNotEqual("0", $fileLength);
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_l2csr@getinsured.com");
+		//			 _maskLogs("Sensistive Data");
+		loginEnterPassword("ghix123#");
+		//	_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+	loginClickMembersManageApplicant();
+	clickSearchByApplicationId("");
+	loginClickGo();
+	loginClickIndividualUnderPrimaryContact($firstName, $lastName);
+	clickViewMemberAccount($firstName, $lastName);
+	clickMyApplications("Y");
+	clickViewResults("Y","SSN");
+	_click(_link("My Account"));
+	_click(_link("Ticket History"));
+	var $ticketId = _getText(_cell(0, _near(_cell("SSAP_DOCUMENT_VERIFICATION"))));
+	if ($ticketId == "") {
+		_fail("Failed to get Ticket Id");
+	}
+	clickMangeTickets();
+	_setValue(_textbox("ticketNumber"), $ticketId);
+	_click(_submit("Search"));
+	if(!_isVisible(_link($ticketId, _under(_tableHeader("Ticket"))))){
+		_fail("Failed to find Ticket in search results.");
+	}
+//	if (isProductionEnvironment()) {
+//		_click(_link("dLabel", _near(_cell("/"+ $ticketId+"/"))));
+//	} else {
+		clickGearButton($ticketId);
+//	}
+	ClaimTicket("Y", $ticketId);
+	_click(_link("Mark As Complete", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading3("Mark Task As Complete"));
+	_assertVisible(_submit("ticketListtaskCompleteBtn"));
+	_setValue(_textarea("commentBox"), "Complete");
+	_click(_submit("ticketListtaskCompleteBtn"));
+	_wait(1000);
+	_assertEqual("Search", _getValue(_submit("Search")));
+	manageTicketVerify();
+	logOut();
+
+	//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		//Function returns username and password based on the Role
+//		$data= getAccountDetails("../opt/sahi/useraccounts.xls","Admin") ;
+		$data= getAccountDetails("Admin") ;
+		//Function returns length of the file
+		//                $fileLength=getFileLength("C:/opt/sahi/useraccounts.xls")
+		//              _assertNotEqual("0", $fileLength);
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_admin@getinsured.com");
+		//		 _maskLogs("Sensistive Data");
+		loginEnterPassword("ghix123#");
+		//	_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+	clickMangeTickets();
+	_setValue(_textbox("ticketNumber"), $ticketId);
+	_click(_submit("Search"));
+	//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		if($ticketId == null|| $ticketId == ""){
+			_log("Stopping test case here as ticket Id is Empty");
+			_stop();
+		}
+		else{
+			_assertVisible(_link($ticketId));
+		}
+	}
+
+	clickGearButton($ticketId);
+	_click(_link("Archive Ticket", _in(_list("dropdown-menu pull-right"))));
+	_wait(1000, _isVisible(_heading4("Archive ticket")));
+	_assertEqual("Are you sure you want to archive this ticket? Archiving the ticket will remove it from your ticket queue", _getText(_div("modal-body")));
+	_click(_submit("archiveSubmit"));
+	clickAccountSettingsGotoDashboard();
+	_setValue(_textbox("ticketNumber"), $ticketId);
+	_click(_submit("Search"));
+	_assertVisible(_heading4("Records not found."));
+	_check(_checkbox("archiveFlagValue"));
+	clickSearchTicket();
+	_assertVisible(_span("/Tickets 1 Total Ticket/"));
+	logOut();
+}
+
+function csrCancelIndividualApplication(){
+	clickLogin();
+	//	$url = getUpdatedBaseURL().split("/");
+	//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		//Function returns username and password based on the Role
+//		$data= getAccountDetails("../opt/sahi/useraccounts.xls","L2_CS2") ;
+		$data= getAccountDetails("L2_CS2");
+		//Function returns length of the file
+		//                $fileLength=getFileLength("C:/opt/sahi/useraccounts.xls")
+		//              _assertNotEqual("0", $fileLength);
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else {
+		loginEnterEmailAddress("gismoketest_l2csr@getinsured.com");
+		//			 _maskLogs("Sensistive Data");
+		loginEnterPassword("ghix123#");
+		//	_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+	loginClickMembersManageApplicant();
+	clickSearchByApplicationId("");
+	loginClickGo();
+	loginClickIndividualUnderPrimaryContact($firstName, $lastName);
+	clickViewMemberAccount($firstName, $lastName);
+
+	//$url = getUpdatedBaseURL().split("/");
+	//	if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (!isProductionEnvironment()) {
+		clickViewSelectedHealthPlanDetails();
+		clickDisenrollFromHealthAndDentalPlans();
+		selectReasonToDisenrollFromPlan("cannot afford the premium");
+		clickContinueForVoluntaryDisenrollment();
+		clickYesToConfirmDisenrollment();
+		_click(_link("Go To Dashboard"));
+	}
+	clickMyApplications("Y");
+	_click(_link("CANCEL APPLICATION"));
+	if(_isVisible(_heading3("Active Enrollment Alert"))){
+		_click(_link(0, _near(_heading3("Active Enrollment Alert"))));
+		_click(_span("Actions"));
+		_click(_link("CANCEL OR TERMINATE PLAN"));
+		_assertVisible(_span("Cancel or Terminate Plan"));
+		_setValue(_textarea(0), "Terminating plan");
+		_click(_link("Continue"));
+		_assertVisible(_span("Cancel or Terminate Plan"));
+
+		var $today = _fetch(window.moment().format('MM/DD/YYYY'));
+		_setValue(_textbox("Start Date"), $today);
+		_click(_link("Disenroll"));
+		_assertVisible(_span("Cancel or Terminate Plan"));
+		_click(_link(0, _near(_span("Cancel or Terminate Plan"))));
+		_click(_link("CANCEL APPLICATION"));
+	}
+	
+	_assertVisible(_heading3("CANCEL APPLICATION"));
+	_click(_link("YES, CANCEL THIS APPLICATION"));
+//	$year = parseInt(_fetch(window.moment().get('year')));
+	$year=$coverageYear;
+	_setSelected(_select(0), ""+$year);
+	_setSelected(_select(0), ""+$year);
+	_assertTrue(_isVisible($indportalQualifyingEvents) || _isVisible($indportalQualifyingEvents1) || _isVisible($indportalViewApplication) || _isVisible($indportalResumeApplication)|| _isVisible($indportalQualifyingEvents2)|| _isVisible($indportalQualifyingEvents3) || _isVisible($indportalReportChange) || _isVisible(_link("Disenroll From Plan")));
+	logOut();
+}
+
+function searchForConfigProperty($searchWord){
+	_setValue(_textbox("term"), $searchWord);
+}
+
+function getRetryCount($expectedCount){
+	var $actualCount = _getText(_textbox(0, _rightOf(_cell("security.CSR.PasswordResetRetryLimit"))));
+	_assertEqual($expectedCount, $actualCount, "Password retry count did not match. Will use " + $actualCount + " in the next steps.");
+	return $actualCount;
+}
+
+function getCaseNumberFromCap(){
+	var $caseNumber = _getText($caseNumberDivMyApplications);
+	$caseNumber = $caseNumber.split(" ")[2];
+	_log("Case Number: " +$caseNumber);
+	return $caseNumber;
+}
+
+function verifyOverridenCovStartDateDB($overrideCoverageStartDate,$caseNumber){
+	var $dboverridenCoverageDate = getOverridenCovStartDateFromDb($caseNumber);
+	$dboverridenCoverageDate = getDateInMmDdYyyyFormat($dboverridenCoverageDate[0][1]);
+	_assertEqual($overrideCoverageStartDate, $dboverridenCoverageDate, "Verify Overriden coverage start date in UI is same as in DB");
+}

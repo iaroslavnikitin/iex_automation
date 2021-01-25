@@ -1,0 +1,708 @@
+_includeOnce("../lib/util.sah");
+_includeOnce("PlanSelection.sah");
+_includeOnce("Preeligibility.sah");
+
+var $Preferences = true;
+var $prefPageIndex = 0;
+var $backToPreferences = _link("Back");
+var $nextPreferences = _link("Next");
+var $resetPreferences;
+var $nextPreferences;
+
+var $skipPreferences = _submit("Skip to View Plans");
+var $doctorVisits = [_radio("sixmonths"), _radio("threemonths"), _radio("everymonth"), _radio("everytwoweeks")];
+var $monthlyPrescriptions = [_radio("none"), _radio("onetofour"), _radio("fivetoten"), _radio("morethan10")];
+var $childrensDental = _checkbox("pediatric");
+var $acupuncture = _checkbox("acupuncture");
+var $viewPlans = _submit("/"+"View Plans"+"/i");
+
+var $doctors = [], $hospitals = [], $prescriptions = [], $removedDoctors = [], $removedHospitals = [], $removedPrescriptions = [];
+
+function goBackToPreferences(){
+	clickElement(_link("Back to preferences"));
+	$prefPageIndex = 0;
+	verifyElementsOfPreferencePage();
+}
+
+function removePrescription($dosage){
+	var $tempDosage = encodeForRegEx($dosage);
+	_assertVisible(_div("/"+$tempDosage+"/", _in(_div("selectedDrugsContainer"))));
+	_click(_span("x", _in(_div("/"+$tempDosage+"/"))));	
+//	_assertVisible(_div($dosage, _in(_div("selectedDrugsContainer"))));
+//	_click(_italic("icon-remove removeSelectedDrug", _in(_div($dosage, _in(_div("selectedDrugsContainer"))))));
+	_assertNotVisible(_div($dosage, _in(_div("selectedDrugsContainer"))));
+	for (var $index = 0;$index < $prescriptions.length; $index++) {
+		if ($prescriptions[$index].dosage == $dosage) {
+			var $prescription = $prescriptions.splice($index, 1)[0];
+			$removedPrescriptions.push($prescription);
+			_log($prescription);
+			break;
+		}
+	}
+}
+
+function clickNextPreferences() {
+	_click($nextPreferences);
+	$prefPageIndex++;
+	_log("$prefPageIndex:"+$prefPageIndex);
+	verifyElementsOfPreferencePage();
+}
+
+function verifyElementsOfPreferencePage() {
+	_setStrictVisibilityCheck(true);
+	_assertVisible($skipPreferences);
+	if ($prefPageIndex > 0) {
+		_assertVisible($backToPreferences);
+	}
+	//_setStrictVisibilityCheck(true);
+	_assertVisible(_heading1("Tell us about your healthcare needs"));
+	_assertVisible(_submit("Skip to View Plans"));
+	
+	_assertVisible(_submit("/Reset all my responses/i"));
+	if($prefPageIndex ==3){
+		_assertVisible(_submit("/View Plans/"));
+	}
+	else{
+		_assertVisible(_link("Next"));
+	}
+	if($prefPageIndex ==0){
+		_log("Preferences page 1/4");
+		verifyDoctorSearchOnPreference();
+	}
+	if($prefPageIndex ==1){
+				_log("Preferences page 2/4");
+				_assertVisible(_heading2("(Optional) Please answer the questions below: (2/4)"));
+				_assertVisible(_fieldset("Choose the category below that best describes the medical service use you expect for the year. For families, choose the category that best fits the person who will probably need the most medical services in the year."));
+				
+				_assertVisible(_label("Low Use: 1-2 doctor visits and lab tests each year; preventive care too."));
+				_assertVisible(_label("/Medium Use: 3-5 doctor visits and lab tests with an x-ray each year; one or more small treatments done in/"));
+				_assertVisible(_label("High Use: 6 or more doctor visits and a number of lab tests; a surgery, therapy or other treatment in an outpatient center plus follow-up care."));
+				_assertVisible(_label("Very High Use: a hospital stay, high cost radiology scans or outpatient treatment; more than 6 doctor visits with lab tests and other care."));
+				//_assert(_isChecked(_radio("threemonths")),'Verify default option is Medium');
+	}
+	if($prefPageIndex ==2){
+				_log("Preferences page 3/4");
+				_assertVisible(_heading2("(Optional) Please answer the questions below: (3/4)"));
+				_assertVisible(_fieldset("Choose the category below that best describes the prescription drug use you expect for the year. For families, choose the category that best fits the person who will probably need the most drugs in the year."));
+				
+				_assertVisible(_label("Low Use: 1-2 prescriptions during the year for brief illness."));
+				_assertVisible(_label("Medium Use: 1 prescription each month for a health problem; may also need several short-term medications."));
+								_assertVisible(_label("High Use: 2 prescriptions each month for health problems; often higher cost medications."));
+				_assertVisible(_label("Very High Use: 3 or more prescriptions each month for health problems OR very high cost medications."));
+				_assert(_isChecked(_radio("onetofour")),'Verify default option is Medium');
+				
+				//_assertVisible(_label("0-2"));
+				//_assertVisible(_label("3-4"));
+				//_assertVisible(_label("5-11"));
+				//_assertVisible(_label("12 or more"));
+	}
+	if($prefPageIndex ==3){
+		_log("Preferences page 4/4");
+		verifyDrugSearchOnPreference();
+	}
+	/*if($prefPageIndex ==4){
+				_log("Preferences page 4/4");
+				_assertVisible(_heading2("(Optional) Please answer the questions below: (4/4)"));
+				
+				_assertVisible(_fieldset("Are any of these optional benefits important to have as part of your qualified health plan?"+
+						 " Note: Some qualified health plans include children's dental and some do not. If you would like to put"+
+						 " qualified health plans that include children's dental coverage at the top of the list, please check the box."+
+						 " If you select a qualified health plan that does not include children's dental, you will have the option to buy a stand-alone children's dental plan."));
+				_assertVisible(_link("/Children's Dental/"));
+				_assertVisible(_label("Acupuncture"));
+			
+	
+	}
+*/
+		
+	_setStrictVisibilityCheck(false);
+}
+
+
+//Helper funcyion for verifyElementsOfPreferencePage 
+
+function verifyDoctorSearchOnPreference(){
+	_assertVisible(_heading2("(Optional) Please answer the questions below: (1/4)"));
+	_assertVisible(_span("Search for a"));
+	_assertVisible(_span("that you would like to keep in your plan (Select up to 5) Press enter to open menu, then use up or down arrow key to change provider type. You can add up to 5 providers."));
+
+	if(_isVisible(_span("Doctor"))){
+		_assertVisible(_textbox("/Search by doctor name/"));
+		
+	}
+	if(_isVisible(_span("Facility"))){
+		_assertVisible(_textbox("Search by facility name"));
+		_assertEqual("/within 100 mile radius/", _getSelectedText(_select("providerDistance")));
+	}
+	_assertVisible(_select("providerDistance"));
+	
+	_assertVisible(_textbox("zip code"));
+	//_assertEqual($familyZipCode, _getValue(_textbox("zip code")),"Verify Zipcode is auto populated");
+	_assertVisible(_paragraph("The health plan's list of providers changes daily. Call your doctor or provider to be sure they belong to the health plan."));
+	
+	if($doctors.length>0){
+        for (var $i=0; $i<$doctors.length; $i++){
+            $providerHeader = "Doctor";
+            _assertVisible(_listItem("/"+$providerHeader+"x.*"+$doctors[$i].name+"/", _in(_list("providerSelectedListUl"))));
+            _assertVisible(_link("x", _in(_listItem("/"+$providerHeader+"x.*"+$doctors[$i].name+"/", _in(_list("providerSelectedListUl"))))));
+        }
+    }
+    if($hospitals.length>0){
+        for (var $i=0; $i<$hospitals.length; $i++){
+            $providerHeader = "Facility";
+            _assertVisible(_listItem("/"+$providerHeader+"x.*"+$hospitals[$i].name+"/", _in(_list("providerSelectedListUl"))));
+            _assertVisible(_link("x", _in(_listItem("/"+$providerHeader+"x.*"+$hospitals[$i].name+"/", _in(_list("providerSelectedListUl"))))));
+        }
+    }
+	
+}
+
+function verifyDrugSearchOnPreference(){
+	_assertVisible(_heading2("(Optional) Please answer the questions below: (4/4)"));
+	_assertVisible(_label("Add up to 5 prescription drugs to see if they are covered by your plan."));
+	_assertVisible(_textbox("drugName"));
+	_assertVisible(_paragraph("alert alert-info"));
+	_assertEqual("Important: Please check with your insurance company before service as benefits and networks may change during the plan year.", _getText(_paragraph("alert alert-info")));
+	_assertContainsText("Important: Please check with your insurance company before service as benefits and networks may change during the plan year.", _paragraph("alert alert-info"));
+	if($prescriptions.length>0){
+        for (var $i=0; $i<$prescriptions.length; $i++){
+            _assertVisible(_div("/"+$prescriptions.name+"/i"));
+			_assertVisible(_span("x", _in(_div("/"+$prescriptions.name+"/i"))));
+
+        }
+    }
+}
+
+function selectprovider($provider,$name, $miles,$zip,$numOfProvider){
+	for (var $i=0;$i<$numOfProvider;$i++){
+		var $searchText = "ier";
+		var $providerHeader = "";
+		if($i>0){
+			$name = null; // to make sure same provider is not selected
+		}
+		_click(_span("providerType"));
+		if($provider =="Doctor"){
+			_click(_span("/"+$provider+"/", _in(_list("providerTypeDropdown"))));
+			_assertEqual("Search by doctor name", _getAttribute(_textbox("providerName"), "placeholder"));
+		}
+		else if($provider == "Facility"){
+			_click(_span("/"+$provider+"/", _in(_list("providerTypeDropdown"))));
+			_assertEqual("Search by  facility name", _getAttribute(_textbox("providerName"), "placeholder"));
+		}
+		setZipAndWithinRadius($zip, $miles);
+		if($name){
+			_setValue(_textbox("providerName"), $name);
+			_wait(1500);
+			_call(_link("/"+$name+"/").click());
+		}
+		else{
+			_setValue(_textbox("providerName"), "");
+			_setValue(_textbox("providerName"), $searchText);
+			$name = _getText(_span($i, _in(_list("ui-id-1"))));
+			_call(_span($i, _in(_list("ui-id-1"))).click());
+		}
+		_assertVisible(_listItem("/"+$provider+"x.*"+$name+"/", _in(_list("providerSelectedListUl"))));
+		_assertVisible(_link("x", _in(_listItem("/"+$provider+"x.*"+$name+"/", _in(_list("providerSelectedListUl"))))));
+		
+		var $speciality = _getText(_div("chzn-details", _in(_listItem("/"+$provider+"x.*"+$name+"/", _in(_list("providerSelectedListUl"))))).childNodes[4]);
+		
+		var $address = _getText(_div("chzn-details", _in(_listItem("/"+$provider+"x.*"+$name+"/", _in(_list("providerSelectedListUl"))))));
+		$address = $address.replace($name,"");
+		$address = $address.replace($speciality,"").trim();
+		var patt1 = /(name|specialty|address)/gi;
+		$address = $address.replace(patt1,"").trim();
+		_log("speciality: "+$speciality);
+		_log("address: "+$address);
+		
+		if($provider == "Doctor"){
+			$doctors.push({	name:$name,
+							speciality:$speciality,
+							address:$address});
+		}else if($provider == "Dentist"){
+			$dentists.push({name:$name,
+							speciality:$speciality,
+							address:$address});
+		}else if($provider == "Hospital"){
+			$hospitals.push({name:$name,
+							 speciality:$speciality,
+							 address:$address});
+		}
+		var $providerSelected = _collect("_listItem", "search-choice", _in(_list("providerSelectedListUl")));
+		if($providerSelected.length == 5){
+			verifyProviderSearchDisabled();
+		}else{
+			verifyProviderSearchEnabled();
+		}
+	
+	}
+	
+}
+
+
+function setZipAndWithinRadius($zip, $milesRadius){
+	if($milesRadius){
+		_setSelected(_select("providerDistance"), "within "+$milesRadius+" mile radius")
+	}
+	if($zip){
+		_setValue(_textbox("Zip code"), $zip);
+	}
+}
+
+function verifyProviderSearchDisabled(){
+	_assertEqual(true,_getAttribute(_textbox("providerName"),"disabled"));
+	_assertEqual(true,_getAttribute(_select("providerDistance"),"disabled"));
+	_assertEqual(true,_getAttribute(_textbox("providerZipcode"),"disabled"));
+	_click(_link("providerTypeId"));
+	_assertNotVisible(_list("providerTypeDropdown"));
+}
+
+function verifyProviderSearchEnabled(){
+	_assertNotEqual(true,_getAttribute(_textbox("providerName"),"disabled"));
+	_assertNotEqual(true,_getAttribute(_select("providerDistance"),"disabled"));
+	_assertNotEqual(true,_getAttribute(_textbox("providerZipcode"),"disabled"));
+	_click(_link("providerTypeId"));
+	_assertVisible(_list("providerTypeDropdown"));
+	_click(_link("providerTypeId"));
+}
+
+
+function selectDoctor($name, $zip){
+	if($zip){
+		_setValue(_textbox("providerZipcode"), $zip);
+	}
+	if (!_isVisible(_list("providerTypeDropdown"))) {
+		_click(_link("providerTypeId"));
+	}
+	_click(_link("/"+"Doctor"+"/", _in(_list("providerTypeDropdown"))));
+	_assertEqual("Search by doctor name", _getAttribute(_textbox("providerName"), "placeholder"));
+	_setValue(_textbox("providerName"), $name);
+	_wait(1500);
+	_call(_link("/"+$name+"/").click());
+	_assertVisible(_listItem("/"+"Doctor"+"x.*"+$name+"/", _in(_list("providerSelectedListUl"))));
+	_assertVisible(_link("x", _in(_listItem("/"+"Doctor"+"x.*"+$name+"/", _in(_list("providerSelectedListUl"))))));
+	$doctors.push($name);
+}
+
+function selectDoctorTwice($name, $zip){
+	selectDoctor($name, $zip);
+	_setValue(_textbox("providerName"), $name);
+}
+
+function removeDoctor($name){
+	_assertVisible(_listItem("/"+"Doctor"+" x.*"+$name+"/", _in(_list("providerSelectedListUl"))));
+	_click(_link("x", _in(_listItem("/"+"Doctor"+" x.*"+$name+"/", _in(_list("providerSelectedListUl"))))));
+	_assertNotVisible(_listItem("/"+"Doctor"+" x.*"+$name+"/", _in(_list("providerSelectedListUl"))));
+	for (var $index = 0;$index < $doctors.length; $index++) {
+		if ($doctors[$index] == $name) {
+			var $doctor = $doctors.splice($index, 1);
+			$removedDoctors.push($doctor);
+			break;
+		}
+	}
+}
+
+function selectHospitalTwice($name, $zip){
+	selectHospital($name, $zip);
+	_setValue(_textbox("providerName"), $name);
+	_assert(false, "Duplicate Facility message should have been shown.");
+}
+
+function selectHospital($name, $zip){
+	if($zip){
+		_setValue(_textbox("providerZipcode"), $zip);
+	}
+	if (!_isVisible(_list("providerTypeDropdown"))) {
+		_click(_link("providerTypeId"));
+	}
+	_click(_link("/"+"Facility"+"/", _in(_list("providerTypeDropdown"))));
+	_assertEqual("Search by facility name", _getAttribute(_textbox("providerName"), "placeholder"));
+	_setValue(_textbox("providerName"), $name);
+	_wait(1500);
+	_call(_link("/"+$name+"/").click());
+	_assertVisible(_listItem("/"+$name+"/", _in(_list("providerSelectedListUl"))));
+	_assertVisible(_link("x", _in(_listItem("/"+$name+"/", _in(_list("providerSelectedListUl"))))));
+	$hospitals.push($name);
+}
+
+function removeHospital($name){
+	_assertVisible(_listItem("/"+"Facility"+" x "+$name+"/", _in(_list("providerSelectedListUl"))));
+	_click(_link("x", _in(_listItem("/"+"Facility"+" x "+$name+"/", _in(_list("providerSelectedListUl"))))));
+	_assertNotVisible(_listItem("/"+"Facility"+" x "+$name+"/", _in(_list("providerSelectedListUl"))));
+	for (var $index = 0; $index < $hospitals.length; $index++) {
+		if ($hospitals[$index] == $name) {
+			var $hospital = $hospitals.splice($index, 1);
+			$removedHospitals.push($hospital);
+			break;
+		}
+	}
+}
+
+function selectPrescription($name, $dosage, $genericName){
+	_setValue(_textbox("drugName"), "");
+	_lockWindow();
+	_focusWindow();
+	//_type(_textbox("drugName"), $name);
+	_setValue(_textbox("drugName"), $name);
+	_wait(5000, _isVisible(_image("loading")));
+	_wait(5000, !_isVisible(_image("loading")));
+	_click(_link("/"+$name+"/"));
+	_unlockWindow();
+	var $tempDosage = encodeForRegEx($dosage);
+	_click(_radio("drugDosage", _in(_label("/"+$tempDosage+"/"))));
+	_click(_submit("Select Your Dosage"));
+	_assertVisible(_div("/"+$tempDosage+"/", _in(_div("selectedDrugsContainer"))));
+	//_assertVisible(_italic("icon-remove removeSelectedDrug", _in(_div("/"+$tempDosage+"/", _in(_div("selectedDrugsContainer"))))));
+
+	_assertVisible(_div("/x"+$tempDosage+"/", _in(_div("selectedDrugsContainer"))))
+
+	if ($genericName) {
+		var $tempGenericName = encodeForRegEx($genericName + " (Generic Name)");
+		_assertVisible(_div("/"+$tempGenericName+"/", _under(_div("/"+$tempDosage+"/", _in(_div("selectedDrugsContainer"))),10)));
+	
+	}
+	else {
+		$genericName = "";
+	}
+	$prescriptions.push({
+		"name": $name, 
+		"dosage": $dosage,
+		"genericName": $genericName
+	}
+					   );
+}
+
+function verifyMaxedOutProviders(){
+	_assertTrue(_getAttribute(_textbox("providerName"), "disabled"));
+	_assertTrue(_getAttribute(_select("providerDistance"), "disabled"));
+	_assertTrue(_getAttribute(_textbox("providerZipcode"), "disabled"));
+	_assertTrue(_getAttribute(_link("providerTypeId"), "disabled"));
+}
+
+function verifyDisabledPrescriptions(){
+	_assertTrue(_getAttribute(_textbox("drugName"), "disabled"));
+}
+
+function searchNonExistantPrescription($name){
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_type(_textbox("drugName"), $name);
+	_wait(2000, _isVisible(_image("loading")));
+	_wait(5000, !_isVisible(_image("loading")));
+	_assertVisible(_link("No results found"));
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+}
+
+function searchNonExistantDoctor($name, $zip){
+	_setStrictVisibilityCheck(true);
+	_setValue(_textbox("providerZipcode"), $zip);
+	if (!_isVisible(_list("providerTypeDropdown"))) {
+		_click(_link("providerTypeId"));
+	}
+	_click(_link("/"+"Doctor"+"/", _in(_list("providerTypeDropdown"))));
+	_assertEqual("Search by doctor name", _getAttribute(_textbox("providerName"), "placeholder"));
+	_setValue(_textbox("providerName"), $name);
+	_wait(1500);
+	_assertVisible(_link("No results found"));
+	_setStrictVisibilityCheck(false);
+}
+
+function searchNonExistantHospital($name, $zip){
+	_setStrictVisibilityCheck(true);
+	_setValue(_textbox("providerZipcode"), $zip);
+	if (!_isVisible(_list("providerTypeDropdown"))) {
+		_click(_link("providerTypeId"));
+	}
+	_click(_link("/"+"Facility"+"/", _in(_list("providerTypeDropdown"))));
+	_assertEqual("Search by facility name", _getAttribute(_textbox("providerName"), "placeholder"));
+	_setValue(_textbox("providerName"), $name);
+	_wait(1500);
+	_assertVisible(_link("No results found"));
+	_setStrictVisibilityCheck(false);
+}
+
+function clickSkipPreferences($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic,$isOnCap,$ShowCSROnAllTiles,$customGrouping,$group) {
+    _click($skipPreferences);
+    $onDentalPage = undefined;
+	var $zip;
+	if($group){
+    $zip = $group.member[0].$homeZip;
+	_log($zip);
+	}
+    if($isOnCap!="YES"){
+        
+        verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$group.coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping, $group)
+    }
+}
+
+function clickBackToPreferences() {
+	_click($backToPreferences);
+	$prefPageIndex--;
+	verifyElementsOfPreferencePage();
+}
+
+function selectDoctorVisits($index) {
+	if ($index === undefined) {
+		$index = 1;
+	}
+	_click($doctorVisits[$index]);
+}
+
+function selectMonthlyPrescriptions($index) {
+	if ($index === undefined) {
+		$index = 1;
+	}
+	_click($monthlyPrescriptions[$index]);
+}
+
+function selectChildrensDental($bool) {
+	if ($bool === undefined) {
+		$bool = true;
+	}
+	if ($bool) {
+		_check($childrensDental);
+	}
+	else {
+		_uncheck($childrensDental);
+	}
+}
+
+function selectAcupuncture($bool) {
+	if ($bool === undefined) {
+		$bool = true;
+	}
+	_assertVisible($acupuncture);
+	if ($bool) {
+		_check($acupuncture);
+	}
+	else {
+		_uncheck($acupuncture);
+	}
+}
+
+function clickViewPlans($isCSREnabled, $aptcAmount, $zip, $coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping,$customGroupMem,$isOnCap) {
+	//_setStrictVisibilityCheck(true);
+	clickElement($viewPlans);
+	if($isOnCap!="YES"){
+		verifyMarketPlacePlanOnPlanTile();
+		verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping,$customGroupMem);
+	}
+}
+
+function verifyMarketPlacePlanOnPlanTile(){
+	var $count = _collectAttributes("_div","/Marketplace Plan/","sahiText",_in(_div("mainSummary"))).length
+	var $totalPlansDisplayed = _collect("_div","cp-tile", _in(_div("mainSummary"))).length
+	_assertEqual($count,$totalPlansDisplayed);
+}
+
+function nvclickViewPlans($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles) {
+	//_setStrictVisibilityCheck(true);
+	_focusWindow();
+	clickElement($viewPlans);
+	//_setStrictVisibilityCheck(false);
+	if($signedEmail == "auto_issueradmin@yopmail.com"){
+		_selectWindow("/planselection/");
+	}
+	
+	//waitForLoad();
+	if ($isConnecticut) {
+		$isCSREnabled = isTrue($isCSREnabled);
+		_assertEqual($isCSREnabled, _getAttribute(_checkbox("CSR Eligible"+" "+"includes lower copayments, deductibles and coinsurance."), "checked"));
+	
+		$onDentalPage = undefined;
+		verifyElementsOnPlanPageCT();
+		if ($loggedIn || $onDentalPage) {
+			_assertNotVisible($editInfo);
+		}
+		else if($numAdults!=null && $numAdults>0) {
+			_assertVisible($editInfo);
+		}
+	}
+	
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles);
+	//_setStrictVisibilityCheck(false);
+}
+
+function verifyHouseholdDetailsOnPlansSummary($noOfAdults, $noOfChildren, $zipCode, $aptc){
+	$noOfAdults = parseInt($noOfAdults);
+	if ($noOfAdults == 0) {
+		_assertNotContainsText("adult", _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+	}
+	else if ($noOfAdults == 1) {
+		_assertContainsText("1 adult", _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+	}
+	else {
+		_assertContainsText($noOfAdults + " adults", _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+	}
+
+	$noOfChildren = parseInt($noOfChildren);
+	if ($noOfChildren == 0) {
+		_assertNotContainsText("child", _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+	}
+	else if ($noOfChildren == 1) {
+		_assertContainsText("1 child", _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+	}
+	else {
+		_assertContainsText($noOfChildren + " children", _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+	}
+
+	_assertContainsText("in ZIP code"+" "+$zip, _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+
+	$aptc = $aptc + "";
+	var $aptcSplitted = $aptc.split("/");
+	_assertContainsText("K:pd.label.title.message7" +" " +$aptcSplitted[0]+ ".00 " + "K:pd.label.title.aftertax2", _small(0, _in(_heading1("/"+"Browse Health Plans"+"/"))));
+}
+
+function verifyNotificationPreferences(){
+	var $preferences = _collectAttributes("_label", "/.*/", "sahiText", _in(_div("controls", _rightOf(_label("I would like to receive information by:")))));
+	_assertEqual(4, $preferences.length, "The number of preferences is not 4. The options shown are: " + $preferences);
+	var $options = ["Email", "Postal Mail", "Both (E-mail and Postal Mail)", "None"];
+	for (var $i = 0; $i < $preferences.length; $i++) {
+		_assertEqual($options[$i], $preferences[$i], "Preferences option shown does not match the expected option.");
+	}
+}
+
+function selectNotificationPreference($preference){
+	var $preferences = _collect("_radio", "/.*/", _in(_div("controls", _rightOf(_label("I would like to receive information by:")))));
+	var $orig;
+	for (var $i = 0; $i < $preferences.length; $i++) {
+		if (_getAttribute($preferences[$i], "checked")) {
+			$orig = _getText(_parentNode($preferences[$i]))
+				break;
+		}
+	}
+	_click(_radio(0, _in(_label($preference))));
+	if ($preference == "None") {
+		_assertEqual("You have opted out of all notifications. Information will only be available through your Secure Inbox.", _getText(_paragraph(0, _in(_parentNode(_div("/Important/"))))));
+		_click(_submit("Ok", _in(_parentNode(_div("/Important/")))));
+	}
+	_click(_submit("Update Preferences"));
+	_assertEqual("Your preferred method of communication has been updated successfully.", _getText(_paragraph("ng-scope")), "Please check the success messsage on updating the mailing preferences.");
+	//_click(_submit("Close", _in(_div("communicationPreferencesUpdateSuccessModal"))));
+	_click(_submit("Go to Dashboard"));
+	_click(_link("My Preferences"));
+	_assert(_radio(0, _in(_label($preference))).checked);
+	return $orig;
+}
+
+function deleteResponses(){
+	_setStrictVisibilityCheck(true);
+	//clickElement(_link("Reset all my responses"));
+	clickElement(_button("/"+"Reset all my responses"+"/")); //satya@updated prop for ada fix
+	_setStrictVisibilityCheck(false);
+	for (var $i = 0; $i < $doctors.length; $i++) {
+		var $doctor = $doctors.splice(0, 1)[0];
+		$removedDoctors.push($doctor);
+	}
+	for (var $i = 0; $i < $hospitals.length; $i++) {
+		var $hospital = $hospitals.splice(0, 1)[0];
+		$removedHospitals.push($hospital);
+	}
+	for (var $i = 0; $i < $prescriptions.length; $i++) {
+		var $prescription = $prescriptions.splice(0, 1)[0];
+		$removedPrescriptions.push($prescription);
+	}
+	$doctors = [];
+	$hospitals = [];
+	$prescriptions = [];
+}
+
+function goBackToFirstPreferencePage(){
+	_setStrictVisibilityCheck(true);
+	// Go back to first preference page
+	for (var $i = 0; $i < 3; $i++) {
+		_click(_link("Back"));
+		_wait(1000);
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyResponsesAreDeleted(){
+	validateDoctorFrequencyPreferencePage();
+	goToNextPreferencePage();
+	validatePrescriptionFrequencyPreferencePage();
+	goToNextPreferencePage();
+	validateBlankProvidersInPreferences();
+	goToNextPreferencePage();
+	validateBlankPrescriptionsInPreferences();
+}
+
+function goToNextPreferencePage(){
+	_setStrictVisibilityCheck(true);
+	clickElement(_link("/"+"Next"+"/"));
+	_wait(3000);
+	_setStrictVisibilityCheck(false);
+}
+
+function validateDoctorFrequencyPreferencePage(){
+	_assertVisible(_radio("sixmonths", _in(_label("Low Use: 1-2 doctor visits and lab tests each year; preventive care too."))));
+	_assertFalse(_getAttribute(_radio("sixmonths"), "checked"));
+	_assertVisible(_radio("threemonths", _in(_label("Medium Use: 3-5 doctor visits and lab tests with an x-ray each year; one or more small treatments done in doctor\u2019s office; often the care is for an ongoing health problem."))));
+	_assertTrue(_getAttribute(_radio("threemonths"), "checked"));
+	_assertVisible(_radio("everymonth", _in(_label("High Use: 6 or more doctor visits and a number of lab tests; a surgery, therapy or other treatment in an outpatient center plus follow-up care."))));
+	_assertFalse(_getAttribute(_radio("everymonth"), "checked"));
+	_assertVisible(_radio("everytwoweeks", _in(_label("Very High Use: a hospital stay, high cost radiology scans or outpatient treatment; more than 6 doctor visits with lab tests and other care."))));
+	_assertFalse(_getAttribute(_radio("everytwoweeks"), "checked"));
+}
+
+function validatePrescriptionFrequencyPreferencePage(){
+	_assertVisible(_radio("none", _in(_label("Low Use: 1-2 prescriptions during the year for brief illness."))));
+	_assertFalse(_getAttribute(_radio("none"), "checked"));
+	_assertVisible(_radio("onetofour", _in(_label("Medium Use: 1 prescription each month for a health problem; also may need several short-term medications."))));
+	_assertTrue(_getAttribute(_radio("onetofour"), "checked"));
+	_assertVisible(_radio("fivetoten", _in(_label("High Use: 2 prescriptions each month for health problems; often higher cost medications."))));
+	_assertFalse(_getAttribute(_radio("fivetoten"), "checked"));
+	_assertVisible(_radio("morethan10", _in(_label("Very High Use: 3 or more prescriptions each month for health problems OR very high cost medications."))));
+	_assertFalse(_getAttribute(_radio("morethan10"), "checked"));
+}
+
+function validateBlankProvidersInPreferences($zip){
+	for (var $i = 0; $i < $doctors.length; $i++) {
+		_assertNotVisible(_listItem("/doctorx.*"+$doctors[$i]+"/", _in(_list("providerSelectedListUl"))));
+	}
+	for (var $i = 0; $i < $hospitals.length; $i++) {
+		_assertNotVisible(_listItem("/hospitalx.*"+$hospitals[$i]+"/", _in(_list("providerSelectedListUl"))));
+	}
+	_assertVisible(_textbox("providerZipcode"));
+	_assertEqual($zip, _getValue(_textbox("providerZipcode")));
+}
+
+function validateBlankPrescriptionsInPreferences(){
+	for (var $i = 0; $i < $prescriptions.length; $i++) {
+		_assertNotVisible(_div($prescriptions[$i].dosage, _in(_div("selectedDrugsContainer"))));
+	}
+}
+
+function selectMedicalServiceUse($optionNumber){
+	_setStrictVisibilityCheck(true);
+	_check(_radio("LEVEL" + $optionNumber));
+	_setStrictVisibilityCheck(false);
+}
+
+function selectPrescriptionDrugUse($optionNumber){
+	_setStrictVisibilityCheck(true);
+	_check(_radio("LEVEL" + $optionNumber));
+	_setStrictVisibilityCheck(false);
+}
+
+function clickBackbuttonOnPreference(){
+	_setStrictVisibilityCheck(true);
+	clickElement($backToPreferences);
+	_wait(3000);
+	_setStrictVisibilityCheck(false);
+}
+
+ function getgenericRxCode(){
+	var $prescriptionCode = _getValue(_hidden("prescriptionSearchRequest", _in(_div("container"))));
+	var $genericRxCode=JSON.parse($prescriptionCode);
+	var $code =  $genericRxCode[0]["genericRxCode"]; // this will return code for the first prescription added 
+	_log("Generic code  = "+$code);
+	return $code;
+ 
+ }
+
+function clickshopforplanOngroupingPage(){
+    _click(_link("aid_uneg_shop_for_members"));
+    _assertVisible(_heading1("Tell us about your healthcare needs"));
+}

@@ -1,0 +1,105 @@
+_includeOnce("Utils.sah");
+_includeOnce("CounselorPage.sah");
+_includeOnce("EntityCounselorInfo.sah");
+
+var $assisterSearchHeader =_heading1("/Certified Assisters/");
+var $assisterSearchTable = _table("assisterlist");
+var $assisterSearchFirstName =_textbox("Certified Assister First Name")
+var $assisterSearchLastName = _textbox("Certified Assister Last Name")
+var $assisterSearchEntityName = _textbox("entityName");
+var $assisterSearchStatusActive = _checkbox("statusActive", _in(_label("Active")))
+var $assisterSearchStatusInactive = _checkbox("statusInActive", _in(_label("Inactive")));
+var $assisterSearchCertificationStatus = _select("certificationStatus");
+var $assisterSearchDateFrom = _textbox("From Sample text.  M M/ D D/ Y Y Y Y");
+var $assisterSearchDateTo = _textbox("To Sample text.  M M/ D D/ Y Y Y Y");
+var $assisterSearchGoButton = _submit("Go");
+var $assisterSearch = [$assisterSearchHeader, $assisterSearchTable, $assisterSearchFirstName, $assisterSearchLastName, $assisterSearchEntityName, $assisterSearchStatusActive, $assisterSearchStatusInactive, 
+					 $assisterSearchCertificationStatus, $assisterSearchDateFrom, $assisterSearchDateTo, $assisterSearchGoButton, $enrollmentEntitiesDropdown, $enrollmentEntitiesCounselors];
+
+var $assisterSearchActionDropdown = _link("Dropdown Menu. Press enter to open it and tab through its options");
+var $assisterSearchActionEdit = _link("Edit End of dropdown");
+
+function verifyManageAssisterPage() {
+	verifyArray($assisterSearch);
+	verifyHiddenArray($enrollmentEntitiesLinks);
+}
+
+function enterAssisterFirstNameInSearchBar($name) {
+	if ($counselorInfo.firstName != null) {
+		$name = $counselorInfo.firstName;
+	}
+	_setValue($assisterSearchFirstName, $name);
+	$counselorInfo.firstName = $name;
+}
+
+function enterAssisterLastNameInSearchBar($name) {
+	if ($counselorInfo.lastName != null) {
+		$name = $counselorInfo.lastName;
+	}
+	_setValue($assisterSearchLastName, $name);
+	$counselorInfo.lastName = $name;
+}
+
+function selectAssisterStatusInSearchBar($isActive) {
+	if ($isActive == null) {
+		$status = false;
+	}
+	if ($isActive) {
+		_click($assisterSearchStatusActive);
+	}
+	else {
+		_click($assisterSearchStatusInactive);
+	}
+	$entityInfo$counselorInfo.isActive = $isActive;
+}
+
+function selectAssisterCertificationStatusInSearchBar($status) {
+	if ($status == null) {
+		$status = "Certified";
+	}
+	_setSelected($assisterSearchCertificationStatus, $status);
+}
+
+function enterCertificationRenewalDateInSearchBar($from, $to) {
+	_setValue($assisterSearchDateFrom, $from);
+	_setValue($assisterSearchDateTo, $to);
+	$counselorInfo.dateFrom = $from;
+	$counselorInfo.dateTo = $to;
+}
+
+function clickGoOnManageAssisterSearchBar() {
+	_click($assisterSearchGoButton);
+	verifyManageAssisterPage();
+}
+
+function verifyAssisterFound($assisterName, $entityName) {
+	var $assisterDetails = _getTableContents($assisterSearchTable);
+	var $expectedAssisterDetails = [$counselorInfo.name, $entityInfo.companyName, "", "InActive", "Pending"];
+	assisterFound = false;
+	for (var $i = 0; $i < $assisterDetails.length; $i++) {
+		$assisterDetails[$i].splice(5);
+		_log($assisterDetails[$i][0]);
+		_log($expectedAssisterDetails[0]);
+		_log($assisterDetails[$i][0] == $expectedAssisterDetails[0]);
+		_log($assisterDetails[$i][1]);
+		_log($expectedAssisterDetails[1]);
+		_log($assisterDetails[$i][1] == $expectedAssisterDetails[1]);
+
+		if (compareArrays($expectedAssisterDetails == $assisterDetails[$i])) {
+			$counselorInfo.searchNum = $i;
+			$counselorInfo.assisterFound = true;
+			break;
+		}
+	}
+	_assertEqual(true, $counselorInfo.assisterFound);
+}
+
+function clickEditAssister() {
+	if ($counselorInfo.searchNum == 1) {
+		_click(_link("Edit End of dropdown"));
+	}
+	else {
+		_click(_link("Edit End of dropdown[" + $counselorInfo.searchNum + "]"));
+	}
+	verifyCounselorPage($counselorInfo.name);
+}

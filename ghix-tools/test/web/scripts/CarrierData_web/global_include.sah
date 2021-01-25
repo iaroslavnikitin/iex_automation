@@ -1,0 +1,235 @@
+_includeOnce("/lib/util.sah");
+
+function onScriptError($e) {
+	return onScriptErrorDefault($e);
+}
+
+function onScriptFailure($e) {
+	onScriptFailureDefault($e);
+	_call(window.scrollTo(0, 0));
+}
+
+function onScriptErrorDefault($e) {
+	if ($e.isBrowserNotResponding) {
+		if (!_isPhantomJS()) {
+			_takeScreenShot();
+			dumpWindowInfo();
+		}
+	} else {
+//		_takeScreenShot(); // uncomment this if you want a full desktop screenshot too.
+		_lockWindow();
+		_log("Will take ScreenShot");
+		_focusWindow();
+		_takeScreenShot();
+		_wait(1000);
+		_takePageScreenShot();
+		_log("Should have taken screenshot");
+		_unlockWindow();
+	}
+	return false;
+}
+
+function onScriptFailureDefault($e) {
+	if ($e.isBrowserNotResponding) {
+		if (!_isPhantomJS()) {
+			_takeScreenShot();
+			dumpWindowInfo();
+		}
+	} else {
+//		_takeScreenShot(); // uncomment this if you want a full desktop screenshot too.
+		_lockWindow();
+		_focusWindow();
+		_takeScreenShot();
+		_wait(1000);
+		_takePageScreenShot();
+		_unlockWindow();
+	}
+}
+
+function dumpWindowInfo() {
+	var s = "<pre>";
+	var info = _getWindows();
+	for (var i=0; i<info.length; i++) {
+		var w = info[i];
+		s += "\n-------------------\nWindow " + i + ":\n-------";
+		s += "\n  windowName: " + w.windowName;
+		s += "\n  derivedName:" + w.derivedName;
+		s += "\n  windowTitle:" + w.windowTitle;
+		s += "\n  windowURL:" + w.windowURL;
+		s += "\n  wasOpened:" + w.wasOpened + " (" + (w.wasOpened == 1 ? "popup window" : "base window") + ")";
+		s += "\n  domain:" + w.domain;
+		var initDate = new Date(parseFloat(w.initialTime));
+		var lastDate = new Date(parseFloat(w.lastTime));
+		var currentDate = new Date();
+		s += "\n  initialTime:" + initDate.toUTCString();
+		s += "\n  lastTime:" + lastDate.toUTCString();
+		s += "\n  currentTime:" + currentDate.toUTCString();
+		s += "\n  Last communication:" +  (currentDate - lastDate) + " ms ago"; 
+	}
+	s += "</pre>";
+	_sahi._log(s);
+}
+
+
+
+// Below function will be used by local scripts
+
+
+var $db;
+var $database;
+var $server;
+var $port;
+var $username;
+var $password;
+
+
+var	$url = getUpdatedBaseURL("").split("/");
+var $suiteInfo = _suiteInfo();
+_log("URL: "+$url);
+/*
+if ($url[2] =="pacarrierqa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "pacarrierqa";
+	$password = "8RBeSXYg4jre3ssY";
+}
+
+if ($url[2] =="njuat.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "njuat";
+	$password = "PTE1YTEDYjE5D22dx";
+}
+
+if ($url[2] =="nj1qa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "nj1qa";
+	$password = "PTE1YTEDYjEsd322he";
+}
+if($url[2] == "njcarrierqa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "njcarrierqa";
+	$password = "PTE1YTEDYjEseede332s";
+}
+if ($url[2] =="nj2qa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "nj2qa";
+	$password = "PTE1YTEDYjEsee3522TT";
+}
+
+if ($url[2] =="pa2qa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "pa2qa";
+	$password = "ZDRmMjZiMD322dsW";
+}
+
+
+if ($url[2] =="pacarrierqa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "pacarrierqa";
+	$password = "8RBeSXYg4jre3ssY";
+}
+
+
+if ($url[2] =="pacarrierqa.ghixqa.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "pacarrierqa";
+	$password = "8RBeSXYg4jre3ssY";
+}
+
+if ($url[2] =="nvcarrierqa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "nvcarrierqa";
+	$password = "8RBeSXYg4jrnqlVB";
+}
+
+*/
+
+$database = $suiteInfo["databaseType"];
+$port = $suiteInfo["databasePort"];
+$server = $suiteInfo["databaseServer"];
+$username  = $suiteInfo["databaseUsername"];
+$password = $suiteInfo["databasePassword"];
+
+$SID = "ghixdb";
+
+_log("url :   "+$url);
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+
+if($database =="POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}
+
+var $inOEP = inGlobalOEP();
+//var $inOEP = "OFF"
+
+function getUpdatedBaseURL($append) {
+	var $suiteInfo = _suiteInfo();
+	var $baseURL = $suiteInfo["baseURL"];
+	var $updatedURL = $baseURL + $append;
+	return $updatedURL;
+}
+
+
+
+
+
+function isNewJersey(){
+	return _suiteInfo()["state"] == "NJ";
+}
+
+function isPennsylvania(){
+	return _suiteInfo()["state"] == "PA";
+}
+
+function isNevada(){
+	return _suiteInfo()["state"] == "NV";
+}
+
+function getHealthPlanIssuerName(){
+	return _suiteInfo()["HealthIssuer"];
+}
+
+
+function getDentalPlanIssuerName(){
+	return _suiteInfo()["DentalIssuer"];
+}
+
+function getZipCode(){
+	return _suiteInfo()["zipCode"];
+}
+
+function getApplicationYear(){
+	return _suiteInfo()["coverageYear"];
+}
+
+var $isNewJersey = isNewJersey();
+var $isPennsylvania = isPennsylvania();
+var $isNevada = isNevada();
+var $appYear = getApplicationYear();
+var $zip = getZipCode();
+
+
+
+

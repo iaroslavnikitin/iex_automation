@@ -1,0 +1,31 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify household Eligibility for Family of 4 with  income :  70000 for APTC","[Documentation]","Family of 4 with  income:   70000 should get APTC  till the plan display
+Applicant Age: 27
+Spouce Age :27
+Child1  Age: 1
+Child2 Age:1"
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""01/01/1990""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddSpouse","""10/25/1990""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddChild","""10/25/2016""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddChild","""10/25/2016""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""70000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","It looks like you and your household may qualify for financial help to pay for your healthcare coverage."
+,"validateSavingDetails","Y","N","N","N","N","N"
+,"clickNextOnCheckSavingResults"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"selectDoctor","Mofei Liu","""06001"""
+,"selectHospital","""Scott W. Lindsay, Dpm""","""06001"""
+,"clickNextPreferences"
+,"selectPrescription","Lipitor","""Lipitor 80 Mg Tab (Oral Tablet)"""
+,"selectPrescription","Atorvastatin","""Atorvastatin 20 Mg Tab (Oral Tablet)"""
+,"clickViewPlans"
+,"clickEnrollNow"

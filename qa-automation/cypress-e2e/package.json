@@ -1,0 +1,48 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "End to end testing",
+  "main": "index.js",
+  "scripts": {
+    "mnauto": "cypress open",
+    "mnauto static": "cypress open --env configFile=mnauto_static",
+    "mn2auto": "cypress open --env configFile=mn2auto",
+    "mn2auto static": "cypress open --env configFile=mn2auto_static",
+    "nv4qa": "cypress open --env configFile=nv4qa",
+    "nv2qa": "cypress open --env configFile=nv2qa",
+    "mn4qa": "cypress open --env configFile=mn4qa",
+    "mn3qa": "cypress open --env configFile=mn3qa",
+    "mn5qa": "cypress open --env configFile=mn5qa",
+    "run": "cypress run --reporter mochawesome",
+    "runSpec": "cypress run --spec \"cypress/integration/regression/cap/CiC_2_aptc_csr_hh2_decrease_aptc_to_0_med.js\" --reporter mochawesome",
+    "runHeaded": "cypress run --headed",
+    "sandbox": "cypress run --browser chrome --spec \"cypress/integration/sandbox/data_generation.js\" --no-exit",
+    "default_enrollment": "cypress run --spec \"cypress/integration/enrollment/medical_and_dental.js\" --reporter mochawesome",
+    "testrecord": "cypress run --browser  --record --key e35361c4-1b79-4368-887a-18302b9d90b1",
+    "testrecord1": "cypress run --spec \\\"cypress/integration/regression/cic7/CiC_1_aptc_csr_hh2_increase_aptc_max_med_dental.js\\\" --browser chrome --record --key e35361c4-1b79-4368-887a-18302b9d90b1",
+    "cleanup": "rm -fr reports",
+    "merge_reports": "mochawesome-merge --reportDir reports> output.json",
+    "generate_mochawesome_report": "marge --reportDir reports output.json",
+    "e2e_mochawesome": "npm run cleanup; cypress run; npm run merge_reports; npm run generate_mochawesome_report"
+  },
+  "author": "Yuliya Galperina",
+  "license": "ISC",
+  "devDependencies": {
+    "cypress": "^4.5.0",
+    "electron": "^8.2.0"
+  },
+  "dependencies": {
+    "fs-extra": "^9.0.0",
+    "wsse-header": "^1.1.1",
+    "xml-js": "^1.6.11",
+    "cypress-promise": "^1.0.2",
+    "moment": "^2.24.0",
+    "moment-timezone": "^0.5.26",
+    "json-query": "^2.2.2",
+    "mocha": "5.2.0",
+    "mochawesome": "3.0.3",
+    "mochawesome-merge": "^1.0.7",
+    "mochawesome-report-generator": "3.1.5",
+    "concurrently": "^5.2.0"
+  }
+}

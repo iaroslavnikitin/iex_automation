@@ -1,0 +1,11 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,,"loadSahi","../pagemodels/global_include.sah"
+
+"Agent lookup test","all,Agents","Agent Lookup","[Documentation]"
+,,,"verifyHeaderAndFooter"
+,,,"clickGetAssistance"
+,,,"clickFindLocalAssistance"
+,,,"clickFindBrokerForLocalAssistance"
+,,,"clickSearchForAgentByLocation","""94043""","""10"""
+,,,"clickSearchAgainForAgent"
+,,,"clickSearchForAgentByName","""Mark"""

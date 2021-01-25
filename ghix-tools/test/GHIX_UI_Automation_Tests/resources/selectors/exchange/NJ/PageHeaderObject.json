@@ -1,0 +1,7 @@
+{
+  "commonHeaderAndFooter":
+  {
+    "lk_myAccount":"$('//*[@id=\"second-menu-nm\"]/li[4]/a')"
+  }
+}
+

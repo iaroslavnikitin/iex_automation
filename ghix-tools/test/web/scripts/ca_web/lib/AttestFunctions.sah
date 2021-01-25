@@ -1,0 +1,11 @@
+_include("attest-runner.sah");
+
+function verifyAccessibilityViolation(){
+	//_wait(15000, _isVisible(_div("body-default")) || _isVisible(_div("root")) || _isVisible(_div("body-individual")));
+	_wait(10000);
+	_lockWindow();
+	_focusWindow();
+	_call(attestRun(document.body, 'wcag2', true));
+	_assertEqual(0,attestNumViolations(document.body, 'wcag2'), "number of violations should be 0");
+	_unlockWindow();
+}

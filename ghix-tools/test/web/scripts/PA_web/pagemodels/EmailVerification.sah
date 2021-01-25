@@ -1,0 +1,69 @@
+
+var $fileName = "brokerCertificationNotification.pdf";
+
+function downloadAttachment($downloadLink) {
+	_clearLastDownloadedFileName(); 	// nothing so far
+	_sendHTMLResponseAfterFileDownload(true);
+
+	_click($downloadLink);
+
+	_wait(90000, _lastDownloadedFileName() != null);
+	_assertEqual("/brokerCertificationNotification.*/", _lastDownloadedFileName());
+	if (_lastDownloadedFileName() != null) {
+		var $refNum = _lastDownloadedFileName().split('_')[1];
+		_log(" $refNum " +$refNum);
+		_log(_lastDownloadedFileName());
+
+		var $path = _resolvePath("..\\"+$fileName);
+		_log("$path "+$path);
+		_saveDownloadedAs($path); 		// save to another path
+		_clearLastDownloadedFileName(); 		// clear the variable
+		_assertNull(_lastDownloadedFileName()); 		// check to see if cleared.
+	}
+	else {
+		_sendHTMLResponseAfterFileDownload(false);
+		return null;
+	}
+
+	_selectWindow("/File Downloaded/");
+	_click(_link("Close Window"));
+	_selectWindow();
+	_sendHTMLResponseAfterFileDownload(false);
+
+	return {
+		'fileName': $fileName,
+		'refNum': $refNum
+	};
+}
+
+/**
+<ul><li>Reads PDF file and shows the text in the page itself.</li>
+<li>Useful for adding assertions</li>
+<li>@param $pdf</li>
+</ul>
+*/
+
+function showPDFText($pdf) {
+	var $pdfboxAppJarPath = _userDataPath("extlib\\pdfbox\\pdfbox-app-2.0.19.jar");
+	var $pdf = _resolvePath($pdf);
+	var $data = _execute("java -jar " + $pdfboxAppJarPath + " ExtractText -console -html " + $pdf, true);
+	_call(document.body.innerHTML = $data);
+}
+
+/**
+<ul><li>Reads PDF file and returns the contents as a string</li>
+<li>@param $pdf</li>
+<li>@returns string text contents of the PDF file</li>
+</ul>
+*/
+
+function getPDFText($pdf) {
+	var $pdfboxAppJarPath = _userDataPath("extlib\\pdfbox\\pdfbox-app-2.0.19.jar");
+	_log($pdfboxAppJarPath);
+	var $path = _resolvePath("..\\"+$fileName);
+	_log("$path "+$path);
+	var $data = _execute("java -jar " + $pdfboxAppJarPath + " ExtractText -console "+$path+" -text", true);
+	return $data;
+}
+
+

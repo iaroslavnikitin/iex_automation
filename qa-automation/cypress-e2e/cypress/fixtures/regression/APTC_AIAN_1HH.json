@@ -1,0 +1,11 @@
+{
+    "description": "1 adults AIAN household CS2 ",
+    "hhFamily": {"size": 1, "singleParent": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "csrEligibilityIndicator": false,
+            "csrLevel": "CS2"
+        }
+        ]
+}

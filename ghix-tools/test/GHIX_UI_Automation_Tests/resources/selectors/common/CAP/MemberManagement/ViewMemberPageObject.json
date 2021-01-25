@@ -1,0 +1,31 @@
+{
+    "pageHeader":"$('h1')",
+    "btn_mark_verified": "$('#mark_verified')",
+    "tb_ridp_status": "$('#ridp_status')",
+    "lk_view_member_acccount": "$('a*=View Member Account')",
+    "hd_view_member_account": "$('h4*=View Member Account')",
+    "btn_memberView":"$('button*=Member View')",
+    "lk_actionsGearIcon":"$('#csrActionButton')",  
+    "ridp_verifiedStatus":"$('//strong[contains(text(), \"Verified Account\")]')",
+    "leftNav":{
+      "lk_enrollments":"$('#enrollmentMenu > a')",
+      "lk_applications":"$('#applicationsMenu > a')",
+      "lk_history":"$('#historyMenu > a')",
+      "lk_viewMemberAccount": "$('a*=View Member Account')"      
+    },
+    "viewMemberAccountPopUp":{
+      "txt_header":"$('#markCompleteDialog').$('h4')",
+      "btn_memberView":"$('button*=Member View')",
+      "btn_cancel":"$('button*=Cancel')",
+      "cb_dontShowMessageAgain":"$('#checkConsumerView')",
+      "btn_xClose":"$('#crossClose')"
+       }
+
+
+    
+    
+    
+   
+    
+  }
+  

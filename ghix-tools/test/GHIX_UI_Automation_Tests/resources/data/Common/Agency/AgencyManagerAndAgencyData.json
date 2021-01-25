@@ -1,0 +1,65 @@
+{ 
+    "agencyManager":
+    {   "firstName":"",
+        "lastName": "",
+        "email": "",
+        "phone":"4083677778",
+        "primaryContact":"4083677778",
+        "securityQuestion":"",
+        "securityAnswer":"",
+        "password":"",
+        "clientServed":"",
+        "productExpertise":["dental","medicare"],
+        "languages":["Armenian","Russian","Italian"],
+        "prefferedMethodOfCommunication":1,
+        "certificationStatus":""
+       
+    },
+    "agency":
+    {
+        "agencyName":"",
+        "businessName":"",
+        "ein":"",
+        "licenseNumber":"",
+        "certificationStatus":"",
+    
+        "agencySites":
+        {   
+            "primarySite":
+            {       
+                "locationName":"",
+                "AddressLine1":"",
+                "city":"",
+                "state":6,
+                "zip":"",
+                "hoursOfOperation":
+                {
+                    "monday":{ "from":5, "to":5}
+                }
+                
+            },
+            "numberOfSubsites":"",
+            "subSites":
+            [
+
+            ]
+        }
+    },
+    "adminStaffs":
+    [
+        {
+            "firstName": "",
+            "lastName": "",
+            "email": "",
+            "primaryContactPhone": "4083670543",
+            "businessContactPhone": "5102354327",
+            "businessLocation": 1
+        }
+    ]
+,
+    "agentAdmin": {
+        "sb_certificationStatus": "Certified",
+        "tb_newStartDate": "11/15/2021",
+        "tb_newEndDate": "10/27/2079"
+      }
+}

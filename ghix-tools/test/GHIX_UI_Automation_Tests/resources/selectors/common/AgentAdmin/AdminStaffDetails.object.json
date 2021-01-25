@@ -1,0 +1,33 @@
+{
+  "leftNav":
+  { "leftNavHeader": "$('#sidebar > div > h4')",
+    "lk_approvalStatus": "$('#sidebar > ul > li:nth-child(2) > a:nth-child(2)')"
+
+  },
+  "rightPanel": {
+    "adminStaffInformation": {
+      "editMode": {
+        "btn_update":"$('#adminStaffForm > div > div.ng-scope.ng-isolate-scope > div:nth-child(1) > div > input:nth-child(2)')"
+      },
+      "viewMode": {
+      }
+    },
+    "approvalStatus": {
+      "editMode":
+      { "sb_newStatus": "$('#aid-approvalStatus')",
+        "tb_comment": "$('#comments')",
+        "btn_submit": "$('#adminStaffApproval > form > div.controls-group.form-actions > button')",
+        "btn_cancel": "$('#adminStaffApproval > div:nth-child(1) > span > button')"
+
+      },
+      "viewMode": {
+        "pageHeader": "$('#adminStaffApproval > div > h4')",
+        "btn_edit": "$('#adminStaffApproval > div > button')",
+        "lbl_approvalStatus": "$('#adminStaffApproval > table > tbody > tr:nth-child(3) > td.span4.txt-right.ng-binding')",
+        "approvalStatus": "$('#adminStaffApproval > table > tbody > tr:nth-child(3) > td:nth-child(2) > strong')",
+        "approvalNumber":"$('#adminStaffApproval > table.table.table-border-none.table-condensed.table-auto.verticalThead > tbody > tr:nth-child(4) > td:nth-child(2) > strong')"
+      }
+    }
+  }
+
+}

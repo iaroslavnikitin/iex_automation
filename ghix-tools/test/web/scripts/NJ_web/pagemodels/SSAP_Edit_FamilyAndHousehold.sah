@@ -1,0 +1,212 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("AgentIcon.sah");
+//_includeOnce("Ssap.sah");
+//_includeOnce("Utils.sah");
+
+function goToGetReadyEditFamilyAndHousehold(){
+	_click(_button("Continue"));
+	_assertVisible(_heading1("Get Ready"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Continue"));
+}
+
+function goToPersonalInformationEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Personal Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToCitizenImmigrationStatusEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Citizenship/Immigration Status"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToEthnicityAndRaceEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Ethnicity and Race"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToMaritalStatusEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Marital Status"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+
+function goToParentCareTakerInformationEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Parent / Caretaker Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToMilitaryServiceEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Military Service"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToHouseholdInformationEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Household information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+
+function goToAIANEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("American Indian/Alaska Native"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+
+function goToMedicaidChipDenialInformationEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Medicaid/ CHIP Denial Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+
+function goToPregnancyInformationEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Pregnancy Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToDisabilityInformationEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Disability Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToFosterCareInformationEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Foster Care Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToFullTimeStudentEdit(){
+		if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Full Time Student"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToSummaryEditFamilyAndHousehold(){
+	if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Summary"));
+	_assertVisible(_heading3("Review and Confirm"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Continue"));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

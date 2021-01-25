@@ -1,0 +1,17 @@
+{
+  "estimatedTotalHealthCareCost": true,
+  "premiumAfterCredit": false,
+  "deductible": false,
+  "oopMax": false,
+  "plantype_filter_checkbox_EPO": false,
+  "plantype_filter_csr": false,
+  "plantype_filter_hsa": false,
+  "filter_platinum": false,
+  "filter_gold": false,
+  "filter_silver": false,
+  "filter_bronze": false,
+  "deductible_filter_2500": false,
+  "deductible_filter_5000": false,
+  "deductible_filter_7500": false,
+  "deductible_filter_15000": false
+}

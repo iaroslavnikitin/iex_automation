@@ -1,0 +1,415 @@
+_includeOnce("../lib/DB.sah");
+
+var $actionsOnPremiumHistory = _link("Actions", _in(_div("enrollment-history")));
+
+
+function verifyPremiumHistoryPage($household,$group,$role,$option){
+	
+	verifyLeftNavigationOnViewMember($household,$role);
+	_assertVisible(_heading4("Enrollment - Premium History Back"));
+	_assertVisible(_cell($group.coverageStartDate, _near(_tableHeader("Enrollment Start Date"))));
+	_assertVisible(_cell($group.coverageEndDate, _near(_tableHeader("Enrollment End Date"))));
+	
+	verifyGroupMembersTableViewMode($household,$group,$role);
+	verifyPremiumHistoryTableViewMode($household,$group,$role,$option);
+	verifyButtonsOnPremiumHistoryPage($household,$group,$role);
+}
+
+function verifyGroupMembersTableViewMode($household,$group,$role){
+	_assertVisible(_row("Type Name Gender SSN Benefit effective Date Member ID"),"verify Header on premium history page");
+	
+	 for (var $i=0;$i<$group.member.length;$i++){
+	 	_log("###### Verify person "+$i+" ######");
+	 	_assertEqual($group.member[$i].firstName+" "+ $group.member[$i].lastName, _getText(_cell(_table("table table-condensed ng-scope"), $i+1, 1)),"Verify Name of the member")
+	 	_assertEqual($group.member[$i].personSex,_getText(_cell(_table("table table-condensed ng-scope"), $i+1, 2)),"Verify gender of the member");
+		
+		var $memberSSN = $group.member[$i].SSN;
+		var $last4ssn = $memberSSN.substring($memberSSN.length-4,$memberSSN.length);
+
+	 	_assertEqual("***"+$last4ssn,_getText(_cell(_table("table table-condensed ng-scope"), $i+1, 3)),"verify SSN of person"+$i);
+	 	_assertEqual($group.member[$i].coverageStartDate+" - "+$group.member[$i].coverageEndDate,_getText(_cell(_table("table table-condensed ng-scope"),$i+1, 4)),"Verify benefit effecive date");
+	 	_assertEqual($group.member[$i].personMedicaidIdentification, _getText(_cell(_table("table table-condensed ng-scope"), $i+1, 5)),"Verify EXTERNAL_APPLICANT_ID for person "+$i);
+	 }
+}
+
+function verifyPremiumHistoryTableViewMode($household,$group,$role,$option){
+	
+	var $premiumTable = $group.healthPlan.premiumTable;
+	var $tableHeadersElements = _collect("_tableHeader", "", _in(_table("/table-striped/")));
+	_assertEqual($premiumTable[0].length, $tableHeadersElements.length,"Columns count should match");
+	for (var $i = 0; $i < $premiumTable[0].length; $i++) {
+		_assertVisible(_tableHeader($premiumTable[0][$i], _in(_row(0, _in(_table("/table-striped/"))))));
+	}
+
+
+	// loop through months
+	for (var $i=1;$i<13;$i++){
+		_log("###### Month "+$premiumTable[$i][0]+" ######");
+		if($premiumTable[$i][1] !== "Not Applicable"){
+			//loop through columns "Gross Premium","Group Max APTC","Elected APTC","Group Max CAPS","CA Premium Subsidy","Net Premium"
+			for (var $j = 0; $j < $premiumTable[0].length-1; $j++) {
+				var $formatedAmount = $premiumTable[$i][($j+1)].replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")///currency formatting
+				var $columnName = $premiumTable[0][($j+1)];
+				if ($formatedAmount) {
+					_assertEqual("$"+$formatedAmount, _getText(_cell($j, _rightOf(_cell($premiumTable[$i][0])))), $columnName);
+				}else{
+					var $actualValue  = _getText(_cell($j, _rightOf(_cell($premiumTable[$i][0]))));
+					//temporary check as in some cases value is "" or "$0.00". Both are ok.
+					if ($actualValue === "$0.00" || $actualValue === "") {
+						_assertEqual($actualValue, _getText(_cell($j, _rightOf(_cell($premiumTable[$i][0])))), $columnName);
+					}else{
+						_assertEqual("$0.00", _getText(_cell($j, _rightOf(_cell($premiumTable[$i][0])))), $columnName);
+					}
+					
+				}
+	 			
+			}
+		}else{
+			_assertEqual("Not Applicable", _getText(_cell(0, _rightOf(_cell($premiumTable[$i][0])))),"Gross premium");
+			for (var $n = 1; $n < $premiumTable[0].length-1; $n++) {
+				var $columnName = $premiumTable[0][($n+1)];
+				_assertEqual("", _getText(_cell($n, _rightOf(_cell($premiumTable[$i][0])))),$columnName);
+			}
+		}
+	}
+}
+
+function verifyButtonsOnPremiumHistoryPage($household,$group,$role){
+
+
+
+	if($role == "supervisor" && ($group.healthPlan.enrollmentStatus == "Pending" || $group.healthPlan.enrollmentStatus == "Enrolled" || $group.healthPlan.enrollmentStatus == "Terminated")){
+		_assertVisible($actionsOnPremiumHistory);
+		_click($actionsOnPremiumHistory);
+		_assertVisible(_submit("Cancel Enrollment", _in(_div("editToolButtonDiv"))));
+		_assertVisible(_submit("Change", _in(_div("editToolButtonDiv"))));
+	}else{
+		_assertNotVisible(_submit("Actions", _in(_div("gutter10 enrollment-history"))));
+	}
+}
+
+function clickBackOnPremiumHistoryPage($household,$status){
+	_click(_button("Back"));
+	var $houseHoldCaseId =  _getText(_heading1("householdInfo")).split(": ")[1].replace(")", "");
+	verifyMemberEnrollmentPage($household,$status,$houseHoldCaseId);
+}
+
+function clickActionButtonOnPremiumHistory(){
+	_click($actionsOnPremiumHistory);
+	_assertVisible(_submit("Cancel Enrollment", _in(_div("editToolButtonDiv"))));
+	_assertVisible(_submit("Change", _in(_div("editToolButtonDiv"))));
+
+
+}
+
+function clickChangeButtonOnPremiumHistory($household){
+	_click(_submit("Change", _in(_div("editToolButtonDiv"))));
+	
+}
+
+function clickCancelButtonOnPremiumHistory($household){
+	
+	_click(_submit("Cancel", _in(_div("txt-right ng-scope"))));
+	verifyPremiumHistoryPage($household, $premium, $netPremium);
+}
+
+/* 
+$newStartDateOption = 'sameMonth-15' - will override day in the same month
+					  'pastMonth-15' - will override date to previous month
+*/
+
+function changeEnrollmentStartDateEditTool($group,$newStartDateOption){
+	var $coverageStartDate = $group.coverageStartDate;
+	var $newCoverageStartDay;
+	var $startOfMonth;
+	var $newCoverageStartDate;
+	var $option;
+
+	$newCoverageStartDay = parseInt($newStartDateOption.split("-")[1])-1;
+	
+	if($newStartDateOption.indexOf('sameMonth') !=-1){
+		$newCoverageStartDate = _fetch(window.moment($coverageStartDate).format("MM/DD/YYYY"));
+	}
+
+	if($newStartDateOption.indexOf('pastMonth') !=-1){
+		$newCoverageStartDate = _fetch(window.moment($coverageStartDate).subtract(1,'month').format("MM/DD/YYYY"));
+		$option = $newStartDateOption.split("-")[0];
+	}
+
+	$startOfMonth = _fetch(window.moment($newCoverageStartDate).startOf('month').format("MM/DD/YYYY"));
+	$newCoverageStartDate = _fetch(window.moment($startOfMonth).add($newCoverageStartDay,'day').format("MM/DD/YYYY"));
+
+	_log("$coverageStartDate: "+$coverageStartDate);
+	_log("$newCoverageStartDate: "+$newCoverageStartDate);
+
+	changeEnrollmentStartPremiumHistory($newCoverageStartDate);
+
+
+	//updating group object
+	$group.coverageStartDate = $newCoverageStartDate;
+	for (var $i = 0; $i < $group.member.length; $i++) {
+		if ($i > 0) {
+			changeEnrolleeBenefitStartPremiumHistory($newCoverageStartDate,$i);
+		}
+		$group.member[$i].coverageStartDate = $newCoverageStartDate;
+	}
+
+	$group.healthPlan.premiumTable = calculateMonthlyPremium($group,$option);
+
+	clickContinueOnEditTool();
+
+	return $group;
+}
+
+function clickSubmitInEnrollmentChange($comment){
+	if ($comment) {
+		_setValue(_textarea("", _in(_div("addOrChangeTxnDiv"))), $comment);
+	}else{
+		_setValue(_textarea("", _in(_div("addOrChangeTxnDiv"))), "changed by Sahi");
+	}
+	_click(_submit("Submit", _in(_div("/enrollment-history/"))));
+	verifySuccessOveridePopup();
+}
+
+function changeEnrollmentStartPremiumHistory($newCoverageStartDate){
+	_setValue(_textbox("enrollmentBenefitEffectiveStartDateUI", _in(_row("Enrollment Start Date"))), $newCoverageStartDate);
+}
+
+function changeEnrolleeBenefitStartPremiumHistory($newCoverageStartDate,$enrolleeNum){
+	_setValue(_textbox("enrolleeEffectiveStartDateUI", _in(_div("/enrollee-editable-repeat/["+$enrolleeNum+"]"))), $newCoverageStartDate);
+}
+
+function verifySuccessOveridePopup(){
+	_lockWindow();
+	_focusWindow();
+	_assertVisible(_span("Success", _in(_div("modal hide fade in"))));
+	_assertVisible(_div("Your change has been successfully updated.", _in(_div("modal hide fade in"))));
+	_assertVisible(_submit("Close", _in(_div("modal hide fade in"))));
+	_assertVisible(_button("x", _in(_div("modal hide fade in"))));
+	_unlockWindow();
+}
+
+function closeSuccessOveridePopup(){
+	_lockWindow();
+	_focusWindow();
+	_click(_submit("Close", _in(_div("modal hide fade in"))));
+	_unlockWindow();
+}
+
+/* 
+$newEndDateOption = 'lastMonth-15' - will override day of the last month
+*/
+
+function changeEnrollmentEndDateEditTool($group,$newEndDateOption){
+	var $coverageEndDate = $group.coverageEndDate;
+	var $newCoverageEndDay;
+	var $startOfMonth;
+	var $newCoverageEndDate;
+	var $option = "disenroll";
+
+	$newCoverageEndDay = parseInt($newEndDateOption.split("-")[1])-1;
+	
+	if($newEndDateOption.indexOf('lastMonth') !=-1){
+		$newCoverageEndDate = _fetch(window.moment($coverageEndDate).format("MM/DD/YYYY"));
+	}
+
+	$startOfMonth = _fetch(window.moment($newCoverageEndDate).startOf('month').format("MM/DD/YYYY"));
+	$newCoverageEndDate = _fetch(window.moment($startOfMonth).add($newCoverageEndDay,'day').format("MM/DD/YYYY"));
+
+	_log("$coverageEndDate: "+$coverageEndDate);
+	_log("$newCoverageEndDate: "+$newCoverageEndDate);
+
+	changeEnrollmentEndPremiumHistory($newCoverageEndDate);
+
+
+	//updating group object
+	$group.coverageEndDate = $newCoverageEndDate;
+	for (var $i = 0; $i < $group.member.length; $i++) {
+		if ($i > 0) {
+			changeEnrolleeBenefitEndPremiumHistory($newCoverageEndDate,$i);
+		}
+		$group.member[$i].coverageEndDate = $newCoverageEndDate;
+	}
+
+	$group.healthPlan.premiumTable = calculateMonthlyPremium($group,$option);
+
+	clickContinueOnEditTool();
+
+	return $group;
+}
+
+function clickContinueOnEditTool(){
+	_click(_submit("Continue", _in(_div("/enrollment-history/"))));
+}
+
+function changeGroupMaxAptcEditTool($months,$newMaxAptc,$group){
+
+	var $coverageStartDate = $group.coverageStartDate;
+	var $coverageEndDate = $group.coverageEndDate;
+	var $firstMonthNum = _fetch(window.moment($coverageStartDate).format("M"));
+	var $lastMonthNum = parseInt(_fetch(window.moment($coverageEndDate).format("M")));
+	$newMaxAptc = $newMaxAptc.replace("$","");
+
+	var $monthToChange;
+
+	if ($months.indexOf('-') == -1) {
+		$months = $months-1;
+		$monthToChange = parseInt(_fetch(window.moment($firstMonthNum).add($months,'month').format("M")));
+		_setValue(_textbox("maxAptc",_in(_row($monthToChange, _in(_table("/premium-editable-table/"))))), $newMaxAptc);
+		$group.healthPlan.premiumTable[$monthToChange][2] = $newMaxAptc;
+	}else{
+		var $startMonth = $months.split("-")[0]-1;
+		$startMonth = parseInt(_fetch(window.moment($firstMonthNum).add($startMonth,'month').format("M")));
+		var $endMonth;
+		if ($months.split("-")[1] === 'all') {
+			$endMonth = $lastMonthNum;
+		}else{
+			$endMonth = $months.split("-")[1]-1;
+		}
+		_log("$startMonth: "+$startMonth);
+		_log("$endMonth: "+$endMonth);
+
+		for (var $i = $startMonth; $i <= $endMonth; $i++) {
+			_setValue(_textbox("maxAptc",_in(_row($i, _in(_table("/premium-editable-table/"))))), $newMaxAptc);
+			$group.healthPlan.premiumTable[$i][2] = $newMaxAptc;
+		}
+	}
+
+	return $group;
+}
+
+/*
+coverage start date: 03/01/2020
+$months = "2" -> in this case April month will be updated. 
+$months = "2-4" -> April, May, June months will be updated.
+$months = "2-all" -> all months will be updated starting from April.
+*/
+
+function changeGroupMaxStateSubsidyEditTool($months,$newMaxStateSubsidy,$group){
+	var $coverageStartDate = $group.coverageStartDate;
+	var $coverageEndDate = $group.coverageEndDate;
+	var $firstMonthNum = _fetch(window.moment($coverageStartDate).format("M"));
+	var $lastMonthNum = parseInt(_fetch(window.moment($coverageEndDate).format("M")));
+	$newMaxStateSubsidy = $newMaxStateSubsidy.replace("$","");
+
+	var $monthToChange;
+
+	if ($months.indexOf('-') == -1) {
+		$months = $months-1;
+		$monthToChange = parseInt(_fetch(window.moment($firstMonthNum).add($months,'month').format("M")));
+		_setValue(_textbox("maxStateSubsidy",_in(_row($monthToChange, _in(_table("/premium-editable-table/"))))), $newMaxStateSubsidy);
+		$group.healthPlan.premiumTable[$monthToChange][4] = $newMaxStateSubsidy;
+	}else{
+		var $startMonth = $months.split("-")[0]-1;
+		$startMonth = parseInt(_fetch(window.moment($firstMonthNum).add($startMonth,'month').format("M")));
+		var $endMonth;
+		if ($months.split("-")[1] === 'all') {
+			$endMonth = $lastMonthNum;
+		}else{
+			$endMonth = $months.split("-")[1]-1;
+		}
+		_log("$startMonth: "+$startMonth);
+		_log("$endMonth: "+$endMonth);
+
+		for (var $i = $startMonth; $i <= $endMonth; $i++) {
+			_setValue(_textbox("maxStateSubsidy",_in(_row($i, _in(_table("/premium-editable-table/"))))), $newMaxStateSubsidy);
+			$group.healthPlan.premiumTable[$i][4] = $newMaxStateSubsidy;
+		}
+	}
+
+	return $group;
+}
+
+function changeStateSubsidyEditTool($months,$newMaxStateSubsidy,$group){
+	var $coverageStartDate = $group.coverageStartDate;
+	var $coverageEndDate = $group.coverageEndDate;
+	var $firstMonthNum = _fetch(window.moment($coverageStartDate).format("M"));
+	var $lastMonthNum = parseInt(_fetch(window.moment($coverageEndDate).format("M")));
+	var $isLastSlice = false;
+	$newMaxStateSubsidy = $newMaxStateSubsidy.replace("$","");
+
+	var $monthToChange;
+
+	if ($months.indexOf('-') == -1) {
+		$months = $months-1;
+		$monthToChange = parseInt(_fetch(window.moment($firstMonthNum).add($months,'month').format("M")));
+		_setValue(_textbox("stateSubsidyAmount",_in(_row($monthToChange, _in(_table("/premium-editable-table/"))))), $newMaxStateSubsidy);
+		$group.healthPlan.premiumTable[$monthToChange][5] = $newMaxStateSubsidy;
+		
+		var $grossPremium = parseFloat($group.healthPlan.premiumTable[$monthToChange][1]).toFixed(2);
+		var $electedAptc = 0;
+
+		if($group.aptc){
+			$electedAptc = parseFloat($group.healthPlan.premiumTable[$monthToChange][3]).toFixed(2);
+		}
+	
+		$group.healthPlan.premiumTable[$monthToChange][6] = parseFloat($grossPremium-$electedAptc-$newMaxStateSubsidy).toFixed(2);
+		
+		if ($monthToChange == $lastMonthNum) {
+			$isLastSlice = true;
+		}
+	}else{
+		var $startMonth = $months.split("-")[0]-1;
+		$startMonth = parseInt(_fetch(window.moment($firstMonthNum).add($startMonth,'month').format("M")));
+		var $endMonth;
+		if ($months.split("-")[1] === 'all') {
+			$endMonth = $lastMonthNum;
+			$isLastSlice = true;
+		}else{
+			$endMonth = $months.split("-")[1]-1;
+		}
+		_log("$startMonth: "+$startMonth);
+		_log("$endMonth: "+$endMonth);
+
+		for (var $i = $startMonth; $i <= $endMonth; $i++) {
+			_setValue(_textbox("stateSubsidyAmount",_in(_row($i, _in(_table("/premium-editable-table/"))))), $newMaxStateSubsidy);
+			$group.healthPlan.premiumTable[$i][5] = $newMaxStateSubsidy;
+
+			var $grossPremium = parseFloat($group.healthPlan.premiumTable[$i][1]).toFixed(2);
+			var $electedAptc = 0;
+
+			if($group.aptc){
+				$electedAptc = parseFloat($group.healthPlan.premiumTable[$i][3]).toFixed(2);
+			}
+		
+			$group.healthPlan.premiumTable[$i][6] = parseFloat($grossPremium-$electedAptc-$newMaxStateSubsidy).toFixed(2);
+		}
+	}
+
+	if ($isLastSlice === true) {
+		$group = updateLastSlice($group);
+	}
+
+	return $group;
+}
+
+function updateLastSlice($group){
+	var $coverageEndDate = $group.coverageEndDate;
+	var $lastMonthNum = parseInt(_fetch(window.moment($coverageEndDate).format("M")));
+
+	if ($group.aptc) {
+		$group.healthPlan.aptc = $group.healthPlan.premiumTable[$lastMonthNum][3];
+	}
+
+	if ($group.stateSubsidy) {
+		$group.healthPlan.stateSubsidy = $group.healthPlan.premiumTable[$lastMonthNum][5];
+	}
+	
+	$group.healthPlan.premium = "$"+$group.healthPlan.premiumTable[$lastMonthNum][6];
+	$group.healthPlan.numPremium = $group.healthPlan.premiumTable[$lastMonthNum][6];
+
+	var $str = JSON.stringify($group.healthPlan);
+	_log("JSON: "+$str);
+
+	return $group;
+}
+
+function changeEnrollmentEndPremiumHistory($newCoverageEndDate){
+	_setValue(_textbox("enrollmentBenefitEffectiveEndDateUI", _in(_row("Enrollment End Date"))), $newCoverageEndDate);
+}
+
+function changeEnrolleeBenefitEndPremiumHistory($newCoverageEndDate,$enrolleeNum){
+	_setValue(_textbox("enrolleeEffectiveEndDateUI", _in(_div("/enrollee-editable-repeat/["+$enrolleeNum+"]"))), $newCoverageEndDate);
+}
+
+

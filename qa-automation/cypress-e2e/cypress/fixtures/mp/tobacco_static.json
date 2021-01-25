@@ -1,0 +1,54 @@
+[
+  {
+    "location": "#rightpanel > div.well.ng-scope > div > div.header",
+    "text": "Additional Information Needed"
+  },
+  {
+    "location": ".margin20-lr",
+    "text": "We need a few more details about the following household member(s) before you can continue to shop for health coverage."
+  },
+  {
+    "location": "#rightpanel > div.well.ng-scope > div > div.well.ng-scope > div > div > p:nth-child(1)",
+    "text": "Insurance companies can charge tobacco users more for coverage. This does not apply for religious or ceremonial uses."
+  },
+  {
+    "location": ".margin20-lr > :nth-child(2) > strong",
+    "text": "Hardship Exemption"
+  },
+  {
+    "location": ".margin20-lr > :nth-child(2)",
+    "text": " If you have received a hardship exemption, we can show you Catastrophic medical plans (even if you are 30 or older). All you need is your hardship exemption certificate number, which you will receive once you are determined eligible for a hardship exemption. Visit www.mnsure.org for more information on applying for an exemption. If anyone has a hardship exemption certificate number, please enter that number below."
+  },
+  {
+    "location": "#exemptionCheckbox",
+    "text": ""
+  },
+  {
+    "location": "label > strong",
+    "text": "Does anyone in your household qualify for a hardship exemption?"
+  },
+  {
+    "location": "#disclaimer",
+    "text": "Privacy Notice"
+  },
+  {
+    "location": "#disclaimer",
+    "text": "In order to enroll you in private insurance, MNsure is asking for private information about you and others in your household. The information we ask for includes who in your household is seeking insurance coverage, whether you use tobacco, which private insurance plan you are selecting, and the amount of advanced premium tax credits you are applying to your enrollment. This information is sent to your selected insurance company to complete your enrollment. We also ask about your health care needs to help you select a private insurance plan, why you may be terminating your coverage, and whether anyone in your household has a hardship exemption."
+  },
+  {
+    "location": "#disclaimer",
+    "text": "Our Privacy Policy requires that if you are providing information on behalf of another individual in your household, you must have consent to provide and view information on all the people who you have listed on the application and agree to safeguard their information. If you knowingly provide false information, you may be subject to investigation and possibly face criminal or civil penalties."
+  },
+  {
+    "location": ".pull-left > .btn",
+    "text": "Go To Dashboard"
+  },
+  {
+    "location": ".pull-right > .btn",
+    "text": "Continue"
+  },
+  {
+    "location": "#submitTobacco > form > div > div > h4 > strong",
+    "text": "Eligible Household Members"
+  }
+]

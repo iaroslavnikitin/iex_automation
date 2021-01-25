@@ -1,0 +1,10 @@
+{
+    "description": "1adult household CS2",
+    "hhFamily": {"size": 1, "single": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "csrLevel": "CS2"
+        }
+        ]
+}

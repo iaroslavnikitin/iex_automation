@@ -1,0 +1,18 @@
+{
+  "baseUrl": "https://sjc-mn3qa.eng.vimo.com",
+  "env": {
+    "name": "mn3qa"
+  },
+  "state": "MN",
+  "um_url": "https://sjc-mn3qa.eng.vimo.com:8083/service/UserManagementService",
+  "um_user": "exadmin@ghix.com",
+  "um_pass": "testpassword",
+  "at_url": "https://sjc-mn3qa.eng.vimo.com/ghix-eligibility/endpoints/AccountTransfer",
+  "at_user": "GI.MN*.DEV.001.001",
+  "at_pass": "MYk@I30*ubFqZ7Ua",
+  "output": "reports/output/",
+  "admin_user": "opsadmin@ghix.com",
+  "admin_pass": "ghix123",
+  "L2_CSR_user": "B032819A7@yopmail.com",
+  "L2_CSR_pass": "Ghix123#"
+}

@@ -1,0 +1,26 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,,"loadSahi","../pagemodels/AgentDashboard.sah"
+,,,"_resource","../resources/data.csv"
+,,,"_resource","../opt/sahi/useraccounts.xls"
+,,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+,,,"loadSahi","../pagemodels/global_include.sah"
+
+,,"[Global]","[SetUp]"
+,,,"closeBrowser"
+,,,"openBrowser"
+"//",,"[Global]","[TearDown]"
+"//",,,"closeBrowser"
+
+"Verify Dashboard of RF Application","smoke,Financial","Verify Dashboard, My Applications,My Enrollments Of RF Application.","[Documentation]"
+"//",,,"openBrowser"
+,,,"AdminSearchForReferalApplication"
+
+"HIX-73734,HIX-72744 - Verify Agent Book Of Business","smoke,CAP,HIX-73734,HIX-72744","HIX-73734,HIX-72744 - Verify Agent Book Of Business","[Documentation]","1) HIX-73734-Verify that agent is able to search active individuals with ""due date""
+2) HIX-72744-Verify that agent is able to search active individual by First Name, Last Name, Application Type"
+"//",,,"openBrowser"
+,,,"agentExportingBookOfBusinessExcel"
+
+"HIX-89003 - Verify Enrollment Edit Tool Is Displayed for CSR Supervisor but not for L1/ L2","smoke,security,HIX-89003","HIX-89003 - Verify Enrollment Edit Tool Is Displayed for CSR Supervisor but not for L1/ L2","[Documentation]","Permission applicable for Enrollment Edit tool for authorized users"
+"//",,,"openBrowser"
+,,,"[Keyword]","EnrollmentEditToolPermissionForDifferentUsers"
+,,,"[Data]","[userdata:EnrollmentEditToolPermission:role]","[userdata:EnrollmentEditToolPermission:user]","[userdata:EnrollmentEditToolPermission:password]","[userdata:EnrollmentEditToolPermission:editToolPermission]"

@@ -1,0 +1,30 @@
+const $VALID_ADRESSES = [
+	{
+		"streetAddress": "750 Castro St",
+		"suite": null,
+		"city": "Mountain View",
+		"state": "CA",
+		"zipcode": "94041"
+	},
+	{
+		"streetAddress": "2727 Mariposa St",
+		"suite": null,
+		"city": "San Francisco",
+		"state": "CA",
+		"zipcode": "94110"
+	},
+	{
+		"streetAddress": "1050 20th St",
+		"suite": "#190",
+		"city": "Sacramento",
+		"state": "CA",
+		"zipcode": "95811"
+	},
+	{
+		"streetAddress": "459 S Hewitt St",
+		"suite": null,
+		"city": "Los Angeles",
+		"state": "CA",
+		"zipcode": "90013"
+	}
+]

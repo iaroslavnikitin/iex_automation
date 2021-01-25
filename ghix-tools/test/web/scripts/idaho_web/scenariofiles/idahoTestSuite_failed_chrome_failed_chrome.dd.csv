@@ -1,0 +1,28 @@
+#script,tags,testcases
+HIX-75683.s.csv,"lifeChangeEvents, regression",75683
+#script,tags,testcases
+HIX-75730.s.csv,"lifeChangeEvents, regression",75730
+#script,tags,testcases
+HIX-62758.s.csv,"lifeChangeEvents, regression",HIX-62758
+#script,tags,testcases
+HIX-75717.s.csv,"lifeChangeEvents, regression",HIX-75717- Verify the application for  LCE add another child to dental only enrollment Shop Different Plan
+#script,tags,testcases
+RolesAndPermission_csrModifiesAgent_BrokerAccount.s.csv,"Security, regression",HIX-88237 HIX-88234 CSR Modify Agent Account
+#script,tags,testcases
+RolesAndPermission_Relink.s.csv,"Security, regression",HIX-84477 HIX-84474  Verify Relink options
+#script,tags,testcases
+Verify_TicketHistory_CAPHistoryRoles_EnrollmentHistory.s.csv,"CAP, regression",HIX-102524
+#script,tags,testcases
+Verify_1095_correction_pdf.s.csv,"1095_correction, regression",HIX-102524
+#script,tags,testcases
+createSSAP_agentDesignation_HIX-106755.s.csv,"individualPortal,Agents, regression",HIX-106755
+#script,tags,testcases
+SEP_Type2_AddRemoveEvent_ShopForPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type4_AddRemoveEvent_KeepCurrentPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+SEP_Type4_AddRemoveEvent_ShopForPlan.s.csv,"lifeChangeEvents, regression",
+#script,tags,testcases
+anonymous_FourMembers_CSR_APTC_Catastrophic_HealthDental_HIX-101962.s.csv,"individualPortal,Anonymous, regression",HIX-101962
+#script,tags,testcases
+anonymous_TwoMembers_CSR_APTC_Catastrophic_ResumeEditSSAP_HIX-101959.s.csv,"individualPortal,Anonymous, regression",HIX-101959

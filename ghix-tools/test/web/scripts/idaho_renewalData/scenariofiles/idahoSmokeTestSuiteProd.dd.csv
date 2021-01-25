@@ -1,0 +1,5 @@
+"#script","tags"
+"AnonymousFlow_smoke.s.csv","smoke,AnonymousShopping"
+"IndividualPortal_smoke.s.csv","smoke, IndividualPortal"
+"RFApplicationAndBookOfBusiness_smoke.s.csv","smoke,AgentBookOfBusiness"
+"CAP_smoke.s.csv","smoke, CAP, TicketManagement"

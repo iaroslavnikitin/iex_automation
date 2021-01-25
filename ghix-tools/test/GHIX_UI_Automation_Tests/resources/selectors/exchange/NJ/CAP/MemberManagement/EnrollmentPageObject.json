@@ -1,0 +1,7 @@
+{
+    "premiumHistoryTable":
+    {
+      "netPremium":"$('//table[@id=\"premium-history-table\"]/tbody/tr[index]/td[7]')",
+      "premiumEHB":"$('//table[@id=\"premium-history-table\"]/tbody/tr[index]/td[9]')"
+    }
+  }

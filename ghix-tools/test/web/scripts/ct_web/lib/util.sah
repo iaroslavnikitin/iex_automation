@@ -1,0 +1,64 @@
+_resource("/opt/sahi/useraccounts.xls");
+
+var $isConnecticut = isConnecticut();
+var $isIdaho = isIdaho();
+
+function getBaseURL() {
+	return _suiteInfo()["baseURL"];
+}
+
+function getBaseDomain(){
+	return _suiteInfo()["baseURL"].split("/")[2];
+}
+
+function isProductionEnvironment(){
+	var $domain = getBaseDomain();
+	return $domain == "idahohix.yourhealthidaho.org" || $domain == "id2auto.ghixqa.com" || $domain == "id2qa.ghixqa.com";
+}
+
+function isConnecticut(){
+	return _suiteInfo()["state"] == "CT";
+}
+
+function isIdaho(){
+	return _suiteInfo()["state"] == "ID";
+}
+
+function getRandomInt($min, $max) {
+  $min = Math.ceil($min);
+  $max = Math.floor($max);
+  return Math.floor(Math.random() * ($max - $min)) + $min; //The maximum is exclusive and the minimum is inclusive
+}
+
+function getUserAccountsFilePath(){
+	return "../../opt/sahi/useraccounts.xls";
+}
+
+function isTrue($value){
+	return $value === "Y";
+}
+
+function takePageScreenShot(){
+	_lockWindow();
+	_focusWindow();
+	_wait(1000);
+	_takePageScreenShot();
+	_wait(1000);
+	_unlockWindow();
+}
+
+function encodeForRegEx($string){
+	return $string
+		.replace(/\(/g, "[(]")
+		.replace(/\)/g, "[)]")
+		.replace(/\//g, "[/]");
+}
+
+function convertMoneyToNumber($money){
+	$money = $money.replace("$", "");
+	return parseFloat($money);
+}
+
+function maximizeWindow(){
+	_windowAction("maximize"); // mazimize window.
+}

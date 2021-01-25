@@ -1,0 +1,11 @@
+{
+    "topNav":
+    {
+        "lk_skipSignUp" :"$('#skip-sign-up')"
+    },
+    "planTiles":
+    {
+        "planCategory":"$$('//div[contains(@class,\"cp-tile__header cp-tile__exchange\")]')[index]"
+    }
+
+}

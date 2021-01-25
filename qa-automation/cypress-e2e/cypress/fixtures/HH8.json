@@ -1,0 +1,28 @@
+{
+    "description": "2adults/2 kids household with mixed CSR levels ",
+    "hhFamily": {"size": 5, "singleParent": true},
+    "hhLastName": true,
+    "aptcMaximumAmount": 250,
+    "people": [
+        {
+            "personSex": "Male",
+            "csrCategoryAlphaCode": "OpenToIndiansBelow300PercentFPL"
+        },
+        {
+            "personSex": "Female",
+            "csrCategoryAlphaCode": "OpenToIndiansAbove300PercentFPL"
+        },
+        {
+            "personSex": "Female",
+            "csrCategoryAlphaCode": "73PercentActuarialVarianceLevelSilverPlanCSR"
+        },
+        {
+            "personSex": "Male",
+            "csrCategoryAlphaCode": "87PercentActuarialVarianceLevelSilverPlanCSR"
+        },
+        {
+            "personSex": "Male",
+            "csrCategoryAlphaCode": "94PercentActuarialVarianceLevelSilverPlanCSR"
+        }
+    ]
+}

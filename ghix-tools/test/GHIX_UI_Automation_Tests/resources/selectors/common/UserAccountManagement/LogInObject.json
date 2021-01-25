@@ -1,0 +1,16 @@
+{
+    "logInPageHeader":"$('h1')",
+    "tb_emailAddress":"$('#j_username')",
+    "tb_password":"$('#j_password')",
+    "tb_username_id":"$('#username')",
+    "tb_password_id":"$('#password')",
+    "btn_submit":"$('#submit')",
+    "lk_forgotPassword":"$('=Forgot password?')", 
+    "changePassword":  "$('#change-password')",
+    "closeChangePassword" : "$('//div[@id=\"change-password\"]/div/button')",
+    "serverDate":"$('//*[contains(text(),\"Server Date\")]')",
+    "lk_logout":"$('//*[text()=\"Logout\" or text()=\"LOGOUT\"]')" ,
+    "dd_myAccount":"$('//a[@class=\"dropdown-toggle\"][contains(text(),\"My Account\")]')" ,
+   "dd_myAccount_CAP":"$('//*[contains(@id,\"my-authentication\")]/span')"
+
+}

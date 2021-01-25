@@ -1,0 +1,131 @@
+_include("SignUpSidebar.sah");
+//_includeOnce("Utils.sah");
+_includeOnce("global_include.sah");
+_includeOnce("HomePage.sah");
+_includeOnce("EntityInformation.sah");
+_includeOnce("../lib/util.sah");
+_includeOnce("EntityCounselorInfo.sah");
+
+var $fName;
+var $lName;
+var $email;
+var $phoneNum;
+var $answer, $question;
+var $password;
+
+var $accountSetUpHeader = _heading1("New Entity Account Set-Up");
+var $accountSetUpSubtitle = _div("rightpanel");
+var $accountSetUpFirstName = _textbox("First Name Required ", _rightOf(_label("First Name Required")));
+var $accountSetUpLastName = _textbox("Last Name Required ", _rightOf(_label("Last Name Required")));
+var $accountSetUpEmail = _emailbox("email", _rightOf(_label("Email Address Required")));
+var $accountSetUpConfirmEmail = _emailbox("confirmEmail", _rightOf(_label("Confirm Email Address Required")));
+var $accountSetUpPhoneNumberBoxOne = _textbox("phone1");//_textbox("phone1", _near(_label("Phone Number Required tooltip link")));
+var $accountSetUpPhoneNumberBoxTwo = _textbox("phone2");//_textbox("phone2", _near(_label("Phone Number Required tooltip link"))) ;
+var $accountSetUpPhoneNumberBoxThree = _textbox("phone3");//_textbox("phone3", _near(_label("Phone Number Required tooltip link")));
+var $accountSetUpSecurityQuestion = _select("securityQuestion1", _rightOf(_label("Security QuestionRequired")));
+var $accountSetUpSecurityAnswer = _textbox("Security Answer", _under(_select("securityQuestion1")));
+var $accountSetUpPassword = _password("password", _rightOf(_label("Password Required")));
+var $accountSetUpConfirmPassword = _password("confirmPassword", _rightOf(_label("Confirm Password Required")));
+var $accountSetUpPrivacyPolicyBox = _checkbox("terms", _in(_label("I have read and agree to the Privacy Policy")));
+var $accountSetUpCancelButton = _button("Cancel");
+var $accountSetUpSubmitButton = _button("submitbtn");
+var $accountSetup = [$accountSetUpHeader, $accountSetUpSubtitle, $accountSetUpFirstName, $accountSetUpLastName, $accountSetUpEmail, $accountSetUpConfirmEmail, $accountSetUpPhoneNumberBoxOne, 
+					$accountSetUpPhoneNumberBoxTwo, $accountSetUpPhoneNumberBoxThree, $accountSetUpSecurityQuestion, $accountSetUpSecurityAnswer, $accountSetUpPassword, $accountSetUpConfirmPassword, 
+					$accountSetUpPrivacyPolicyBox, $accountSetUpSubmitButton, $accountSetUpCancelButton];
+
+//var $entityInfo = {};
+
+function verifyEntityAccountSetUpPage() {
+	verifyArray($accountSetup);
+}
+
+
+function createNewEntityAccount($fName, $lName, $email, $phoneNum, $question, $answer, $password){
+	enterEntityFirstName($fName);
+	enterEntityLastName($lName);
+	enterEntityEmail($email);
+	enterEntityPhone($phoneNum);
+	selectEntitySecurityQuestionAndAnswer($question, $answer);
+	enterEntityPassword($password);
+	checkPrivacyPolicyBox();	
+	_log("Entity Account Info " + JSON.stringify($entityInfo));
+	return $entityInfo;
+}
+
+
+function enterEntityFirstName($name) {
+	if ($name == null) {
+		$name = randomFirstName();
+	}
+	_setValue($accountSetUpFirstName, $name);
+	$entityInfo.firstName = $name;
+}
+
+function enterEntityLastName($name) {
+	if ($name == null) {
+		$name = randomLastName();
+	}
+	_setValue($accountSetUpLastName, $name);
+	$entityInfo.lastName = $name;
+}
+
+function enterEntityEmail($email) {
+	if ($email == null) {
+		$email = createEmailWithTimeStamp($entityInfo.firstName);
+	}
+	_setValue($accountSetUpEmail, $email);
+	_setValue($accountSetUpConfirmEmail, $email);
+	$entityInfo.email = $email;
+}
+
+function enterEntityPhone($phoneNum) {
+	if ($phoneNum == null) {
+		$phoneNum = phoneGen();
+	}
+	setPhoneNum($accountSetUpPhoneNumberBoxOne, $accountSetUpPhoneNumberBoxTwo, $accountSetUpPhoneNumberBoxThree, $phoneNum);
+//	$entityInfo.phone = $phoneNum.join('-');
+	$entityInfo.phone = $phoneNum;
+}
+
+function selectEntitySecurityQuestionAndAnswer($question, $answer) {
+	if ($question == null) {
+		$question = "What was your childhood nickname?";
+	}
+	_setSelected($accountSetUpSecurityQuestion, $question);
+		
+	if ($answer == null) {
+		$answer = randomString($FIELD_LENGTH);
+	}
+	_setValue($accountSetUpSecurityAnswer, $answer);
+	$entityInfo.securityQuestion = $question;
+	$entityInfo.securityAnswer = $answer;
+}
+
+function enterEntityPassword($password) {
+	if ($password == null) {
+		$password = randomString(5) + randomString(3, true) + '#';
+	}
+	
+	_setValue($accountSetUpPassword, $password);
+	_setValue($accountSetUpConfirmPassword, $password);
+	$entityInfo.password = $password;
+}
+
+function checkPrivacyPolicyBox() {
+	_click($accountSetUpPrivacyPolicyBox);
+}
+
+function clickCancelOnEntityAccountSetUpPage() {
+	_click($accountSetUpCancelButton);
+	verifyElementsOfHomePage();
+}
+
+function clickSubmitOnEntityAccountSetUpPage() {
+	_click($accountSetUpSubmitButton);
+	verifyElementsOnEntityInformationPage();
+	verifyEntityInfoSidebar();
+}
+
+//function returnEntityInfo() {
+//	return $entityInfo;
+//}

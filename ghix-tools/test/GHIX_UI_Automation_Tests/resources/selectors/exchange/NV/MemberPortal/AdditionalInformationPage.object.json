@@ -1,0 +1,5 @@
+{
+    "rb_tobaccoUser-no":"//*[@id='submitTobacco']//table//tr[th[text()='tuser']]//*[@id='tobaccoUser-no']",
+    "rb_tobaccoUser-yes":"//*[@id='submitTobacco']//table//tr[th[text()='tuser']]//*[@id='tobaccoUser-yes']"
+}
+

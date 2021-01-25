@@ -1,0 +1,18 @@
+_includeOnce("Utils.sah");
+
+var $MyAppeals = true;
+
+var $myAppealsHeader = _heading4("My Appeals");
+var $myAppealsAccessors = [$myAppealsHeader];
+
+function myAppeals($permission) {
+	if($permission=="Y"){
+		_click(_link("My Appeals"));
+		verifyArray($myAppealsAccessors);
+		_wait(20000, _getText(_div("appealsHistoryIndPortal"))!="");
+		_assertEqual("There is no appeal to show at the moment.", _getText(_div("appealsHistoryIndPortal")));
+	}
+	else {
+		_assertNotVisible(_link("My Appeals"));
+	}
+}

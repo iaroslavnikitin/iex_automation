@@ -1,0 +1,301 @@
+_includeOnce("EntityInformation.sah");
+_includeOnce("CertificationApplication.sah");
+_includeOnce("SignupPreferences.sah");
+_includeOnce("Login.sah");
+_includeOnce("Utils.sah");
+
+var $Signup = true;
+$signUpPassword="";
+
+// Constants
+$SIGNUP_SECURITY_MENU_LENGTH = 6;
+$SIGNUP_MODE_OPTIONS = ["Individual", "Agent", "Entity"];
+
+// Variables
+var $signupMode;
+// Possible values: "Individual", "Agent", "Entity"
+var $firstName;
+var $lastName;
+var $signupEmail;
+
+//$signupEmail="katewilliam72605380@example.com";
+// Accesors
+var $signupHeader;
+var $signupFirstNameLabel = _label("First Name Required");
+var $signupFirstNameTextbox = _textbox("firstName");
+var $signupLastNameLabel = _label("Last Name Required");
+var $signupLastNameTextbox = _textbox("lastName");
+var $signupEmailAddressLabel = _label("Email Address Required");
+var $signupEmailAddressTextbox = _emailbox("email");
+var $signupConfirmEmailAddressLabel = _label("Confirm Email Address Required");
+var $signupConfirmEmailAddressTextbox = _emailbox("confirmEmail");
+var $signupPhoneNumberLabel = _label("control-label");
+var $signupPhoneNumberTextbox = [_textbox("phone1"), _textbox("phone2"), _textbox("phone3")];
+var $signupSecurityQuestionLabel = _heading4("Security Question");
+var $signupSecurityQuestionMenu = _select("securityQuestion1");
+var $signupSecurityAnswerTextbox = _textbox("securityAnswer1");
+var $signupPasswordLabel = _label("Password Required");
+var $signupPasswordTextbox = _password("password");
+var $signupConfirmPasswordLabel = _label("Confirm Password Required");
+var $signupConfirmPasswordTextbox = _password("confirmPassword");
+var $signupPrivacyCheckbox = _checkbox("terms");
+var $signupPrivacyLabel = _label("I have read and agree to the Privacy Policy");
+var $signupSubmit = _button("submitbtn");
+var $signupSecurityQuestion="";
+var $answer="";
+
+function verifyElementsOnSignUpPage() {
+	var $valid = false;
+	for (var $i = 0; $i < $SIGNUP_MODE_OPTIONS.length; $i++) {
+		if ($signupMode === $SIGNUP_MODE_OPTIONS[$i]) {
+			$valid = true;
+			break;
+		}
+	}
+	if (!$valid) {
+		_log($valid);
+		$signupMode = $SIGNUP_MODE_OPTIONS[0];
+	}
+	if ($signupMode === "Individual") {
+		$signupHeader = _heading1("Set Up Your Individual Account on Your Health Idaho");
+	}
+	else if ($signupMode === "Agent") {
+		$signupHeader = _heading1("New Agent Account Set-Up");
+	}
+	else if ($signupMode === "Entity") {
+		$signupHeader = _heading1("New Entity Account Set-Up");
+	}
+
+	_assertVisible($signupHeader);
+	_assertVisible($signupFirstNameLabel);
+	_assertVisible($signupFirstNameTextbox);
+	_assertVisible($signupLastNameLabel);
+	_assertVisible($signupLastNameTextbox);
+	_assertVisible($signupEmailAddressLabel);
+	_assertVisible($signupEmailAddressTextbox);
+	_assertVisible($signupConfirmEmailAddressLabel);
+	_assertVisible($signupConfirmEmailAddressTextbox);
+	_assertVisible($signupPhoneNumberLabel);
+
+	for (var $i = 0; $i < $signupPhoneNumberTextbox.length; $i++) {
+		_assertVisible($signupPhoneNumberTextbox[$i]);
+	}
+
+	_assertVisible($signupSecurityQuestionLabel);
+	_assertVisible($signupSecurityQuestionMenu);
+	_assertVisible($signupSecurityAnswerTextbox);
+	_assertVisible($signupPasswordLabel);
+	_assertVisible($signupPasswordTextbox);
+	_assertVisible($signupConfirmPasswordLabel);
+	_assertVisible($signupConfirmPasswordTextbox);
+	_assertVisible($signupPrivacyCheckbox);
+	_assertVisible($signupPrivacyLabel);
+	_assertVisible($signupSubmit);
+}
+
+/*
+* Fills random information in the fields and submits
+*/
+function clickSubmitOnSignUpPage($emailPrefix,$first,$last) {
+	if(!$first){
+		$firstName = randomString($FIELD_LENGTH);
+	}
+	else {
+		$firstName = $first;
+	}
+	_setValue($signupFirstNameTextbox, $firstName);
+
+	if(!$last)
+	{
+		$lastName = randomString($FIELD_LENGTH);
+	}
+	else {
+		$lastName = $last;
+	}
+
+	_setValue($signupLastNameTextbox, $lastName);
+
+	var $digits = phoneGen();
+	for (var $i = 0; $i < $digits.length; $i++) {
+		_setValue($signupPhoneNumberTextbox[$i], $digits[$i]);
+	}
+
+	_setSelected($signupSecurityQuestionMenu, "1");
+
+	$answer = randomString($FIELD_LENGTH);
+	_setValue($signupSecurityAnswerTextbox, $answer);
+	$url = getUpdatedBaseURL("").split("/");
+
+	var $email;
+	if ($emailPrefix) {
+		if(new RegExp("@").test($emailPrefix)){
+		}
+		else {
+			$email = $emailPrefix + randomString(8, true) + "@yopmail.com";
+			$signupEmail = $email;
+		}
+	}
+	else {
+		$email = randomString($FIELD_LENGTH) + "@yopmail.com";
+		$signupEmail = $email;
+	}
+
+	_setValue($signupEmailAddressTextbox, $email);
+	_setValue($signupConfirmEmailAddressTextbox, $signupEmail);
+	var $pw = "ghix123#";
+	$signUpPassword = $pw;
+	_maskLogs("Sensitive Data");
+	_setValue($signupPasswordTextbox, $pw);
+	_setValue($signupConfirmPasswordTextbox, $pw);
+	_unmaskLogs("Information end");
+	// Privacy policy
+	_check($signupPrivacyCheckbox);
+
+	_click($signupSubmit);
+	_wait(5000, !_isVisible($signupSubmit));
+	var $url;
+	_set($url,window.document.location.href);
+
+	_log($url);
+	if($url.indexOf("ssousersuccess") != -1){
+		_click(_link("Continue"));
+		_assertVisible(_heading1("Log In"));
+		loginEnterEmailAddress();
+		_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		_unmaskLogs("Information end");
+		loginClickLoginButton();
+	}
+
+	if ($signupMode === "Individual") {
+		verifyElementsOnPreferencesPage();
+	}
+	else if ($signupMode === "Agent") {
+		verifyElementsOnAgentRegistration();
+	}
+	else if ($signupMode === "Entity") {
+		verifyElementsOnEntityInformationPage();
+	}
+	$loggedIn=true;
+	return $firstName + " " + $lastName;
+}
+
+// Negative tests
+// Helper method for negative tests: empties passed in field and clicks submit
+function signupNegativeHelper($field) {
+	_setValue($field, "");
+	_check($signupPrivacyCheckbox);
+	_click($signupSubmit);
+}
+
+function clickSubmitOnSignUpWithMissingFirstName() {
+	// Submit with empty First Name field
+	signupNegativeHelper($signupLastNameTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter your first name."));
+}
+
+function clickSubmitOnSignUpWithMissingLastName() {
+	// Submit with empty Last Name field
+	signupNegativeHelper($signupLastNameTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter your last name."));
+}
+
+function clickSubmitOnSignUpWithMissingEmail() {
+	// Submit with empty Email Address field
+	signupNegativeHelper($signupEmailAddressTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter your email."));
+}
+
+function clickSubmitOnSignUpWithInvalidEmail($email) {
+	// Set field
+	_setValue($signupEmailAddressTextbox, $email);
+
+	// Verify message
+	_assertVisible(_label("Please enter a valid email address."));
+}
+
+function clickSubmitOnSignUpWithDifferentConfirmEmail($email) {
+	// Set field
+	_setValue($signupConfirmEmailAddressTextbox, $email);
+
+	// Verify message
+	_assertVisible(_span("!Email and confirm email don't match."));
+}
+
+function clickSubmitOnSignUpWithInvalidPhoneNumber($number) {
+	$number = $number.split("-");
+	for (var $i = 0; $i < $number.length; $i++) {
+		_setValue($signupPhoneNumberTextbox[$i], $number[$i]);
+	}
+	_assertVisible(_span("!Please enter a valid telephone number."));
+}
+
+function clickSubmitOnSignUpWithMissingSecurityQuestion() {
+	// Submit with unselected Security Question
+	_setSelected($signupSecurityQuestionMenu, 0);
+	_check($signupPrivacyCheckbox);
+	_click($signupSubmit);
+
+	// Verify message
+	_assertVisible(_span("!Please select your security question."));
+}
+
+function clickSubmitOnSignUpWithMissingSecurityAnswer() {
+	// Submit with empty Security Answer field
+	signupNegativeHelper($signupSecurityAnswerTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please provide your security answer."));
+}
+
+function clickSubmitOnSignUpWithMissingPassword() {
+	// Submit with empty Password field
+	signupNegativeHelper($signupPasswordTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please enter valid password."));
+}
+
+function clickSubmitOnSignUpWithInvalidPassword($pass) {
+	_setValue($signupPasswordTextbox, $pass);
+	_assertTrue(_isVisible(_listItem("It should contain at least 3 of the following:Upper-case letterLower-case letterNumberSpecial character (e.g., ?, #, @, $, ^)")) ||
+				_isVisible(_listItem("It should contain at least 3 of the following:Upper-case letter Lower-case letter Number Special character (e.g., ?, #, @, $, ^)")));
+}
+
+function clickSubmitOnSignUpWithMissingConfirmPassword() {
+	// Submit with empty Confirm Password field
+	signupNegativeHelper($signupConfirmPasswordTextbox);
+
+	// Verify message
+	_assertVisible(_span("!Please confirm your password."));
+}
+
+function clickSubmitOnSignUpWithDifferentConfirmPassword($pass) {
+	// Set field
+	_setValue($signupConfirmPasswordTextbox, $pass);
+
+	// Verify message
+	_assertVisible(_span("!Password and confirm password don't match."));
+}
+
+function clickSignApplication(){
+	_assertVisible(_heading1("Confirm your Plan Selection"));
+	_click(_link("Sign Application"));
+}
+
+function clickReadytoEnroll(){
+	if($planName){
+		_assertVisible(_heading3("Before you enroll, please confirm the following:"));
+		_click(_link("I AM READY TO ENROLL"));
+	}
+	else{
+		_assertVisible(_heading3("No health plan selected"));
+		_click(_link("/Dental Plan/i"));
+	}
+}

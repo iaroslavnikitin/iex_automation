@@ -1,0 +1,38 @@
+{
+    "description": "2adults/3 kids household CS5 ",
+    "hhFamily": {"size": 5, "singleParent": false},
+    "hhLastName": true,
+    "aptcMaximumAmount": 325,
+    "people": [
+        {
+            "personSex": "Male",
+            "dob": "1980-01-01",
+            "lastName": "McGinis",
+            "csrLevel": "CS5"
+        },
+        {
+            "personSex": "Female",
+            "dob": "1985-10-10",
+            "lastName": "McGinis",
+            "csrLevel": "CS5"
+        },
+        {
+            "personSex": "Female",
+            "dob": "2010-09-15",
+            "lastName": "McGinis",
+            "csrLevel": "CS5"
+        },
+        {
+            "personSex": "Male",
+            "dob": "2017-02-20",
+            "lastName": "McGinis",
+            "csrLevel": "CS5"
+        },
+        {
+            "personSex": "Male",
+            "dob": "2016-02-20",
+            "lastName": "McGinis",
+            "csrLevel": "CS5"
+        }
+    ]
+}

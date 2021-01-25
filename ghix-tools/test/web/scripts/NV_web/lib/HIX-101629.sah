@@ -1,0 +1,21 @@
+_include("../pagemodels/ViewHistory.sah");
+_include("../pagemodels/User.sah");
+
+function verifyCAPHistoryNotificationPreferenceForAuthorizedUser($admin, $password, $preference, $authorizedUser) {
+	login($authorizedUser, $password);
+	clickManageMember();
+	searchMemberByEmail($email);
+	selectTestMember();
+	loginClickViewMemberAccount();
+	goToMyPreferences();
+	verifyNotificationPreferences();
+	var $oldPreference = selectNotificationPreference($preference);
+	logOut();
+	login($admin, $password);
+	clickManageMember();
+	searchMemberByEmail($email);
+	selectTestMember();
+	goToHistoryPage();
+	expandPreferencesData($oldPreference, $preference);
+	logOut();
+}

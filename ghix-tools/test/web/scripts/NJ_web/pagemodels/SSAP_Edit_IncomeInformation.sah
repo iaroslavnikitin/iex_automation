@@ -1,0 +1,117 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("AgentIcon.sah");
+_include("Ssap.sah");
+//_includeOnce("Utils.sah");
+
+function goToGetReadyEditIncomeInformation(){
+	_click(_button("Continue"));
+	_assertVisible(_heading1("Get Ready"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Continue"));
+}
+
+function goToIncomeSourcesEdit(){
+	_click(_button("Continue"));
+	_assertVisible(_heading1("Income Sources"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function editIncome($index, $type, $amount, $frequency, $hoursPerWeek){
+	_assertVisible(_button("Edit"));
+	_click(_button("Edit"));
+	if($type){
+		_setSelected(_select("type"), $type);
+		if($type === "Social Security Benefits" || $type=== "Self Employment" || $type ==="Retirement"){
+			_assertNotVisible(_label("Name of employer"));
+		}
+		else if($type ==="Unemployment"){
+			_setValue(_textbox("sourceName"), $fullName);
+		}
+		else if($type === "Rental or Royalty"){
+			_setSelected(_select("type"), "Rental or Royalty");
+		}
+		else{
+			_assertVisible(_label("Name of employer"));
+			_setValue(_textbox("sourceName"), $fullName);
+		}
+		if(_isVisible(_label("Profit or Loss"))){
+			_setSelected(_select("profit"), "Profit");
+		}
+	}
+	_setValue(_textbox("amount"), $amount);
+	_wait(6000);
+	if($frequency){
+		_setSelected(_select("frequency"), $frequency);
+	}
+	if(_getValue(_textbox("amount"))===""){
+		_setValue(_textbox("amount"), $amount);
+		_wait(6000);
+	}
+	if($hoursPerWeek){
+		_assertVisible(_label("Hours per week:"));
+		_setValue(_textbox("cyclesPerFrequency"), $hoursPerWeek);
+	}
+	_click(_button("Save"));
+
+	var $income = {
+		"type": $type,
+		"amount": $amount,
+		"frequency": $frequency,
+		"hoursPerWeek":$hoursPerWeek
+	};
+	$ssapPeople[$index].$incomes.push($income);
+	_log(JSON.stringify($ssapPeople[$index].$incomes));
+	return $ssapPeople
+		}
+
+function goToTribalIncomeEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Tribal Income"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToDeductionSourcesEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Deduction Sources"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToExpectedIncomeEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Expected Income"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToIndividualSummaryEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Summary"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Continue"));
+}
+
+
+function goToIncomeSummaryEdit(){
+	_click(_button("Continue"));
+	_assertVisible(_heading1("Income Summary"));
+	_assertVisible(_heading3("Review and Confirm", _in(_div("subsection"))));
+	_assertVisible(_paragraph("Here is the information you provided about everyone who is part of your household. Please take a moment to review and double-check the information. If you see any mistakes, please edit them now.", _in(_div("subsection"))));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Continue"));	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

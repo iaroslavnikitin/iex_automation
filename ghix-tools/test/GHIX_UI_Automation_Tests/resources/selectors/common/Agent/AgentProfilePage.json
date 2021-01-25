@@ -1,0 +1,34 @@
+{
+  "pageHeader": "$('h1')",
+  "rightPanelHeader":"$('#rightpanel > .header > h4')",
+  "cb_clientsServed": "$('#clientsServed')",
+  "tb_languages": "$('//*[@id=\"languagesSpoken_chzn\"]/ul/li/input')",
+  "dpDyn_selectLanguage": "$('//li[@class=\"active-result highlighted\"]')",
+  "cb_health": "$('//*[@id=\"productExpertise-health-label\"]/input')",
+  "cb_dental": "$('//*[@id=\"productExpertise-dental-label\"]/input')",
+  "cb_vision": "$('//*[@id=\"productExpertise-vision-label\"]/input')",
+  "cb_life": "$('//*[@id=\"productExpertise-life-label\"]/input')",
+  "cb_medicare": "$('//*[@id=\"productExpertise-medicare-label\"]/input')",
+  "cb_medicaid": "$('//*[@id=\"productExpertise-medicaid-label\"]/input')",
+  "cb_CHIP": "$('//*[@id=\"productExpertise-CHIP-label\"]/input')",
+  "cb_compensation": "$('//*[@id=\"productExpertise-compensation-label\"]/input')",
+  "cb_property": "$('//*[@id=\"productExpertise-property-label\"]/input')",
+  "tb_website": "$('#yourWebSite')",
+  "tb_yourPublicEmail": "$('#yourPublicEmail')",
+  "sb_education":"$('#education')",
+  "tb_aboutYourself":"$('#aboutMe')",
+  "choosePhoto":"$('#fileInputPhoto')",
+  "btn_UploadPhoto":"$('#btn_UploadPhoto')",
+  "lbl_fileTypeText":"$('#frmbrokerProfile > div:nth-child(9) > div > div:nth-child(4)')",
+  "fileUploadSuccessPopupText":"$('#fileUoload > div.modal-body > h4')",
+  "fileUploadPopupClose":"$('#iFrameClose')",
+  "btn_back": "$('#back')",
+  "btn_finish": "$('#submit_finish_next')",
+
+
+  "accountRegistrationCompletePopupHeader": "$('#header > h4')",
+  "accountRegistrationCompleteiframe": "$('//iframe[@src=\"/hix/broker/profileupdated\"]')",
+  "accountRegistrationCompletePopupText": "$('#profileupdated > p')",
+  "btn_close": "$('#submitRequest')"
+
+}

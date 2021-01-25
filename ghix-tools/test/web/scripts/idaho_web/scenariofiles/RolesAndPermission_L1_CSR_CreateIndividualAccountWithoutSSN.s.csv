@@ -1,0 +1,10 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2","Argument 3","Argument 4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+
+
+"all,Security,HIX-88082, account_validation","HIX-88082 L1 CSR Create individual account without SSN from add user page","[Documentation]","L1 CSR Create individual account without SSN from add user page.
+1) HIX-88082-Verify permission for L1 to add only individual user, ENGSVC-1281"
+
+,,"[Documentation]","Email address - L1 CSR","Password","Permission","SSN Required","User First Name","User Last Name","Role"
+,,"csrCreateAndManageIndividual","autocsr_l1cs1@yopmail.com","ghix123#","""Y""","""N""","""autoCSRL1CS1""","""Martyn""","""L1 Customer Support"""

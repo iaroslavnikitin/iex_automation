@@ -1,0 +1,124 @@
+_includeOnce("Indportal.sah");
+
+var $customGroupingShopHealthPlans = _link("Shop Health Plans");
+var $customGroupingShopDentalPlans = _link("Shop Dental Plans");
+var $customGroupingShopHealthPlansButton = _link("/Shop Health Plans/", _in(_div("healthGroups")));
+
+
+function verifyCustomGroupingPage(){
+//	verifySideBarLinksOnIndDashboard(); 
+	
+	_assertVisible($customGroupingShopHealthPlans,"Verify if Shop Health Plans link is displayed on custom grouping page");
+	_assertVisible($customGroupingShopDentalPlans,"Verify if Shop Dental Plans link is displayed on custom grouping page");
+/*
+	if($notEnrolledGroups == "Y"){
+		if($landingTab == "Dental"){
+			verifyNavigationTabOnCustomGrouping("Dental");
+			verifyNotEnrolledDentalGroup($groups);
+		}else{
+			verifyNavigationTabOnCustomGrouping("Health");
+			verifyNotEnrolledGroup($groups);	
+		}
+	}else{
+		_assertNotVisible(_div("Whom are you shopping health plans for?"));
+		_assertNotVisible(_span("/Based on your family members eligibility, we recommend that you shop in the groups shown./"));
+		_assertNotVisible(_label("Shop for these members"));
+		if(!$newMembersCount){
+			_assertNotVisible(_link("/Shop for Health Plans/[1]"));	
+		}
+		
+	}
+	
+	if($enrolledGroups == "Y"){
+		if($landingTab == "Dental"){
+			//add function
+		}else{
+			// assertion will failed if user landed on Dental tab but test will keep runing and user clicking on health plans tab
+			if(_getAttribute(_link("/Health/"),"className") != "active"){
+				_assertEqual(_getAttribute(_link("/Health/"),"className"),"active","User should be landed on Health plans tab");
+				_click(_link("tab-0"));
+			}
+
+			verifyEnrolledGroup($groups,$isSEP);	
+		}
+		
+	}else{
+		_assertNotVisible(_div("/Enrolled/"));
+		_assertNotVisible(_div("You have successfully enrolled the following family members."));
+		_assertNotVisible(_link("Cancel Coverage"));
+		_assertNotVisible(_link("Change Plan"));
+	}
+	if($newMembersCount){
+		verifySelectOptionSection($household,$groups,$newMembersCount);
+	}
+*/
+}
+
+function clickShopHealthPlan(){
+	
+	var $addMemberToExistingPlanCheckbox = _checkbox("ps-form__check-input groupCheck ng-valid ng-dirty", _in(_div("aid_mngd_grp_members_nen_2")));
+	var $addMemberToExistingPlanButton = _link("/Add to this plan/i", _near(_div("aid_mngd_grp_members_nen_2")));
+	var $shopMemberForNewPlanCheckbox = _checkbox("ps-form__check-input groupCheck ng-valid ng-dirty", _in(_div("aid_un_sho_member_0")));
+	var $shopMemberForNewPlanButton = _link("/Shop for Health Plans/i", _near(_div("aid_un_sho_member_0")));
+	
+	if (_isVisible($addMemberToExistingPlanCheckbox)) {
+		_assertVisible($addMemberToExistingPlanButton);
+		_click($addMemberToExistingPlanCheckbox);
+		_assertTrue(_isEnabled($addMemberToExistingPlanButton));
+		_click($addMemberToExistingPlanButton);
+		
+	}
+	else if (_isVisible($shopMemberForNewPlanCheckbox)) {
+		_assertVisible($shopMemberForNewPlanButton);
+		_click($shopMemberForNewPlanCheckbox);
+		_assertTrue(_isEnabled($shopMemberForNewPlanButton));
+		_click($shopMemberForNewPlanButton);
+		
+	}
+	else if (_isVisible($customGroupingShopHealthPlansButton)) {
+		_click($customGroupingShopHealthPlansButton);
+	}
+		
+	/*
+	var $zip = $household.people[0].homeAddress.zipcode;
+	$prefPageIndex = 0;
+	verifyElementsOfPreferencePage($zip);
+	*/
+}
+
+
+function clickFinalizePlanButtonOnGroupingPage(){ 
+
+	_click(_submit("Finalize Plan"));
+	_assertVisible(_heading1("Confirm your Plan Selection"));
+	
+}
+//"Childone Graham"/"Jinna Graham"
+function clickAddPersonToSamePlan($indexes){
+	//_click(_checkbox("ps-form__check-input groupCheck ng-pristine ng-valid", _near(_label($person))));
+	for(var $i = 0; $i<$indexes.length;$i++){
+		var $member = $indexes[$i];
+		_click(_checkbox("ps-form__check-input groupCheck ng-pristine ng-untouched ng-valid ng-empty", _near(_label($member))));
+		//_click(_checkbox(_contains("ps-form__check-input groupCheck ng-pristine"), _near(_label($member))));
+		if(_isVisible(_submit("Got it. Continue"))){
+			_click(_submit("Got it. Continue"));
+		}
+   }
+	//if(_isVisible(_submit("Got it. Continue"))){
+	//	_click(_submit("Got it. Continue"));
+	if(_isVisible(_link("aid_uneg_shop_for_members"))){
+		_click(_link("aid_uneg_shop_for_members"));// click link shop Health Plans
+		_assertVisible(_heading1("Tell us about your healthcare needs"));
+	}
+	else{
+		_click(_span("Add to this plan"));
+		_assertVisible(_heading1("Confirm your Plan Selection"));
+	}
+
+}
+
+function clickShopDentalPlansOnGrouping(){
+	_click(_span("Shop Dental Plans"));
+	_click(_submit("Update Results"));
+
+}

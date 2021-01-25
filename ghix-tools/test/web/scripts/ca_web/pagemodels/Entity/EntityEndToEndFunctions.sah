@@ -1,0 +1,35 @@
+_includeOnce("../Login.sah");
+_includeOnce("../SoapRequest.sah");
+_includeOnce("EntityInformation.sah");
+_includeOnce("EntityPopulationServed.sah");
+_includeOnce("EntityLocationAndHours.sah");
+_includeOnce("EntityContactInformation.sah");
+_includeOnce("EntityCounselors.sah");
+_includeOnce("EntityDocumentUpload.sah");
+
+function createEntityWithCounselors(){
+	$entity = createEntityAccount();
+	$entity = inputEntityInformation($entity);		
+	clickNextOnEntityInformation();
+	$entity = inputLanguages($entity);
+	$entity = inputEthnicities($entity);
+	$entity = inputIndustries($entity);
+	clickNextOnPopulationServed();
+	$entity = inputLocationsAndHours($entity);
+	$entity = inputPrimaryAndFinacialContactInfo($entity);
+	$entity = addCounselors(null,$entity,2);
+	$entity = entityUploadDocumentAndSubmit($entity);
+
+	return $entity;		
+}
+
+function getCreatedUserAccounts($entity){
+	_log("entity username: "+$entity.username);
+	_log("entity password: "+$entity.password);
+
+	for (var $i = 0; $i < $entity.counselors.length; $i++) {
+		_log("-------------------------------------------------------------")
+		_log("counselor "+($i+1)+" username: "+$entity.counselors[$i].username);
+		_log("counselor "+($i+1)+" password: "+$entity.counselors[$i].password);
+	}
+}

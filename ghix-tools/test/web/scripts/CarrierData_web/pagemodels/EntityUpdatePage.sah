@@ -1,0 +1,114 @@
+_includeOnce("SignUpSidebar.sah");
+//_includeOnce("Utils.sah");
+_includeOnce("global_include.sah");
+_includeOnce("ManageEntityList.sah");
+_includeOnce("EntityRegistrationStatus.sah");
+_includeOnce("EntityCounselorInfo.sah");
+_includeOnce("../lib/util.sah");
+
+var $updateEntityHeader = _heading4("Registration Status");
+var $updateEntityInfoTable = _table("table table-border-none verticalThead");
+var $updateEntityNewStatus = _select("registrationStatus");
+var $updateEntityComment = _textarea("comments");
+var $updateEntityFileInput = _file("fileInput");
+var $updateEntityUpload = _button("Upload");
+var $updateEntityCancelButton = _link("Cancel");
+var $updateEntitySubmitButton = _submit("Submit");
+var $updateEntityTable = _table("enrollmentRegisterStatusHistory");
+var $updateEntity = [$updateEntityHeader, $updateEntityInfoTable, $updateEntityNewStatus, $updateEntityComment, $updateEntityFileInput, $updateEntityUpload, $updateEntityCancelButton, $updateEntitySubmitButton, 
+					 $updateEntityTable];
+
+var $certifiedEntityHeader = _heading4("Registration Status");
+var $certifiedEntityInfoTable = _table("table table-border-none");
+var $certifiedEntityExplanation = _paragraph("View the status of your certification application here. You can also see the history of previous actions related to your status.");
+var $certifiedEntityHistoryHeader = _heading4("Certified Enrollment Entity History");
+var $certifiedEntityHistoryTable = _table("enrollmentRegisterStatusHistory");
+var $certifiedEntityEditButton = _link("Edit");
+var $certifiedEntity = [$certifiedEntityHeader, $certifiedEntityInfoTable, $certifiedEntityExplanation, $certifiedEntityHistoryHeader, $certifiedEntityHistoryTable, $certifiedEntityEditButton];
+
+function setupEntityInfoForEntityUpdate() {
+	$entityInfo.prevStatus = "Incomplete";
+	$entityInfo.newStatus = "Pending";
+	$entityInfo.comment = "No Comments";
+	$entityInfo.attachment = "No Attachment";
+}
+function verifyUpdateEntityPage($date, $entityNum) {
+	if ($entityNum == null) {
+		$entityNum = $entityInfo.entityNum;
+	}
+	if ($date == null) {
+		$date = getTodaysDate();
+	}
+	$registrationStatusEnrollmentSteps.splice($registrationStatusEnrollmentSteps.length - 2, 1); // Removes payment info link from steps
+	verifyRegistrationStatusSidebar();
+	verifyArray($updateEntity);
+	var $entityStatus = _getTableContents($updateEntityTable);
+	var $expectedStatus = [$date, "Incomplete", "Pending", "No Comments", "No Attachment"].join(',');
+	_assertEqual($entityStatus[1], $expectedStatus);
+	var $entityStatusInfo = _getTableContents($updateEntityInfoTable);
+	_assertEqual($entityStatusInfo[0][1], "Pending");
+	_assertEqual($entityStatusInfo[1][1], $entityNum);
+	_assertEqual($entityStatusInfo[2][1], "N/A");
+
+}
+
+function selectStatusOnEntityUpdatePage($status) {
+	if ($status == null) {
+		$status = "Active";
+	}
+	_setSelected($updateEntityNewStatus, $status);
+	$entityInfo.prevStatus = $entityInfo.newStatus;
+	$entityInfo.newStatus = $status;
+}
+
+function enterCommentOnEntityUpdatePage($comment) {
+	if ($comment == null) {
+		$comment = randomString($FIELD_LENGTH);
+	}
+	_setValue($updateEntityComment, $comment);
+	$entityInfo.comment = $comment;
+	
+}
+
+function uploadSupportingDocumentOnEntityUpdatePage() {
+	_setFile($updateEntityFileInput, $PIC_PATH);
+	_click($updateEntityUpload);
+	$entityInfo.attachment = $PIC_PATH;
+}
+
+function clickCancelOnEntityUpdatePage() {
+	_click($updateEntityCancelButton);
+		$entityInfo = {
+			prevStatus: "Incomplete",
+			newStatus: "Pending",
+			comment: "No Comments",
+			attachment: "No Attachment"
+		};
+	verifyUpdateEntityPage();
+}
+
+function clickSubmitOnEntityUpdatePage() {
+	_click($updateEntitySubmitButton);
+	verifyFinishedUpdateEntityPage();
+}
+
+function verifyFinishedUpdateEntityPage($date, $entityNum) {
+	if ($entityNum == null) {
+		$entityNum = $entityInfo.entityNum;
+	}
+	if ($date == null) {
+		$date = getTodaysDate();
+	}
+	verifyArray($registrationStatusEnrollmentSteps);
+	verifyArray($certifiedEntity);
+	_assertVisible($enrollmentEntitiesCounselors);
+	_assertVisible($enrollmentEntitiesDropdown); 
+	verifyHiddenArray($enrollmentEntitiesLinks);
+	var $entityStatus = _getTableContents($certifiedEntityInfoTable);
+	_assertEqual($entityStatus[0][1], $entityNum);
+	_assertEqual($entityStatus[1][1], $entityInfo.newStatus);
+	var $entityHist = _getTableContents($certifiedEntityHistoryTable);
+	_assertEqual($entityHist.length, 3);
+	var $expectedHist = [$date, $entityInfo.prevStatus, $entityInfo.newStatus, $entityInfo.comment, $entityInfo.attachment].join(',');
+	_assertEqual($entityHist[1], $expectedHist);
+}

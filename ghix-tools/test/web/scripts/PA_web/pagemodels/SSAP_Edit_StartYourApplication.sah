@@ -1,0 +1,167 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("AgentIcon.sah");
+//_includeOnce("Ssap.sah");
+//_includeOnce("Utils.sah");
+
+//Click on Edit Application link
+function clickOnEditApplicationOnDashboard(){
+	_assertVisible(_link("Edit application"));
+	_click(_link("Edit application"));
+}
+
+//Start Your Application Section
+function goToBeforeWeBeginEdit(){
+	_assertVisible(_heading1("Before We Begin"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToGetReadyEditStartYourApplication(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Get Ready"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Continue"));
+}
+
+function goToPrimaryContactInformationEdit(){
+	_click(_button("Continue"));
+	_assertVisible(_heading1("Primary Contact Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToHelpApplyingForCoverageEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Help Applying for Coverage"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToHelpPayingForCoverageEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Help Paying for Coverage"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToWhoNeedsCoverageEdit($ssapPeople, $index){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Who Needs Coverage"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+	if($index != null || $index != undefined){
+		var $fullName = $ssapPeople[$index].fullName(true);
+		_assertVisible(_label($fullName+" only"));
+		_assertVisible(_label($fullName+" and other family members"));
+		_assertVisible(_label("Other family members, not "+$fullName));
+		
+	}
+}
+
+function goToAboutYourHouseholdEdit($ssapPeople, $index){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("About Your Household"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+	if($index != null || $index != undefined){
+		var $fullName = $ssapPeople[$index].fullName(true);
+		_assertVisible(_heading3($fullName));
+	
+	}
+}
+
+function goToHouseholdRelationshipsEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Household Relationships"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToHouseholdAddressesEdit(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Household Addresses"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToSummaryEditStartYourApplication(){
+	_click(_button("Save & Continue"));
+	_assertVisible(_heading1("Summary"));
+	_assertVisible(_heading3("Household Members"));
+	_assertVisible(_heading3("Household members addresses"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Continue"));
+}
+
+
+function changePrimaryContactName($ssapInfo,$fname,$lname){
+
+	if(!$fname){
+		$fname = randomFirstName();//randomString($FIELD_LENGTH);
+	}
+	_setValue(_textbox("firstName"), "");
+	_setValue(_textbox("firstName"), $fname);
+	
+	if(!$lname)
+	{
+		$lname = randomLastName();
+	}
+	_setValue(_textbox("lastName"), "");
+	_setValue(_textbox("lastName"), $lname);
+	
+	$ssapInfo[0].$firstName = $fname;
+	$ssapInfo[0].$lastName = $lname;
+	
+	return $ssapInfo;
+	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

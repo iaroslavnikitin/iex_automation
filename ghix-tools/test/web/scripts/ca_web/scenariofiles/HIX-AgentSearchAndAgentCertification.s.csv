@@ -1,0 +1,156 @@
+"Comments","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/Broker.sah"
+,,"loadSahi","../pagemodels/HIX-102125_lib.sah"
+,,"loadSahi","../pagemodels/HIX-102200_lib.sah"
+,,"loadSahi","../pagemodels/HIX-102264_lib.sah"
+,,"loadSahi","../pagemodels/Agency.sah"
+,,"loadSahi","../pagemodels/Login.sah"
+,,"loadSahi","../pagemodels/BrokerSearch.sah"
+,,"loadSahi","create_data/CreateAgent.sah"
+,,"loadSahi","create_data/CreateAgency.sah"
+"//",,"loadSahi","""C:/Sahi/CA/agents.sah"""
+"//",,"loadSahi","""C:/Sahi/CA/agencies.sah"""
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+
+,,"[Documentation]","Create Agent and Certify it"
+"//",,"_deleteFile","agents.sah"
+,,"$CertifiedAgent = createAgent","CertifiedAgent"
+,,"certifyAgent","$CertifiedAgent"
+,,"[Documentation]","Create Non Certified Agent"
+,,"$NonCertifiedAgent = createAgent","NonCertifiedAgent"
+"Create test data","Verify status changed for agents with same license number","[Documentation]","Prerequisite
+Two or more agents must have same license number say 123456789STR:1.Login as Agency2.Agent View List page is shown3.In the left navigation pane enter license number as ""123456789""4.Click on GO button5.Verify that all the agents with license number as ""123456789"" is shownExpected - All the agents with same license should be shown in the search results"
+,,"$CertifiedAgencyA = createAgency","CertifiedAgencyA"
+,,"updateBusinessLegalNameOfAgency","$CertifiedAgencyA.businessName","$CertifiedAgencyA.agencyName"
+,,"setAgencyNameEqualToBusinessLegalNameInDB","$CertifiedAgencyA.businessName"
+,,"certifyAgency","$CertifiedAgencyA"
+,,"$AgentACertifiedAgencyA = addAgentToAgency","$CertifiedAgencyA","AgentACertifiedAgencyA","$CertifiedAgencyA.agentLicenseNumber"
+,,"certifyAgent","$AgentACertifiedAgencyA"
+"//",,"activateAgent","$agency","$agent"
+,,"$ancABcAyA = addAgentToAgency","$CertifiedAgencyA","ancABcAyA","$CertifiedAgencyA.agentLicenseNumber"
+,,"certifyAgent","$ancABcAyA"
+"//",,"activateAgent","$agency","$agent"
+,,"$acAAcAyA = addAgentToAgency","$CertifiedAgencyA","acAAcAyA","$CertifiedAgencyA.agentLicenseNumber"
+,,"certifyAgent","$acAAcAyA"
+"//",,"activateAgent","$agency","$agent"
+,,"$acACcAyA = addAgentToAgency","$CertifiedAgencyA","acACcAyA","$CertifiedAgencyA.agentLicenseNumber"
+,,"certifyAgent","$acACcAyA"
+"//",,"activateAgent","$agency","$agent"
+,,"$acADcAyA = addAgentToAgency","$CertifiedAgencyA","acADcAyA","$CertifiedAgencyA.agentLicenseNumber"
+,,"certifyAgent","$acADcAyA"
+"//",,"activateAgent","$agency","$agent"
+"Verify that all the agents with same license number is searched",,"[Documentation]"
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"refineAgentsForAgency","""""","""""","""""","""""","$CertifiedAgencyA.agentLicenseNumber"
+,,"logOut"
+"Verify that Sorting is present in View Agent list page for First Name in agency portal","Verify agent search and filters","[Documentation]","Sorting should be present at field 'First Name' in View agent list page"
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"goToViewAgentList"
+,,"sortAgentListByColumnName","""Agent Name""","Asc","Asc"
+,,"sortAgentListByColumnName","""Agent Name""","Desc","Asc"
+,,"logOut"
+
+"Verify that in Active Consumer page  for a consumer to search filters should be present",,"[Documentation]","Fields Consumer First Name ,Consumer Last Name ,Application year ,Issuer ,Agent first Name ,Agent last name ,Agent License number ,Case Id  should be present in Book of Business"
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"goToActiveConsumers"
+,,"clickSearch"
+,,"logOut"
+
+"Verify that Sorting is present in View Agent list page for License Number field in agency portal",,"[Documentation]","Agent should be sorted successfully by ""License Number"" in View agent list page""."
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"goToViewAgentList"
+,,"sortAgentListByColumnName","""Agent License""","Asc"
+,,"sortAgentListByColumnName","""Agent License""","Desc","Asc"
+,,"logOut"
+"Verify that the first name and last name is present for both consumer as well as for agent in 
+Pending Delegations Page","Verify that the first name and last name is present for both consumer as well as for agent in 
+Pending Delegations Page","[Documentation]","Prerequisite
+1.Agent A belongs to Agency AASTR:1.Login as agency2.'Agent View List' is displayed with list of agents present at the right3.From the Main Menu select 'Agency Delegations and then from the sub menus select  'Pending Delegations Request'4.From the left navigation pane verify that fieldsi) First Name and Last name is present for Consumer separatelyii) First Name and Last name is present for Agent separatelyExpected - Two different fields First Name and Last Name should be present for fields Consumer Name and Agent Namein Pending Delegations page"
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"goToPendingDelegationRequestsAsAgency"
+,,"logOut"
+
+"Verify that broker admin is able to see the Agent status view page","Verify agent activity status","[Documentation]","1.Login as brokeradmin@ghix.com/ghix123
+2.You will see list of agent will be shown on the landing page3.Click on Agent Name of any agent4.From the left navigation panel  select ""Status""5.Verify that the status View page is shownExpected - You should see ""status"" section and under that you will see ""status"" label. Which may be either Active / Inactive.Note:  It can't be editable."
+,,"loginAsBrokerAdmin","brokeradmin@ghix.com","ghix123"
+,,"refineAgentsForBroker","$ancABcAyA.firstName","$ancABcAyA.lastName","$ancABcAyA.businessName","$ancABcAyA.licenseNumber"
+,,"clickAgentName","$ancABcAyA.name"
+,,"clickStatus","Active,InActive","N"
+,,"goToManageAgents"
+,,"refineAgentsForBroker","$acAAcAyA.firstName","$acAAcAyA.lastName","$acAAcAyA.businessName","$acAAcAyA.licenseNumber","Certified"
+,,"clickAgentName","$acAAcAyA.name"
+,,"clickStatus","Active,InActive","N"
+,,"logOut"
+
+"Verify that agent is able to see the Activity Status's View page",,"[Documentation]","Prerequisite
+Agent should be CERTIFIEDSTR:1.Login as Agent2.Agent Dashboard is shown with ""Quick Links"" in the left navigaion pane3.From the Main Menu select Account--> Status4.Verify that only View page is shown to agent.5.No EDIT button should be presentExpected - Status view page should be shown to agent. Agent should be able to see the Active/Inactive on the statuspage but not be able to edit it."
+,,"loginAsCertifiedAgent","$CertifiedAgent.email","$CertifiedAgent.password"
+,,"goToStatus","Active,InActive","N"
+,,"logOut"
+
+"Verify that agency manager is able to change the Activity status of an Agent",,"[Documentation]","Prerequisite
+Agency should be CERTIFIEDSTR:1.Login as Agency2.User is landed at the View Agent list page3.Select any Agent by selecting the gear icon4.Select EDIT5.In the left navigation pane tab ""Status"" should be present6.Click on EDIT button7.Select 'Active' from the dropdown8.Click on 'Submit' button9.Status should be changed to 'Active'Expected - Agency manager should be able to change the status of Agent"
+
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"refineAgentsForAgency","$acAAcAyA.firstName","$acAAcAyA.lastName"
+,,"goToEditAgentPageAsAgency","$acAAcAyA.firstName","$acAAcAyA.lastName"
+,,"clickStatus","Active","Y"
+"//",,"editAgentStatus","Active"
+,,"editAgentStatus","InActive"
+,,"editAgentStatus","Active"
+,,"logOut"
+
+"Verify all the agents are displayed which belongs to same location of an agency","Verify agents search","[Documentation]","All the agents which belongs to a agency and are serving similar location should be shown in the results page"
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"activateAgencyManager"
+,,"$agent =createAgentAndAssociateToAgentWithAgency","$AgentACertifiedAgencyA","$CertifiedAgencyA.businessName"
+
+
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchAgentByBusinessName","$CertifiedAgencyA.businessName"
+,,"verifyAssociatedAgentFound","$agent"
+
+"Verify that a consumer can search for an Agency",,"[Documentation]","Agency public facing name should be displayed in the search result in broker anonumous search"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchByName","$agent"
+,,"verifyAssociatedAgentFound","$agent"
+
+"Verify agent search when consumer does not enter any Search By option",,"[Documentation]","Search Agency without giving any option in 'Search By Name' block"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchByName"
+,,"verifyAllBrokersAreDisplayed"
+
+"Verify that a consumer can search for Agent by location",,"[Documentation]","Search Agent without entering any zip code
+Search Agents with valid zip codeVerify the language drop down is visible"
+
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchByZipCode",""""""
+,,"searchByZipCode","""95112"""
+
+"Verify that Find County Office button on the Find Local Help pop-up redirects to correct Page",,"[Documentation]","Verify that Find County Office button on the Find Local Help pop-up redirects to correct Page"
+,,"navigateToBrokerSearch"
+,,"navigateToFindCountyOfficeAndVerify"
+
+"Verify that when agent's Activity status is INACTIVE then he/she will not be searchable in get help experience","Verify that agent not searchable when inactive and pending. And searchable when status is null.","[Documentation]","Prerequisite
+Agent Sharad Kumar has an user accountAgent Sharad Kumar certitification status is CERTIFIED but Activity status is INACTIVESTR:1.Go to the link https://camainqa.ghixqa.com/hix/broker/search?anonymousFlag=Y?lang=es2.""Find Local Help"" text should be present at this page with buttons  --FIND AN AGENT --FIND CERTIFIED ENROLLMENT COUNSELOR --FIND COUNTY OFFICE3.Click on FIND AN AGENT button4.Text ""Search for a Certified Insurance Agent in California"" should be present5.Now enter the First Name as ""Sharad"" and Last Name as ""Kumar""6.Click on SEARCH button7.Verify that the agent Sharad should not be shown in the search resultsExpected - Agent Sharad should not be found with the status as INACTIVE and ceritfication status is CERTIFIED"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchInActiveAgentByName","$acADcAyA.firstName","$acADcAyA.lastName"
+
+"Verify that when agents certification status is PENDING and Activity status as ACTIVE  then 
+he will not be searchable in get help experience",,"[Documentation]","Prerequisite
+Agent Sharad Kumar has an user accountAgent Sharad Kumar certitification status is PENDING but status is ACTIVESTR:1.Go to the link https://camainqa.ghixqa.com/hix/broker/search?anonymousFlag=Y?lang=es2.""Find Local Help"" text should be present at this page with buttons  --FIND AN AGENT --FIND CERTIFIED ENROLLMENT COUNSELOR --FIND COUNTY OFFICE3.Click on FIND AN AGENT button4.Text ""Search for a Certified Insurance Agent in California"" should be present5.Now enter the First Name as ""Sharad"" and Last Name as ""Kumar""6.Click on SEARCH button7.Verify that the agent Sharad should not be shown in the search resultsExpected - Agent Sharad should not be found with the status as ACTIVE and ceritification status as CERTIFIED"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchNonCertifiedAgentByName","$ancABcAyA.firstName","$ancABcAyA.lastName"
+
+"Verify that when agent's status is NULL then he/she will be searchable in get help experience",,"[Documentation]","Prerequisite
+Agent Sharad Kumar has an user accountAgent Sharad Kumar certitification status is CERTIFIED but status is NULLSTR:1.Go to the link https://camainqa.ghixqa.com/hix/broker/search?anonymousFlag=Y?lang=es2.'Find Local Help' text should be present at this page with buttons  --FIND AN AGENT --FIND CERTIFIED ENROLLMENT COUNSELOR --FIND COUNTY OFFICE3.Click on FIND AN AGENT button4.Text 'Search for a Certified Insurance Agent in California' should be present5.Now enter the First Name as 'Sharad' and Last Name as 'Kumar'6.Click on SEARCH button7.Verify that the agent Sharad should not be shown in the search resultsExpected - Agent Sharad should be found even though activity status is set as NULL and certification status is CERTIFIED"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchCertifiedAgentByName","$CertifiedAgent.firstName","$CertifiedAgent.lastName"

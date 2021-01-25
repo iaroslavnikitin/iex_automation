@@ -1,0 +1,32 @@
+_includeOnce("../lib/Utils.sah");
+_includeOnce("../lib/CommonFunctions.sah");
+
+function clickAgentName($name){
+	if (!$name) {
+		$name = _getText(_link(0, _in(_row(1, _in(_table("brokerlist")))), _under(_tableHeader("/"+"Agent Name"+"/"))));
+	}
+	click(_link($name));
+
+	_assertVisible(_heading4("Agent Information"));
+	_assertVisible(_heading1($name));
+	_assertVisible(_link("Agent Information"));
+	_assertEqual("active", _getAttribute(_listItem("Agent Information"), "className"));
+}
+
+function refineAgenciesForBroker($businessName, $certificationStatus){
+	_setValue(_textbox(0, _in(_div("Business Name"))), $businessName);
+	_setSelected(_select(0, _in(_div("/"+"Certification Status"+"/"))), $certificationStatus);
+	click(_submit("Go"));
+
+	var $tableContents = _getTableContents(_table("table"), ["/"+"Business Name"+"/", "/"+"Certification Status"+"/"]);
+	for (var $i = 1; $i < $tableContents.length; $i++) {
+		var $row = $tableContents[$i];
+		if ($businessName) {
+			_assert($row[0].indexOf($businessName) != -1, "Actual Business Name: " + $row[0]);
+		}
+		if ($certificationStatus) {
+			_assert($row[1].indexOf($certificationStatus) != -1, "Actual Certification Status: " + $row[1]);
+		}
+	}
+}
+

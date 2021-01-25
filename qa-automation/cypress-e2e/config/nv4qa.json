@@ -1,0 +1,14 @@
+{
+  "baseUrl": "https://nv4qa.eng.vimo.com",
+  "env": {
+    "name": "nv4qa"
+  },
+  "state": "NV",
+  "output": "reports/output/nv",
+  "admin_user": "opsadmin@ghix.com",
+  "admin_pass": "ghix123",
+  "L2_CSR_user": "exadmin@ghix.com",
+  "L2_CSR_pass": "ghix123",
+  "functional_verification": true,
+  "static_verification": false
+}

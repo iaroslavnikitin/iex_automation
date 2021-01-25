@@ -1,0 +1,75 @@
+"Tags","TestCase","Key Word","Argument 1",,"Argument 2"
+,,"loadSahi","../pagemodels/Broker.sah"
+,,"loadSahi","../pagemodels/Login.sah"
+,,"loadSahi","../lib/CommonNameCreation.sah"
+,,"loadSahi","../pagemodels/Agency.sah"
+,,"loadSahi","../pagemodels/Signup.sah"
+,,"loadSahi","../pagemodels/AdminStaff.sah"
+,,"loadSahi","../pagemodels/BookOfBusiness.sah"
+,,"loadSahi","../pagemodels/ENGSVC-1216_lib.sah"
+,,"loadSahi","../scenariofiles/create_data/CreateAgency.sah"
+,,"loadSahi","../scenariofiles/create_data/CreateAgent.sah"
+
+
+
+,"[Global]","[SetUp]"
+
+,,"maximizeWindow"
+,,"createDbObj"
+
+,,"$staffFirstNameLone =","""Sahitrstaffwww"""
+,,"$staffFirstNameLtwo =","""Sahitrstaffwww"""
+,,"$staffLastName =","""Staff"""
+,,"$agentNameOne =","""Agenttrsahiqqq"""
+,,"$agencyNameSahi =","""Sahitransferoneqqq"""
+,,"$numOfAgents =","3"
+,,"$numOfAdminStaffL1 =","1"
+,,"$numOfAdminStaffL2 =","1"
+,,"$numOfConsumers =","0"
+
+
+
+"all","id=01","[Documentation]",">Login as Agency Manager
+> Go to Agency Delegations > Active consumers
+> Search consumer with case Id
+> From Action Gear, click on Change Delegation link
+> Verify info in enrollment and enrollment_event table"
+,,"$automationAgency = createAutomationAgencyIfNotExist","$agencyNameSahi","$numOfAgents","$numOfAdminStaffL1 ","$numOfAdminStaffL2","$staffFirstNameLone","$staffFirstNameLtwo","$agentNameOne","$numOfConsumers"
+,,"Login","$automationAgency.email","""ghix123"""
+,,"$agent = getAgentNameHavingMoreConsumers","$automationAgency.agents[2].name","$automationAgency.agents[1].name"
+,,"goToActiveConsumers"
+,,"searchConsumers","""AgentFirstName""","$agent"
+,,"searchConsumers","""AgentLastName""","$agent"
+,,"$caseId = clickChangeDelegationfromGearButton"
+,,"$toAgent = searchAgentTotransferConsumers","$agent","$automationAgency.agents[1].name","$automationAgency.agents[2].name"
+,,"reAssignAgentToTransferConsumer","$toAgent","1","$agent"
+,,"verifydbAfterSingleConsumerTransfer","$caseId","$toAgent"
+
+,,"[Documentation]",">Login as Agency Manager
+> Search an Agent who has more than 10 consumers
+> Go to Agency Delegations > Active consumers
+> Search the above agent
+>Select all consumer and click on Change Delegation link(from Book of business block)"
+
+,,"Login","$automationAgency.email","""ghix123"""
+,,"$agent = getAgentNameHavingMoreConsumers","$automationAgency.agents[2].name","$automationAgency.agents[1].name"
+,,"goToActiveConsumers"
+,,"searchConsumers","""AgentFirstName""","$agent"
+,,"searchConsumers","""AgentLastName""","$agent"
+,,"$caseId = clickChangeDelegationfromBookOfBusinessLinks"
+,,"$forAgent = searchAgentTotransferConsumers","$agent","$automationAgency.agents[1].name","$automationAgency.agents[2].name"
+,,"reAssignAgentToTransferConsumer","$forAgent","10","$agent"
+,,"verifyDbAfterMultipleConsumerTransfer","$caseId","$forAgent"
+,,"Logout"
+
+,,"[Documentation]",">Login as Agency Manager
+> Search an Agent who has more than 10 consumers
+> Click Gear button which is next to agent and bulk transfer consumers from the above agent.
+> Verify Db"
+
+,,"Login","$automationAgency.email","""ghix123"""
+,,"$agent = getAgentNameHavingMoreConsumers","$automationAgency.agents[2].name","$automationAgency.agents[1].name"
+,,"$totalCount = clickTransferConsumerDelegations","$agent"
+,,"$forAgent = searchAgentTotransferConsumers","$agent","$automationAgency.agents[1].name","$automationAgency.agents[2].name"
+,,"reAssignAgentToTransferConsumer","$forAgent","$totalCount","$agent"
+,,"verfifydbAfterBulkTransfer","$agent","$forAgent","$totalCount"

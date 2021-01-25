@@ -1,0 +1,233 @@
+
+{
+    "headerRightPanel":
+    {
+       "label":"agencyManagerPageHeader",
+       "fieldType":"staticText",
+       "selectors":
+       {
+         "common":"$('#rightpanel .header')",
+         "PA":"$('#rightpanel .header')"
+       },
+       "headerText":"Step 3: Agency Manager Information"
+       
+     },
+     "firstName":
+     {
+        "label":"First Name",
+        "fieldType":"text",
+        "selectors":
+         {
+            "common":"$('#firstName')",
+            "PA":"$('#firstName')"
+         },
+         "required":true,
+         "matchingDataProperty":"firstName",
+         "stateToSkip":["CA"]
+     },
+    "lastName":
+     {
+         "label":"Last Name",
+         "fieldType":"text",
+         "selectors":
+          {
+             "common":"$('#lastName')",
+             "PA":"$('#lastName')"
+          },
+          "required":true,
+          "matchingDataProperty":"lastName",
+          "stateToSkip":["CA"]
+     },
+ 
+   "agentLicenseNumber":
+     {
+         "label":"Agent License Number",
+         "fieldType":"numeric",
+         "limit":10,
+         "selectors":
+          {
+             "common":"$('#licenseNumber')",
+             "PA":"$('#licenseNumber')"
+          },
+          "required":true,
+          "matchingDataProperty":"agentLicenseNumber",
+          "stateToSkip":["CA"]
+     },
+     "agentNpn":
+     {
+         "label":"Agent NPN",
+         "fieldType":"numeric",
+         "limit":20,
+         "selectors":
+          {
+             "common":"$('#npn')",
+             "PA":"$('#npn')"
+          },
+          "stateToSkip":["ID","CA"],
+          "required":true,
+          "matchingDataProperty":"npn"
+     },
+    "licenseRenewalDate":
+     {
+         "label":"License Renewal Date",
+         "fieldType":"futureDate",
+         "selectors":
+          {
+             "common":"$('#licrenewaldate')",
+             "PA":"$('#licrenewaldate')"
+          },
+          "required":true,
+          "matchingDataProperty":"licenseRenewalDate"
+     },
+     "individualEmailAddress":
+     {
+         "label":"Individual Email",
+         "fieldType":"email",
+         "selectors":
+          {
+             "common":"$('#personalEmailAddress')",
+             "PA":"$('#personalEmailAddress')"
+          },
+          "required":true,
+          "matchingDataProperty":"personalEmailAddress"
+     },
+     "primaryContactphoneNumber":
+     {
+         "label":"Primary Contact Number",
+         "fieldType":"phoneSplit",
+         "selectors":
+          {
+             "common":["$('#phone1')","$('#phone2')","$('#phone3')"],
+             "PA":["$('#phone1')","$('#phone2')","$('#phone3')"]
+          },
+          "required":true,
+          "matchingDataProperty":"primaryContactphoneNumber"
+     },
+     "businessContactPhoneNumber":
+     {
+         "label":"Business Contact Phone Number",
+         "fieldType":"phoneSplit",
+         "selectors":
+          {
+             "common":["$('#phone1')","$('#phone2')","$('#phone3')"],
+             "PA":["$('#phone1')","$('#phone2')","$('#phone3')"]
+          },
+          "required":false,
+          "matchingDataProperty":"businessContactPhoneNumber"
+     },
+     "prefferedMethodOfCommunication":
+     {
+          "label":"Security Question",
+          "fieldType":"dropDown",
+          "selectors":
+           {
+              "common":"$('#communicationPreference')",
+              "PA":"$('#communicationPreference')"
+           },
+           "required":true,
+           "matchingDataProperty":"prefferedMethodOfCommunication"
+     },
+     "businessName":
+     {
+         "label":"Business Name",
+         "fieldType":"textReadOnly",
+         "selectors":
+          {
+             "common":"$('#companyName')",
+             "PA":"$('#companyName')"
+          },
+          "required":true,
+          "matchingDataProperty":"businessName",
+          "stateToSkip":["CA"]
+     },
+     "ein":
+     {
+        "label":"Federal Employer Identification Number (EIN)",
+        "fieldType":"ein",
+        "selectors":
+         {
+            "common":"$('#federalEIN')",
+            "PA":"$('#federalEIN')"
+         },
+         "required":true,
+         "matchingDataProperty":"ein",
+         "stateToSkip":["CA"]
+     },
+     "agencyLocation":
+      {
+       "label":"Select Agency Location",
+       "fieldType":"dropDown",
+       "selectors":
+       {
+         "common":"$('#select_agencyLocation')",
+         "PA":"$('#select_agencyLocation')"
+       },
+       "required":true,
+       "matchingDataProperty":"agencyLocation"
+       
+     },
+     "correspondenceAddressLine1":
+     {
+         "label":"Address line 1",
+         "fieldType":"text",
+         "selectors":
+         {
+           "common":"$('#address1_mailing')",
+           "PA":"$('#address1_mailing')"
+         },
+         "required":true,
+         "matchingDataProperty":"correspondenceAddressLine1"
+       
+     },
+     "correspondenceCity":
+     {
+       "label":"City",
+       "fieldType":"text",
+       "selectors":
+       {
+         "common":"$('#city_mailing')",
+         "PA":"$('#city_mailing')"
+       },
+       "required":true,
+       "matchingDataProperty":"correspondenceCity"
+       
+     },
+     "correspondenceState":
+    {
+     "label":"State",
+     "fieldType":"dropDown",
+     "selectors":
+     {
+       "common":"$('#state_mailing')",
+       "PA":"$('#state_mailing')"
+     },
+     "required":true,
+     "matchingDataProperty":"correspondenceState"
+     
+   },
+   "correspondenceZipCode":
+   {
+   "label":"Zip Code",
+     "fieldType":"zipCode",
+     "selectors":
+     {
+       "common":"$('#zip_mailing')",
+       "PA":"$('#zip_mailing')"
+     },
+     "required":true,
+     "matchingDataProperty":"correspondenceZipCode"
+     
+  },
+  "nextButton":
+   {
+     "label":"Next",
+     "fieldType":"button",
+     "selectors":
+      {
+         "common":"$('#SaveBrkCerti')",
+         "PA":"$('#SaveBrkCerti')"
+      }
+   }
+ 
+ 
+ }

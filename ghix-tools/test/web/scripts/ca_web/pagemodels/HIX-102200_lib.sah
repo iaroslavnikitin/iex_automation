@@ -1,0 +1,66 @@
+_includeOnce("../lib/CommonFunctions.sah");
+
+function goToViewAgentList(){
+	click(_link("Agents"));
+	click(_link("View Agent List"));
+	verifyURL("viewagentlist");
+	_assertVisible(_link("Agent Name"));
+}
+
+function clickSearch(){
+	click(_heading4("Filters"));
+	_assertVisible(_textbox("firstName", _in(_div("First Name"))));
+	_assertVisible(_textbox("lastName", _in(_div("Last Name"))));
+	_assertNotVisible(_select("yearSelect", _in(_div("/Application Year/"))));
+	_assertNotVisible(_select("issuer", _near(_label("Issuer"))));
+	_assertNotVisible(_textbox("agentFirstName", _in(_div("Agent First Name"))));
+	_assertNotVisible(_textbox("agentLastName", _in(_div("Agent Last Name"))));
+	_assertNotVisible(_textbox("agentLicenseNumber", _in(_div("Agent License Number"))));
+	_assertVisible(_textbox("caseNumber", _in(_div("Case ID"))));
+}
+
+function sortAgentListByColumnName($columnName, $toOrder, $fromOrder){
+	if ($fromOrder != $toOrder) {
+		_click(_link("/"+$columnName+"/", _in(_table("table agent-list-table ng-scope"))));
+	}
+	var $rows = _getTableContents(_table("table agent-list-table ng-scope"), ["/"+$columnName+"/"]);
+	$rows.shift(1);
+	var $sortedRows = $rows.slice(0);
+	
+//for ignore case sorting
+	for (var $i=0; $i<$sortedRows.length; $i++){
+		$sortedRows[$i][0] = $sortedRows[$i][0].toUpperCase();
+		$rows[$i][0] = $rows[$i][0].toUpperCase();
+	}
+	
+	$sortedRows = $sortedRows.sort();
+	if (isDescending($toOrder)) {
+		$sortedRows = $sortedRows.reverse();
+	}
+	_assertEqual($sortedRows, $rows);
+	
+}
+
+function canViewAgentInList($agent){
+	_assertVisible(_parentRow(_cell($agent.firstName + " " + $agent.lastName)));
+}
+
+function cannotViewAgentInList($agent){
+	_assertNotVisible(_parentRow(_cell($agent.firstName + " " + $agent.lastName)));
+}
+
+function goToTransferConsumerDelegations(){
+	_click(_link("dropdown-toggle", _in(_div("dropdown"))));
+	_click(_link("Transfer Consumer Delegations"));
+	_assertVisible(_span("Transfer Consumer Delegations"));
+	_assertVisible(_textbox("agentFirstName"));
+	_assertVisible(_textbox("agentLastName"));
+	_assertEqual("Select One", _getSelectedText(_select(0, _near(_label("Site")))));
+	_assertVisible(_emailbox("agentEmail"));
+	_assertVisible(_textbox("agentLicenseNo"));
+	_assertVisible(_submit("Search"));
+	_assertVisible(_row("Pick Agent Agent Name Email Primary Site Re-assign"));
+	
+}
+
+

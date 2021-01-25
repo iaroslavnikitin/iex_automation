@@ -1,0 +1,65 @@
+var $requestBody = {
+};
+
+var $pdPreferencesDTO = {
+};
+
+var $householdId, $cancelURL, $submitURL;
+var $saveHouseholdAPIResponse;
+
+function createSaveHouseHoldAPI($zipCode, $noOfMembers, $coverageYear){
+	$requestBody = {
+	};
+	$requestBody.zipCode = $zipCode;
+	$requestBody.noOfMembers = $noOfMembers;
+	$requestBody.coverageYear = $coverageYear;
+	$requestBody.planPremiumList = [];
+	$requestBody.members = [];
+}
+
+function addPlanPremiumToSaveHouseholdAPI($hiosId, $netPremium){
+	var $plan = {
+	};
+	$plan.hiosId = $hiosId;
+	$plan.netPremium = $netPremium;
+	$requestBody.planPremiumList.push($plan);
+}
+
+function addMemberToSaveHouseholdAPI($id, $age, $gender){
+	var $member = {
+	};
+	$member.id = $id;
+	$member.age = $age;
+	$member.gender = $gender;
+	$requestBody.members.push($member);
+}
+
+function callSaveHouseholdAPI(){
+	var $request = new RESTRequest();
+	$request.setURL($saveHouseholdDataAPI);
+	$request.setHeader("Content-Type", "application/json");
+	$request.setBody(JSON.stringify($requestBody));
+	var $response = $request.submit("post");
+	$saveHouseholdAPIResponse = $response.getBodyAsString();
+}
+
+function getHouseholdId(){
+	return JSON.parse($saveHouseholdAPIResponse).householdId;
+}
+
+function verifyDSTResponse($householdData){
+	_assertEqual($householdData, $requestBody);
+}
+
+function verifyHouseholdData(){
+	var	$householdData = JSON.parse($householdDataFromAPI.householdData);
+	_assertEqual($householdData, $requestBody);
+}
+
+function getSubmitURL(){
+	return $submitURL;
+}
+
+function getCancelURL(){
+	return $cancelURL;
+}

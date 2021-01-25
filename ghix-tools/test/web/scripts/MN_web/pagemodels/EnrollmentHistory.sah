@@ -1,0 +1,11 @@
+_includeOnce("Utils.sah");
+
+var $EnrollmentHistory = true;
+
+var $enrollmentHistoryMyEnrollmentsHeader = _heading4("My Enrollments");
+var $enrollmentHistoryPastEnrollmentsHeader = _heading4("Past Enrollments");
+var $enrollmentHistoryAccessors = [$enrollmentHistoryMyEnrollmentsHeader, $enrollmentHistoryPastEnrollmentsHeader];
+
+// function verifyElementsOnEnrollmentHistoryPage() {
+// 	verifyArray($enrollmentHistoryAccessors);
+// }

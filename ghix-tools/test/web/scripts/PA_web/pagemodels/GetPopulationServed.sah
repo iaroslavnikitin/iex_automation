@@ -1,0 +1,100 @@
+_includeOnce("EntityInformation.sah");
+_includeOnce("PrimarySite.sah");
+_includeOnce("EntityCounselorInfo.sah");
+
+var $GetPopulationServed = true;
+
+var $getPopulationServedHeader = _heading4("Step 2: Populations Served");
+var $getPopulationServedLanguages = _heading5("Languages");
+var $getPopulationServedLanguagesDescription = _paragraph("Check all languages of your target population and specify percentages accordingly.");
+var $getPopulationServedEthnicities = _heading5("Ethnicities");
+var $getPopulationServedEthnicitiesDescription = _paragraph("Check all ethnicities of your target population and specify percentages accordingly.");
+var $getPopulationServedIndustries = _heading5("Industries");
+var $getPopulationServedIndustriesDescription = _paragraph("Check all industries that apply, and provide percentages per industry.");
+var $getPopulationServedBack = _button("back");
+var $getPopulationServedNext = _submit("populationServedSubmit");
+
+function verifyElementsOnPopulationServedPage() {
+	_assertVisible($getPopulationServedHeader);
+	_assertVisible($getPopulationServedLanguages);
+	_assertVisible($getPopulationServedLanguagesDescription);
+	_assertVisible($getPopulationServedEthnicities);
+	_assertVisible($getPopulationServedEthnicitiesDescription);
+	_assertVisible($getPopulationServedIndustries);
+	_assertVisible($getPopulationServedIndustriesDescription);
+	_assertVisible($getPopulationServedBack);
+	_assertVisible($getPopulationServedNext);
+}
+
+function savePopulationServedDetails($language, $langPercentage, $numberOfstaff, $ethnicity, $enthnicityPercent, $industry, $industryPercent){
+	selectLanguageAndEnterPercentageOfAssistance($language, $langPercentage, $numberOfstaff);
+	selectEthnicityAndEnterPercentageServed($ethnicity, $enthnicityPercent);
+	selectIndustryAndEnterPercentage($industry, $industryPercent);
+}
+
+
+
+function selectLanguageAndEnterPercentageOfAssistance($language, $percent, $staff) {
+	var $checkbox = _checkbox("Language " + $language);
+	_click($getPopulationServedLanguages);
+	_check($checkbox);
+	var $boxes = _collect("_textbox", "/.*/", _in(_parentRow($checkbox)));
+	var $percentBox = $boxes[0];
+	var $staffBox = $boxes[1];
+
+	_setValue($percentBox, $percent);
+	_setValue($staffBox, $staff);
+	if ($entityInfo.langs == null) {
+		$entityInfo.langs = [];
+		$entityInfo.langPercents = [];
+		$entityInfo.langStaff = [];
+	}
+
+	$entityInfo.langs.push($language);
+	$entityInfo.langPercents.push($percent);
+	$entityInfo.langStaff.push($staff);
+
+	_click($getPopulationServedLanguages);
+}
+
+function selectEthnicityAndEnterPercentageServed($ethnicity, $percent) {
+	var $checkbox = _checkbox("Ethnicity " + $ethnicity);
+	_click($getPopulationServedEthnicities);
+	_check($checkbox);
+	var $percentBox = _collect("_textbox", "/.*/", _in(_parentRow($checkbox)))[0];
+	_setValue($percentBox, $percent);
+	if ($entityInfo.ethnicities == null) {
+		$entityInfo.ethnicities = [];
+		$entityInfo.ethnicityPercents = [];
+	}
+	$entityInfo.ethnicities.push($ethnicity);
+	$entityInfo.ethnicityPercents.push($percent);
+	_click($getPopulationServedEthnicities);
+}
+
+function selectIndustryAndEnterPercentage($industry, $percent) {
+	var $checkbox = _checkbox("Industries " + $industry);
+	_click($getPopulationServedIndustries);
+	_check($checkbox);
+	var $percentBox = _collect("_textbox", "/.*/", _in(_parentRow($checkbox)))[0];
+	_setValue($percentBox, $percent);
+
+	if ($entityInfo.industries == null) {
+		$entityInfo.industries = [];
+		$entityInfo.industryPercents = [];
+	}
+	$entityInfo.industries.push($industry);
+	$entityInfo.industryPercents.push($percent);
+
+	_click($getPopulationServedIndustries);
+}
+
+function clickBackFromPopulationServedPage() {
+	_click($getPopulationServedBack);
+	verifyElementsOnEntityInformationPage();
+}
+
+function clickNextFromPopulationServedPage() {
+	_click($getPopulationServedNext);
+	verifyElementsOfPrimarySite();
+}

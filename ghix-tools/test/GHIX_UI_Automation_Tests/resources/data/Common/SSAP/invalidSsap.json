@@ -1,0 +1,184 @@
+{   "applicationYear":"2020",
+    "applicationStatus":"ER",
+    "applicationType":"",
+    "password":"12",
+    "confirmPassword":"12e3",
+    "caseNumber":"",
+    "aptc":null,
+    "isFinancial":true,
+    "coverageDate":"",
+    "militaryService":null,
+    "qualifyingEvent":"Marriage",
+    "whereHouseholdMembersLive":
+    {
+    },
+    "primaryAddress":
+    {   "home":{ 
+        "addressLine1": "12",
+        "addressLine2":"",
+        "city": "12",
+        "state":"",
+        "county":"",
+        "zip":"12"
+             },
+        "mailing":
+        {  "mailingAddSameAsHomeIndicator":true,
+            "addressLine1": "12",
+            "addressLine2":"",
+            "city": "12",
+            "state":"",
+            "county":"",
+            "zip":"12"
+            }   
+    },
+    "primaryContactPref":
+    {
+        "spokenLang":"English",
+        "writtenLang":"English",
+        "prefMethodOfComm":"Email"
+    },
+    "primaryContactPhone":
+    {
+        "mobile":"fgt-622-1001",
+        "home":"frt-622-1001",
+        "ext":"5443"
+        },
+    "startYourApplication":
+        {
+            "getHelpIndicator":true        
+        },
+    "applicants":[         {
+          "memberId":"3820",
+          "guid":"",
+          "firstName":"643",
+          "lastName":"858",
+          "gender":"Male",
+          "ssn":"999-66-6000",
+          "confirmSsn":"999-66-6999",
+          "suffix":"",
+          "relation":"SPOUSE",
+          "dateOfBirth":"01/01/0101",
+          "email": "invalidemail",
+          "confirmEmail": "invalidemailid",
+          "isNative":false,
+          "isDisabled":false,
+          "helpWithActivities":false,
+          "isPregnant":false,
+          "noOfBabies":0,
+          "seekingCoverage":true,
+          "seeksQHP":true,
+          "exchangeEligible":true,
+          "aptcEligible":true,
+          "stateSubsidyEligible":false,
+          "csrEligible":false,
+          "nativeAmerican":false,
+          "csrLevel":null,
+          "middleName":"",
+          "nameSuffix":"",
+          "fosterCareIndicator":false,
+          "isStudent":false,
+          "isDeniedMedicaid":false,         
+          "relationship":[
+            {
+              "guid":"",
+              "relation":"Spouse"
+
+            }],
+          "immigration":
+          {
+              "isCitizen":true,
+              "isNaturalizedCitizen":false
+          },
+          "income":
+           {
+             "sourceOfIncome":"Job",
+            "nameOfEmployer":"StarShip",
+            "amount":45000,
+            "frequency":"Yearly",
+            "deductionSources":
+            {
+            "sourceOfIncome":"Job",
+            "nameOfEmployer":"StarShip",
+            "amount":45000,
+            "frequency":"Yearly"
+
+         }
+          },
+          "hasOtherHealthCoverage":false,
+           "hasReconciledAptc":true,
+           "hasESI":false,
+           "hasNonESI":false,
+           "helpPayingMedicalBills":false
+            
+},
+       {
+          "memberId":"3819",
+          "guid":"1000005824",
+          "firstName":"123",
+          "lastName":"123",
+          "gender":"Female",
+          "ssn":"999666000",
+          "relation":"SELF",
+          "dateOfBirth":"01/01/0001",
+          "email": "invalidemail",
+          "confirmEmail":"invalidemailid",
+          "isNative":false,
+          "isDisabled":false,
+          "helpWithActivities":false,
+          "isPregnant":false,
+          "noOfBabies":0,
+          "seekingCoverage":true,
+          "seeksQHP":true,
+          "exchangeEligible":true,
+          "aptcEligible":true,
+          "stateSubsidyEligible":false,
+          "csrEligible":false,
+          "nativeAmerican":false,
+          "csrLevel":null,
+          "middleName":"",
+          "nameSuffix":"",
+          "fosterCareIndicator":false,
+          "isStudent":false,
+          "isDeniedMedicaid":false,          
+          "relationship":[
+            {
+              "guid":"",
+              "relation":"Spouse"
+
+            }],
+            "immigration":
+            {
+                "isCitizen":true,
+                "isNaturalizedCitizen":false
+            },
+            "income":
+            {
+              "sourceOfIncome":"Job",
+             "nameOfEmployer":"StarShip",
+             "amount":45000,
+             "frequency":"Yearly",
+             "deductionSources":
+             {
+             "sourceOfIncome":"Job",
+             "nameOfEmployer":"StarShip",
+             "amount":45000,
+             "frequency":"Yearly"
+ 
+          }
+           },
+           "hasOtherHealthCoverage":false,
+           "hasReconciledAptc":true,
+           "hasESI":false,
+           "hasNonESI":false,
+           "helpPayingMedicalBills":false
+        }    
+],
+     "incomeTax":
+     {
+        "taxFilers":[0],
+       "jointFilingIndicator":true,
+       "primaryTaxFilerPersonId":[0]       
+     }, 
+    "ssapApplicationId":2408,    
+    "financial":true 
+}

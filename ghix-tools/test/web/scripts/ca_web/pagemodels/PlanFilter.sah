@@ -1,0 +1,371 @@
+ _includeOnce("../lib/Utils.sah");
+ 
+function verifySortByFilterOnPlanPage($filterType){
+	if($filterType =="Total Expense Estimate"){
+		verifyPlansSortedByTotalExpenseEstimate();
+	}
+	else if($filterType =="Monthly Premium"){
+		verifyPlansSortedByMonthlyPremium();
+	}
+	else if($filterType =="Yearly Deductible"){
+		verifyPlansSortedByYearlyDeductible();
+	}
+	else{
+		if(onHealthPlanPage()){
+			verifyPlansSortedByTotalExpenseEstimate();
+		}
+		else{
+				verifyPlansSortedByYearlyDeductible();
+		}
+	verifyPlansSortedByMonthlyPremium();
+	
+	}
+}
+
+function verifyPlansSortedByTotalExpenseEstimate() {
+	_click(_radio(0, _near(_label("Total Expense Estimate"))));
+	var $plans = _collectAttributes("_row", "/Expense/", "sahiText", _in(_div("/cp-tile__table/")))
+	_assert($plans.length!=0);
+	var $correctlySorted = true;
+	for (var $i = 0; $i < $plans.length-1; $i++) {
+		var $current = $plans[$i].split(" ")[3];
+		var $next =$plans[$i+1].split(" ")[3];
+		if (isEstimateLarger($current, $next)) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans should be sorted in ascending order of Total Expense Estimate");
+	
+}
+
+function verifyPlansSortedByMonthlyPremium(){
+	_click(_radio("Monthly Premium (low to high)", _near(_label("Monthly Premium (low to high)"))))
+	var $plans = _collect("_span", "cp-tile__premium-amount", _in(_div("mainSummary")));
+   _assert($plans.length!=0);
+	var $correctlySorted = true;
+	for (var $i = 0; $i < $plans.length-1; $i++) {
+		var $current = _getText($plans[$i])
+		var $next = _getText($plans[$i+1])
+		$current = convertMoneyToNumber($current);
+		$next = convertMoneyToNumber($next);
+		if ($current > $next) {
+			$correctlySorted = false;
+			_log("Plan " + $i + " is more than " + ($i+1));
+			break;
+		}
+	}
+	_assertTrue($correctlySorted, "Plans should be sorted in ascending order of Monthly Premium");
+	setSortByFilterToDefault();
+}
+
+function verifyPlansSortedByYearlyDeductible(){
+	var $newArr=[];
+	_click(_radio("deductible", _near(_label("Yearly Deductible (low to high)"))));
+	
+	var $deductibleRow = _collectAttributes("_row","/Deductible/","sahiText",_in(_div("mainSummary")));
+
+	for (var $i = 0; $i < $deductibleRow.length; $i++) {
+		var $amount = _extract($deductibleRow[$i], "Yearly Deductible"+" (.*)", true).toString();
+		_log("Deductible amount of "+$i+"  is = "+ $amount);
+		var $index = $amount.indexOf("(Child) Not Applicable");	
+		if ($index == -1){
+			var $index = $amount.indexOf("/");
+			if ($index != -1) {
+				var $deduct = $amount.split("/");
+				_log($deduct[0])
+				$deduct[0] = $deduct[0].replace("$", "");
+				$deduct[1] = $deduct[1].replace("$", "");
+				var $text = parseInt($deduct[0])+parseInt($deduct[1]);
+			}else{
+				$amount = $amount.split(" ");
+				$amount= $amount[$amount.length-1]
+					var $text = parseInt($amount.replace("$", ""));
+			}
+			$newArr.push($text);
+		}
+	}		
+	var $exp = $newArr.sort(function(a, b){return a-b});
+	_assertEqual($newArr, $exp, "Plans should be sorted by Deductible");		
+	setSortByFilterToDefault();
+}
+
+function verifyPlanFeatureFilterOnPlanPage($feature){
+	var $expectedFeature;
+	_setStrictVisibilityCheck(true);
+	if($feature === undefined){
+		var $planFeature = _collectAttributes("_link", "/.*/", "sahiText", _in(_div("/Plan Features/")));
+		for(var $i =0; $i< $planFeature.length; $i++){
+			if($planFeature[$i] == "Cost-Sharing Reductions (CSR)"){
+				$expectedFeature = "CSR"
+			}
+			else{
+				$expectedFeature = "HSA"
+			}
+			_check(_checkbox(0, _leftOf(_link($planFeature[$i]))));
+			verifyFilter($expectedFeature);
+			_uncheck(_checkbox(0, _leftOf(_link($planFeature[$i]))));
+		}
+	}
+	else{
+		_check(_checkbox(0, _leftOf(_link($feature))));
+		
+	}
+	_setStrictVisibilityCheck(false);
+
+}
+
+function verifyPlanTypeFilterOnPlanPage($type) {
+	_setStrictVisibilityCheck(true);
+	if ($type === undefined || $filter === undefined) {
+		var $planType =  _collectAttributes("_label","/ps-form/","sahiText",_in(_div("planTypeFilter")));
+		for($i=0;$i<$planType.length;$i++){
+			_check(_checkbox(0, _near(_label($planType[$i]))));
+			verifyFilter($planType[$i]);
+			_uncheck(_checkbox(0, _near(_label($planType[$i]))));
+		}
+	}
+	else{
+		var $accessor = _checkbox($type);
+		_check($accessor);
+		verifyFilter($type);
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+ 
+ 
+ 
+function verifyMetalTierFilterOnPlanPage($tier){
+    _setStrictVisibilityCheck(true);
+    if ($tier === undefined) {
+        var $planTier = _collectAttributes("_link", "/.*/", "sahiText", _in(_div("ps-sidebar__filter[2]")));
+        for(var $i =1; $i< $planTier.length; $i++){
+            _check(_checkbox(0, _leftOf(_link($planTier[$i]))));
+            if(isPlanDisplayed()){
+                verifyFilter($planTier[$i].split(" ")[0]);
+            }
+            else{
+                _log("There are no plans with this filter", "CUSTOM1");
+            }
+            _uncheck(_checkbox(0, _leftOf(_link($planTier[$i]))));
+        }
+        
+    }
+    else{
+        _check(_checkbox(0, _leftOf(_link("/"+$tier+"/"))));
+        verifyFilter($tier);
+    }
+    _setStrictVisibilityCheck(false);
+}
+ 
+ function verifyDeductibleFilterOnPlanPage($deductibleOption){
+	_setStrictVisibilityCheck(true);
+	if($deductibleOption === undefined){
+		var $deductibleOptions = _collectAttributes("_label", "/.*/", "sahiText", _in(_div("/Yearly Deductible/", _in(_fieldset("Filter By")))));
+		_assert($deductibleOptions.length!=0);
+		for(var $i = 0; $i<$deductibleOptions.length; $i++){
+			_check(_checkbox(0, _leftOf(_label($deductibleOptions[$i]))));
+			if(isPlanDisplayed()){
+				verifyDeductibleOptionResults($deductibleOptions[$i]);
+			}
+			else{
+				_log("There are no plans with this filter", "CUSTOM1");
+			}
+			
+			_uncheck(_checkbox(0, _leftOf(_label($deductibleOptions[$i]))));
+		}
+	}else{
+		_check(_checkbox(0, _leftOf(_label($deductibleOption))));	
+		verifyDeductibleOptionResults($deductibleOption);	
+	}
+	_setStrictVisibilityCheck(false);
+}
+// Helper function of verifyDeductibleFilterOnPlanPage
+function verifyDeductibleOptionResults($deductibleOption){
+    
+    verifyFilterAppliedInPlanHeader($deductibleOption); 
+    var $expectedAmount = parseInt($deductibleOption.split(" ")[0].replace("$", ""));
+    var $deductibleRow = _collectAttributes("_row","/Deductible/","sahiText",_in(_div("mainSummary")));
+	_assert($deductibleRow.length!=0);
+    for (var $i = 0; $i < $deductibleRow.length; $i++) {
+		var $deductibleAmount = 0;
+        var $amount = _extract($deductibleRow[$i], "Deductible"+" (.*)", true).toString();
+		_log("Deductible amount from plan page for "+$i+" is  "+$amount);
+		var $index = $amount.indexOf("Not Applicable");	
+		if ($index == -1){
+			var $dollarAmount = $amount.match(/\d+/g).map(Number);
+			for($x=0; $x<$dollarAmount.length;$x++){
+				$deductibleAmount += parseInt($dollarAmount[$x]);
+			}
+			var $option = $deductibleOption.split(" ")[2];
+			if($option == "under" || $option == "less" ){
+				_assert($deductibleAmount <= $expectedAmount);
+			}
+			else if($option == "$99"){
+				_assert($deductibleAmount >= $expectedAmount && $deductibleAmount <= 99 );    
+			}	
+			else if($option == "over"){
+				_assert($deductibleAmount >= $expectedAmount)
+			}
+		}        
+
+	}
+}   
+
+
+function verifyCompanyFilterOnPlanPage($company){
+	_setStrictVisibilityCheck(true);
+	if($company === undefined){
+		var $companies =  _collectAttributes("_label", "/.*/", "sahiText", _in(_div("carrierFilter")));
+		_assert($companies.length!=0);
+		for(var $i =0; $i< $companies.length; $i++){
+			_check(_checkbox(0, _near(_label($companies[$i]))));
+			verifyCompanyFilterResults($companies[$i]);
+			_uncheck(_checkbox(0, _near(_label($companies[$i]))));
+		}
+	}
+	else{
+		_check(_checkbox(0, _near(_label("/"+$company+"/i"))));
+		verifyCompanyFilterResults($company);
+	}
+	_setStrictVisibilityCheck(false);
+
+}
+
+// Helper function for verifyCompanyFilterOnPlanPage
+function verifyCompanyFilterResults($company){
+	verifyFilterAppliedInPlanHeader($company);
+	var $companyName = _collect("_image","/cp-tile__img/","sahiText",_in(_div("mainSummary")));
+	_assert($companyName.length!=0);
+	for(var $i =0; $i< $companyName.length; $i++){
+		var $actualCompany = $companyName[$i].getAttribute("alt");
+		$actualCompany = $actualCompany.split(".")[0];
+		_assertEqual("/"+$actualCompany+"/", $company);
+		
+	}
+
+}
+
+function verifyQualityRatingsFilterOnPlanDisplayPage($options){
+	 if($options === undefined){
+        var $checkBox =  _collect("_checkbox", "/star/", "sahiText", _under(_heading3("Quality Rating")));
+        _assert($checkBox.length!=0);
+		for(var $i=0;$i<$checkBox.length;$i++){
+			_check($checkBox[$i]);
+			if(isPlanDisplayed()){
+				verifyQualityRating(5-$i);
+			}
+			else{
+				_log("There are no plans with this filter", "CUSTOM1");
+			}
+			
+			_uncheck($checkBox[$i]);
+		}
+	 }
+
+	
+}
+
+function verifyQualityRating($ratingNumber){
+	var $qualityNumber = "/"+$ratingNumber+"star/";
+	verifyFilterAppliedInPlanHeader($qualityNumber);
+	if(_isVisible(_div("cp-tile"))){
+		$planTiles = _collect("_div","cp-tile", _in(_div("mainSummary")));
+		for(var $i=0;$i<$planTiles.length;$i++){
+			var $stars = _collectAttributes("_italic","/icon icon-star/", "className",_in($planTiles[$i]));
+			var $actualCount = countStars($stars);
+			_assertEqual($ratingNumber, $actualCount,"Verify quality rating on plan tile is same as selected filter");
+		}
+		
+	}
+
+}
+
+function countStars($stars){
+	var $count = 0;
+	for(var $i=0;$i<$stars.length;$i++){
+		if($stars[$i] =="icon icon-star"){
+			_log ($stars[$i]);
+			$count++
+		}
+	}
+	return $count;
+			
+}
+function verifyDentalPlanTierFilterOnPlanPage($tier){
+	_setStrictVisibilityCheck(true);
+	if($tier === undefined){
+		var $planTier =  _collectAttributes("_label","/ps-form/","sahiText",_in(_div("/Plan Tier/")));
+		for($i=0;$i<$planTier.length;$i++){
+			_check(_checkbox(0, _leftOf(_label($planTier[$i]))));
+			if(isPlanDisplayed()){
+				verifyFilter($planTier[$i]);
+			}
+			else{
+				_log("There are no plans with this filter", "CUSTOM1");
+			}
+			
+			_uncheck(_checkbox(0, _leftOf(_label($planTier[$i]))));
+		}
+	}else{
+		_check(_checkbox(0, _leftOf(_label($tier))));
+		verifyFilter($tier);
+	}		
+	_setStrictVisibilityCheck(false);
+}
+
+function isPlanDisplayed(){
+		return _isVisible(_div("cp-tile"));
+}
+
+ 
+function verifyFilter($filterText) {
+    verifyFilterAppliedInPlanHeader($filterText);
+    var $allPlans =  _collect("_div", "/cp-tile__body/", _in(_div("mainSummary")));
+    for (var $i = 0; $i < $allPlans.length; $i++) {
+		if($filterText =="Lower"){
+			$filterText = "LOW";
+		}
+		else if($filterText =="Higher"){
+			$filterText = "HIGH";
+		}
+        _assertEqual("/"+$filterText.split(" ")[0]+"/i",_getText($allPlans[$i])," Verify filter type on the tile page  ");
+	 }
+}
+
+ 
+function verifyFilterAppliedInPlanHeader($filter){
+    _assertVisible(_span("Filters Applied"),"Verify Filters applied is displayed on header");
+	if($filter == "CSR"){
+		$filter = "/Cost-Sharing Reductions/"
+	}
+	else if($filter == "HSA"){
+		$filter = "Health Savings Account (HSA)"
+	}
+	else if($filter == "Minimum"){
+		$filter = "Minimum Coverage"
+	}		
+    _assertVisible(_span($filter),_near(_span("Filters Applied")),"Verify filter selected is displayed on the header");
+}
+ 
+ 
+ function isEstimateLarger($current, $next){
+	var $map = {
+		"Lower": 1, "Average": 2, "Higher": 3};
+	return $map[$current] > $map[$next];
+}
+
+// Helper functions for filters
+function setSortByFilterToDefault(){
+		_click(_radio("sortBy"));
+}
+
+
+function unCheckFilter($filterSelected){
+	
+	_uncheck(_checkbox(0, _near(_label($filterSelected))));
+	_assertNotTrue(_checkbox($filterSelected).checked);
+
+}

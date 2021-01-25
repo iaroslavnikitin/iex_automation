@@ -1,0 +1,331 @@
+_includeOnce("../lib/common.sah");
+_includeOnce("../lib/commonData.sah");
+
+var $pdPreferencesDTOFromPage = {
+};
+
+function navigateToSmartPlanfinderWithParameters($lang, $appflow, $redirectDomain, $householdId){
+	var $url = $smartPlanFinderURL + "?householdId="+$householdId + "&lang="+$lang + "&appflow="+$appflow + "&redirectDomain="+$redirectDomain;
+	_navigateTo($smartPlanFinderURL, true);
+	_navigateTo("https://www.google.com", true);
+	_navigateTo($url, true);
+}
+
+//function getSmartPlanfinderURLWithParameters(){
+//	var $url = $smartPlanFinderURL + "?";
+//	for(var $i = 0; $i < arguments.length; $i++){
+//		$url += arguments[$i] + "&";Nio 
+//	}
+//	return $url;
+//}
+
+function verifyCancelURL($domain, $page){
+	_assertEqual($domain + $page, _getValue(_hidden("jsp_dstCancelRedirectUrl")));
+	$cancelURL = $domain + $page;
+}
+
+function verifySubmitURL($domain, $page){
+	_assertEqual($domain + $page, _getValue(_hidden("jsp_dstSubmitRedirectUrl")));
+	$submitURL = $domain + $page;
+}
+
+function selectDrug($name, $option){
+	searchDrugAndSelectDosage($name, $option);
+	clickSelectYourDosage($name, $option);
+	var $drug = {
+	};
+	$drug.drugDosage = $option; //$option.match("(.*) \\(.*\\)")[1];
+	$drug.drugName = $name;
+	$pdPreferencesDTOFromPage.prescriptions = $pdPreferencesDTOFromPage.prescriptions || [];
+	$pdPreferencesDTOFromPage.prescriptions.push($drug);
+}
+
+function clickSelectYourDosage($name, $option){
+	_click(_submit("Select Your Dosage"));
+	var $drugDosage = $option; //$option.match("(.*) \\(.*\\)")[1];
+//	_setAccessorIgnoreCase(true);
+	_assertVisible(_div($drugDosage), "The drug, "+$name+", has not been selected");
+//	_setAccessorIgnoreCase(false);
+}
+
+function searchDrugAndSelectDosage($name, $option){
+	searchDrug($name);
+	selectDrugDosage($option);
+}
+
+function selectDrugDosage($option){
+	_assertTrue(_getAttribute(_submit("Select Your Dosage"), "disabled"), "The button 'Select Your Dosage' is not disabled.");
+	_click(_radio(0, _leftOf(_label($option))));
+	_assertFalse(_getAttribute(_submit("Select Your Dosage"), "disabled"), "The button 'Select Your Dosage' is not enabled.");
+}
+
+function searchDrug($name){
+	for (var $i = 0; $i < 3; $i++) {
+		_setValue(_textbox("drug-search-field"), $name);
+		_wait(2000, _isVisible(_italic("fa fa-spinner fa-spin fa-fw")));
+		_wait(8000, !_isVisible(_italic("fa fa-spinner fa-spin fa-fw")));
+		if (_isVisible(_button($name))) {
+			break;
+		}
+		_setValue(_textbox("drug-search-field"), "");
+	}
+	_call(_button($name).click());
+}
+
+function searchOnlyDrug($name){
+	_assertNotVisible(_div("You must select a prescription dosage"));
+	_setValue(_textbox("drug-search-field"), $name);
+	_assertVisible(_div("You must select a prescription dosage"));
+}
+
+function selectDoctor($name, $index){
+	$name = selectProvider("Doctor", $name, $index);
+	var $provider = {
+	};
+	$pdPreferencesDTOFromPage.providers = $pdPreferencesDTOFromPage.providers || [];
+	$provider.providerType = "doctor";
+	$provider.name = $name;
+	$pdPreferencesDTOFromPage.providers.push($provider);
+}
+
+function selectHospital($name, $index){
+	$name = selectProvider("Facility", $name, $index);
+	var $provider = {
+	};
+	$pdPreferencesDTOFromPage.providers = $pdPreferencesDTOFromPage.providers || [];
+	$provider.providerType = "hospital";
+	$provider.name = $name;
+	$pdPreferencesDTOFromPage.providers.push($provider);
+}
+
+function selectProvider($providerType, $name, $index){
+	//_setSelected(_select(0), $providerType);
+	if($providerType == "Doctor"){
+		_click(_label("/Search Providers/"));
+	}
+	else{
+		_click(_label("/Search Facilities/"));
+	}
+	var $elementIndex = $index - 1;
+	for (var $i = 0; $i < 3; $i++) {
+		_lockWindow();
+		_focusWindow();
+		_focus(_textbox("provider-search-field"));
+		_unlockWindow();
+		_setValue(_textbox("provider-search-field"), $name);
+		_wait(2000, _isVisible(_italic("fa fa-spinner fa-spin fa-fw")));
+		_wait(8000, _isVisible(_button("/"+$name+"/["+$elementIndex+"]")));
+		if (_isVisible(_button("/"+$name+"/["+$elementIndex+"]"))) {
+			break;
+		}
+		_setValue(_textbox("provider-search-field"), "");
+	}
+	var $fullname = _getText(_div("docName", _in(_button("/"+$name+"/["+$elementIndex+"]"))));
+	_call(_button("/"+$name+"/["+$elementIndex+"]").click());
+	_log("Clicked on " + $providerType + " - " + $fullname);
+	return $fullname;
+}
+
+function setDoctorName($name){
+	//_setSelected(_select(0), "Doctor");
+	_click(_label("/Search Providers/"));
+	_setValue(_textbox("provider-search-field"), $name);
+}
+
+function setPrescriptionName($name){
+	_setValue(_textbox("drug-search-field"), $name);
+}
+
+function verifyPrescriptionLimit($errorMsgShown){
+	if (isTrue($errorMsgShown)) {
+		_assertVisible(_paragraph("You cannot select more than 5 drugs"));
+	}
+	else {
+		_assertNotVisible(_paragraph("You cannot select more than 5 drugs"));
+	}
+}
+
+function verifyProvidersLimit($errorMsgShown){
+	if (isTrue($errorMsgShown)) {
+		_assertVisible(_paragraph("You cannot select more than 5 doctors or facilities"));
+	}
+	else {
+		_assertNotVisible(_paragraph("You cannot select more than 5 doctors or facilities"));
+	}
+}
+
+function verifyNoProvidersFoundMessage(){
+	_assertVisible(_paragraph("No results found. Confirm that the zip code entered matches your provider’s location."));
+}
+
+function verifyNoPrescriptionsFoundMessage(){
+	_assertVisible(_paragraph("No results found"));
+}
+
+function removeAllProviders(){
+	var $doctors = _collect("_div", "Doctor");
+	for (var $i = $doctors.length - 1; $i >= 0; $i--) {
+		_click(_submit(0, _in(_parentNode($doctors[$i]))));
+	}
+	var $hospitals = _collect("_div", "Facility");
+	for (var $i = $hospitals.length - 1; $i >= 0; $i--) {
+		_click(_submit(0, _in(_parentNode($hospitals[$i]))));
+	}
+	$pdPreferencesDTOFromPage.providers = [];
+}
+
+function removeAllDrugs(){
+	var $hospitals = _collect("_div", "/card drug-wrapper/");
+	for (var $i = $hospitals.length - 1; $i >= 0; $i--) {
+		_click(_submit(0, _in(_parentNode($hospitals[$i]))));
+	}
+	$pdPreferencesDTOFromPage.prescriptions = [];
+}
+
+function unselectDrug(){
+	_click(_submit(0, _in(_div("dosage-card"))));
+}
+
+function selectMedicalUseLevel(){
+	var $level = Math.floor(Math.random() * 4) + 1;
+	_click(_radio("docVisitFrequency(LEVEL"+$level+")"));
+	$pdPreferencesDTOFromPage.medicalUse = "LEVEL"+$level;
+	return "LEVEL"+$level;
+}
+
+function changeMedicalUseLevel($level){
+	var $newLevel = selectMedicalUseLevel();
+	if ($newLevel == $level) {
+		return changeMedicalUseLevel($level);
+	}
+	return $newLevel;
+}
+
+function selectPrescriptionUseLevel(){
+	var $level = Math.floor(Math.random() * 4) + 1;
+	_click(_radio("monthltPrescription(LEVEL"+$level+")"));
+	$pdPreferencesDTOFromPage.prescriptionUse = "LEVEL"+$level;
+	return "LEVEL"+$level;
+}
+
+function changePrescriptionLevel($level){
+	var $newLevel = selectPrescriptionUseLevel();
+	if ($newLevel == $level) {
+		return changePrescriptionLevel($level);
+	}
+	return $newLevel;
+}
+
+function verifySmartPlanFinderPage($zipCode){
+	_assertEqual($zipCode, _getText(_textbox("zipcode")));
+}
+
+function verifyProvidersOnSPF($providers){
+	if ($providers == null || $providers == "") {
+		_assert(_count("_div", "Doctor") == 0);
+		_assert(_count("_div", "Facility") == 0);
+		return;
+	}
+	if (typeof $providers != "object") {
+		$providers = JSON.parse($providers);
+	}
+	var $providerNumber=0;
+	for (var $i = 0; $i < $providers.length; $i++) {
+		var $provider = $providers[$i];
+		if ($provider.providerType == "doctor") {
+			_assertVisible(_div($provider.name, _in(_parentNode(_div("Provider["+$providerNumber+"]")))));
+			$providerNumber++;
+		} else {
+			_assertVisible(_div($provider.name, _in(_parentNode(_div("Facility["+($i - $providerNumber)+"]")))));
+		}
+	}
+}
+
+function verifyMedicalUseLevelOnSPF($level){
+	_assertTrue(_getAttribute(_radio("docVisitFrequency("+$level+")"), "checked"));
+}
+
+function verifyPrescriptionLevelOnSPF($level){
+	_assertTrue(_getAttribute(_radio("monthltPrescription("+$level+")"), "checked"));
+}
+
+function verifyDrugsOnSPF($drugs){
+	if ($drugs == null || $drugs == "") {
+		_assert(_count("_div", "header_text") == 0);
+		return;
+	}
+	if (typeof $drugs != "object") {
+		$drugs = JSON.parse($drugs);
+	}
+	_setAccessorIgnoreCase(true);
+	for (var $i = 0; $i < $drugs.length; $i++){
+		var $drug = $drugs[$i];
+		_assertVisible(_div($drug.drugDosage));
+	}
+	_setAccessorIgnoreCase(false);
+}
+
+function resetSPFData(){
+	$pdPreferencesDTOFromPage.providers = [];
+	$pdPreferencesDTOFromPage.prescriptions = [];
+}
+
+function getProvidersFromSPF(){
+	$pdPreferencesDTOFromPage.providers = $pdPreferencesDTOFromPage.providers || [];
+	return $pdPreferencesDTOFromPage.providers;
+}
+
+function getDrugsFromSPF(){
+	$pdPreferencesDTOFromPage.prescriptions = $pdPreferencesDTOFromPage.prescriptions || [];
+	return $pdPreferencesDTOFromPage.prescriptions;
+}
+
+function verifyIncorrectShoppingIdPage(){
+	_assertEqual("This feature is not available at this time. Please check again later or contact Washington Health Benefit Exchange.", _getText(_div("alert alert-danger")));
+	_assertVisible(_div("This feature is not available at this time. Please check again later or contact Washington Health Benefit Exchange."));
+}
+
+function clickToGoBack(){
+	_assertEqual("Go Back", _getText(_submit("goback_button")));
+	_click(_submit("goback_button"));
+}
+
+function calculateSmartChoicePlan(){
+	_assertEqual("Calculate Smart Choice Plans", _getText(_submit("forward_button")));
+	_click(_submit("forward_button"));
+}
+
+function cancelAndGoBackToPlanResults(){
+	_assertEqual("Cancel, Go back to Plan Results", _getText(_submit("cancel_button")));
+	_click(_submit("cancel_button"));
+}
+
+function verifySPFPageInOtherLanguage($languageTo){
+	_setLanguage("../resources/" + $languageTo + ".properties", "../resources/english.properties");
+	_assertEqual("K:HEADER_DESCRIPTION", _getText(_paragraph("header-description")));
+	_setLanguage("../resources/english.properties", "../resources/"+$languageTo+".properties");
+}
+
+function verifyCalculateSmartChoicePlansIsDisabled(){
+	_assert(_getAttribute(_submit("Calculate Smart Choice Plans"), "disabled"));
+}
+
+function verifyDuplicateDrugSelectionMessage(){
+	_assertVisible(_div("The drug is already selected. If you would like to select another dosage of the same drug, delete your original selection."));
+}
+
+function verifyDuplicateDoctorSelectionMessage(){
+	_assertVisible(_div("Your provider's address has changed. You cannot select a provider or facility in more than one location."));
+}
+
+function setZipCodeForProviderSearch($zipCode, $isInvalid){
+	_setValue(_textbox("zipcode"), "");
+	_assertNotVisible(_paragraph("Please enter a valid zipcode"));
+	_setValue(_textbox("zipcode"), $zipCode);
+	if (isTrue($isInvalid)) {
+		_assertVisible(_paragraph("Please enter a valid zipcode"));
+	}
+	else {
+		_assertNotVisible(_paragraph("Please enter a valid zipcode"));
+	}
+}

@@ -1,0 +1,12 @@
+{
+    "leftPanel": {
+        "lbl_inThisSection": "$('h2*=In this section')",
+        "lbl_requiredFields": "$('small*=All labels marked')",
+        "lbl_requiredNotice": " $('li*=The cost of health and dental insurance')",
+        "lbl_requiredNotice2": "$('//li[contains(text(),\"view your selected favorite health and dental plans\")]')"
+    },
+    "continueSectionHeader": "$('//h1[contains(text(),\"Pennie\")]')",
+    "lk_continue": "$('*=Continue')",
+    "lbl_importantTextContinuePage": "$('//p[contains(text(),\"you acknowledge that you understand\")]')",
+    "pageHeader": "$('#titlebar')"
+}

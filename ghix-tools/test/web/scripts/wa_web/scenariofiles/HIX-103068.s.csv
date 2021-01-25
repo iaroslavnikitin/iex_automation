@@ -1,0 +1,9 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/SmartPlanFinder.sah"
+
+"HIX-103068","[Documentation]","DST: UI automation - No Household ID passed"
+,"$redirectDomain=","""https://www.google.com"""
+,"navigateToSmartPlanfinderWithParameters","en","pre","$redirectDomain"
+,"verifyIncorrectShoppingIdPage"
+,"clickToGoBack"
+,"verifyURLOfPage","$redirectDomain + ""/ReturnToHPFOnCancel?appflow=pre"""

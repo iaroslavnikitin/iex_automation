@@ -1,0 +1,218 @@
+{
+    "headerRightPanel":
+    {
+       "label":"Public Profile",
+       "fieldType":"staticText",
+       "selectors":
+       {
+         "common":"$('#rightpanel .header')",
+         "PA":"$('#rightpanel .header')"
+       },
+       "headerText":"Step 4: Public Profile"
+       
+    },
+    "clientsServed":
+     {
+        "label":"client Served",
+        "fieldType":"checkBox",
+        "selectors":
+         {
+            "common":"$('#clientsServed')",
+            "PA":"$('#clientsServed')"
+         },
+         "required":true
+         
+     },
+     "languages":
+     {
+        "label":"Languages",
+        "fieldType":"hiddenDropBox",
+        "selectors":
+         {
+            "common":"$('#chzn-choices')",
+            "PA":"$('#chzn-choices')",
+            "ID":"$('#languagesSpoken_chzn > ul > li > input')"
+         },
+         "required":false,
+         "matchingDataProperty":"languages"
+         
+     },
+     "productExpertise" :
+       { "required":false,
+        "options":
+        {
+           "health":
+
+            { "label":"Health",
+                "selectors":
+                {
+                    "common":"$('#productExpertise-health')",
+                    "PA":"$('#productExpertise-health')"
+                }
+                
+            },
+            "dental":
+
+            { "label":"Dental",
+                "selectors":
+                {
+                    "common":"$('#productExpertise-dental')",
+                    "PA":"$('#productExpertise-dental')",
+                    "ID":"$('#productExpertise-dental-label > input')"
+                }
+                
+            },
+            "vision":
+            {
+                "label":"Vision",
+                "selectors":
+                {
+                    "common":"$('#productExpertise-vision')",
+                    "PA":"$('#productExpertise-vision')"
+                }
+                
+            },
+            "life":
+            {
+                "label":"Life",
+                "selectors":
+                {
+                    "common":"$('#productExpertise-life')",
+                    "PA":"$('#productExpertise-life')"
+                }
+                
+            },
+            "medicare":
+            {
+                "label":"Medicare",
+                "selectors":
+                {
+                    "common":"$('#productExpertise-medicare')",
+                    "PA":"$('#productExpertise-medicare')",
+                    "ID":"$('#productExpertise-medicare-label > input')"
+                }
+                
+            },
+            "workersCompensation":
+            {
+                "label":"Workers Compensation",
+                "selectors":
+                {
+                    "common":"$('#productExpertise-compensation')",
+                    "PA":"$('#productExpertise-compensation')"
+                }
+                
+            },
+            "propertyCasualty":
+            {
+                "label":"Property/Casualty",
+                "selectors":
+                {
+                    "common":"$('#productExpertise-property')",
+                    "PA":"$('#productExpertise-property')"
+                }
+                
+            }
+
+        }
+    },
+    "website":
+     {
+        "label":"Your Website Address",
+        "fieldType":"url",
+        "selectors":
+         {
+            "common":"$('#yourWebSite')",
+            "PA":"$('#yourWebSite')"
+         },
+         "required":true,
+         "matchingDataProperty":"website"
+     },
+     "publicEmail":
+     {
+        "label":"Your Public Email",
+        "fieldType":"email",
+        "selectors":
+         {
+            "common":"$('#yourPublicEmail')",
+            "PA":"$('#yourPublicEmail')"
+         },
+         "required":true,
+         "matchingDataProperty":"publicEmail"
+     },
+     
+     "education":
+     {
+        "label":"Education",
+        "fieldType":"dropDown",
+        "selectors":
+         {
+            "common":"$('#education')",
+            "PA":"$('#education')"
+         },
+         "required":true,
+         "matchingDataProperty":"education"
+     },
+     "aboutMe":
+     {
+        "label":"About Me",
+        "fieldType":"text",
+        "selectors":
+         {
+            "common":"$('#aboutMe')",
+            "PA":"$('#aboutMe')"
+         },
+         "required":true,
+         "matchingDataProperty":"aboutMe"
+     },
+     "photo":
+     {
+        "label":"Upload Photo",
+        "type":"button",
+        "selectors":
+         {
+            "common":{"chooseFileButton":"$('#fileInputPhoto')", "uploadButton":"$('#btn_UploadPhoto')"},
+            "PA":{"chooseFileButton":"$('#fileInputPhoto')", "uploadButton":"$('#btn_UploadPhoto')"}
+         }
+        
+     },
+     "backButton":
+     {
+       "label":"Back",
+       "fieldType":"button",
+       "selectors":
+        {
+           "common":"$('#back')",
+           "PA":"$('#back')"
+        }
+     },
+ 
+     "nextButton":
+     {
+       "label":"Next",
+       "fieldType":"button",
+       "selectors":
+        {
+           "common":"$('#submit_finish_next')",
+           "PA":"$('#submit_finish_next')"
+        }
+     },
+
+ "fileUploadSuccessAlert":
+ {
+     "label":"",
+     "fieldType":"alertBox",
+     "selectors":
+     {
+        "common":
+        {
+            "box":"$('#fileUoload')",
+            "okButton":"$('#iFrameClose')"
+        }
+     }
+    
+ }    
+     
+
+
+}

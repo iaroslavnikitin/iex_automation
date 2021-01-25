@@ -1,0 +1,55 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("Utils.sah");
+_includeOnce("VerifyAccessCode.sah");
+
+var $AccessCodeMenu = true;
+var $accessCode="";
+
+// Accessors
+var $accessCodeHeader = _heading4("Access Code");
+var $accessCodeTextbox = _textbox("accessCode");
+var $accessCodeSubmit = _submit("Submit");
+var $accessCodeAccessors = [$accessCodeHeader, $accessCodeTextbox, $accessCodeSubmit];
+
+function verifyElementsOfAccessCodeOnIndividualDashboard() {
+	verifyArray($accessCodeAccessors);
+}
+
+function clickSubmitAccessCode($code) {
+	_setValue($accessCodeTextbox, $code);
+	_click($accessCodeSubmit);
+}
+
+function clickSubmitForInvalidAccessCode($code) {
+	_setValue($accessCodeTextbox, $code);
+	_click($accessCodeSubmit);
+	verifyForInvalidAccessCode();
+}
+
+function accessCode($accessCode){
+	var $url;
+	_set($url, window.document.location.href);
+
+	// Open the new browser
+	var $id = _launchNewBrowser();
+	_wait(5000);
+	_selectBrowser($id);
+	_navigateTo($url);
+	_click(_image("Your Health Idaho"));
+	_selectWindow("/Your Health Idaho/");
+	_assertVisible(_div("access-code register-signin ng-scope"));
+	_setValue(_textbox("accessCode", _near(_div("Enter the characters above. Enter the numbers you hear."))), $accessCode);
+	_removeFocus(_textbox("accessCode", _near(_div("Enter the characters above. Enter the numbers you hear."))));
+	var $validCode = validAccessCode($accessCode);
+	if($accessCode=""){
+		_assertVisible(_label("!Please enter access code."));
+	}
+	else  if($validCode<1){
+		_assertVisible(_label("!Please enter valid access code."));
+	}
+	else {
+		_log("Valid Access Code");
+	}
+	_selectBrowser();
+	_focusWindow();
+}

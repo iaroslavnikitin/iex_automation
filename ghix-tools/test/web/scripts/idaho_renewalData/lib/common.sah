@@ -1,0 +1,129 @@
+_includeOnce("../pagemodels/JenkinsAndDBSetUp.sah");
+_includeOnce("../pagemodels/Utils.sah");
+
+function agreeDisclaimerforCT(){
+	if ($isConnecticut){
+		if (getApplicationLanguage() == "spanish") {
+			if (_isVisible(_link("Español"))) {
+				_click(_link("Español"));
+			}
+		}
+		if (_isVisible(_link("I Agree"))) {
+			_click(_link("I Agree"));
+		}
+		else {
+			_assert(false, "Did not see Disclaimer header. Hence, did not click on 'I Agree' button.");
+		}
+	}
+
+}
+
+
+function verifyTooltip($el, $message){
+	_lockWindow(10000);
+	_focusWindow();
+	_focus($el);
+	_wait(2000, _isVisible(_div($message)));
+	_assertVisible(_div($message));
+	_assertEqual($message, _getText(_div("L:tooltip-inner")));
+	_blur($el);
+	_wait(2000, !_isVisible(_div($message)));
+	_unlockWindow();
+}
+
+function clickElement($el){
+	_assertVisible($el);
+	_assertFalse(_getAttribute($el, "disabled"));
+	_click($el);
+}
+
+function waitForLoad(){
+	_wait(5000, _isVisible(_div("/ball/")));
+	_wait(5000, !_isVisible(_div("/ball/")));
+}
+
+function getCoverageYear(){
+	if (isCTProductionEnvironment()) {
+		return ["2018"];
+	}
+	else {
+		var $current_coverage_year = parseInt(getCurrentCoverageYear());
+		var $defaultCoverageStartDate = _fetch(window.moment().get('year')) + "-11-15";
+		if (_fetch(window.moment().isAfter($defaultCoverageStartDate))) {
+			return [$current_coverage_year];
+		}
+
+		var $show_current_year = getPreScreenerShowCurrentYear();
+		if (_fetch(window.moment().isBefore($show_current_year))) {
+			return [_call(window.moment().get('year'))];
+		}
+
+		var $prev_coverage_year = parseInt(getPreviousCoverageYear());
+		if ($current_coverage_year - $prev_coverage_year == 1) {
+			return [$current_coverage_year, $prev_coverage_year];
+		}
+
+		if ($current_coverage_year - $prev_coverage_year > 1) {
+			return [$current_coverage_year];
+		}
+
+		_fail("Did not return any coverage year for current_coverage_year("+$current_coverage_year+"), show_current_year("+$show_current_year+"), prev_coverage_year("+$prev_coverage_year+")");
+	}
+}
+
+// TODO no event to help get coverage start date
+function getCoverageStartDate(){
+	if ($isConnecticut) {
+		var $current_coverage_year = getCurrentCoverageYear();
+		if (_fetch(window.moment().get('year')) == "2017") {
+			return "01/01/2018";
+		}
+	}
+
+}
+
+function getRandomDateOfBirth(){
+	var $month = Math.floor(Math.random() * 12) + 1;
+	if ($month < 10) {
+		$month = "0" + $month;
+	}
+		
+	var $day = Math.floor(Math.random() * 28) + 1;
+	if ($day < 10) {
+		$day = "0" + $day;
+	}
+	
+	var $year = Math.floor(Math.random() * 50);
+	var $year = 1940 + $year;
+	
+	var $dob = String($month)+String($day) + String($year);
+
+	_log("Random date of birth generated is " +$dob);
+	return $dob;
+
+
+}
+/*
+SSN RULES: Some special numbers are never allocated:
+			Numbers with all zeros in any digit group (000-##-####, ###-00-####, ###-##-0000).
+			Numbers with 666 or 900-999 (Individual Taxpayer Identification Number) in the first digit group.
+*/
+function getRandomSSN(){
+// Keep generating until a valid SSN is generated
+	var $SSN;
+	var $SSNFlag;
+	do {
+		$SSN = randomString(3, true) + "-" + randomString(2, true) + "-" + randomString(4, true);
+		$SSNFlag = isSSNAlreadyPresent($SSN);
+		// Conform to SSN requirements  
+	}
+	while(($SSN.charAt(0) === '0' && $SSN.charAt(1) === '0' && $SSN.charAt(2) === '0')
+		|| ($SSN.charAt(0) === '6' && $SSN.charAt(1) === '6' && $SSN.charAt(2) === '6') 
+		|| $SSN.charAt(0) === '9'
+		|| ($SSN.charAt(4) === '0' && $SSN.charAt(5) === '0') 
+		|| ($SSN.charAt(7) === '0' && $SSN.charAt(8) === '0' && $SSN.charAt(9) === '0' && $SSN.charAt(10) === '0'
+		||$SSNFlag != ""));
+	
+	return $SSN;
+
+}

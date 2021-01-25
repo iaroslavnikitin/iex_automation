@@ -1,0 +1,7 @@
+{
+  "commonHeaderAndFooter":
+  {
+  "lk_myAccount":"$('a*=My Account')"
+  }
+}
+

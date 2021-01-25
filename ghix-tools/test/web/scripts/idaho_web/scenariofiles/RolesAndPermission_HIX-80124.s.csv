@@ -1,0 +1,16 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+"//",,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+"all,CAP,Security,HIX-80124","HIX-80124 Reopen Ticket","[Documentation]","Verify Reopen Ticket."
+,,"openBrowser"
+,,"[Keyword]","reOpenUserTicket"
+,,"[Data]","[userdata:reopen:email]","[userdata:reopen:password]","[userdata:reopen:role]","[userdata:reopen:assignPermission]","[userdata:reopen:archivePermission]","[userdata:reopen:ticketType]","[userdata:reopen:subType]","[userdata:reopen:createdForRole]","[userdata:reopen:user]","[userdata:reopen:expUser]","[userdata:reopen:priority]"

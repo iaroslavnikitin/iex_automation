@@ -1,0 +1,239 @@
+{
+  "scenario": "ComplexA",
+  "applicationYear": "",
+  "applicationStatus": "ER",
+  "applicationType": "",
+  "caseNumber": "",
+  "aptc": null,
+  "password": "ghix123#",
+  "isFinancial": false,
+  "coverageDate": "",
+  "qualifyingEvent": "Marriage",
+  "primaryAddress": {
+    "home": {
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "county": "",
+      "zip": ""
+    },
+    "mailing": {
+      "mailingAddSameAsHomeIndicator": true,
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "county": "",
+      "zip": ""
+    }
+  },
+  "primaryContactPref": {
+    "spokenLang": "English",
+    "writtenLang": "English",
+    "prefMethodOfComm": "Email"
+  },
+  "primaryContactPhone": {
+    "mobile": "",
+    "home": "408-622-1001",
+    "ext": "5443"
+  },
+  "startYourApplication": {
+    "getHelpApplyingIndicator": false
+  },
+  "plan": {
+    "HealthPlan": "",
+    "DentalPlan": ""
+  },
+  "applicants": [
+    {
+      "memberId": "3819",
+      "guid": "1000005824",
+      "firstName": "",
+      "lastName": "",
+      "gender": "Female",
+      "ssn": "",
+      "sameNameOnSSN": true,
+      "suffix": "",
+      "relation": "SELF",
+      "dateOfBirth": "01/01/1992",
+      "email": "",
+      "isNative": true,
+      "isDisabled": false,
+      "helpWithActivities": false,
+      "isPregnant": false,
+      "noOfBabies": 0,
+      "seekingCoverage": true,
+      "seeksQHP": true,
+      "exchangeEligible": true,
+      "aptcEligible": false,
+      "stateSubsidyEligible": false,
+      "csrEligible": true,
+      "assessedMedicaidMAGIEligibile": false,
+      "assessedChipEligible": false,
+      "assessedMedicaidnonMAGIEligibile": false,
+      "assessedCHIPnonMAGIEligibile": false,
+      "medicaidMAGIEligibile": false,
+      "medicaidNonMAGIEligibile": false,
+      "chipEligible": false,
+      "nativeAmerican": false,
+      "csrLevel": null,
+      "middleName": "",
+      "nameSuffix": "",
+      "fosterCareIndicator": false,
+      "isStudent": false,
+      "isDeniedMedicaid": false,
+      "relationship": [
+        {
+          "guid": "",
+          "relation": "Spouse"
+        }
+      ],
+      "sameAsApplicantAddress": true,
+      "address": {
+        "addressLine1": "",
+        "addressLine2": "",
+        "city": "",
+        "state": "",
+        "county": "",
+        "zip": ""
+      },
+      "immigration": {
+        "isCitizen": true,
+        "isNaturalizedCitizen": false
+      },
+      "ethnicityRace": {
+        "isHispanic": false,
+        "race": "American Indian or Alaska Native"
+      },
+      "income": {
+        "isGettingIncome": true,
+        "sourceOfIncome": "Job",
+        "nameOfEmployer": "StarShip",
+        "amount": 23628,
+        "frequency": "Yearly",
+        "deductionSources": {
+          "sourceOfIncome": "Job",
+          "nameOfEmployer": "StarShip",
+          "amount": 23628,
+          "frequency": "Yearly"
+        },
+        "payingDeductions": "no",
+        "expectedIncomeInNextYear": {
+          "expectingSameIncome": "Yes",
+          "unknownIncome": true,
+          "totalExpectedYearlyAmount": 23628
+        }
+      },
+      "hasOtherHealthCoverage": false,
+      "hasReconciledAptc": true,
+      "hasESI": false,
+      "hasNonESI": false,
+      "helpPayingMedicalBills": false
+    },
+    {
+      "memberId": "3820",
+      "guid": "",
+      "firstName": "",
+      "lastName": "",
+      "gender": "Male",
+      "ssn": "",
+      "sameNameOnSSN": true,
+      "suffix": "",
+      "relation": "Spouse",
+      "dateOfBirth": "01/01/1992",
+      "email": "",
+      "isNative": false,
+      "isDisabled": false,
+      "helpWithActivities": false,
+      "isPregnant": false,
+      "noOfBabies": 0,
+      "seekingCoverage": true,
+      "seeksQHP": true,
+      "exchangeEligible": true,
+      "aptcEligible": false,
+      "stateSubsidyEligible": false,
+      "csrEligible": false,
+      "assessedMedicaidMAGIEligibile": false,
+      "assessedChipEligible": false,
+      "assessedMedicaidnonMAGIEligibile": false,
+      "assessedCHIPnonMAGIEligibile": false,
+      "medicaidMAGIEligibile": false,
+      "medicaidNonMAGIEligibile": false,
+      "chipEligible": false,
+      "nativeAmerican": false,
+      "csrLevel": null,
+      "middleName": "",
+      "nameSuffix": "",
+      "fosterCareIndicator": false,
+      "isStudent": false,
+      "isDeniedMedicaid": false,
+      "relationship": [
+        {
+          "guid": "",
+          "relation": "Spouse"
+        }
+      ],
+      "sameAsApplicantAddress": true,
+      "address": {
+        "addressLine1": "",
+        "addressLine2": "",
+        "city": "",
+        "state": "",
+        "county": "",
+        "zip": ""
+      },
+      "immigration": {
+        "isCitizen": true,
+        "isNaturalizedCitizen": false
+      },
+      "ethnicityRace": {
+        "isHispanic": false,
+        "race": ""
+      },
+      "income": {
+        "isGettingIncome": true,
+        "sourceOfIncome": "Job",
+        "nameOfEmployer": "StarShip",
+        "amount": 10000,
+        "frequency": "Yearly",
+        "deductionSources": {
+          "sourceOfIncome": "Job",
+          "nameOfEmployer": "StarShip",
+          "amount": 10000,
+          "frequency": "Yearly"
+        },
+        "payingDeductions": "no",
+        "expectedIncomeInNextYear": {
+          "expectingSameIncome": "Yes",
+          "unknownIncome": true,
+          "totalExpectedYearlyAmount": 10000
+        }
+      },
+      "hasOtherHealthCoverage": false,
+      "hasStateHealthBenifit": false,
+      "hasReconciledAptc": true,
+      "hasESI": false,
+      "hasNonESI": false,
+      "helpPayingMedicalBills": false
+    }
+  ],
+  "incomeTax": {
+    "taxFilers": [
+      0,
+      1
+    ],
+    "jointFilingIndicator": true,
+    "primaryTaxFilerPersonId": 0,
+    "dependentToTaxFilers": [
+      "2_1_2"
+    ]
+  },
+  "militaryService": [],
+  "AmericanIndianOrAlaskaNative": [
+    0
+  ],
+  "ssapApplicationId": 2408,
+  "financial": false,
+  "grouping": []
+}

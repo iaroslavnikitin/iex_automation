@@ -1,0 +1,24 @@
+{
+    "pageHeader":"$('h1')",
+    "search":{
+        "sb_applicationYear":"$('#effectiveYearProxy')",
+        "tb_firstName": "$('#firstName')",
+        "tb_lastName": "$('#lastName')",
+        "tb_phone": "$('#contactNumber')",
+        "tb_ssn": "$('#ssn')",
+        "tb_applicationId": "$('#appId')",
+        "tb_externalApplicationId": "$('#extAppId')",
+        "sb_appSource": "$('#appSource')",
+        "tb_externalApplicantId": "$('#externalApplicantId')",
+        "tb_dob":"$('#dateOfBirth')",
+        "tb_exchangePolicyId": "$('#enrollmentId')",
+        "sb_enrollmentStatus": "$('#enrollmentStatus')",
+        "tb_householdId": "$('#cmrHouseholdId')",
+        "tb_externalCaseId": "$('#externalCaseId')",
+        "tb_exchangeAssignedMemberId": "$('#exchangeAssignedMemberId')",
+        "btn_go": "$('button*=Go')",
+        "lk_resetAll": "$('a*=Reset all')"
+    },    
+    "txt_totalCount":"$('li*=Total :')",
+    "lk_viewMember":"$('//a[contains(@href,\"viewmember\")]')"    
+}

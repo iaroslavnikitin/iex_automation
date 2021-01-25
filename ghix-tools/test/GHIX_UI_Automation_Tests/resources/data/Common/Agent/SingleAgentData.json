@@ -1,0 +1,38 @@
+{
+    "agent": {
+        "firstName": "",
+        "lastName": "",
+        "email": "",
+        "phone": "408-367-7673",
+        "securityQuestion": "",
+        "securityAnswer": "",
+        "password": "",
+        "clientServed": "",
+        "prefferedMethodOfCommunication": "Email Address",
+        "businessLocation": 1,
+        "clientsServed": "Individuals / Families",
+        "productExpertise": [
+            "dental",
+            "medicare"
+        ],
+        "languages": [
+            "English",
+            "Russian",
+            "Italian"
+        ],
+
+        "education": "Bachelor Degree",
+
+        "certificationStatus": "",
+        "tb_certificationStartDate": "",
+        "tb_certificationEndDate": ""
+
+    },
+    "agency": {
+        "agencyName": "",
+        "businessName": "",
+        "ein": "",
+        "licenseNumber": "",
+        "certificationStatus": ""
+    }
+}

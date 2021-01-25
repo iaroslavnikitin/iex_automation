@@ -1,0 +1,313 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../global_include.sah"
+,"loadSahi","../pagemodels/HomePage.sah"
+,"loadSahi","../lib/DB.sah"
+,"[Documentation]","Demonstrates a multi generation application where the application filer resides at a separate address from the other application members within the application state.  This scenario also demonstrates the UI's ability to display special Medicaid HH composition questions to the grandchild."
+
+
+,"$coverageDate = getCurrentCoverageYear"
+,"clickStartShopping","$coverageDate"
+,"$coverageYear = selectCoverageYear",,"$coverageDate"
+,"clickSkipAndSignUp"
+,"[Documentation]","emailPrefix","firstName","LastName","date of birth","SSN","IsDobAndSSNDisplayed"
+,"$people = clickSubmitOnSignUpPage",,"""Grandpa""","""Ee""","""01/01/1954"""
+,"[Documentation]","Address 1","Address 2","City","State","Zip","County","Date Of Birth","Communication Preference","Check For Address","Spoken Lang","Written Lang","TextMe checkbox","Coverage Date","HouseHold"
+,"$zip=","17025"
+,"clickContinueOnCommunicationPreference","""4510 Marketplace Way""","""""","""Enola""","""Pennsylvania""","$zip",,,,,"""English""","""English""",,"$coverageDate[0][0]","$people"
+,"[Documentation]","Mark individual as verified"
+,"loginAdminAndVerifyIdentity"
+
+,"selectApplicationYear","$coverageDate[0][0]"
+,"clickStartApplication"
+,"selectPrivacyCheckboxForSSAP"
+,"[Documentation]","SSAP page"
+,"clickContinueButton","2"
+
+,"clickContinueButton","3"
+,"[Documentation]","firstName","middleName","lastName","suffix","DOB","email","isAutopopulated"
+,"enterContactNameForPrimary","$people[0].$firstName","""""","$people[0].$lastName","""""","$people[0].$dob","$people[0].$email","""YES"""
+,"enterContactHomeAddress","""4510 Marketplace Way""","""""","""Enola""","$zip","""Pennsylvania""","""Cumberland""","""YES"""
+,"enterContactMailingAddress","TRUE",,,,,,,"""YES"""
+,"enterContactPhone","$people[0].$phoneNumber","$people[0].$phoneNumber","""5443"""
+,"enterContactPreferences","""English""","""English""","""Email"""
+
+,"clickContinueButton","4"
+,"clickHelpingMyself"
+
+,"goToHelpPayingForCoverage"
+,"[Documentation]","""Y"" or ""N"""
+,"clickGetHelpPayingForCoverage","""Y"""
+
+,"clickContinueButton","6"
+
+,"[Documentation]","member number","firstName","middleName","lastname","suffix","DOB","Seeking Coverage","Relation to applicant"
+,"$ssapInfo = enterInformation","0","$people[0].$firstName","""""","$people[0].$lastName","""""","$people[0].$dob","TRUE","""Self"""
+,"clickAddMember"
+,"$ssapInfo = enterInformation","1","""Sonny""","""""","""Ee""","""""","""01/01/1963""","TRUE","""Child (son or daughter)"""
+,"clickAddMember"
+,"$ssapInfo = enterInformation","2","""Baby""","""""","""Ee""","""""","""01/01/2012""","TRUE","""Grandchild (grandson or granddaughter)"""
+,"$ssapInfo[0].$email =","$people[0].$email"
+,"goToInformationAboutMedicareModal","0"
+,"_wait","1000"
+,"clickContinueButton","7"
+,"[Documentation]","First Person","Second Person","Relationship","Member"
+,"selectRelationship","$ssapInfo[0]","$ssapInfo[1]","""Parent (father or mother)"""
+,"selectRelationship","$ssapInfo[0]","$ssapInfo[2]","""Grandparent (grandfather or grandmother)"""
+,"selectRelationship","$ssapInfo[1]","$ssapInfo[2]","""Parent (father or mother)"""
+,"_windowAction","""maximize"""
+,"goToHouseholdAddresses"
+,"selectIndividualWithDifferentAddress","1"
+,"$ssapInfo = addHouseholdAddress","1","""421 N Enola Rd""","""""","""Enola""","""17025""","""Pennsylvania""","""Cumberland"""
+,"selectHouseholdAddress","1","$ssapInfo"
+
+,"selectIndividualWithDifferentAddress","2"
+,"$ssapInfo = addHouseholdAddress","2","""421 N Enola Rd""","""""","""Enola""","""17025""","""Pennsylvania""","""Cumberland""","""Yes"""
+,"goToSummary"
+,"[Documentation]","Family and HouseHold Section"
+,"clickContinueButton","8"
+
+,"clickContinueButton","9","true"
+,"selectGender","""Male"""
+,"selectHasSSN","""Yes"""
+,"enterSSN","$people[0].$SSN"
+,"enterSameSSNName","""Yes"""
+
+,"clickContinueButton","10"
+,"[Documentation]","Is US citizen"
+,"selectCitizen","""Yes"""
+,"selectNaturalized","""No"""
+
+,"clickContinueButton","11"
+,"goToMaritalStatus","0","""No"""
+
+,"clickContinueButton","9","true"
+,"selectGender","""Male"""
+,"selectHasSSN","""Yes"""
+,"enterSSN"
+,"enterSameSSNName","""Yes"""
+
+,"clickContinueButton","10"
+,"[Documentation]","Is US citizen"
+,"selectCitizen","""Yes"""
+,"selectNaturalized","""No"""
+
+,"clickContinueButton","11"
+,"goToMaritalStatus","1","""No"""
+,"goToParentCareTakerInformation","1","[0]","""Yes"""
+,"clickContinueButton","9"
+,"selectGender","""Female"""
+,"selectHasSSN","""Yes"""
+,"enterSSN"
+,"enterSameSSNName","""Yes"""
+
+,"clickContinueButton","10"
+,"[Documentation]","Is US citizen"
+,"selectCitizen","""Yes"""
+,"selectNaturalized","""No"""
+
+,"clickContinueButton","11"
+,"goToMilitaryService"
+,"selectIfVeteranOrMilitaryMember","[]"
+,"goToHouseholdInformation","$people[0].$firstName","$people[0].$lastName"
+,"selectToMakeChangesOnHouseHoldInformation",,"""No"""
+,"selectFederalTaxFiler","[0]"
+
+,"selectDependents","[1,2]"
+,"selectToProvideMoreInformation","2"
+
+,"goToAIAN"
+,"selectAIANPersons","[]"
+,"goToMedicaidChipDenialInformation","[0,1,2]"
+,"selectMedicaidChipDenialInformation","[]"
+,"goToDisabilityInformation","[0,1,2]"
+,"selectDisabilityInformation","[2]"
+,"selectNeedHelpWithActivities","[]"
+,"goToFamilyAndHouseholdSummary"
+
+,"[Documentation]","Income Information section"
+,"goToIncomeInformation"
+
+,"goToIncomeSources","0"
+,"selectIncomeCurrently","0","true"
+,"addIncomeSource","0","""Social Security Benefits""","""1500""","""Monthly"""
+,"_wait","1000"
+,"addIncomeSource","0","""Retirement""","""1000""","""Monthly"""
+,"goToDeductionSources","0"
+,"selectToTellAboutDeductions","0","false"
+,"goToExpectedIncome","0"
+,"changeExpectedIncome","0",,"true"
+,"goToIndividualIncomeSummary","0"
+
+,"goToIncomeSources","1"
+,"selectIncomeCurrently","1","true"
+,"addIncomeSource","1","""Self Employment""","""600""","""Monthly"""
+,"goToDeductionSources","1"
+,"selectToTellAboutDeductions","1","false"
+,"goToExpectedIncome","1"
+,"changeExpectedIncome","1",,"true"
+,"goToIndividualIncomeSummary","1"
+
+,"goToIncomeSources","2"
+,"selectIncomeCurrently","2","false"
+,"goToDeductionSources","2"
+,"selectToTellAboutDeductions","2","false"
+,"goToExpectedIncome","2"
+,"changeExpectedIncome","2",,"true"
+,"goToIndividualIncomeSummary","2"
+
+,"goToIncomeSummary"
+
+,"[Documentation]","Additional Information section"
+,"goToOtherHealthCoverage","0"
+,"selectHealthCoverageEnrollment","0","""No""","[]"
+,"goToReconcilationOfAPTC","0"
+,"selectReconciledAPTCPastYear","0","""Yes"""
+,"goToEmployerCoverageDetail","0"
+,"selectEmployerCoverageDetails","0","""No"""
+,"goToStateEmployeeHealthBenefit","0"
+,"selectStateEmployeeHealthBenefit","0","""No"""
+
+,"goToAdditionalInformationPage","0"
+,"selectIfNeedHelpPayingBills","0","""No"""
+,"goToOtherHealthCoverage","1"
+,"selectHealthCoverageEnrollment","1","""No""","[]"
+,"goToEmployerCoverageDetail","1"
+,"selectEmployerCoverageDetails","1","""No"""
+,"goToStateEmployeeHealthBenefit","1"
+,"selectStateEmployeeHealthBenefit","1","""No"""
+,"goToAdditionalInformationPage","1"
+,"selectIfNeedHelpPayingBills","1","""No"""
+
+,"goToOtherHealthCoverage","2"
+,"selectHealthCoverageEnrollment","2","""No""","[]"
+,"goToEmployerCoverageDetail","2"
+,"$ssapInfo = selectEmployerCoverageDetails","2","""No"""
+,"goToStateEmployeeHealthBenefit","2"
+,"selectStateEmployeeHealthBenefit","2","""No"""
+,"goToAdditionalInformationPage","2"
+,"selectIfNeedHelpPayingBills","2","""No"""
+,"selectIfParentLivingDifferentAddress","2","""No"""
+,"goToAddtionalInformationSummary","[0,1,2,3]"
+
+,"[Documentation]","Review And Sign section"
+,"goToReviewAndSign"
+,"goToFinalReview","$ssapInfo"
+,"goToSignAndSubmit","[0,1,2]"
+,"selectIncarceratedIndividual","[]"
+,"goToPreeligibiltyModal","[2]"
+,"$appType = getApplicationType","$people"
+
+,"[Documentation]","Event","Days","QEventFlag","Year of Coverage","household","Action Button","Groups","Is Health Enrollment done","Is financial"
+,"$eventDetails= clickSubmitSSAP",,,,"$coverageDate[0][0]","$ssapInfo","""SHOP FOR PLANS""",,,"""Yes""","""true""","""true""",,,,"$appType"
+,"verifyHouseholdEligibilityOfIndividual","$ssapInfo[2]","""Medicaid assessed"""
+,"clickViewDetailsDashBoard"
+,"verifyEligibilityStatus","""Conditional"""
+,"verifyProgramStatusOnViewDetails","$ssapInfo[0]","[""Advanced Premium Tax Credit"", ""Cost Sharing Reduction"", ""Medical and Dental Insurance""]"
+,"verifyProgramStatusOnViewDetails","$ssapInfo[1]","[""Advanced Premium Tax Credit"", ""Cost Sharing Reduction"", ""Medical and Dental Insurance""]"
+,"verifyProgramStatusOnViewDetails","$ssapInfo[2]","[""Medicaid Assessed"", ""Medical and Dental Insurance""]"
+
+,"[Documentation]"
+,"$ssapInfo.coverageStartDate = getCoverageStartDate",,,,"$inOEP"
+,"$aptc = getAptcFromDB","$people[0].$email"
+
+,"[Documentation]","Num of members from household","household","aptc","csr"
+,"$defaultGroup=defineGroups","""group1:0,1,2""","$ssapInfo","""group1:$""+$aptc+"".00""","""group1:CS5"""
+,"clickShopForPlansFromDashboard","$ssapInfo",,,,,,,"$people","""auto_csr4@yopmail.com"""
+
+,"[Documentation]","Household information","Groups","Not Enrolled Groups? (Y/N)","Enrolled Groups? (Y/N)"
+,"clickSaveAndContinueOnAdditionalInfo","$ssapInfo","$defaultGroup","""Y""","""N"""
+
+,"[Documentation]","Num of members from household","household","aptc","csr"
+,"$customGroups=defineGroups","""group1:2;group2:0,1""","$ssapInfo","""group1:null;group2:$""+$aptc+"".00""","""group1:CS5;group2:CS5"""
+,"createCustomGroup","$customGroups[0]"
+
+,"[Documentation]","Household information"
+,"clickShopHealthPlan","$ssapInfo"
+
+,"[Documentation]","isCSREnabled","aptc Amount","noOfAdults","noOfChildren","showCatastrophic","is cap flow","ShowCSROnAllTiles","Custom Grouping","group"
+,"clickSkipPreferences",,,,,"""YES""",,,"""YES""","$customGroups[0]"
+
+,"[Documentation]","index","custom group? (YES/NO)"
+,"verifyPlanFeatureFilterOnPlanPage"
+
+,"[Documentation]","index","custom group? (YES/NO)"
+,"$customGroups[0].healthPlan = clickAddPlanFromPlanSelection",,"""YES"""
+
+,"[Documentation]","Health Plan Details","Dental plan Details","coverage date","Household information"
+,"clickContinueToCart","$customGroups[0].healthPlan",,"$defaultGroup[0].coverageStartDate","$customGroups[0]","""YES"""
+,"clickSignApplicationOnCart"
+
+,"[Documentation]","Household information"
+,"enterBindingArbitrationAgreement","$ssapInfo"
+
+,"[Documentation]","group info","Health Plan Details","Dental plan Details","coverage Date"
+,"clickSignAndEnroll","$customGroups[0]","$customGroups[0].healthPlan",,"$ssapInfo.coverageStartDate"
+
+,"[Documentation]","Status","Household information","Action button","event Date","Groups","is Health Enrollment Complete? Y/N"
+,"clickGoToDashboardFromEsignature","""Completed""","$ssapInfo","""CONTINUE SHOPPING""",,"$customGroups","""N""",,,,,,"""true""","""true"""
+
+,"[Documentation]","Household information","Groups","Not Enrolled Groups? (Y/N)","Enrolled Groups? (Y/N)","new Members Count","is SEP"
+,"clickContinueShoppingOnDashboard","$ssapInfo","$customGroups","""Y""","""Y""",,,,"""N"""
+
+,"[Documentation]","Household information","Groups","Not Enrolled Groups? (Y/N)","Enrolled Groups? (Y/N)"
+,"clickSaveAndContinueOnAdditionalInfo","$ssapInfo","$defaultGroup","""Y""","""Y"""
+
+,"createCustomGroup","$customGroups[1]"
+
+,"[Documentation]","Household information"
+,"clickShopHealthPlan","$ssapInfo"
+
+,"[Documentation]","isCSREnabled","aptc Amount","noOfAdults","noOfChildren","showCatastrophic","is cap flow","ShowCSROnAllTiles","Custom Grouping","group"
+,"clickSkipPreferences","""Y""","$customGroups[1].aptc",,,"""NO""",,,"""YES""","$customGroups[1]"
+
+,"[Documentation]","index","custom group? (YES/NO)"
+,"verifyPlanFeatureFilterOnPlanPage","""CSR Eligible includes special discounts"""
+
+,"[Documentation]","index","custom group? (YES/NO)"
+,"$customGroups[1].healthPlan = clickAddPlanFromPlanSelection",,"""YES"""
+
+,"[Documentation]","Health Plan Details","Dental plan Details","coverage date","Household information"
+,"clickContinueToCart","$customGroups[1].healthPlan",,"$defaultGroup[0].coverageStartDate","$customGroups[1]","""YES"""
+,"clickSignApplicationOnCart"
+
+,"[Documentation]","Household information"
+,"enterBindingArbitrationAgreement","$ssapInfo",,"""true"""
+
+,"[Documentation]","group info","Health Plan Details","Dental plan Details","coverage Date"
+,"clickSignAndEnroll","$customGroups[1]","$customGroups[1].healthPlan",,"$ssapInfo.coverageStartDate"
+
+,"[Documentation]","Status","Household information","Action button","event Date","Groups","is Health Enrollment Complete? Y/N"
+,"clickGoToDashboardFromEsignature","""Completed""","$ssapInfo","""CONTINUE SHOPPING""",,"$customGroups","""Y""",,,,,,"""true""","""true"""
+
+,"[Documentation]","Num of members from household","household","aptc","csr"
+,"$dentalGroup=defineGroups","""group1:0,1,2""","$ssapInfo","""group1:null""","""group1:null"""
+
+,"[Documentation]","Household information","Groups","Not Enrolled Groups? (Y/N)","Enrolled Groups? (Y/N)","new Members Count","is SEP","Landing page (Health or Dental)"
+,"clickContinueShoppingOnDashboard","$ssapInfo","$dentalGroup","""Y""","""N""",,,"""Dental"""
+
+,"[Documentation]","Household information","Groups","Not Enrolled Groups? (Y/N)","Enrolled Groups? (Y/N)"
+,"clickSaveAndContinueOnAdditionalInfo","$ssapInfo","$dentalGroup","""Y""","""N""","""N"""
+
+,"createCustomGroup","$dentalGroup[0]"
+,"$customGroups[2] =","$dentalGroup[0]"
+
+,"[Documentation]","isCSREnabled","aptc Amount","zipcode","coverage Date","noOfAdults","noOfChildren","showCatastrophic",,"Custom Grouping","group"
+,"clickShopDentalPlan",,,"$ssapInfo[0].$homeZip","$ssapInfo.coverageStartDate",,,"""NO""",,"""YES""","$customGroups[2]"
+
+,"[Documentation]","index","custom group? (YES/NO)"
+,"$customGroups[2].dentalPlan = clickAddPlanFromPlanSelection",,"""YES"""
+
+,"[Documentation]","Health Plan Details","Dental plan Details","coverage Date","Household information","Custom Grouping"
+,"clickContinueToCart",,"$customGroups[2].dentalPlan","$ssapInfo.coverageStartDate","$customGroups[2]","""YES"""
+,"clickSignApplicationOnCart"
+
+,"[Documentation]","Household information"
+,"enterBindingArbitrationAgreement","$ssapInfo",,"""true"""
+
+,"[Documentation]","group info","Health Plan Details","Dental plan Details","coverage Date"
+,"clickSignAndEnroll","$customGroups[2]",,"$customGroups[2].dentalPlan","$ssapInfo.coverageStartDate"
+
+,"[Documentation]","Status","Household information","Action button","event Date","Groups","is Health Enrollment Complete? Y/N","is Dental Enrollment Complete? Y/N",,,,,"$aptc","$csr"
+,"clickGoToDashboardFromEsignature","""Completed""","$ssapInfo","""CHANGE PLANS""",,"$customGroups","""Y""","""Y""",,,,,"""true""","""true""","$appType"
+
+,"verifyDB","$people","$ssapInfo","""EN""","""OE""","""CAE""","""CS6""","""true""","""ExchangeEligibilityType"""

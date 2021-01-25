@@ -1,0 +1,192 @@
+
+function verifyCompareHealthPlans($plans){
+	var $plansFromComparePage=_collectAttributes("_div", "/cp-tile__img/", "id", _in(_div("/cp-tile__body/")));
+	_assertEqual($plans.length, $plansFromComparePage.length, "Verify No of plans selected for comparison and the ones shown on the Compare page are same.");
+	
+	for(var $j = 0; $j < $plans.length; $j++){
+		for (var $i = 0; $i < $plansFromComparePage.length; $i++) {
+			var $planToCompare = $plans[$j];
+			if($plansFromComparePage[$i].indexOf($planToCompare.planNumber) !=-1){
+				_assertVisible(_link($planToCompare.name, _near(_link($plansFromComparePage[$i]))))
+				_assertVisible(_span($planToCompare.premium, _near(_link($plansFromComparePage[$i]))))
+				
+				var $tierAndType;
+				if($planToCompare.tierAndType.indexOf("HSA ") != -1){
+					$tierAndType=$planToCompare.tierAndType.replace("HSA ","");
+				}else{
+					$tierAndType=$planToCompare.tierAndType;
+				}
+				_assertVisible(_span($planToCompare.tierAndType, _near(_link($plansFromComparePage[$i]))));
+				if($planToCompare.taxCredit != "No Tax Credit"){
+					_assertVisible(_div($planToCompare.taxCredit, _near(_link($plansFromComparePage[$i]))))
+				}
+				if($planToCompare.isSelected){
+					_assertVisible(_link("REMOVE"));
+				}else{
+					_assertVisible(_link("ADD"));
+				}
+				verifySummaryOnPlanComparePage();
+				break;
+			}
+		}
+	}
+	
+	for (var $i = 0; $i < $doctors.length; $i++) {
+		_assertVisible(_div("/" + $doctors[$i].name+"/", _in(_div("providerNames"))));
+		_assertVisible(_div("/"+$doctors[$i].speciality+" "+$doctors[$i].address+"/", _in(_div("providerNames"))),"Verify doctors info is displayed");
+		_assertVisible(_link("edit", _in(_div("/"+$doctors[$i].name+"/", _in(_div("providerNames"))))),"Edit link should be visible");
+	}
+	for (var $i = 0; $i < $hospitals.length; $i++) {
+		_assertVisible(_div("/"+$hospitals[$i].name+"/", _in(_div("providerNames"))));
+		_assertVisible(_div("/"+$hospitals[$i].speciality+" "+$hospitals[$i].address+"/", _in(_div("providerNames"))),"Verify doctors info is displayed");
+		_assertVisible(_link("edit", _in(_div("/"+$hospitals[$i].name+"/", _in(_div("providerNames"))))),"Edit link should be visible");
+	}
+	for (var $i = 0; $i < $dentists.length; $i++) {
+		_assertVisible(_div("/"+$dentists[$i].name+"/",_in(_div("providerNames"))));
+		_assertVisible(_div("/"+$dentists[$i].speciality+" "+$dentists[$i].address+"/", _in(_div("providerNames"))),"Verify doctors info is displayed");
+		_assertVisible(_link("edit", _in(_div("/"+$dentists[$i].name+"/", _in(_div("providerNames"))))),"Edit link should be visible");
+	}
+	
+	
+	_assertVisible(_link("Doctors and Facilities"));
+	_assertVisible(_link("Yearly Deductible & Out-of-Pocket (In Network)"));
+	_assertVisible(_link("Doctor Visit"));
+	_assertVisible(_link("Tests"));
+	_assertVisible(_link("Drugs"));
+	_assertVisible(_link("Outpatient Services"));
+	_assertVisible(_link("ER & Urgent Care"));
+	_assertVisible(_link("Hospital"));
+	_assertVisible(_link("Mental/Behavioral Health"));
+	_assertVisible(_link("Pregnancy"));
+	_assertVisible(_link("Other Special Needs"));
+	_assertVisible(_link("Children's Vision"));
+	_assertVisible(_link("Children's Dental"));
+	_assertVisible(_paragraph("disclaimer benefits-summary-disclaimer"));
+	_assertVisible(_paragraph("disclaimer qrs-disclaimer hide"));
+	
+}
+
+function verifyCompareDentalPlans($plans){
+	var $plansFromComparePage=_collectAttributes("_div", "/cp-tile__img/", "id", _in(_div("/cp-tile__body/")));
+	_assertEqual($plans.length, $plansFromComparePage.length, "Verify No of plans selected for comparison and the ones shown on the Compare page are same.");
+	
+	for(var $j = 0; $j < $plans.length; $j++){
+		for (var $i = 0; $i < $plansFromComparePage.length; $i++) {
+			var $planToCompare = $plans[$j];
+//			_log("Plans From ComparePage: "+$plansFromComparePage[$i]);
+//			_log("Plan To Compare plan Number: "+$planToCompare.planNumber);
+			if($plansFromComparePage[$i].indexOf($planToCompare.planNumber) !=-1){
+				_assertVisible(_link($planToCompare.name, _near(_link($plansFromComparePage[$i]))));
+				_assertVisible(_span($planToCompare.premium, _near(_link($plansFromComparePage[$i]))));
+				_assertVisible(_div($planToCompare.tierAndType, _near(_link($plansFromComparePage[$i]))));
+				_assertNotVisible(_div("/after(.*)tax credit/", _in(_div("ps-compare__plan-tile["+$i+"]"))),"tax credit should not be displayed for dental");
+				if($planToCompare.isSelected){
+					_assertVisible(_link("REMOVE"));
+				}else{
+					_assertVisible(_link("ADD"));
+				}
+				verifySummaryOnPlanComparePage();
+				break;
+			}
+		}
+		
+	}
+	
+	_assertNotVisible(_link("Doctors and Facilities"));
+}
+
+function verifySummaryOnPlanComparePage(){
+	if(onHealthPlanComparePage()){
+		_assertVisible(_link("Summary"));
+		_assertVisible(_link("Total Expense Estimate"));
+		_assertVisible(_link("/Doctors & Facilities/"));
+		_assertVisible(_link("Plan Type"));
+		_assertVisible(_link("Health Savings Account (HSA)", _near(_link("Summary"))));
+		_assertVisible(_link("Quality Rating", _near(_link("Summary"))));
+	}else{
+		_assertVisible(_link("Plan Type", _near(_link("Summary"))));
+		_assertVisible(_paragraph("Plan Tier", _near(_link("Summary"))));
+	}
+	
+}
+
+function addToCartOnPlanCompare($HealthPlanDetails, $DentalPlanDetails) {
+	var $shoppingPopModal = _div("/shoppingPop/");
+	
+	if(onHealthPlanComparePage()){
+		_lockWindow();
+		_focusWindow();
+		_log(" Add Health plan to the cart");
+		_click(_link($HealthPlanDetails.planId));
+		//_log("shoppingPop id: "+_getAttribute(_div("/Fantastic! You've selected/"), "id"));
+		_assertVisible($shoppingPopModal);
+		_assertVisible(_heading3("Fantastic!"));
+		_assertEqual("REMOVE", _getAttribute (_link($HealthPlanDetails.planId), "title"));
+		var $name = $HealthPlanDetails.name.replace("...","");
+		_assertVisible(_paragraph("/You've selected (.*)for your family./"))
+		_assertVisible(_paragraph("/"+$HealthPlanDetails.name+"/"))
+		if(($DentalPlanDetails == null) || ($DentalPlanDetails == "")){
+			_setStrictVisibilityCheck(true);
+			_assertVisible(_button("Continue To Dental Plans"));
+			_assertVisible(_link("Continue To Cart"));
+			_setStrictVisibilityCheck(false);
+		}
+		else{
+			_assertVisible(_button("Continue To Cart"));
+			_assertNotVisible(_button("Continue To Dental Plans"));
+			_assertNotVisible(_button("Continue To Health Plans"));
+		}
+		$HealthPlanDetails.isSelected = true;
+		_unlockWindow();
+		return $HealthPlanDetails;
+	}
+	else{
+		_log(" Add Dental plan to the cart");
+		_lockWindow();
+		_focusWindow();
+		_click(_link($DentalPlanDetails.planId));
+		//_log("shoppingPop id: "+_getAttribute(_div("/Fantastic! You've selected/"), "id"));
+		_assertVisible($shoppingPopModal);
+		_assertVisible(_heading3("Fantastic!"));
+		_assertEqual("REMOVE", _getAttribute (_link($DentalPlanDetails.planId), "title"));
+		var $name = $DentalPlanDetails.name.replace("...","");
+		_assertVisible(_paragraph("/You've selected (.*)for your family./"))
+		_assertVisible(_paragraph("/"+$DentalPlanDetails.name+"/"))
+		if(($HealthPlanDetails == null) || ($HealthPlanDetails == "")){
+			_setStrictVisibilityCheck(true);
+			_assertVisible(_button("Continue To Health Plans"));
+			_assertVisible(_link("Continue To Cart"));
+			_setStrictVisibilityCheck(false);
+		}
+		else{
+			_assertVisible(_button("Continue To Cart"));
+			_assertNotVisible(_button("Continue To Dental Plans"));
+			_assertNotVisible(_button("Continue To Health Plans"));
+		}
+		$DentalPlanDetails.isSelected = true;
+		_unlockWindow();
+		return $DentalPlanDetails;
+	}
+	
+}
+
+function onHealthPlanComparePage(){
+	return _isVisible(_link("Quality Rating"));
+}
+
+function removePlanFromCartOnPlanCompare($plan){
+    _log(" Remove plan from the cart");
+   _click(_link($plan.planId));
+	_assertNotVisible(_div("shoppingPop-modal"));
+	_assertNotVisible(_heading3("Fantastic!"));
+	_assertEqual("ADD", _getAttribute (_link($plan.planId), "title"));
+	$plan.isSelected = false;
+	return $plan;
+}
+
+function clickBackToPlansFromPlanCompare($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles,$verificationFlag){
+	_click(_link("Back to Plans[1]", _in(_div("ps-top-links"))));
+	if ($verificationFlag != "N") {
+		verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles);
+	}
+}

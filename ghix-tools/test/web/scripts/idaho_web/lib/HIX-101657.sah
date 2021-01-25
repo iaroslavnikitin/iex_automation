@@ -1,0 +1,14 @@
+_include("../pagemodels/ViewHistory.sah");
+_include("../pagemodels/User.sah");
+
+function verifyCounselorsNotificationPreferences($password, $preference, $counselor) {
+	login($authorizedUser, $password);
+	clickManageMember();
+	searchMemberByEmail($email);
+	selectTestMember();
+	loginClickViewMemberAccount();
+	goToMyPreferences();
+	verifyNotificationPreferences();
+	selectNotificationPreference($preference);
+	logOut();
+}

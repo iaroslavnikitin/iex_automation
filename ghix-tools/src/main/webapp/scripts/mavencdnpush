@@ -1,0 +1,17 @@
+#!/bin/bash
+# 
+# script that calls maven to execute java class that pushes files to cdn.
+#
+CWD=`pwd`
+
+if [ $3 ] ; then
+	DIR=$(dirname $(readlink -e $3))/$(basename $3)
+	echo "expanding directory to full path: ${DIR}";
+else
+	DIR=
+fi
+
+cd ../
+mvn exec:java -Dexec.args="$1 $2 ${DIR} $4"
+cd $CWD
+

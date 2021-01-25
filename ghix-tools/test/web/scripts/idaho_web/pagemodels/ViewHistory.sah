@@ -1,0 +1,48 @@
+function expandPreferencesData($oldPref, $newPref){
+	if ($oldPref == "Both (E-mail and Postal Mail)") {
+		$oldPref = "Both (E-mail and Postal)";
+	}
+	if ($newPref == "Both (E-mail and Postal Mail)") {
+		$newPref = "Both (E-mail and Postal)";
+	}
+
+	_click(_submit("btn smallBtn", _near(_span("Communication Preferences - Updated Preferences Data"))));
+  	
+	_assertEqual($newPref, _getText(_div(0, _rightOf(_div("New Notification Preference")))));
+	if (_isVisible(_div("Previous Notification Preference"))) {
+		_assertEqual($oldPref, _getText(_div(0, _rightOf(_div("Previous Notification Preference")))));
+	}
+}
+
+function goToHistoryPage() {
+	_click(_link("History"));
+}
+
+function verifyCreatedByRoleOptionsOnHistory() {
+	_windowAction("maximize"); // mazimize window.
+	_setStrictVisibilityCheck(true);
+	var $roleOptions =_getOptions(_select(0, _under(_label("Created By Role"), 10)));
+		_assertEqual("21", $roleOptions.length);
+		_assert($roleOptions.indexOf("All") != -1, "Option 'All' is not present");
+		_assert($roleOptions.indexOf("System") != -1, "Option 'System' is not present");
+		_assert($roleOptions.indexOf("Entity Administrator") != -1, "Option 'Entity Administrator' is not present");
+		_assert($roleOptions.indexOf("Operations") != -1, "Option 'Operations' is not present");
+		_assert($roleOptions.indexOf("1095-A") != -1, "Option '1095-A' is not present");
+		_assert($roleOptions.indexOf("L1 Customer Support") != -1, "Option 'L1 Customer Suppor' is not present");
+		_assert($roleOptions.indexOf("L3 Customer Support") != -1, "Option 'L3 Customer Support' is not present");
+		_assert($roleOptions.indexOf("Counselor") != -1, "Option 'Counselor' is not present");
+		_assert($roleOptions.indexOf("Entity") != -1, "Option 'Entity' is not present");
+    	_assert($roleOptions.indexOf("*") != -1, "Option '*' is not present");
+		_assert($roleOptions.indexOf("Agent Administrator") != -1, "Option 'Agent Administrator' is not present");
+		_assert($roleOptions.indexOf("Agent") != -1, "Option 'Agent' is not present");
+	    _assert($roleOptions.indexOf("L0 Customer Support Read Only") != -1, "Option 'L0 Customer Support Read Only' is not present");
+		_assert($roleOptions.indexOf("L2 Customer Support") != -1, "Option 'L2 Customer Support' is not present");
+		_assert($roleOptions.indexOf("Issuer Representative") != -1, "Option 'Issuer Representative' is not present");
+		_assert($roleOptions.indexOf("Batch Administrator") != -1, "Option 'Batch Administrator' is not present");
+		_assert($roleOptions.indexOf("Administrator") != -1, "Option 'Administrator' is not present");
+		_assert($roleOptions.indexOf("Tenant Admin") != -1, "Option 'Tenant Admin' is not present");
+		_assert($roleOptions.indexOf("Issuer Administrator") != -1, "Option 'Issuer Administrator' is not present");
+		_assert($roleOptions.indexOf("Individual") != -1, "Option 'Individual' is not present");
+		_assert($roleOptions.indexOf("Issuer Enrollment Representative") != -1, "Issuer Enrollment Representative' is not present");
+		_setStrictVisibilityCheck(false);
+	}

@@ -1,0 +1,27 @@
+_includeOnce("AgentIcon.sah");
+_includeOnce("Utils.sah");
+
+var $Inbox = true;
+
+var $inboxHeader = _heading3(0, _in(_div("notificationMessages")));
+var $inboxSearchHeader = _heading4("Search");
+var $inboxSearchBox = _textbox("searchText");
+var $inboxSearchButton = _italic("icon-search");
+var $inboxFoldersHeader = _heading4("Folders");
+var $inboxEmails = _div("rightpanel");
+var $inboxAccessors = [$inboxHeader, $inboxSearchHeader, $inboxSearchBox, $inboxSearchButton, $inboxFoldersHeader, $inboxEmails];
+
+function inboxVerify() {
+	if(_isVisible(_strong(0))){
+		_log("CSR View,Agent Icon will not be visible");
+	}
+	else {
+		verifyAgentIcon();
+	}
+	verifyArray($inboxAccessors);
+}
+
+function inboxSearch($query) {
+	_setValue($inboxSearchBox, $query);
+	_click($inboxSearchButton);
+}

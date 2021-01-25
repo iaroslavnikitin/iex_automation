@@ -1,0 +1,142 @@
+_includeOnce("LifeChangeEvent.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("QEPEligible.sah");
+_includeOnce("QEPNotEligible.sah");
+
+var $QEPHome = true;
+
+var $qepHomeLostCoverage = _image("other.png");
+var $qepHomeMarriage = _image("maritalstatus.png");
+var $qepHomeDivorce = _image("gainmec.png");
+var $qepHomeDependents = _image("dependents.png");
+var $qepHomeDeath = _image("losemec.png");
+var $qepHomeAddress = _image("addresschange.png");
+var $qepHomeIncome = _image("other.png[1]");
+var $qepHomeImmigration = _image("citizenship.png");
+var $qepHomeIncarceration = _image("incarceration.png");
+var $qepHomeNativeAmerican = _image("tribe.png");
+var $qepHomeNone = _link("None of these events apply");
+var $qepHomeContinue = _link("Continue");
+var $eventChangeInBasicInformation=_image("namechange.png");
+var $eventChangeInRelationship=_image("relationship.png");
+
+function qepHomeVerify() {
+	_assertVisible($qepHomeLostCoverage);
+	_assertVisible($qepHomeMarriage);
+	_assertVisible($qepHomeDivorce);
+	_assertVisible($qepHomeDependents);
+	_assertVisible($qepHomeDeath);
+	_assertVisible($qepHomeAddress);
+	_assertVisible($qepHomeIncome);
+	_assertVisible($qepHomeImmigration);
+	_assertVisible($qepHomeIncarceration);
+	_assertVisible($qepHomeNativeAmerican);
+	_assertVisible($qepHomeNone);
+	_assertVisible($qepHomeContinue);
+	_assertTrue(new RegExp("Welcome, " + $firstName + " " + $lastName).test(_getText($indportalHeader)));
+}
+
+function qepHomeClickLostCoverage() {
+	_click($qepHomeLostCoverage);
+}
+
+function qepHomeClickMarriage() {
+	_click($qepHomeMarriage);
+}
+
+function qepHomeClickDivorce() {
+	_click($qepHomeDivorce);
+}
+
+function qepHomeClickDependents() {
+	_click($qepHomeDependents);
+}
+
+function qepHomeClickDeath() {
+	_click($qepHomeDeath);
+}
+
+function qepHomeClickAddress() {
+	_click($qepHomeAddress);
+}
+
+function qepHomeClickIncome() {
+	_click($qepHomeIncome);
+}
+
+function qepHomeClickImmigration() {
+	_click($qepHomeImmigration);
+}
+
+function qepHomeClickIncarceration() {
+	_click($qepHomeIncarceration);
+}
+
+function qepHomeClickNativeAmerican() {
+	_click($qepHomeNativeAmerican);
+}
+
+function qepHomeClickNoneApply() {
+	_click($qepHomeNone);
+	qepNotEligibleVerify();
+}
+
+function qepHomeClickContinue() {
+	_click($qepHomeContinue);
+	qepEligibleVerify();
+}
+
+function eventChangeInBasicInformation(){
+	_click($eventChangeInBasicInformation);
+}
+
+function eventChangeInRelationship(){
+	_click($eventChangeInRelationship);
+}
+
+function eventClickContinue(){
+	_click($qepHomeContinue);
+}
+
+function eventHomeVerify(){
+	_wait(3000);
+	_assertVisible(_listItem("Please select all life change events that apply to you."));	
+	_assertVisible(_paragraph("If you are enrolled in a health insurance plan through Your Health Idaho, you must report certain life change events within 60 days of when they occur."));
+	_assertVisible($qepHomeLostCoverage);
+	_assertVisible($qepHomeMarriage);
+	_assertVisible($qepHomeDivorce);
+	_assertVisible($qepHomeDependents);
+	_assertVisible($qepHomeDeath);
+	_assertVisible($qepHomeAddress);
+	_assertVisible($qepHomeImmigration);
+	_assertVisible($qepHomeIncarceration);
+	_assertVisible($qepHomeNativeAmerican);
+	_assertVisible($eventChangeInRelationship);
+	_assertVisible($eventChangeInBasicInformation);
+	var $x = _collect("_link", "/Help text/");
+	_log($x.length);
+
+	var $y = ["Change in Marital Status: Did you recently get married? Did you recently get divorced? Or did a spouse pass away?",
+			  "Change in Dependents: Did you give birth or adopt a child? Was a child placed in your home for foster care? Did one of your children turn 26? Or do you have any other changes to dependents/wards in your care? Did a dependent pass away?",
+			  "Change of Address: Did you or anyone in your household move?",     
+			  "Change in Citizenship/Immigration Status: Did someone in your household recently experience a change in immigration status?",
+			  "Change in Basic Information: Do you need to report a correction such as name, date of birth or Social Security number for someone in your household?",
+			  "Change in Relationship: Do you need to report a change to relationship for someone in your household?",
+			  "Change in Incarceration Status: Was anyone in your household released from incarceration (prison or detention) or did anyone become incarcerated?",
+			  "Change in American Indian or Alaska Native status: Did you or anyone in your household recently gain status as a member of a federally-recognized tribe?",
+			  "The type of coverage an individual needs to have to meet the individual responsibility requirement under the Affordable Care Act. This includes individual market policies, job-based coverage, Medicare, Medicaid, CHIP, TRICARE and certain other coverage.",
+			  "The type of coverage an individual needs to have to meet the individual responsibility requirement under the Affordable Care Act. This includes individual market policies, job-based coverage, Medicare, Medicaid, CHIP, TRICARE and certain other coverage.",
+			  "Other Issues: Did you experience technical issues when trying to enroll, or any other type of misunderstanding that caused you not to get the coverage you intended to select? Did you have another situation that prevented you from enrolling during the open enrollment period?" ];
+
+	_focusWindow();
+	for (var $i = 0; $i < $x.length; $i++) {
+		_mouseOver($x[$i]);
+		_wait(5000, _isVisible(_div("tooltip-inner")));
+		_log(_getText(_div("tooltip-inner")), "custom3");
+		var $expec = (_getText(_div("tooltip-inner")));
+		_assertEqual($y[$i], $expec );
+		_wait(3000);
+		_blur($x[$i]);
+		_wait(5000, !_isVisible(_div("tooltip-inner")));
+	}
+}

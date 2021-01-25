@@ -1,0 +1,31 @@
+{
+    "header":"Communication Preferences",
+    "mandatoryFields":{
+    "firstName":"!\nPlease enter your first name.",
+    "lastName":"!\nPlease enter your last name.",
+    "email":"!\nPlease enter your email.",
+    "confirmEmail":"!\nEmail and confirm email don't match.",
+    "phoneNumber":"!\nPlease enter a valid telephone number.",
+    "ssn":"!\nEnter a valid Social Security Number or contact Support for assistance. You can Browse Health Plans without an account.",
+    "confirmSsn":"!\nSSN and confirm SSN don't match",
+    "dateOfBirth":"!Please enter date of birth",
+    "securityQuestion":"!\nPlease select your security question.",
+    "securityAnswer":"!\nPlease provide your security answer.",
+    "password":"!\nPlease enter valid password.",
+    "confirmPassword":"!\nPlease confirm your password."
+},
+"invalidFields":{
+    "firstName":"!\nPlease enter valid first name.",
+    "lastName":"!\nPlease enter valid last name.",
+    "email":"Please enter a valid email address.",
+    "confirmEmail":"Please enter a valid email address.",
+    "phoneNumber":"!\nPlease enter a valid telephone number.",
+    "ssn":"!\nEnter a valid Social Security Number or contact Support for assistance. You can Browse Health Plans without an account.",
+    "confirmSsn":"!\nSSN and confirm SSN don't match",
+    "dateOfBirth":"!Please enter a valid date of birth",
+    "securityQuestion":"!\nPlease select your security question.",
+    "securityAnswer":"!\nPlease provide your security answer.",
+    "password":"!\nPlease enter valid Password.\nYour password needs to be between 8 and 20 characters.\nIt should contain at least 3 of the following:\nUpper-case letter\nLower-case letter\nNumber\nSpecial character (e.g., ?, #, @, $, ^)",
+    "confirmPassword":"!\nPassword and confirm password don't match."
+} 
+}

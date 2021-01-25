@@ -1,0 +1,8 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2","Argument 3","Argument 4","Argument 5","Argument 6","Argument 7"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+
+
+"all,Security,HIX-88089, account_validation","HIX-88089 L2 CSR Create individual account without SSN from add user page","[Documentation]","L2 CSR Create individual account without SSN from add user page                                                                                                         1) HIX-88089-Verify permission for L2 to add only individual user."
+,,"[Documentation]","Email address - L2 CSR","Password","Permission","SSN Required","User First Name","User Last Name","Role"
+,,"csrCreateAndManageIndividual","autocsr_l2cs2@yopmail.com","ghix123#","""Y""","""N""","""autoCSRL2CS2""","""Martyn""","""L2 Customer Support"""

@@ -1,0 +1,118 @@
+_includeOnce("Registration.sah");
+_includeOnce("SubSite.sah");
+_includeOnce("Utils.sah");
+
+var $EntityContactInfo = true;
+
+// Accessors
+var $entityContactInfoHeader = _heading4("Step 4: Contact Information");
+var $entityContactInfoInstructions = _paragraph("Tell us about the contact people in your organization.");
+var $entityContactInfoPrimaryContactHeader = _heading4("Primary Contact");
+var $entityContactInfoNameLabel = _label("/Name/");
+var $entityContactInfoName =_textbox("priContactName");
+var $entityContactInfoEmailLabel = _label("Email");
+var $entityContactInfoEmail = _emailbox("priContactEmailAddress");
+var $entityContactInfoPrimaryPhoneNumberLabel = _label("control-label");
+var $entityContactInfoPrimaryPhoneNumber = [_textbox("priContactPrimaryPhoneNumber1"), _textbox("priContactPrimaryPhoneNumber2"), _textbox("priContactPrimaryPhoneNumber3")];
+var $entityContactInfoSecondaryPhoneNumberLabel = _label("/Secondary Phone Number/");
+var $entityContactInfoSecondaryPhoneNumber = [_textbox("priContactSecondaryPhoneNumber1"), _textbox("priContactSecondaryPhoneNumber2"), _textbox("priContactSecondaryPhoneNumber3")];
+var $entityContactInfoContactPrefLabel = _fieldset("How would this person like to be contacted?");
+var $entityContactInfoContactPref = [_radio("email"), _radio("primaryphone"), _radio("secondaryphone"), _radio("mail")];
+var $entityContactInfoFinancialContactHeader = _heading4("Financial Contact");
+var $entityContactInfoFinancialContactNameLabel = _label("finContactName");
+var $entityContactInfoFinancialContactName = _textbox("finContactName");
+var $entityContactInfoFinancialContactEmailLabel = _label("EmailRequired", _near(_heading4("Financial Contact")));
+var $entityContactInfoFinancialContactEmail = _emailbox("finEmailAddress");
+var $entityContactInfoFinancialContactPrimaryPhoneNumberLabel = _label("/Primary Phone NumberFirst 3 digits/");
+var $entityContactInfoFinancialContactPrimaryPhoneNumber = [_textbox("finPrimaryPhoneNumber1"), _textbox("finPrimaryPhoneNumber2"), _textbox("finPrimaryPhoneNumber3")];
+var $entityContactInfoFinancialContactSecondaryPhoneNumberLabel = _label("/Secondary Phone Number/");
+var $entityContactInfoFinancialContactSecondaryPhoneNumber = [_textbox("finFaxNumber1"), _textbox("finFaxNumber2"), _textbox("finFaxNumber3")];
+var $entityContactInfoFinancialContactContactPrefLabel = _fieldset("How would this person like to be contacted?[1]");
+var $entityContactInfoFinancialContactContactPref = [_radio("finemail"), _radio("finprimaryphone"), _radio("finsecondaryphone"), _radio("finmail")];
+//var $entityContactInfoBack = _button("btn");
+var $entityContactInfoBack = _button("Back")
+var $entityContactInfoNext = _submit("SaveEntityInfo");
+
+function verifyElementsOnEntityContactInfoPage() {
+	_assertVisible($entityContactInfoHeader);
+	_assertVisible($entityContactInfoInstructions);
+
+	_assertVisible($entityContactInfoPrimaryContactHeader);
+	_assertVisible($entityContactInfoNameLabel);
+	_assertVisible($entityContactInfoName);
+	_assertVisible($entityContactInfoEmailLabel);
+	_assertVisible($entityContactInfoEmail);
+	_assertVisible($entityContactInfoPrimaryPhoneNumberLabel);
+	verifyArray($entityContactInfoPrimaryPhoneNumber);
+	_assertVisible($entityContactInfoSecondaryPhoneNumberLabel);
+	verifyArray($entityContactInfoSecondaryPhoneNumber);
+	_assertVisible($entityContactInfoContactPrefLabel);
+	verifyArray($entityContactInfoContactPref);
+
+	_assertVisible($entityContactInfoFinancialContactHeader);
+	_assertVisible($entityContactInfoFinancialContactNameLabel);
+	_assertVisible($entityContactInfoFinancialContactName);
+	_assertVisible($entityContactInfoFinancialContactEmailLabel);
+	_assertVisible($entityContactInfoFinancialContactEmail);
+	_assertVisible($entityContactInfoFinancialContactPrimaryPhoneNumberLabel);
+	verifyArray($entityContactInfoFinancialContactPrimaryPhoneNumber);
+	_assertVisible($entityContactInfoFinancialContactSecondaryPhoneNumberLabel);
+	verifyArray($entityContactInfoFinancialContactSecondaryPhoneNumber);
+	_assertVisible($entityContactInfoFinancialContactContactPrefLabel);
+	verifyArray($entityContactInfoFinancialContactContactPref);
+
+	_assertVisible($entityContactInfoBack);
+	_assertVisible($entityContactInfoNext);
+}
+
+function entityContactInfoSubmitRandom() {
+	var $val = randomString($FIELD_LENGTH);
+	_setValue($entityContactInfoName, $val);
+	$val = randomString($FIELD_LENGTH) + "@example.com";
+	_setValue($entityContactInfoEmail, $val);
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityContactInfoPrimaryPhoneNumber[$i], $val[$i]);
+	}
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityContactInfoSecondaryPhoneNumber[$i], $val[$i]);
+	}
+
+	$val = Math.floor(Math.random() * $entityContactInfoContactPref.length);
+	_click(_radio("email"));
+//	_click($entityContactInfoContactPref[$val]);
+
+	$val = randomString($FIELD_LENGTH);
+	_setValue($entityContactInfoFinancialContactName, $val);
+
+	$val = randomString($FIELD_LENGTH) + "@example.com";
+	_setValue($entityContactInfoFinancialContactEmail, $val);
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityContactInfoFinancialContactPrimaryPhoneNumber[$i], $val[$i]);
+	}
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityContactInfoFinancialContactSecondaryPhoneNumber[$i], $val[$i]);
+	}
+
+	$val = Math.floor(Math.random() * $entityContactInfoFinancialContactContactPref.length);
+	_click($entityContactInfoFinancialContactContactPref[$val]);
+	
+	clickNextOnEntityContactInfoPage();
+}
+
+function clickNextOnEntityContactInfoPage(){
+		_click($entityContactInfoNext);
+	verifyElementsOnRegistrationPage();
+}
+
+function entityContactInfoClickBack() {
+	_click($entityContactInfoBack);
+	verifyElementsForSubsite();
+}

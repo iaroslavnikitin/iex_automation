@@ -1,0 +1,23 @@
+
+function getServerDate(){
+	var ssh = new Packages.org.twdata.enchanter.impl.DefaultStreamConnection();
+	// Connect to your server. change the host, port, username and password
+	//_log($url[0]+"    ,"+$url[1]+"    "+$url[2]);
+	ssh.connect( "nv1qa.eng.vimo.com", 22, "app", "ghix123#");
+	// Wait for the prompt as seen when you connect via putty.
+
+	var $prompt = "$";
+	ssh.waitFor($prompt);
+	ssh.sendLine("date");
+
+	// Send the command to be executed
+
+	java.lang.System.out.println("Done sending");
+	var $line = ssh.getLine();
+
+	// disconnect from the ssh session
+	ssh.disconnect();
+	_log($line);
+	return $line;
+}
+

@@ -1,0 +1,9 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","CreateAgent.sah"
+
+"Create Agents","[Documentation]","Create Agent and Certify it"
+,"_deleteFile","agents.sah"
+,"$agent=createAgent","CertifiedAgent"
+,"certifyAgent","$agent"
+,"[Documentation]","Create Non Certified Agent"
+,"$agent=createAgent","NonCertifiedAgent"

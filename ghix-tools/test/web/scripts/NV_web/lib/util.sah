@@ -1,0 +1,175 @@
+_resource("/opt/sahi/useraccounts.xls");
+
+var $isConnecticut = isConnecticut();
+var $isIdaho = isIdaho();
+
+function getBaseURL() {
+	var $baseUrl = _suiteInfo()["baseURL"]
+	_log("Base URL = "+ $baseUrl);
+	return _suiteInfo()["baseURL"];
+}
+
+function getBaseDomain(){
+	return _suiteInfo()["baseURL"].split("/")[2];
+}
+
+function getApplicationLanguage(){
+	return _suiteInfo()["language"];
+}
+
+function isProductionEnvironment(){
+	var $domain = getBaseDomain();
+	return $domain == "idahohix.yourhealthidaho.org" || $domain == "id2auto.ghixqa.com" || $domain == "id2qa.ghixqa.com";
+}
+
+function isCTProductionEnvironment(){
+	var $domain = getBaseDomain();
+	return $domain == "cds.accesshealthct.com";
+}
+
+function isConnecticut(){
+	return _suiteInfo()["state"] == "CT";
+}
+
+function isIdaho(){
+	return _suiteInfo()["state"] == "ID";
+}
+
+function getRandomInt($min, $max) {
+  $min = Math.ceil($min);
+  $max = Math.floor($max);
+  return Math.floor(Math.random() * ($max - $min)) + $min; //The maximum is exclusive and the minimum is inclusive
+}
+
+function getUserAccountsFilePath(){
+	return "../../opt/sahi/useraccounts.xls";
+}
+
+function isTrue($value){
+	return $value === "Y" || $value === "TRUE";
+}
+
+function takePageScreenShot(){
+	_lockWindow();
+	_focusWindow();
+	_wait(1000);
+	_takePageScreenShot();
+	_wait(1000);
+	_unlockWindow();
+}
+
+function encodeForRegEx($string){
+	return $string
+		.replace(/\(/g, "[(]")
+		.replace(/\)/g, "[)]")
+		.replace(/\?/g, "[?]")
+		.replace(/\’/g, "[’]")
+		.replace(/\//g, "[/]");
+}
+
+function convertMoneyToNumber($money){
+	$money = $money.replace("$", "");
+	return parseFloat($money);
+}
+
+function maximizeWindow(){
+	_windowAction("maximize"); // mazimize window.
+}
+
+function toTitleCase($str){
+	$str = $str.toLowerCase().split(' ');
+	for (var $i = 0; $i < $str.length; $i++) {
+		$str[$i] = $str[$i].charAt(0).toUpperCase() + $str[$i].slice(1);
+	}
+	$str= $str.join(' ');
+	return $str;
+}
+
+function randomFirstName(){
+
+	var $firstNamesArray = ["Jackson", "Aiden", "Liam", "Lucas", "Noah", "Mason", "Jayden", "Ethan", "Jacob", "Jack", "Caden", "Logan", "Benjamin", "Michael", "Caleb", "Ryan", "Alexander", "Elijah", "James", "William", "Oliver", "Connor", "Matthew", "Daniel", "Luke", "Brayden", "Jayce", "Henry", "Carter", "Dylan", "Gabriel", "Joshua", "Nicholas", "Isaac", "Owen", "Nathan", "Grayson", "Elise", "Landon", "Andrew", "Maxim", "Samuel", "Gavin", "Wyatt", "Christian", "Hunter", "Cameron", "Evan", "Charlie", "David", "Sebastian", "Joseph", "Dominic", "Anthony", "Colton", "John", "Tyler", "Zachary", "Thomas", "Julian", "Levi", "Adam", "Isaiah", "Alex", "Aaron", "Parker", "Cooper", "Miles", "Chase", "Muhammad", "Christopher", "Blake", "Austin", "Jordan", "Leon", "Jonathan", "Adrian", "Colin", "Hudson", "Ianic", "Xavier", "Camden", "Tristan", "Carson", "Jason", "Nolan", "Riley", "Lincoln", "Brody", "Bentley", "Nathaniel", "Josiah", "Declan", "Jake", "Asher", "Jeremiah", "Cole", "Mateo", "Micah", "Elliot","Sophia", "Emma", "Olivia", "Isabella", "Miaa", "Avaa", "Lily", "Zoee", "Emily", "Chloe", "Layla", "Madison", "Madelyn", "Abigail", "Aubrey", "Charlotte", "Amelia", "Ella", "Kaylee", "Avery", "Aaliyah", "Hailey", "Hannah", "Addison", "Riley", "Harper", "Aria", "Arianna", "Mackenzie", "Lila", "Evelyn", "Adalyn", "Grace", "Brooklyn", "Ellie", "Anna", "Kaitlyn", "Isabelle", "Sophie", "Scarlett", "Natalie", "Leah", "Sarah", "Nora", "Mila", "Elizabeth", "Lillian", "Kylie", "Audrey", "Lucy", "Maya", "Annabelle", "Makayla", "Gabriella", "Elena", "Victoria", "Claire", "Savannah", "Peyton", "Maria", "Alaina", "Kennedy", "Stella", "Liliana", "Allison", "Samantha", "Keira", "Alyssa", "Reagan", "Molly", "Alexandra", "Violet", "Charlie", "Julia", "Sadie", "Ruby", "Evali", "Alice", "Eliana", "Taylor", "Callie", "Penelope", "Camilla", "Bailey", "Kaelyn", "Alexis", "Kayla", "Katherine", "Sydney", "Lauren", "Jasmine", "London", "Bella", "Adeline", "Caroline", "Vivian", "Juliana", "Gianna", "Skyler", "Jordyn"];
+	return $firstNamesArray[_random($firstNamesArray.length)]
+}
+
+
+
+function randomLastName(){
+
+	var $lastNameArray = ["Anderson", "Ashwoon", "Aikin", "Bateman", "Bongard", "Bowers", "Boyd", "Cannon", "Cast", "Deitz", "Dewalt", "Ebner", "Frick", "Hancock", "Haworth", "Hesch", "Hoffman", "Kassing", "Knutson", "Lawless", "Lawicki", "Mccord", "Mccormack", "Miller", "Myers", "Nugent", "Ortiz", "Orwig", "Oryg", "Paiser", "Paki", "Pettigrew", "Quinn", "Quizoz", "Lee", "Resnick", "Smith", "Schickowski", "Schiebel", "Sellon", "Severson", "Shaffer", "Solberg", "Soloman", "Sonderling", "Soukup", "Soulis", "Stahl", "Sweeney", "Tandy", "Trebil", "Trusela", "Trussel", "Turco", "Uddin", "Uflan", "Ulrich", "Upson", "Vader", "Vail", "Valente", "Vanzandt", "Vanderpoel", "Ventotla", "Vogal", "Wagle", "Wagner", "Wakefield", "Weinstein", "Weiss", "Woow", "Yang", "Yates", "Yocum", "Zeaser", "Zeller", "Ziegler", "Bauer", "Baxster", "Casal", "Cataldi", "Caswell", "Celedon", "Chambers", "Chapman", "Christensen", "Darnell", "Davidson", "Davis", "Delorenzo", "Dinkins", "Doran", "Dugelman", "Dugan", "Duffman", "Eastman", "Ferro", "Ferry", "Fletcher", "Fietzer", "Hylan", "Hydinger", "Illingsworth", "Ingram", "Irwin", "Jagtap", "Jenson", "Johnson", "Johnsen", "Jones", "Jurgenson", "Kalleg", "Kaskel", "Keller", "Leisinger", "Lepage", "Lewis", "Linde", "Lulloff", "Maki", "Martin", "Mcginnis", "Mills", "Moody", "Moore", "Napier", "Nelson", "Norquist", "Nuttle", "Olson", "Ostrander", "Reamer", "Reardon", "Reyes", "Rice", "Ripka", "Roberts", "Rogers", "Root", "Sandstrom", "Sawyer", "Schlicht", "Schmitt", "Schwager", "Schutz", "Schuster", "Tapia", "Thompson", "Tiernan", "Tisler" ]
+	return $lastNameArray[_random($lastNameArray.length)]
+
+}
+
+
+function showPreviousYearTab(){
+	var $tabFrom = getIndShowCurrentYearTabFrom();
+	var $tabTill = getIndShowPreviousYearTabUntil();
+	
+	return (_fetch(window.moment().isBefore($tabTill[0][0])) && _fetch(window.moment().isAfter($tabFrom[0][0])) );
+
+}
+
+function capitalizeFirstLetter($name){
+        return  $name.substring(0, 1).toUpperCase() + $name.substring(1).toLowerCase();
+ 
+}
+
+function stopTestInOpenEnrollment($inOEP){
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	if($inOEP == "ON"|| $currentMonth ==12|| $currentMonth == 01){
+		_log("Stopping test case here as Open enrollment has Started");
+		_stop();
+	}
+}
+
+function writeInFile($json, $fileName){
+	var $str = JSON.stringify($json);
+	_writeFile($str, $fileName, true);
+}
+
+function readJsonFromFile($fileName){
+	var $str = _readFile($fileName);
+	_log($str);
+	return JSON.parse($str);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

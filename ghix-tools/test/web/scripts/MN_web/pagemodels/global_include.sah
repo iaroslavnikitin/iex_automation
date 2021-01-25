@@ -1,0 +1,61 @@
+_resource("../scenariofiles/document.txt");
+_resource("../resources/data.csv");
+_resource("../resources/createTicketData.csv");
+_resource("../lib/iex_resources_es.properties");
+_resource("../lib/iex_resources.properties");
+_resource("../lib/Plan_display_es.properties");
+_resource("../lib/Plan_display.properties");
+
+_setLanguage("../lib/iex_resources.properties", "../lib/iex_resources_es.properties", true);
+_setLanguage("../lib/Plan_display.properties", "../lib/Plan_display_es.properties", true);
+
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+var $db;
+var $database;
+var $server;
+var $port;
+var $username;
+var $password;
+
+var	$url = getUpdatedBaseURL("").split("/");
+var $suiteInfo = _suiteInfo();
+
+
+if ($url[2] =="mn2auto.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "mn2auto";
+	$password = "Cze0aVe5V4.4D3cX";
+}
+if ($url[2] =="mn7qa.eng.vimo.com"){
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa2.eng.vimo.com";
+	$port = "5444";
+	$username = "mn7qa";
+	$password = "oaRp3Gry9UCKQXiG";
+}
+
+
+
+_log("url :   "+$url);
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+
+if($database =="POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}
+/*
+Database Type  = POSTGRESQL
+Driver         = org.postgresql.Driver
+Server         = sjc-pgqa1.eng.vimo.com
+Port           = 5444
+Schema         = mn2auto
+Username       = mn2auto
+Password       = Cze0aVe5V4.4D3cX
+*/

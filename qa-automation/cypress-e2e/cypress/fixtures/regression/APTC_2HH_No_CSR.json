@@ -1,0 +1,14 @@
+{
+    "description": "2adults household No CSR",
+    "hhFamily": {"size": 2, "singleParent": false},
+    "hhLastName": true,
+    "aptcMaximumAmount": 250,
+    "people": [
+        {
+            "csrEligibilityIndicator": false
+        },
+        {
+            "csrEligibilityIndicator": false
+        }
+        ]
+}

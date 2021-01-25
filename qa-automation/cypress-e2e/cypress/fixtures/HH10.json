@@ -1,0 +1,16 @@
+{
+    "description": "2adults/2 kids household with mixed CSR levels ",
+    "hhFamily": {"size": 2, "singleParent": false},
+    "hhLastName": true,
+    "aptcMaximumAmount": 250,
+    "people": [
+        {
+            "personSex": "Male",
+            "csrLevel": "CS3"
+        },
+        {
+            "personSex": "Female",
+            "csrLevel": "CS2"
+        }
+    ]
+}

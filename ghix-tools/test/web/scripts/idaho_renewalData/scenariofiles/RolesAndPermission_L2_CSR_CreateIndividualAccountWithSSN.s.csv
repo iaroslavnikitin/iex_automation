@@ -1,0 +1,15 @@
+"Tags","TestCase","[Keyword]","Argument 1","Argument 2","Argument 3","Argument 4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+
+"all,Security,HIX-88089, account_validation","HIX-88089 L2 CSR Create individual account with SSN from add user page","[Documentation]","L2 CSR Create individual account with SSN from add user page, HIX-88089-Verify permission for L2 to add only individual user."
+,,"openBrowser"
+,,"[Documentation]","Email address - L2 CSR","Password","Permission","SSN Required","User First Name","User Last Name","Role"
+,,"csrCreateAndManageIndividual","autocsr_l2cs2@yopmail.com","ghix123#","""Y""","""Y""","""autoCSRL2CS2""","""Martyn""","""L2 Customer Support"""

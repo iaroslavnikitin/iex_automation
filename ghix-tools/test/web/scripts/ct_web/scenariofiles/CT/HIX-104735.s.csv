@@ -1,0 +1,27 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify household Eligibility for APTC and CSR ","[Documentation]","Family of 3 (Applicant DOB: 01/01/1981, Dep1 DOB: 01/01/2010, Dep2 DOB: 01/01/2001 and Household income: 50000)
+
+When a CSR eligible household comes to plan display page, apply the CSR eligible filter as default on plan display page."
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""01/01/1981""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddChild","""01/01/2010""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddChild","""01/01/2001""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""50000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","It looks like you and your household may qualify for financial help to pay for your healthcare coverage."
+,"validateSavingDetails","Y","Y","N","N","N","N"
+,"clickNextOnCheckSavingResults"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"selectDoctor","Mofei Liu","""06001"""
+,"selectHospital","""Scott W. Lindsay, Dpm""","""06001"""
+,"clickNextPreferences"
+,"selectPrescription","Lipitor","""Lipitor 80 Mg Tab (Oral Tablet)"""
+,"selectPrescription","Atorvastatin","""Atorvastatin 20 Mg Tab (Oral Tablet)"""
+,"clickViewPlans","Y"

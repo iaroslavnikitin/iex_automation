@@ -1,0 +1,15 @@
+{
+
+        "cb_acceptanceCB": "$('#checkbox_page_00_acceptPrivacyIndicator_label')",
+        "tb_Address1": "$('[name=streetAddress1]')",
+        "tb_Address2": "$('[name=streetAddress2]')",
+        "tb_city": "$('[name=city]')",
+        "sb_state": "$('[name=state]')",
+        "tb_zipCode": "$('[name=postalCode]')",
+        "sb_county": "$('[name=countyCode]')",
+        "cb_samePrimaryContactHomeAddress": "$('.usa-checkbox>div>label')",
+        "rb_fillingOutForMyselfAndFamily": "$('.usa-fieldset>ul>li:nth-child(2)>label')",
+        "rb_provideIncomeInformation": "$('[id *=ApplyingForhouseHoldOnly]')",
+        "rb_seekingCoverage": "$('.usa-fieldset li')"
+
+}

@@ -1,0 +1,21 @@
+{
+  "NV":{
+    "QHPEligible3MemberIncome": 42000
+  },
+  "NJ":{
+    "QHPEligible3MemberIncome": 42000
+  },
+  "MN":{
+    "QHPEligible3MemberIncome": 62000
+  },
+  "ID":{
+    "QHPEligible3MemberIncome": 62000
+  },
+  "CA":{
+    "QHPEligible3MemberIncome": 42000
+  },
+  "PA":{
+    "QHPEligible3MemberIncome": 42000
+  }
+    
+}

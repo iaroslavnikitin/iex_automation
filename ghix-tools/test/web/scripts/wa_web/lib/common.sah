@@ -1,0 +1,19 @@
+_resource("../resources/english.properties");
+_resource("../resources/spanish.properties");
+
+function inProdEnvironment(){
+	return false;	
+}
+
+function verifyURLOfPage($url){
+	_set($actualURL, _call(window.location.href));
+	_assertEqual($url, $actualURL);
+}
+
+function isTrue($value){
+	return $value == "Y";
+}
+
+function doBrowserBackAction(){
+	_call(window.history.back());
+}

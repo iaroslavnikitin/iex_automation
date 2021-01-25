@@ -1,0 +1,89 @@
+_includeOnce("global_include.sah");
+_includeOnce("SoapRequest.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("Login.sah");
+
+
+	var $houseHold ={};
+	$houseHold = accountTransfer(1,1);
+	_wait(20000);
+	_log("Email: " +$houseHold.people[0].email);
+var $memberEmail = $houseHold.people[0].email;
+var $jsonString = getAccessCode($memberEmail);
+$jsonString = JSON.parse($jsonString[0][0]);
+var $accessCode = $jsonString.createdObject.customeFields.accessCode;
+	_log("Access Code: " +$accessCode);
+	var $county = JSON.parse($jsonString.createdObject.customeFields.location).county;
+	var $firstName =  $houseHold.people[0].firstName;
+	var $lastName  = $houseHold.people[0].lastName;
+	var $dob = $houseHold.people[0].dob;
+	$dob = _fetch(window.moment($dob).format('MM/DD/YYYY'));
+	var $phoneNumber = $houseHold.people[0].phoneNumber; 
+	var $gender = $houseHold.people[0].personSex;
+	var $zipCode = $houseHold.people[0].homeAddress.zipcode;
+	var $numOfApplicants = $houseHold.people.length;
+	linkApp($accessCode,$firstName,$lastName,$dob,$memberEmail,$county,$phoneNumber,$zipCode,$gender,$numOfApplicants);
+	
+
+
+var $searchApplicantsAccessCode = _textbox("accessCode");
+var $firstNameTextBox = _textbox("firstName");
+var $lastNameTextBox = _textbox("lastName");
+var $birthDateTextBox = _textbox("birthDate");
+var $emailAddressTextBox = _emailbox("emailAddress");
+var $countyTextBox = _textbox("county");
+var $phoneNumberTextBox = _textbox("phoneNumber");
+var $zipcodeTextBox = _textbox("zipCode");
+var $genderRadioButton = _radio("gender");
+var $genderMaleLabel = _label("Male");
+
+var $genderFemaleLabel = _label("Female");
+var $householdTotalTextBox = _textbox("householdTotal");
+var $submitAuthInfo = _submit("Submit");
+var $continueAfterLinking = _button("Continue");
+var $viewMemberAccountHeader = _heading4("View Member Account", _in(_div("View Member Account x")));
+var $myDashboardLink = _link("My Dashboard");
+var $fnAppLifeChangeReportingHeader = _heading1("Financial Application - Life Change Reporting");
+
+
+function linkApp($accessCode,$firstName,$lastName,$dob,$memberEmail,$county,$phoneNumber,$zipCode,$gender,$numOfApplicants){
+	loginClickMembersManageApplicant();
+	_setValue($searchApplicantsAccessCode, $accessCode);
+	_click($loginSearchApplicantGoButton);
+	_click(_link("Link", _rightOf(_cell($accessCode))));
+	if (_isVisible($firstNameTextBox)){
+		_setValue($firstNameTextBox,$firstName);
+	}
+	if (_isVisible($lastNameTextBox)){
+		_setValue($lastNameTextBox,$lastName);
+	}
+	if (_isVisible($birthDateTextBox)){
+		_setValue($birthDateTextBox,$dob);
+	}
+	if (_isVisible($emailAddressTextBox)){
+		_setValue($emailAddressTextBox,$memberEmail);
+	}
+	if (_isVisible($countyTextBox)){
+		_setValue($countyTextBox,$county);
+	}
+	if (_isVisible($phoneNumberTextBox)){
+		_setValue($phoneNumberTextBox,$phoneNumber);
+	}
+	if (_isVisible($zipcodeTextBox)){
+		_setValue($zipcodeTextBox,$zipCode);
+	}
+	if (_isVisible($genderRadioButton)){
+		if ($gender == "Male"){
+			_click($genderMaleLabel);
+		}
+		else {
+			_click($genderFemaleLabel);
+		}
+	}
+	if (_isVisible($householdTotalTextBox)){
+		_setValue($householdTotalTextBox,$numOfApplicants);
+	}
+	_click($submitAuthInfo);
+	_click($continueAfterLinking);
+		
+}

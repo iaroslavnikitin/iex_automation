@@ -1,0 +1,669 @@
+_includeOnce("../lib/Utils.sah");
+
+//var $yearlyDeductibleTooltip = "A deductible is the amount of money you will need to pay each year for some health care services before your health plan will begin to help pay for the costs.Platinum and Gold plans have a $0 deductible. With Silver and Bronze plans you have access to many common services (like a doctor visit) without meeting the deductible first. With Minimum Coverage (catastrophic) plans, you pay for most services until you reach the deductible amount.Click the plan's"+' "DETAILS" link to see how a deductible may apply.';
+var $yearlyDeductibleTooltip = "A deductible is the amount of money you will need to pay each year for some health care services before your health plan will begin to help pay for the costs.Platinum and Gold plans have a $0 deductible. With Silver and Bronze plans you have access to many common services (like a doctor visit) without meeting the deductible first. With Minimum Coverage (catastrophic) plans, you pay for most services until you reach the deductible amount.Click the plan's "+'"DETAILS" link to see how a deductible may apply.';
+var $inNetwork = "The plan's primary provider network. Seeing health care providers that are in network will result in lower out-of-pocket costs.";
+var $outOfNetwork = "Doctors who aren't within a plan's network(s) are considered out of network. Seeing doctors outside of a plan's network can be very costly.";
+var $view = "Benefit Explanation Please see plan's Summary of Benefits and Coverage (SBC) and Evidence of Coverage (EOC) or policy document for complete information on benefits and exclusions.";
+var $totalExpenceEstimate = "This is an estimate of the total amount you pay for this plan yearly. The cost includes your share of the premium for the plan year and an estimate of what you pay when you get care - like the amount you spend when you visit the doctor, get a lab test, or buy a prescription drug. These costs are for network doctors and hospitals only; out-of-network providers cost more. These estimates, which are for all covered medical services, are based on your answers about expected doctor visits and prescription drug use. If you did not answer these questions we assume that you, and any family members, have"+' "medium" healthcare needs.';
+var $totalExpenceEstimateValue = "/"+"Your Total Expense Estimate compares health plans on the estimated out-of-pocket cost you pay when you get care plus the monthly premium you pay the plan. A "+'"medium use" level was used if you did not choose a use level earlier. Click "Back to preference" to change your medical services use level. Estimated Cost YearlyPremium for 12 months'+"/";
+
+var $HMOTooltip = 'Health Maintenance Organization (HMO), also called "managed care." A type of plan that focuses on coordinating your care with a network of providers. A primary care provider is required for each member to assist in coordination and will refer the member to see specialists. HMOs typically do not cover out-of-network costs (except in an emergency).';
+var $PPOTooltip = "Preferred Provider Organization (PPO). A type of plan that has a network of preferred providers from which you can choose. Your plan may assign a primary care provider to assist in coordination of care. However, the member may still coordinate their own care and can see any provider within the network without a referral. Members can also see providers outside the network, but at a higher cost.";
+var $EPOTooltip = "Exclusive Provider Organization (EPO). A type of plan that has a network of exclusive providers from which you can choose. Your plan may assign a primary care provider to assist in coordination of care. However, the member may still coordinate their own care and can see any provider within the network without a referral. EPOs typically do not cover out of network costs (except in an emergency).";
+
+var $HSATooltip = "An HSA qualified account can be used with a High Deductible Health Plan. You can set aside money in an HSA on a pre-tax basis to pay for qualified medical expenses (copays, deductibles, coinsurance), helping reduce your taxes and overall health care costs. HSA funds roll over year to year if you don't spend them. You can open an HSA through your bank or other financial institution.";
+var $CSRooltip = "If you qualify for cost-sharing reductions, you pay less for services like doctor visits and medicine. Only Silver plans have these special benefits. If you are a member of a federally recognized tribe, you may qualify for additional cost-sharing benefits.";
+
+var $qualityRating = "Quality ratings compare members' experience and medical care to national standards.";
+var $qualityRatingInFuture = "Quality ratings to be reported after health plan's first two years with Covered California.";
+var $qualityRatingStarsTooltip = "/Overall Quality Rating Quality Ratings compare members' experience and medical care to national standards. The results for the quality categories below are combined to get the Overall Quality Rating: Getting the Right Care:/";
+//2 startsMembers' Care Experience:3.5 startsMembers' Plan Service Experience:2 starts";
+
+/*---------------Plan Display Page------------------*/
+
+function verifyTooltipsOnMedicalServicePreferencePage(){
+	var $tooltip = "Choose one of the 4 medical use categories to compare health plans on the estimated amount you pay when you get medical care. If in excellent health and expect no medical needs other than preventive care the “low use” category fits best. For families, choose the category that best fits the person who will probably need the most medical care next year. The health plan cost estimate will include all family members. When comparing health plans, see the Total Expense Estimate which shows an estimated cost that you pay for medical services, based on the medical use category you chose, plus the premium you pay the health plan.";
+	verifyTooltip(_link("medical service"), $tooltip);
+}
+
+function verifyTooltipsOnPrescriptionDrugPreferencePage(){
+	var $tooltip = "Choose one of the 4 prescription drug use categories to compare health plans on the estimated amount you pay when you buy prescription drugs. If in excellent health and expect no medication needs the “low use” category fits best. For families, choose the category that best fits the person who will probably need the most medications next year. The health plan cost estimate will include all family members. When comparing health plans, see the Total Expense Estimate which shows an estimated cost that you pay for medications, based on the drug use category you chose, plus the premium you pay the health plan.";
+	verifyTooltip(_link("prescription drug"), $tooltip);
+	//	_click(_submit("VIEW PLANS"));
+}
+
+function verifyTooltipsOnPlanDisplay(){
+	if(onHealthPlanPage()){
+		verifyAptcAndCsrTooltipsOnPlanDisplay();
+		verifyTooltipsInFilter();
+		verifyTooltipOnPlanTile();
+	}
+	else{
+		verifyTooltipsInFilter();
+		verifyTooltipOnPlanTile();
+	}
+}
+
+function verifyAptcAndCsrTooltipsOnPlanDisplay(){
+	var $aptcTooltip="Monthly savings help eligible consumers with low and moderate income pay for health insurance purchased through Covered California.";
+	var $csrTooltip = "If you qualify for cost-sharing reductions, you pay less for services like doctor visits and medicine. Only Silver plans have these special benefits. If you are a member of a federally recognized tribe, you may qualify for additional cost-sharing benefits.";
+
+	if(_isVisible(_link("ps-eligibility__amount"))){
+		verifyTooltip(_link("ps-eligibility__amount"), $aptcTooltip);
+	}
+
+	if(_isVisible(_link("ps-eligibility__amount"))){
+		verifyTooltip(_link("cp-tooltip__icon-link"), $csrTooltip);
+	}
+}
+
+function verifyTooltipsInFilter(){
+	if(onHealthPlanPage()){
+		verifyPlanTypeTooltipsInFilter();
+		verifyPlanFeaturesTooltipsInFilter();
+		verifyMetalTierTooltipsInFilter();
+		verifyYearlyDeductibleTooltipsInFilter();
+	}
+	else{
+		verifyPlanTypeTooltipsInFilter();
+		verifyYearlyDeductibleTooltipsInFilter();
+	}
+}
+
+function verifyPlanTypeTooltipsInFilter(){
+	if(_isVisible(_link("HMO"))){
+		verifyTooltip(_link("HMO"), $HMOTooltip);
+	}
+
+	if(_isVisible(_link("PPO"))){
+		verifyTooltip(_link("PPO"), $PPOTooltip);
+	}
+
+	if(_isVisible(_link("EPO"))){
+		verifyTooltip(_link("EPO"), $EPOTooltip);
+	}
+}
+
+function verifyPlanFeaturesTooltipsInFilter(){
+	if(_isVisible(_link("Cost-Sharing Reductions (CSR)", _in(_fieldset("Filter By"))))){
+		verifyTooltip(_link("Cost-Sharing Reductions (CSR)", _in(_fieldset("Filter By"))), $CSRooltip);
+	}
+	verifyTooltip(_link("Health Savings Account (HSA)", _in(_fieldset("Filter By"))), $HSATooltip);
+}
+
+function verifyMetalTierTooltipsInFilter(){
+	var $metalTier = "Covered California health insurance plans are sold in four levels of coverage: Platinum, Gold, Silver and Bronze. Plans in higher metal categories have higher monthly premiums, but when you need medical care, you pay less. Alternatively, you can choose to pay a lower monthly premium, and when you need medical care, you pay more. You can choose the level of coverage that best meets your health care needs and budget.";
+	var $platinum = "A Platinum level plan has the highest monthly premiums, but also the lowest out-of-pocket costs. This plan, on average, pays 90 percent of medical costs.";
+	var $gold = "A Gold level plan has high monthly premiums, but has low out-of-pocket costs. This plan, on average, pays 80 percent of medical costs.";
+	var $silver = "A Silver level plan offers a balance of moderate monthly premiums and out-of-pocket costs. This plan, on average, pays 70 percent of medical costs.";
+	var $bronze = "A Bronze level plan has low monthly premiums but high out-of-pocket costs. This plan, on average, pays 60 percent of medical costs.";
+	var $minimumCoverage = "A Minimum Coverage plan is available to individuals who are either under 30 years of age or receive a hardship exemption from the federal government. This plan has the lowest monthly premiums. However, except for some services like preventive care and 3 (three) primary care doctor visits, you pay for most of your medical costs until you reach the plan's out-of-pocket maximum amount. Advanced Premium Tax Credit (APTC) cannot be used with this plan.";
+
+	verifyTooltip(_link("/Metal Tier/", _in(_fieldset("Filter By"))), $metalTier);
+
+	if(_isVisible(_link("/Platinum/", _in(_fieldset("Filter By"))))){
+		verifyTooltip(_link("/Platinum/", _in(_fieldset("Filter By"))), $platinum);
+	}
+	if(_isVisible(_link("/Gold/", _in(_fieldset("Filter By"))))){
+		verifyTooltip(_link("/Gold/", _in(_fieldset("Filter By"))), $gold);
+	}
+	if(_isVisible(_link("/Silver/", _in(_fieldset("Filter By"))))){
+		verifyTooltip(_link("/Silver/", _in(_fieldset("Filter By"))), $silver);
+	}
+	if(_isVisible(_link("/Bronze/", _in(_fieldset("Filter By"))))){
+		verifyTooltip(_link("/Bronze/", _in(_fieldset("Filter By"))), $bronze);
+	}
+	if(_isVisible(_link("/Minimum Coverage/", _in(_fieldset("Filter By"))))){
+		verifyTooltip(_link("/Minimum Coverage/", _in(_fieldset("Filter By"))), $minimumCoverage);
+	}
+}
+
+function verifyYearlyDeductibleTooltipsInFilter(){
+	verifyTooltip(_link("Yearly Deductible", _in(_fieldset("Filter By"))), $yearlyDeductibleTooltip);
+}
+
+function verifyDynamicValueTooltipsInTileOnPlanDisplay(){
+	var $totalExpenceEstimateValue = "/"+"Your Total Expense Estimate compares health plans on the estimated out-of-pocket cost you pay when you get care plus the monthly premium you pay the plan. A "+'"medium use" level was used if you did not choose a use level earlier. Click "Back to preference" to change your medical services use level. Estimated Cost YearlyPremium for 12 months'+"/";
+	var $qualityRatingInFuture = "Quality ratings to be reported after health plan's first two years with Covered California.";
+	var $qualityRatingStarsTooltip = "/Overall Quality Rating Quality Ratings compare members' experience and medical care to national standards. The results for the quality categories below are combined to get the Overall Quality Rating: Getting the Right Care:/";
+	//2 startsMembers' Care Experience:3.5 startsMembers' Plan Service Experience:2 starts";
+
+	var $numOfPlans = _getText(_link("ps-nav__link"));
+	$numOfPlans = parseInt(_extract($numOfPlans, "/(.*) Health Plans/", true));
+
+	var $numOfPages = _getText(_span("cp-pagination__content", _in(_div("pagination"))));
+	$numOfPages = parseInt(_extract($numOfPages, "/1 of (.*)/", true));
+	var $averageFlag = 0;
+	var $higherFlag = 0;
+	var $lowerFlag = 0;
+	var $qualityRatingInFutureFlag = 0;
+	var $qualityRatingStarsFlag = 0;
+
+	_assertVisible(_span("1 of "+$numOfPages, _in(_div("pagination"))),"Pagination should be started from 1");
+	_assertTrue((_getAttribute(_link("/Previous/",_in(_div("pagination"))), "class").indexOf("disabled") != -1), "Icon Previous should be disabled")
+
+		for (var $i=0; $i<$numOfPages; $i++){
+
+			for(var $j=0; $j<12; $j++){
+
+				if($numOfPlans == 0){
+					break;
+				}
+		
+		if(_isVisible(_link("Quality Rating in Future", _in(_div("cp-tile["+$j+"]"))))){
+				if($qualityRatingInFutureFlag != 1){
+					 _assertEqual("Quality Rating in Future", _getText(_link("Quality Rating in Future", _in(_div("cp-tile["+$j+"]")))));
+//					verifyTooltip(_link("Quality Rating in Future", _in(_div("cp-tile["+$j+"]"))), $qualityRatingInFuture);
+					$qualityRatingInFutureFlag++;
+				}
+			}
+		else if(_isVisible(_link("quality-rating", _in(_div("cp-tile["+$j+"]"))))  ){
+				   if($qualityRatingStarsFlag != 1){
+					verifyTooltip(_link("quality-rating", _in(_div("cp-tile["+$j+"]"))), $qualityRatingStarsTooltip);
+					$qualityRatingStarsFlag++;
+				}
+			}
+	
+
+
+			if(_isVisible(_link("Lower", _in(_div("cp-tile["+$j+"]"))))){
+				if($lowerFlag != 1){
+					verifyTooltip(_link("Lower", _in(_div("cp-tile["+$j+"]"))), $totalExpenceEstimateValue);
+					$lowerFlag++;
+				}
+			}
+
+			if(_isVisible(_link("Average", _in(_div("cp-tile["+$j+"]"))))){
+				if($averageFlag != 1){
+					verifyTooltip(_link("Average", _in(_div("cp-tile["+$j+"]"))), $totalExpenceEstimateValue);
+					$averageFlag++;
+				}
+			}
+
+			if(_isVisible(_link("Higher", _in(_div("cp-tile["+$j+"]"))))){
+				if($higherFlag != 1){
+					verifyTooltip(_link("Higher", _in(_div("cp-tile["+$j+"]"))), $totalExpenceEstimateValue);
+					$higherFlag++;
+				}
+			}
+			$numOfPlans--;
+		}
+
+	if($numOfPlans == 0){
+		break;
+	}
+
+	if($qualityRatingStarsFlag == 1 && $qualityRatingInFutureFlag == 1 && $lowerFlag == 1 && $averageFlag == 1 && $higherFlag == 1){
+		break;
+	}
+	_click(_link("/Next/", _in(_div("pagination"))));
+	_assertVisible(_span("/"+($i+2)+" of "+$numOfPages+"/", _in(_div("pagination"))),"Pagination should change");
+	_assertTrue((_getAttribute(_link("/Previous/",_in(_div("pagination"))), "class").indexOf("disabled") == -1), "Icon Previous should NOT be disabled")
+		}
+
+_assertTrue (($qualityRatingStarsFlag == 1 && $qualityRatingInFutureFlag == 1 && $lowerFlag == 1 && $averageFlag == 1 && $higherFlag == 1), "Verify that all values were checked");
+_log("Values with 0 were NOT verified!!!");
+_log("quality Rating Stars Flag = "+$qualityRatingStarsFlag);
+_log("quality Rating In FutureFlag = "+$qualityRatingInFutureFlag);
+
+_log("lower Flag = "+$lowerFlag);
+_log("average Flag = "+$averageFlag);
+_log("higher Flag = "+$higherFlag);
+
+
+}
+
+	function verifyTooltipsForProvidersOnPlanDisplay(){
+		var $notAvailableTooltip = "Not available in plan network";
+		var $availableTooltip = "Available in plan network";
+
+		var $num=getRandomInt(0, 11);
+		_log("random num is: "+$num);
+
+		if($doctors.length>0){
+			for (var $i=0; $i<$doctors.length; $i++){
+				verifyTooltip(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))), $doctors[$i].name);
+
+				if(_isVisible(_italic("icon-ok-sign", _in(_cell("cp-tile__value", _near(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))))){
+					verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))), $availableTooltip);
+				}
+				else{
+					verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))), $notAvailableTooltip);
+				}
+			}
+		}
+
+		if($hospitals.length>0){
+			for (var $i=0; $i<$hospitals.length; $i++){
+				verifyTooltip(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))), $hospitals[$i].name);
+
+				if(_isVisible(_italic("icon-ok-sign", _in(_cell("cp-tile__value", _near(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))))){
+					verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))), $availableTooltip);
+				}
+				else{
+					verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))), $notAvailableTooltip);
+				}
+			}
+		}
+
+		if($dentists.length>0){
+			for (var $i=0; $i<$dentists.length; $i++){
+				verifyTooltip(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))), $dentists[$i].name);
+
+				if(_isVisible(_italic("icon-ok-sign", _in(_cell("cp-tile__value", _near(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))))){
+					verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))), $availableTooltip);
+				}
+				else{
+					verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_div("cp-tile["+$num+"]"))))))), $notAvailableTooltip);
+				}
+			}
+		}
+	}
+
+function verifyTooltipOnPlanTile(){
+	if(onHealthPlanPage()){
+		_log("Verify tooltip on Plan tiles");
+		var $mayNotApplayTooltip = "If a plan has a deductible, it's important to know that you can use many services (like doctor visits) before you have to meet that deductible. Click the plan's "+'"DETAILS" link to see how a deductible may apply.';
+		var $totalExpenceEstimate = "This is an estimate of the total amount you pay for this plan yearly. The cost includes your share of the premium for the plan year and an estimate of what you pay when you get care - like the amount you spend when you visit the doctor, get a lab test, or buy a prescription drug. These costs are for network doctors and hospitals only; out-of-network providers cost more. These estimates, which are for all covered medical services, are based on your answers about expected doctor visits and prescription drug use. If you did not answer these questions we assume that you, and any family members, have"+' "medium" healthcare needs.';
+		var $qualityRating = "Quality ratings compare members' experience and medical care to national standards.";
+		var $planName = _getText(_link("detail", _in(_div("cp-tile__plan-name"))));
+
+		verifyTooltip(_link("detail", _in(_div("cp-tile__plan-name"))), $planName);
+		verifyTooltip(_link("Yearly Deductible", _in(_div("cp-tile"))), $yearlyDeductibleTooltip);
+		verifyTooltip(_link("(May Not Apply)", _in(_div("cp-tile"))), $mayNotApplayTooltip);
+		verifyTooltip(_link("Total Expense Estimate", _in(_div("cp-tile"))), $totalExpenceEstimate);
+		verifyTooltip(_link("Quality Rating", _in(_div("cp-tile"))), $qualityRating);
+
+		verifyDynamicValueTooltipsInTileOnPlanDisplay();
+		verifyTooltipsForProvidersOnPlanDisplay();
+	}
+	else{
+		var $planName = _getText(_link("detail", _in(_div("cp-tile__plan-name"))));
+		verifyTooltip(_link("detail", _in(_div("cp-tile__plan-name"))), $planName);
+		verifyTooltip(_link("Yearly Deductible (Child)", _in(_div("cp-tile"))), "A deductible is the amount of money you will need to pay for some dental services before your dental plan will begin to help pay for the costs. You have access to many services (like a cleaning) before you have to meet your deductible. Click the plan's"+' "DETAILS" link to see how a deductible may apply.');
+	}
+}
+
+
+/*-----------------------------On Health Plan Details Page-------------------------------------------*/
+
+function verifyTooltipsOnPlanDetailsPage(){
+	verifyPlanHighlightsTooltips();
+	verifyTooltipsForProvidersOnPlanDetailsPage();
+	verifyYearlyDeductibleOutofPocketTooltips();
+	verifyToolltipsForDoctorVisitOnPlanDetailsPage();
+	verifyToolltipsForTestsOnPlanDetailsPage();
+	verifyToolltipsForDrugsOnPlanDetailsPage();
+	verifyToolltipsForOutpatientServicesOnPlanDetailsPage();
+	verifyToolltipsForERUrgentCareOnPlanDetailsPage();
+	verifyToolltipsForHospitalOnPlanDetailsPage();
+	verifyToolltipsForMentalBehavioralHealthOnPlanDetailsPage();
+	verifyToolltipsForPregnancyOnPlanDetailsPage();
+	verifyToolltipsForOtherSpecialNeedsOnPlanDetailsPage();
+	verifyToolltipsForChildrensVisionOnPlanDetailsPage();
+	verifyToolltipsForChildrensDentalOnPlanDetailsPage();
+}
+
+function verifyPlanHighlightsTooltips(){
+	var $mayNotApplayTooltip = "If a plan has a deductible, it's important to know that you can use many services (like doctor visits) before you have to meet that deductible. Click the plan's "+'"DETAILS" link to see how a deductible may apply.';
+
+	verifyTooltip(_link("Total Expense Estimate", _in(_table("ps-detail__highlights-table"))), $totalExpenceEstimate);
+	verifyTooltip(_link("", _rightOf(_link("Total Expense Estimate", _in(_table("ps-detail__highlights-table"))))), $totalExpenceEstimateValue);
+	if (!_isVisible(_link("$0 / $0", _near(_tableHeader("Yearly Deductible"))))) {
+		verifyTooltip(_link("(May Not Apply)", _in(_table("ps-detail__highlights-table"))), $mayNotApplayTooltip);
+	}
+	verifyTooltip(_link("Health Savings Account (HSA)", _in(_table("ps-detail__highlights-table"))), $HSATooltip);
+	verifyTooltip(_link("Quality Rating", _in(_table("ps-detail__highlights-table"))), $qualityRating);
+	if(_isVisible(_link("Quality Rating in Future", _in(_table("ps-detail__highlights-table"))))){
+		verifyTooltip(_link("Quality Rating in Future", _in(_table("ps-detail__highlights-table"))), $qualityRatingInFuture);
+	}
+	if(_isVisible(_link("quality-rating", _in(_table("ps-detail__highlights-table"))))){
+		verifyTooltip(_link("quality-rating", _in(_table("ps-detail__highlights-table"))), $qualityRatingStarsTooltip);
+	}
+}
+
+function verifyTooltipsForProvidersOnPlanDetailsPage(){
+	var $notAvailableTooltip = "Not available in plan network";
+	var $availableTooltip = "Available in plan network";
+
+	var $num=getRandomInt(0, 11);
+	_log("random num is: "+$num);
+
+	if($doctors.length>0){
+		for (var $i=0; $i<$doctors.length; $i++){
+			verifyTooltip(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))), $doctors[$i].name);
+
+			if(_isVisible(_italic("icon-ok-sign", _in(_cell("cp-tile__value", _near(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))))){
+				verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))), $availableTooltip);
+			}
+			else{
+				verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$doctors[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))), $notAvailableTooltip);
+			}
+		}
+	}
+
+	if($hospitals.length>0){
+		for (var $i=0; $i<$hospitals.length; $i++){
+			verifyTooltip(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))), $hospitals[$i].name);
+
+			if(_isVisible(_italic("icon-ok-sign", _in(_cell("cp-tile__value", _near(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))))){
+				verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))), $availableTooltip);
+			}
+			else{
+				verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$hospitals[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))), $notAvailableTooltip);
+			}
+		}
+	}
+
+	if($dentists.length>0){
+		for (var $i=0; $i<$dentists.length; $i++){
+			verifyTooltip(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))), $dentists[$i].name);
+
+			if(_isVisible(_italic("icon-ok-sign", _in(_cell("cp-tile__value", _near(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))))){
+				verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))), $availableTooltip);
+			}
+			else{
+				verifyTooltip(_link("", _in(_cell("cp-tile__value", _near(_link("/"+$dentists[$i].name.substring(0,12)+"/", _in(_table("ps-detail__highlights-table"))))))), $notAvailableTooltip);
+			}
+		}
+	}
+}
+
+function verifyYearlyDeductibleOutofPocketTooltips(){
+	verifyTooltip(_link("In Network", _near(_div("Yearly Deductible & Out-of-Pocket"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Yearly Deductible & Out-of-Pocket"))), $outOfNetwork);
+}
+
+function verifyToolltipsForDoctorVisitOnPlanDetailsPage(){
+	var $primaryCareVisitTooltip = "A visit to the doctor for general medical care and basic health needs. Your primary care doctor provides basic medical services, coordinates care and can refer you to specialists and hospitals.";
+	var $specialistVisitTooltip = "A visit to a doctor or other health care provider who delivers medical services in a specialized area, such as a dermatologist, neurologist or gastroenterologist.";
+	var $otherPractitionerOfficeVisitTooltip = "Office visits to health care providers who are non-specialist practitioners, such as nurse practitioners, physician assistants, acupuncturists and certified nurse midwives.";
+	var $preventiveCareScreeningImmunization = "Coverage includes important and free preventive services, which can help you avoid illness and improve your health.";
+
+	verifyTooltip(_link("In Network", _near(_div("Doctor Visit"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Doctor Visit"))), $outOfNetwork);
+	verifyTooltip(_link("Primary Care Visit", _under(_div("Doctor Visit"))), $primaryCareVisitTooltip);
+	verifyTooltip(_link("Specialist Visit", _under(_div("Doctor Visit"))), $specialistVisitTooltip);
+	verifyTooltip(_link("Other Practitioner Office Visit", _under(_div("Doctor Visit"))), $otherPractitionerOfficeVisitTooltip);
+	verifyTooltip(_link("Preventive Care/Screening/Immunization", _under(_div("Doctor Visit"))), $preventiveCareScreeningImmunization);
+
+	//	_setStrictVisibilityCheck(true);
+	//	var $viewLinksList = _collect("_link", "View", _in(_div("ps-detail__group[2]")));
+	//	for(var $i=0; $i<$viewLinksList.length; $i++){
+	//		verifyTooltip(_link("View["+$i+"]", _in(_div("ps-detail__group[2]"))), $view);
+	//	}
+	//	_setStrictVisibilityCheck(false);
+}
+
+function verifyToolltipsForTestsOnPlanDetailsPage(){
+	$laboratoryTestsTooltip = "Includes various lab tests, such as bloodwork.";
+	$xraysAndDiagnosticImagingTooltip = "Any x-ray test or ultrasound procedure used for a diagnosis.";
+	$imagingTooltip = "Techniques used to create images of the human body for diagnosis, such as CT/PET scans and MRIs.";
+
+	verifyTooltip(_link("In Network", _near(_div("Tests"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Tests"))), $outOfNetwork);
+
+	verifyTooltip(_link("Laboratory Tests", _under(_div("Tests"))), $laboratoryTestsTooltip);
+	verifyTooltip(_link("X-rays and Diagnostic Imaging", _under(_div("Tests"))), $xraysAndDiagnosticImagingTooltip);
+	verifyTooltip(_link("Imaging (CT/PET Scans, MRIs)", _under(_div("Tests"))), $imagingTooltip);
+
+	//	_setStrictVisibilityCheck(true);
+	//	var $viewLinksList = _collect("_link", "View", _in(_div("ps-detail__group[3]")));
+	//	for(var $i=0; $i<$viewLinksList.length; $i++){
+	//		verifyTooltip(_link("View["+$i+"]", _in(_div("ps-detail__group[3]"))), $view);
+	//	}
+	//	_setStrictVisibilityCheck(false);
+}
+
+function verifyToolltipsForDrugsOnPlanDetailsPage(){
+	var $tier1Tooltip = "Estimated copay or coinsurance for a tier 1 drug (mostly generics) purchased through a retail location.";
+	var $tier2Tooltip = "Tier 2 includes preferred brand drugs and some non-preferred generic drugs. Preferred brand drugs are brand-name drugs for which a generic alternative either does not exist or a generic has not yet been approved by the health plan. Each health plan determines which drugs are preferred brand drugs.";
+	var $tier3Tooltip = "Tier 3 includes non-preferred brand name drugs, which may be more expensive or newer than other drugs. Non-preferred brand drugs are determined by each health plan. Because these drugs often cost more, your copayment may be higher.";
+	var $tier4Tooltip = "Tier 4 includes specialty drugs, which are high-cost drugs used to treat complex or rare conditions, such as multiple sclerosis, rheumatoid arthritis, hepatitis C, and hemophilia. The drugs are often self-injected or administered in a physician's office or through home health services.";
+	var $MaximumCostperPrescriptionTooltip = "The maximum cost per prescription applies each time a prescription is filled, including each refill.";
+
+	verifyTooltip(_link("Tier 1 (Most Generic Drugs)", _under(_div("Drugs"))), $tier1Tooltip);
+	verifyTooltip(_link("Tier 2 (Preferred Brand Drugs)", _under(_div("Drugs"))), $tier2Tooltip);
+	verifyTooltip(_link("Tier 3 (Non-Preferred Brand Drugs)", _under(_div("Drugs"))), $tier3Tooltip);
+	verifyTooltip(_link("Tier 4 (Specialty Drugs)", _under(_div("Drugs"))), $tier4Tooltip);
+	verifyTooltip(_link("Maximum Cost per Prescription", _under(_div("Drugs"))), $MaximumCostperPrescriptionTooltip);
+
+	verifyTooltip(_link("In Network", _near(_div("Drugs"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Drugs"))), $outOfNetwork);
+}
+
+function verifyToolltipsForOutpatientServicesOnPlanDetailsPage(){
+	var $outpatientFacilityFeeTooltip = "Fee for use of an outpatient care facility, ambulatory care center, or a hospital-owned medical office for outpatient services.";
+	var $outpatientSurgeryPhysicianSurgicalServicesTooltip = "Fees charged by doctors and surgeons for providing outpatient surgical services.";
+	var $outpatientServicesOfficeVisitsTooltip = "An office visit for outpatient services such as chemotherapy, radiation, infusion therapy and dialysis.";
+
+	verifyTooltip(_link("Outpatient Facility Fee", _under(_div("Outpatient Services"))), $outpatientFacilityFeeTooltip);
+	verifyTooltip(_link("Outpatient Surgery Physician/Surgical Services", _under(_div("Outpatient Services"))), $outpatientSurgeryPhysicianSurgicalServicesTooltip);
+	verifyTooltip(_link("Outpatient Services Office Visits", _under(_div("Outpatient Services"))), $outpatientServicesOfficeVisitsTooltip);
+
+	verifyTooltip(_link("In Network", _near(_div("Outpatient Services"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Outpatient Services"))), $outOfNetwork);
+}
+
+function verifyToolltipsForERUrgentCareOnPlanDetailsPage(){
+	var $emergencyRoomFacilityFee = "Facility fee charged for treatment received at a hospital emergency department.";
+	var $emergencyTransportation = "Ambulance services for an emergency medical condition.";
+	var $urgentCaretooltip = "Care for an illness, injury, or condition serious enough that a reasonable person would seek care right away, but not so severe as to require an emergency room visit.";
+	var $emergencyRoomProfessionalFee = "Fees charged by doctors and surgeons for providing emergency medical services.";
+
+	verifyTooltip(_link("Emergency Room Facility Fee", _under(_div("ER & Urgent Care"))), $emergencyRoomFacilityFee);
+	verifyTooltip(_link("Emergency Transportation", _under(_div("ER & Urgent Care"))), $emergencyTransportation);
+	verifyTooltip(_link("Urgent Care", _under(_div("ER & Urgent Care"))), $urgentCaretooltip);
+	verifyTooltip(_link("Emergency Room Professional Fee", _under(_div("ER & Urgent Care"))), $emergencyRoomProfessionalFee);
+
+	verifyTooltip(_link("In Network", _near(_div("ER & Urgent Care"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("ER & Urgent Care"))), $outOfNetwork);
+}
+
+function verifyToolltipsForHospitalOnPlanDetailsPage(){
+	var $inpatientHospitalServicesTooltip = "Fees for use of a hospital facility, such as a hospital room, for an inpatient hospital stay.";
+	var $inpatientPhysicianandSurgicalServicesTooltip = "Fees charged by doctors and surgeons for their inpatient services.";
+
+	verifyTooltip(_link("Inpatient Hospital Services", _under(_div("Hospital"))), $inpatientHospitalServicesTooltip);
+	verifyTooltip(_link("Inpatient Physician and Surgical Services", _under(_div("Hospital"))), $inpatientPhysicianandSurgicalServicesTooltip);
+
+	verifyTooltip(_link("In Network", _near(_div("Hospital"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Hospital"))), $outOfNetwork);
+}
+
+function verifyToolltipsForMentalBehavioralHealthOnPlanDetailsPage(){
+	verifyTooltip(_link("Mental/Behavioral Health Outpatient Services", _under(_div("Mental/Behavioral Health"))), "Mental or behavioral health services that do not require an overnight stay in a facility. Mental or behavioral health outpatient services include assessment, treatment (individual medical evaluation and management, including medication management, individual and group therapy behavioral health counseling), and psychological testing for recipients of all ages.");
+	verifyTooltip(_link("Mental/Behavioral Health Inpatient Facility Fee", _under(_div("Mental/Behavioral Health"))), "Facility fee charged for mental or behavioral health services that require an overnight stay in a facility. For example, the evaluation, stabilization and treatment for adults and adolescents who are having a psychiatric crisis or a temporary worsening of a chronic mental illness.");
+	verifyTooltip(_link("Mental/Behavioral Health Inpatient Professional Fee", _under(_div("Mental/Behavioral Health"))), "Fees charged by medical professionals for providing inpatient mental or behavioral health services.");
+	verifyTooltip(_link("Substance Use Disorder Outpatient Services", _under(_div("Mental/Behavioral Health"))), "Treatment for a substance use disorder that does not require an overnight stay in a facility.");
+	verifyTooltip(_link("Substance Use Disorder Inpatient Facility Fee", _under(_div("Mental/Behavioral Health"))), "Facility fee for treatment for a substance use disorder that requires an overnight stay in a facility.");
+	verifyTooltip(_link("Substance Use Disorder Inpatient Professional Fee", _under(_div("Mental/Behavioral Health"))), "Fees charged by medical professionals for providing inpatient substance use disorder health services.");
+
+	verifyTooltip(_link("In Network", _near(_div("Mental/Behavioral Health"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Mental/Behavioral Health"))), $outOfNetwork);
+}
+
+function verifyToolltipsForPregnancyOnPlanDetailsPage(){
+	verifyTooltip(_link("Prenatal Care", _under(_div("Pregnancy"))), "Prenatal care is the health care you get while you are pregnant. Prenatal care can help keep the mother and baby healthy.");
+	verifyTooltip(_link("Delivery and Maternity Care Inpatient Facility Fee", _under(_div("Pregnancy"))), "Facility fee charged for childbirth and inpatient maternity care, which usually includes room and board costs in the hospital, nursery fee, laboratory fees and medications and supplies.");
+	verifyTooltip(_link("Delivery and Maternity Care Inpatient Professional Fee", _under(_div("Pregnancy"))), "Fees charged by medical professionals for childbirth and inpatient maternity care.");
+
+	verifyTooltip(_link("In Network", _near(_div("Pregnancy"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Pregnancy"))), $outOfNetwork);
+}
+
+function verifyToolltipsForOtherSpecialNeedsOnPlanDetailsPage(){
+
+	verifyTooltip(_link("Home Health Care Services", _under(_div("Other Special Needs"))), "Health care services a person receives at home.");
+	verifyTooltip(_link("Outpatient Rehabilitation Services", _under(_div("Other Special Needs"))), "Services that help a person keep, get back, or improve skills and functioning for daily living that have been lost or impaired because the person was sick, hurt or disabled. These services may include physical and occupational therapy, speech-language pathology and psychiatric rehabilitation services.");
+	verifyTooltip(_link("Habilitation Services", _under(_div("Other Special Needs"))), "Inpatient or outpatient health care services that help a person keep, learn or improve skills and functioning for daily living, such as therapy for a child who is not walking or talking at the expected age. These services may include physical and occupational therapy, speech-language pathology and other services for people with disabilities.");
+	verifyTooltip(_link("Skilled Nursing Facility", _under(_div("Other Special Needs"))), "Services from licensed nurses where skilled care services are provided by technicians or therapists in your own home or in a nursing home.");
+	verifyTooltip(_link("Durable Medical Equipment", _under(_div("Other Special Needs"))), "Equipment and supplies ordered by a health care provider for everyday or extended use. Coverage for durable medical equipment may include: oxygen equipment, wheelchairs, crutches or blood testing strips for diabetics.");
+	verifyTooltip(_link("Hospice Services", _under(_div("Other Special Needs"))), "Services to provide comfort and support for family members and persons in the last stages of a terminal illness.");
+	verifyTooltip(_link("Acupuncture", _under(_div("Other Special Needs"))), "Acupuncture benefits are provided as part of treatment for comprehensive pain management or nausea.");
+	verifyTooltip(_link("Rehabilitative Speech Therapy", _under(_div("Other Special Needs"))), "Services to keep, get back or improve a communication impairment, swallowing disorder, an expressive or receptive language disorder, or an abnormal delay in speech development.");
+	verifyTooltip(_link("Rehabilitative Occupational and Rehabilitative Physical Therapy", _under(_div("Other Special Needs"))), "Services to keep, get back, improve or maintain a patient's ability to perform daily living skills as well as improve musculoskeletal, neuromuscular and respiratory systems.");
+	verifyTooltip(_link("Well Baby Visits and Care", _under(_div("Other Special Needs"))), "Routine doctor visits for comprehensive preventive health services that occur when a baby is young. Services include physical exam and measurements, vision and hearing screening and vaccinations.");
+	verifyTooltip(_link("Allergy Testing", _under(_div("Other Special Needs"))), "Services such as blood tests and skin prick testing to help confirm or rule out allergies.");
+	verifyTooltip(_link("Diabetes Education", _under(_div("Other Special Needs"))), "Health education programs for diabetes, which may include programs provided online and counseling over the phone, individual counseling when the office visit is solely for health education, or health education provided during an outpatient consultation or exam.");
+	verifyTooltip(_link("Nutritional Counseling", _under(_div("Other Special Needs"))), "Consultations with a registered dietitian or other health professional to assess dietary intake and identify areas for diet modification.");
+
+	verifyTooltip(_link("In Network", _near(_div("Other Special Needs"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Other Special Needs"))), $outOfNetwork);
+}
+
+function verifyToolltipsForChildrensVisionOnPlanDetailsPage(){
+	verifyTooltip(_link("Eye Exam for Children", _under(_div("Children's Vision"))), "Comprehensive exam of visual functions and prescription for corrective eyewear.");
+	verifyTooltip(_link("Eyeglasses for Children", _under(_div("Children's Vision"))), "Covers one pair of glasses per year.");
+
+	verifyTooltip(_link("In Network", _near(_div("Children's Vision"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Children's Vision"))), $outOfNetwork);
+}
+
+function verifyToolltipsForChildrensDentalOnPlanDetailsPage(){
+	verifyTooltip(_link("Child Filling - One Surface", _under(_div("Children's Dental"))), "A mixture of materials used to repair cavities on a single surface of a tooth.");
+	verifyTooltip(_link("Child Dental Checkup", _under(_div("Children's Dental"))), "A dental checkup includes a cleaning and oral exam, and x-rays when appropriate.");
+	verifyTooltip(_link("Child Root Canal - Molar", _under(_div("Children's Dental"))), "dental procedure to fix a damaged nerve of a tooth by removing the nerve and filling it with suitable material.");
+	verifyTooltip(_link("Child Medically Necessary Orthodontia", _under(_div("Children's Dental"))), "A dental procedure used when it is determined that treatment of malocclusion (misalignment) and other neuromuscular and skeletal abnormalities of the teeth and surrounding structures is medically necessary. Care is medically necessary for the purpose of: controlling or eliminating infection, pain, and disease; and restoring facial configuration or function necessary for speech, swallowing or chewing.");
+
+	verifyTooltip(_link("In Network", _near(_div("Children's Dental"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Children's Dental"))), $outOfNetwork);
+}
+
+/*--- On Dental Plan Details Page --- */
+
+function verifyToolltipsOnDentalPlanDetailsPage(){
+	var $planName = _getText(_link("detail", _in(_div("cp-tile__plan-name"))));
+	if($planName.indexOf("...") != -1){
+		$planName = "/"+$planName.substring(0,$planName.indexOf("...")-1)+"/";
+	}
+	verifyTooltip(_link("detail", _in(_div("cp-tile__plan-name"))), $planName);
+	verifyToolltipsForYearlyDeductibleOutofPocketOnDentalPlanDetailsPage();
+	verifyToolltipsForAdultDentalCoverageOnDentalPlanDetailsPage();
+	verifyToolltipsForChildDentalCoverageOnDentalPlanDetailsPage();
+}
+
+function verifyToolltipsForYearlyDeductibleOutofPocketOnDentalPlanDetailsPage(){
+	verifyTooltip(_link("Adult Deductible", _in(_div("Adult Deductible (Family)", _under(_div("Yearly Deductible & Out-of-Pocket"))))), "A deductible is the amount of money you will need to pay for some dental services before your dental plan will begin to help pay for the costs. You have access to many services (like a cleaning) before you have to meet your deductible.");
+	verifyTooltip(_link("Adult Deductible", _in(_div("Adult Deductible (Individual)", _under(_div("Yearly Deductible & Out-of-Pocket"))))), "A deductible is the amount of money you will need to pay for some dental services before your dental plan will begin to help pay for the costs. You have access to many services (like a cleaning) before you have to meet your deductible.");
+	verifyTooltip(_link("Adult Annual Benefit Limit", _in(_div("Adult Annual Benefit Limit (Family)", _under(_div("Yearly Deductible & Out-of-Pocket"))))), "The most of your dental plan will pay towards your dental expense claims during the plan year.");
+	verifyTooltip(_link("Adult Annual Benefit Limit", _in(_div("Adult Annual Benefit Limit (Individual)", _under(_div("Yearly Deductible & Out-of-Pocket"))))), "The most of your dental plan will pay towards your dental expense claims during the plan year.");
+	verifyTooltip(_link("Adult Out-of-Pocket Maximum", _in(_div("Adult Out-of-Pocket Maximum (Family)", _under(_div("Yearly Deductible & Out-of-Pocket"))))), "There is no limit on the out-of-pocket costs for adult dental services.");
+	verifyTooltip(_link("Adult Out-of-Pocket Maximum", _in(_div("Adult Out-of-Pocket Maximum (Individual)", _under(_div("Yearly Deductible & Out-of-Pocket"))))), "There is no limit on the out-of-pocket costs for adult dental services.");
+}
+
+function verifyToolltipsForAdultDentalCoverageOnDentalPlanDetailsPage(){
+	verifyTooltip(_link("Adult Root Canal - Molar", _under(_div("Adult Dental Coverage"))), "A dental procedure to fix a damaged nerve of a tooth by removing the nerve and filling it with suitable material.");
+	verifyTooltip(_link("Adult Filling - One Surface", _under(_div("Adult Dental Coverage"))), "A mixture of materials used to repair cavities on a single surface of a tooth.");
+	verifyTooltip(_link("Adult Dental Checkup", _under(_div("Adult Dental Coverage"))), "A dental checkup includes a cleaning and oral exam, and x-rays when appropriate.");
+
+	verifyTooltip(_link("In Network", _near(_div("Adult Dental Coverage"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Adult Dental Coverage"))), $outOfNetwork);
+}
+
+function verifyToolltipsForChildDentalCoverageOnDentalPlanDetailsPage(){
+	verifyTooltip(_link("Child Medically Necessary Orthodontia", _under(_div("Child Dental Coverage"))), "A dental procedure used when it is determined that treatment of malocclusion (misalignment) and other neuromuscular and skeletal abnormalities of the teeth and surrounding structures is medically necessary. Care is medically necessary for the purpose of: controlling or eliminating infection, pain, and disease; and restoring facial configuration or function necessary for speech, swallowing or chewing.");
+	verifyTooltip(_link("Child Root Canal - Molar", _under(_div("Child Dental Coverage"))), "A dental procedure to fix a damaged nerve of a tooth by removing the nerve and filling it with suitable material.");
+	verifyTooltip(_link("Child Dental Checkup", _under(_div("Child Dental Coverage"))), "A dental checkup includes a cleaning and oral exam and x-rays when appropriate.");
+	verifyTooltip(_link("Child Filling - One Surface", _under(_div("Child Dental Coverage"))), "A mixture of materials used to repair cavities on a single surface of a tooth.");
+
+	verifyTooltip(_link("In Network", _near(_div("Child Dental Coverage"))), $inNetwork);
+	verifyTooltip(_link("Out-of-Network", _near(_div("Child Dental Coverage"))), $outOfNetwork);
+}
+
+/*------------------------------On Health Plan Compare Page-------------------------------------------*/
+
+function verifyTooltipsOnPlanComparePage(){
+	verifyTooltipsForSummaryOnPlanComparePage();
+	verifyTooltipsForDoctorVisitOnPlanComparePage();
+}
+
+function verifyTooltipsForSummaryOnPlanComparePage(){
+	verifyTooltip(_link("Total Expense Estimate", _under(_div("Summary"))), $totalExpenceEstimate);
+	verifyTooltip(_link("expense", _under(_div("Summary"))), $totalExpenceEstimateValue);
+	verifyTooltip(_link("Doctors & Facilities", _under(_div("Summary"))), "Doctors & Facilities");
+	verifyTooltip(_link("Plan Type", _under(_div("Summary"))), "Plan Type");
+	if(_isVisible(_link("HMO", _under(_div("Summary"))))){
+		verifyTooltip(_link("HMO", _under(_div("Summary"))), $HMOTooltip);
+	}
+
+	if(_isVisible(_link("PPO", _under(_div("Summary"))))){
+		verifyTooltip(_link("PPO", _under(_div("Summary"))), $PPOTooltip);
+	}
+
+	if(_isVisible(_link("EPO", _under(_div("Summary"))))){
+		verifyTooltip(_link("EPO", _under(_div("Summary"))), $EPOTooltip);
+	}
+
+	verifyTooltip(_link("Health Savings Account (HSA)", _under(_div("Summary"))), $HSATooltip);
+	verifyTooltip(_link("Quality Rating", _under(_div("Summary"))), $qualityRating);
+
+	if(_isVisible(_link("Quality Rating in Future", _under(_div("Summary"))))) {
+		 _assertEqual("Quality Rating in Future", _getText(_link("Quality Rating in Future", _in(_div("Quality Rating Quality Rating in Future")))));
+//		verifyTooltip(_link("Quality Rating in Future", _under(_div("Summary"))), $qualityRatingInFuture);
+	}
+	else if(_isVisible(_link("quality-rating", _under(_div("Summary"))))){
+		verifyTooltip(_link("quality-rating", _under(_div("Summary"))), $qualityRatingStarsTooltip);
+	}
+}
+
+function verifyTooltipsForDoctorVisitOnPlanComparePage(){
+	if(_isVisible(_italic("icon-chevron-right", _in(_link("Doctor Visit"))))){
+		_click(_link("Doctor Visit"));
+		_assertVisible(_italic("icon-chevron-down", _in(_link("Doctor Visit"))));
+		_assertVisible(_link("Primary Care Visit", _in(_div("collapseThree"))));
+		_assertVisible(_link("Specialist Visit", _in(_div("collapseThree"))));
+	}
+	verifyTooltip(_link("Primary Care Visit", _in(_div("collapseThree"))), "A visit to the doctor for general medical care and basic health needs. Your primary care doctor provides basic medical services, coordinates care and can refer you to specialists and hospitals.");
+	verifyTooltip(_link("Specialist Visit", _in(_div("collapseThree"))), "A visit to a doctor or other health care provider who delivers medical services in a specialized area, such as a dermatologist, neurologist or gastroenterologist.");
+	verifyTooltip(_link("Other Practitioner Office Visit", _in(_div("collapseThree"))), "Office visits to health care providers who are non-specialist practitioners, such as nurse practitioners, physician assistants, acupuncturists and certified nurse midwives.");
+	verifyTooltip(_link("Preventive Care/Screening/Immunization", _in(_div("collapseThree"))), "Coverage includes important and free preventive services, which can help you avoid illness and improve your health.");
+
+	var $additionalInformationLinksList = _collect("_link", "Additional Information", _in(_div("collapseThree")));
+	for(var $i=0; $i<$additionalInformationLinksList.length; $i++){
+		verifyTooltip(_link("Additional Information["+$i+"]", _in(_div("collapseThree"))), "Benefit Explanation Please see plan’s Summary of Benefits and Coverage (SBC) and Evidence of Coverage (EOC) or policy document for complete information on benefits and exclusions.");
+	}
+}
+
+/*------------------------------On Dental Plan Compare Page-------------------------------------------*/
+
+function verifyTooltipsOnDentalPlanComparePage(){
+	var $planName = _getText(_link("detail", _in(_div("cp-tile__plan-name"))));
+	verifyTooltip(_link("detail", _in(_div("cp-tile__plan-name"))), $planName);
+	verifyTooltipsForSummaryOnDentalPlanComparePage();
+	verifyToolltipsForYearlyDeductibleOutofPocketOnDentalPlanComparePage();
+}
+
+function verifyTooltipsForSummaryOnDentalPlanComparePage(){
+	verifyTooltip(_link("Plan Type", _under(_div("Summary"))), "Plan Type");
+	if(_isVisible(_link("HMO", _under(_div("Summary"))))){
+		verifyTooltip(_link("HMO", _under(_div("Summary"))), $HMOTooltip);
+	}
+
+	if(_isVisible(_link("PPO", _under(_div("Summary"))))){
+		verifyTooltip(_link("PPO", _under(_div("Summary"))), $PPOTooltip);
+	}
+
+	if(_isVisible(_link("EPO", _under(_div("Summary"))))){
+		verifyTooltip(_link("EPO", _under(_div("Summary"))), $EPOTooltip);
+	}
+}
+
+function verifyToolltipsForYearlyDeductibleOutofPocketOnDentalPlanComparePage(){
+	verifyTooltip(_link("Adult Deductible", _in(_div("planAdultDeductibleFly"))), "A deductible is the amount of money you will need to pay for some dental services before your dental plan will begin to help pay for the costs. You have access to many services (like a cleaning) before you have to meet your deductible.");
+	verifyTooltip(_link("Adult Deductible", _in(_div("planAdultDeductibleInd"))), "A deductible is the amount of money you will need to pay for some dental services before your dental plan will begin to help pay for the costs. You have access to many services (like a cleaning) before you have to meet your deductible.");
+	verifyTooltip(_link("Adult Annual Benefit Limit", _in(_div("planAdultAnnualBenefitLimitFly"))), "The most of your dental plan will pay towards your dental expense claims during the plan year.");
+	verifyTooltip(_link("Adult Annual Benefit Limit", _in(_div("planAdultAnnualBenefitLimitInd"))), "The most of your dental plan will pay towards your dental expense claims during the plan year.");
+	verifyTooltip(_link("Adult Out-of-Pocket Maximum", _in(_div("planAdultOutOfPocketMaxFly"))), "There is no limit on the out-of-pocket costs for adult dental services.");
+	verifyTooltip(_link("Adult Out-of-Pocket Maximum", _in(_div("planAdultOutOfPocketMaxInd"))), "There is no limit on the out-of-pocket costs for adult dental services.");
+}
+
+/*-----------On Cart PPage----------------------*/
+
+function verifyTooltipsOnCartPage(){
+	var $totalMonthlyPremiumPaymentTooltip = "You will use pre-tax dollars to pay for your insurance premiums.";
+	_mouseOver(_span("TOTAL MONTHLY PAYMENT"));
+	_wait(2000, _isVisible(_div($totalMonthlyPremiumPaymentTooltip)));
+	_assertVisible(_div($totalMonthlyPremiumPaymentTooltip),"Tooltip for Your Total Monthly Premium Payment should be visible");
+}

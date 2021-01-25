@@ -1,0 +1,32 @@
+var $esignHeader=_heading1("Electronic Signature for Your Enrollment");
+var $esignExchangeAgreement=_heading4("I. Exchange Agreement");
+var $esignAgreement=_checkbox("I have read and agreed to the Exchange Agreement");
+var $esignSignature=_textbox("/To provide your eSignature please enter your full name. /");
+var $esignEnroll=_button("Sign and Enroll");
+
+function verifyElementsOnEsignPage(){
+	_assertVisible($esignHeader);
+	_assertVisible($esignExchangeAgreement);
+	_assertVisible($esignAgreement);
+	_assertVisible($esignSignature);
+}
+
+function selectEsignAcceptAgrrement(){
+	verifyElementsOnEsignPage();
+	_check($esignAgreement);
+}
+
+function enterEsignSignature($Signature){
+	if($Signature){
+		_setValue(_textbox("/To provide your eSignature please enter your full name./"), $Signature);
+	}
+	_setValue(_textbox("/To provide your eSignature please enter your full name./"), $ssapPeople[0].fullName());
+}
+
+function clickSignAndEnroll(){
+	_click($esignEnroll);
+	if($outsideIdaho == "Yes"){
+		_assertVisible(_heading4("Disenrollments from Existing Plans"));
+	}
+	_assertVisible(_link("Go to Dashboard"));
+}

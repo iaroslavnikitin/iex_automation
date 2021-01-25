@@ -1,0 +1,28 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/SmartPlanFinder.sah"
+,"loadSahi","../api/SaveProviderPreferences.sah"
+,"loadSahi","../pagemodels/SaveHouseholdData.sah"
+
+"Providers should reflect on UI when added using SaveProviderPreferences API","[Documentation]","1. Create a new household using ""SaveHousehod"" API 
+2. Add providers to the newly created household using ""SaveProviderPreferences"" API. 
+3. Append the Household Id to the following URL & launch it: 
+https://wa1dev.ghixqa.com/hix/dst/index/?householdId=482c6873-35d0-4a02-9a29-2d09048b73a1&lang=en&appflow=pre&redirectDomain=https%3A%2F%2Fwww.google.com%2F"
+,"$redirectDomain=","""https://www.google.com"""
+,"$zipCode=","98203"
+,"createSaveHouseHoldAPI","$zipCode","6","2018"
+,"addMemberToSaveHouseholdAPI","1233123232","32","F"
+,"addMemberToSaveHouseholdAPI","1233123123","34","M"
+,"addPlanPremiumToSaveHouseholdAPI","49831WA192000101","400"
+,"addPlanPremiumToSaveHouseholdAPI","84481WA006000201","240.34"
+,"callSaveHouseholdAPI"
+,"$householdId=getHouseholdId"
+,"setHouseholdIdToSaveProviderPreferencesAPI","$householdId"
+,"setProviderToSaveProviderPreferencesAPI","6c53bf3074a6f651d2026fe6cd60df65","John Abano","Everett","WA","doctor","5f5e49dea42c8f7743fdb9c41702a0d1","Family Medicine"
+,"setProviderToSaveProviderPreferencesAPI","472617d53b8c6281b159e6cfc20ac78e","John Hruby","Renton","WA","doctor","6b86a6c17ba12772cb3395c7e1a40e94","Cardiovascular Disease"
+,"setProviderToSaveProviderPreferencesAPI","a99c6c39791901ea7ca3dac5b751012b","Evergreen Health","Kirkland","WA","hospital","a99c6c39791901ea7ca3dac5b751012b"
+,"callSaveProviderPreferences"
+,"$providers=getProvidersFromSaveProviderPreferencesAPI"
+,"navigateToSmartPlanfinderWithParameters","en","pre","$redirectDomain","$householdId"
+,"verifyMedicalUseLevelOnSPF","LEVEL2"
+,"verifyPrescriptionLevelOnSPF","LEVEL2"
+,"verifyProvidersOnSPF","$providers"

@@ -1,0 +1,46 @@
+_includeOnce("Utils.sah");
+
+var $CertificationStatus = true;
+var $showConfirmation;
+
+var $certificationStatusCompleteHeader = _heading4("Account Registration Complete");
+var $certificationStatusCompleteClose = _submit("submitRequest");
+var $certificationStatusHeader = _heading4("Certification Status");
+var $certificationStatusAgentNumber = _cell("Agent Number");
+var $certificationStatusSubmissionDate = _cell("Application Submission Date");
+var $certificationStatusStatus = _cell("Certification Status");
+var $certificationStatusCertificationNumber = _cell("Certification Number");
+var $certificationStatusCertificationDate = _cell("Certification Date");
+var $certificationStatusRenewalDate = _cell("Renewal Date");
+
+function certificationStatusVerify() {
+	if ($showConfirmation) {
+		_assertVisible($certificationStatusCompleteHeader);
+		_click($certificationStatusCompleteClose);
+	}
+	_assertVisible($certificationStatusHeader);
+	_assertVisible($certificationStatusAgentNumber);
+	_assertVisible($certificationStatusSubmissionDate);
+	_assertVisible($certificationStatusStatus);
+	_assertVisible($certificationStatusCertificationNumber);
+	_assertVisible($certificationStatusCertificationDate);
+	_assertVisible($certificationStatusRenewalDate);
+}
+
+function certificationStatusAgentCreatingIndivduals(){
+	_click(_link("Individuals"));
+	_click(_link("/Add New Individual/"));
+	var $name  = randomString(4);
+	_setValue(_textbox("firstName"),$name );
+	_setValue(_textbox("lastName"), $name);
+	_setValue(_textbox("dob"), "10/10/1980");
+	_setValue(_textbox("zipcode"), "94043");
+	_setValue(_textbox("phoneNumber1"), "408");
+	_setValue(_textbox("phoneNumber2"), "875");
+	_setValue(_textbox("phoneNumber3"), "7789");
+	_setValue(_textbox("email"), $name +"@yopmail.com");
+	_click(_submit("Start"));
+	_assertVisible(_heading3("View Individual Account"));
+	_click(_submit("Individual View"));
+	_assertEqual("/"+$announcement[0].Text+"/",_getText(_div("announcements alert alert-block")));
+}

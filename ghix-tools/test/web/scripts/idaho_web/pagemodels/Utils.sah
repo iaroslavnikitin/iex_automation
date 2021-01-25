@@ -1,0 +1,407 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+// Constants
+$FIELD_LENGTH = 10;
+
+var $coverageDate="";
+var $familyCoverageEndDate="";
+var $memberCoverageEndDate="";
+
+function randomString($length, $digits) {
+	var $chars;
+	var $str = "";
+	if ($digits) {
+		$chars = "1234567890";
+	}
+	else {
+		$chars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm";
+	}
+
+	for (var $i = 0; $i < $length; $i++) {
+		var $index = Math.floor(Math.random() * $chars.length);
+		$str += $chars.charAt($index);
+	}
+	return $str;
+}
+
+function phoneGen() {
+	var $first;
+	do {
+		$first = randomString(3, true);
+	}
+	while ($first.charAt(0) === "0");
+
+	var $second = randomString(3, true);
+	var $third = randomString(4, true);
+	return [$first, $second, $third];
+}
+
+function verifyArray($array) {
+	for (var $i = 0; $i < $array.length; $i++) {
+		_assertVisible($array[$i]);
+	}
+}
+
+/*
+* Copied from http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+* and             http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+*/
+function escapeRegExp($str) {
+	return $str.replace(/[-\/\\^$*+?.()|[\]{}:]/g, '\\$&');
+}
+/*
+function convertDate($str) {
+	var $vals = $str.split("/");
+	var $month = $vals[0];
+	var $day = $vals[1];
+	var $year = $vals[2];
+	var $months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+	$month = parseInt($month);
+	$month = $months[$month - 1];
+	var $date = $month + " " + $day + ", " + $year;
+	return $date;
+}*/
+
+function convertDate($str) {
+	var $date =_fetch(window.moment($str).format("MMM DD, YYYY"));
+	return $date;
+}
+
+/*
+* Takes a date of birth string and calculates the age of this person in years.
+* birth is a string in the form mm/dd/yyyy
+* Method copied from phix page objects
+*/
+function calculateAge($birth) {
+	var $array = $birth.split("/");
+	var $now = new Date();
+	var $year = $now.getFullYear();
+	var $month = $now.getMonth() + 1;
+	var $day = $now.getDate();
+
+	// Calculate and return the age
+	var $age = $year - $array[2];
+	if (($month <= $array[0]) && ($day < $array[1])) {
+		$age--;
+	}
+	return $age;
+}
+
+function isValidDate($dateString) {
+	// First check for the pattern
+	if(!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test($dateString)){
+		_assertEqual("Please enter valid date", _getText(_div("popover-content ng-binding")));
+	}
+	// Parse the date parts to integers
+	var $parts = $dateString.split("/");
+	var $day = parseInt($parts[1], 10);
+	var $month = parseInt($parts[0], 10);
+	var $year = parseInt($parts[2], 10);
+
+	// Check the ranges of month and year
+	if($year < 1000 || $year > 3000 || $month == 0 || $month > 12){
+		_assertEqual("Please enter valid date", _getText(_div("popover-content ng-binding")));
+	}
+	var $monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+	// Adjust for leap years
+	if($year % 400 == 0 || ($year % 100 != 0 && $year % 4 == 0))
+		$monthLength[1] = 29;
+
+	// Check the range of the day
+	return $day > 0 && $day <= $monthLength[$month - 1];
+};
+
+function ageGreaterThan120($date){
+	_log(parseInt(($people[0].$age)));
+	if((parseInt(($people[$people.length-1].$age)) >= 120) && (parseInt(($people[$people.length-1].$age))!=$currentYear )){
+		_assertEqual("Please enter an age below 120.", _getText(_div("popover-content ng-binding")));
+	}
+}
+
+function convertDateFromDB($date){
+	var $dateWithtimeStamp=$date;
+	var $dateWithoutTimeStamp=$dateWithtimeStamp.split(" ")[0] ;
+	//var $months = {'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04', 'MAY': '05',
+	//'JUN': '06', 'JUL': '07', 'AUG': '08', 'SEP': '09', 'OCT': '10', 'NOV': '11',
+	//'DEC': '12'};
+
+	$split = $dateWithoutTimeStamp.split('-');
+	return($split[1]+"/"+$split[2]+"/"+$split[0]);
+}
+
+
+var $removeHH ="";
+function calculateEventDate($days){
+	var $now= _call(window.moment()).format("MM/DD/YYYY");
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	if($currentMonth == 1)
+	{
+		$now="01/01/"+$coverageYear;
+		$now=_fetch(window.moment($now).format("MM/DD/YYYY"));
+	}
+	else{
+		if($days === undefined){
+			$eventDate  = $now;
+		}
+		else {
+			$now = _call(window.moment($now)).add($days,'days').format("MM/DD/YYYY");
+			if($removeHH == "true"){
+			}
+			else{
+				$eventDate = $now;
+			}
+		}
+	}
+	_log("Calculated Date"+$now);
+	return $now;
+}
+
+
+function getCoverageStartDate($eventType, $eventDate, $event, $covDateAfterTypeOneAdd){
+	_log("getCoverageStartDate: eventType = " + $eventType + " , eventDate = " + $eventDate +  " , event = " + $event + " , covDateAfterTypeOneAdd = " + $covDateAfterTypeOneAdd);
+ if($overrideCoverage==""){   
+	var $currentDate = parseInt(_fetch(window.moment().get('date')));
+    var $currentMonth = parseInt(_fetch(window.moment().get('Month')));
+    var $currentYear = parseInt(_fetch(window.moment().get('Year')));
+	var $coverageYear = getCurrentCoverageYear();
+	var $coverageDate ="02/01/"+$coverageYear;
+    var $coverageMonth;
+    
+	$isOEP = inGlobalOEP();
+	
+	
+    if($isOEP == "ON") {
+
+		// during Open Enrollment Period (OEP), qualifying events not needed to calculate coverage date
+        
+		if($currentMonth == 11 && $currentDate > 15) {
+            $coverageMonth = _fetch(window.moment().add(2, 'M').format('MM'))
+            $coverageDate = $coverageMonth+"/01/"+$coverageYear;
+			_log("Case isOEP=ON, currentDate>11/15: $coverageDate = " + $coverageDate);
+        }
+		else {
+            $coverageDate = "01/01/"+$coverageYear;
+			_log("Case isOEP=ON: coverageDate = " + $coverageDate);
+        }
+    }
+    else{
+ 
+		// not during Open Enrollment Period (OEP), qualifying events needed to calculate coverage date based on event type
+    
+        if ($eventType == 0) {
+			// Event Type 0 is unlikely to occur, only event=PRIMARY_IN_ANOTHER_APPLICATION_DIED has this type 
+            $coverageDate = _fetch(window.moment($eventDate).add(1, 'd').format('MM/DD/YYYY'));
+			
+        }
+        
+        else if ($eventType =="1" && ($currentMonth != 11 && $currentMonth != 12)) {
+			// For Event Type 1, coverage shall start from report date
+            if(($event =="remove") || ($event =="Death")){
+                $coverageDate=$covDateAfterTypeOneAdd;
+                $memberCoverageEndDate=$eventDate;
+				
+            }
+            else{
+                $coverageDate = $eventDate;
+                $memberCoverageEndDate=$eventDate;
+				
+            }
+        }
+		
+        else if ($eventType == 2) {
+			// For Event Type 2, coverage shall start from next month from today's date
+            $coverageDate = _fetch(window.moment().add(1, 'M').format('MM/DD/YYYY'));
+            $coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+			_log("Case isOEP=OFF, eventType=2, coverage shall start from next month from today's date:  coverageDate =  " + $coverageDate);
+			$memberCoverageEndDate=_fetch(window.moment($currentDate).format('MM/DD/YYYY'));
+			$endDay=_fetch(window.moment($memberCoverageEndDate).daysInMonth());
+			$memberCoverageEndDate=$memberCoverageEndDate.substring(0,3)+$endDay+ $memberCoverageEndDate.substring(5,10);
+        }
+		
+        else if ($eventType == 3) {
+			// For Event Type 3, coverage shall start according to 15 days rule:
+			// - if today's date is before 15 of month (including), then coverage starts on 1st of next month,
+			// - if today's date is after 15 of month, then coverage starts on 1st of the month after next month.
+			// 15 days rule is also default for anonymous shopping flow, which is not event-based
+            if($currentDate <= 15) {
+                $coverageDate = _fetch(window.moment().add(1, 'M').format('MM/DD/YYYY'));
+				$memberCoverageEndDate=_fetch(window.moment($currentDate).format('MM/DD/YYYY'));
+				$endDay=_fetch(window.moment($memberCoverageEndDate).daysInMonth());
+				$memberCoverageEndDate=$memberCoverageEndDate.substring(0,3)+$endDay+ $memberCoverageEndDate.substring(5,10);
+                $coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10); 
+				_log("Case isOEP=OFF, eventType=3, currentDate<=15, coverage shall start according to 15 days rule:  coverageDate =  " + $coverageDate);
+            }else{
+                $coverageDate = _fetch(window.moment().add(2, 'M').format('MM/DD/YYYY'));
+				$memberCoverageEndDate=_fetch(window.moment($currentDate).add(1, 'M').format('MM/DD/YYYY'));
+				$endDay=_fetch(window.moment($memberCoverageEndDate).daysInMonth());
+				$memberCoverageEndDate=$memberCoverageEndDate.substring(0,3)+$endDay+ $memberCoverageEndDate.substring(5,10);
+                $coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+				_log("Case isOEP=OFF, eventType=3, currentDate>15, coverage shall start according to 15 days rule:  coverageDate =  " + $coverageDate);
+            }    
+        }
+		
+        else if($eventType == 4){
+			// For Event Type 4, coverage shall start from next month from the event''s date
+			var $endDay=_fetch(window.moment($eventDate).daysInMonth());
+            $coverageDate = _fetch(window.moment($eventDate).add(1, 'M').format('MM/DD/YYYY'));
+            $coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+			$memberCoverageEndDate=$eventDate.substring(0,3)+$endDay+$eventDate.substring(5,10);
+		}
+    }
+  }
+	else {
+		$coverageDate = $overrideCoverage;
+	} 
+	$familyCoverageEndDate ="12/31/"+$coverageYear	
+	_log("Coverage Start Date = "+ $coverageDate);
+    return $coverageDate;
+	
+}
+
+function getCurrentPreeligibilityYear() {
+	// if before OEP date - current calendar year, if on or after OEP date - current coverage year
+	
+	$currentOEStartDate = getCurrentOEStartDate();
+	$currentCoverageYear = getCurrentCoverageYear();
+	$currentCalendarYear = _fetch(window.moment().get('year'));
+	_log("Utils, getCurrentPreeligibilityYear: currentOEStartDate = " + $currentOEStartDate + " , currentCoverageYear = " + $currentCoverageYear + " , currentCalendarYear = " + $currentCalendarYear)
+	
+	if ( (_fetch(window.moment().isSame($currentOEStartDate, 'day'))) || (_fetch(window.moment().isAfter($currentOEStartDate, 'day')))) {
+		_log("Utils, getCurrentPreeligibilityYear: preeligibity year = current coverage year");
+		return $currentCoverageYear;
+	}
+	else {
+		_log("Utils, getCurrentPreeligibilityYear: preeligibity year = current calendar year");
+		return $currentCalendarYear;
+	}
+}
+
+function getFileLocation($relativeFilePath){
+	var $absoluteFilePath = _resolvePath($relativeFilePath, "\\");
+	var $lastIndexOfFileSeparator = $absoluteFilePath.lastIndexOf("\\");
+	var $absoluteFileLoc = $absoluteFilePath.substr(0, $lastIndexOfFileSeparator).replace("\\\\g", "\\\\");
+	return $absoluteFileLoc;
+}
+
+function navigateToBatchConsole(){
+	_click(_link("Batch"));
+	_click(_link("Manage Jobs"));
+}
+
+function executeBatchJob($jobName, $parameter){
+
+	var $batchURL = "/ghix-batch/jobs/jobs/"+$jobName
+	_wait(10000);
+	_navigateTo($batchURL);
+	_setValue(_textarea("jobParameters"), "");
+	_setValue(_textarea("jobParameters"), $parameter);
+	_click(_submit("Launch"));
+	_click(_link("STARTED"));
+	var $status = _getText(_cell(0, _rightOf(_cell("Status"))));;
+	_logOutput($status);
+	while ($status  != "COMPLETED"){
+		_wait(20000);
+		_call(window.location.reload());
+		var $status = _getText(_cell(0, _rightOf(_cell("Status"))));;
+		_logOutput("running status:" +$status);
+	}
+	_wait(20000);
+}
+
+function getStartDateOfYear(){
+	//var $startDateOfYear=_fetch(window.moment().startOf('year').format('MM/DD/YYYY'));
+	$startDateOfYear = "01/01/"+$coverageYear;
+	return $startDateOfYear;
+}
+
+function getStartDateOfLastMonth(){
+	var $startDate;
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	if($currentMonth == 1)
+	{
+		$startDate="01/01/"+$coverageYear;
+	}
+	else{
+		$startDate=_fetch(window.moment().subtract(1, 'months').startOf('month').format('MM/DD/YYYY'));
+	}
+	return $startDate;
+}
+
+function getMidOfLastMonth(){
+	var $midDate;
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	if($currentMonth == 1)
+	{
+		$midDate="01/02/"+$coverageYear;
+	}
+	else{
+		$midDate=_fetch(window.moment().subtract(1, 'months').format('MM/16/YYYY'));
+	}
+	return $midDate;
+}
+
+function getStartDateOfNextMonth(){
+	var $startDateOfNextMonth=_fetch(window.moment().add(1, 'months').startOf('month').format('MM/DD/YYYY'));
+	return $startDateOfNextMonth;
+}
+
+function getMidOfNextMonth(){
+	var $midOfNextMonth=_fetch(window.moment().add(1, 'months').format('MM/16/YYYY'));
+	return $midOfNextMonth;
+}
+
+function calculateEventReportedDate($eventReportedDate){
+if(($eventReportedDate=="startOfLastMonth")|| ($eventReportedDate=="midOfLastMonth") || ($eventReportedDate=="startOfNextMonth") || ($eventReportedDate=="midOfNextMonth")){
+	   if ($eventReportedDate=="startOfLastMonth"){
+		$date =getStartDateOfLastMonth();
+		}
+		else if ($eventReportedDate=="midOfLastMonth"){
+		$date =getMidOfLastMonth();
+		}
+		else if($eventReportedDate=="startOfNextMonth"){
+		$date =getStartDateOfNextMonth();
+		}
+		else if($eventReportedDate=="midOfNextMonth"){
+		$date =getMidOfNextMonth();
+		}
+	}
+else{
+//		$date = _fetch(calculateEventDate($eventReportedDate));
+	
+		$date = calculateEventDate($eventReportedDate);
+	}
+	$eventDate=$date;
+	_log("Date: " +$date);
+	return $date;
+}
+
+function calculateAgeOfInd($dob,$isSEP){
+	var $currentYear=_fetch(window.moment().year());
+	var $dobYear=_fetch(window.moment($dob).year())
+	$age =_fetch(window.moment($dob,"MM/DD/YYYY").from($coverageDate)).toString();
+	if($dobYear==$currentYear){
+		   $age =0;
+		}
+	else{
+		if ($isSEP=="Yes"){ 
+			$age = parseInt($age.split(" ")[0]);
+		}
+		else{
+			  $age = parseInt($age.split(" ")[0])-1;
+		}
+	}
+	_log("Age : "+$age);
+    return $age;
+}
+
+//get applicable year and toDate from coverageDate
+function getToDate(){
+	var $toDate = _fetch(window.moment($coverageDate).format("YYYY-MM-DD")).toString();
+	return $toDate;
+}
+
+function getApplicableYear(){
+	var $applicableYear=_fetch(window.moment($coverageDate).format("YYYY")).toString();
+	return $applicableYear;
+}

@@ -1,0 +1,150 @@
+_includeOnce("Utils.sah");
+_includeOnce("EntityUpdatePage.sah");
+_includeOnce("ManageAssister.sah");
+_includeOnce("EntityCounselorInfo.sah");
+
+var $enrollmentEntitiesHeader = _heading1("/Certified Enrollment Entities.*/");
+var $enrollmentEntitiesTable = _table("enrollmententitiesmap");
+var $enrollmentEntitiesCounselors = _link("Enrollment Counselors Dropdown Menu. Press enter to open it and tab through its options");
+var $enrollmentEntitiesCounselorsManagement = _link("Manage Enrollment Counselors End of dropdown");
+var $enrollmentEntitiesDropdown = _link("Entities Dropdown Menu. Press enter to open it and tab through its options");
+var $enrollmentEntitiesManagement = _link("Manage Entities End of dropdown");
+
+var $enrollmentEntitiesResultsHeader = _heading4("Refine Results By (reset all)");
+var $enrollmentEntitiesName = _textbox("Entity Name");
+var $enrollmentEntitiesStatus = _select("status");
+var $enrollmentEntitiesDateFrom = _textbox("Certification Enrollment Counselor Renewal Date From Sample text.  M M/ D D/ Y Y Y Y");
+var $enrollmentEntitiesDateTo = _textbox("Certification Enrollment Counselor Renewal Date To Sample text.  M M/ D D/ Y Y Y Y");
+var $enrollmentEntitiesPaidYes = _checkbox("receivedPayments");
+var $enrollmentEntitiesPaidNo = _checkbox("receivedPayments[1]");
+var $enrollmentEntitiesOrgType = _select("organizationType");
+var $enrollmentEntitiesLang = _select("language");
+var $enrollmentEntitiesZip = _textbox("Zip code");
+var $enrollmentEntitiesCounties = _select("countyServed");
+var $enrollmentEntitiesSearchButton = _submit("Go");
+
+var $enrollmentEntities = [$enrollmentEntitiesHeader, $enrollmentEntitiesTable, $enrollmentEntitiesCounselors, $enrollmentEntitiesDropdown];
+var $enrollmentEntitiesSearchBar = [$enrollmentEntitiesResultsHeader, $enrollmentEntitiesName, $enrollmentEntitiesStatus, $enrollmentEntitiesDateFrom,
+						   $enrollmentEntitiesDateTo, $enrollmentEntitiesPaidYes, $enrollmentEntitiesPaidNo, $enrollmentEntitiesOrgType, $enrollmentEntitiesLang, $enrollmentEntitiesZip, $enrollmentEntitiesCounties, $enrollmentEntitiesSearchButton];
+var $enrollmentEntitiesLinks =[$enrollmentEntitiesCounselorsManagement, $enrollmentEntitiesManagement];
+var $enrollmentEntitiesActionDropdown = _link("Dropdown Menu. Press enter to open it and tab through its options");
+var $enrollmentEntitiesActionEdit = _link("Edit");
+var $enrollmentEntitiesActionUpdate = _link("Update Status End of dropdown");
+var $enrollmentEntitiesAction = [$enrollmentEntitiesActionEdit, $enrollmentEntitiesActionUpdate];
+
+function verifyElementsOnManageEntityListPage() {
+	verifyArray($enrollmentEntities);
+	verifyArray($enrollmentEntitiesSearchBar);
+}
+
+function enterEntityNameInSearchBar($name) {
+	if ($entityInfo.name != null) {
+		$name = $entityInfo.name;
+	}
+	_setValue($enrollmentEntitiesName, $name);
+	$entityInfo.name = $name;
+}
+
+function selectEntityStatusInSearchBar($status) {
+	if ($status == null) {
+		$status = "Pending";
+	}
+	_setSelected($enrollmentEntitesStatus, $status);
+	$entityInfo.status = $status;
+}
+
+function enterRegistrationRenewalDateInSearchBar($from, $to) {
+	_setValue($enrollmentEntitesDateFrom, $from);
+	_setValue($enrollmentEntitesDateTo, $to);
+	$entityInfo.dateFrom = $from;
+	$entityInfo.dateTo = $to;
+}
+
+function selectEntityPaymentInSearchBar($paid) {
+	if ($paid == null) {
+		$paid = true;
+	}
+	
+	if ($paid) {
+		_click($enrollmentEntitesPaidYes);
+	}
+	else {
+		_click($enrollmentEntitesPaidNo);
+	}
+	$entityInfo.receivedPayments = $paid;
+}
+
+function selectOrganizationTypeInSearchBar($type) {
+	if ($entityInfo.orgType != null) {
+		$type = $entityInfo.orgType;
+	}
+	_setSelected($enrollmentEntitiesOrgType, $type);
+	$entityInfo.orgType = $type;
+}
+
+function selectLanguageInSearchBar($language) {
+	if ($language == null) {
+		$language = "English";
+	}
+	_setSelected($enrollmentEntitiesLang, $language);
+	$entityInfo.language = $language;
+}
+
+function selectCountyServedInSearchBar($county) {
+	if ($entityInfo.countiesServed != []) {
+		$county = $entityInfo.countiesServed[0];
+	}
+	_setSelected($enrollmentEntitiesCounties, $county);
+}
+
+function clickGoOnManageEntityListSearchBar() {
+	_click($enrollmentEntitiesSearchButton);
+	verifyElementsOnManageEntityListPage();
+}
+
+function verifyManageEntityListSearchEntities($companyName) {
+	var $searchEntityInfo = _getTableContents($enrollmentEntitiesTable);
+	$entityInfo.entityFound = false;
+	for (var $i = 0; $i < $searchEntityInfo.length; $i++) {
+		_log(($searchEntityInfo[$i][0], $companyName, $searchEntityInfo[$i][0] == $companyName));
+		_log(($searchEntityInfo[$i][3],  $searchEntityInfo[$i][3] == "Pending"));
+		if ($searchEntityInfo[$i][0] == $companyName && $searchEntityInfo[$i][3] == "Pending")  {
+			
+			$entityInfo.entityFound = true;
+			$entityInfo.searchNum = $i;
+			break;
+		}
+	}
+	_assertEqual($entityInfo.entityFound, true);
+}
+
+function clickEditOnManageEntityListSearchedEntities($companyName) {
+	verifyManageEntityListSearchEntities($companyName);
+	if ($entityInfo.searchNum == 1) {
+		_click(_link("Edit"));
+	}
+	else {
+		_click(_link("Edit[" + $entityInfo.searchNum + "]"));
+	}
+}
+
+function clickUpdateOnManageEntityListSearchedEntities($companyName) {
+	verifyManageEntityListSearchEntities($companyName);
+	if ($entityInfo.searchNum == 1) {
+		_click(_link("Update Status End of dropdown"));
+	}
+	else {
+		_click(_link("Update Status End of dropdown[" + $entityInfo.searchNum + "]"));
+	}
+	verifyUpdateEntityPage();
+}
+
+function clickManageEnrollmentCounselors() {
+	_click($enrollmentEntitiesCounselorsManagement);
+}
+
+function clickManageEntities() {
+	_click($enrollmentEntitiesManagement);
+	verifyManageAssisterPage();
+} 
+			  

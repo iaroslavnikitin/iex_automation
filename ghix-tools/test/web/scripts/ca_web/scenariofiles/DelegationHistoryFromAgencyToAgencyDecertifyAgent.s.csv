@@ -1,0 +1,144 @@
+"Comments","Tags","TestCase","Key Word","Argument 1",,"Argument 2"
+,,,"loadSahi","../pagemodels/Broker.sah"
+,,,"loadSahi","../pagemodels/Login.sah"
+,,,"loadSahi","../lib/CommonNameCreation.sah"
+,,,"loadSahi","../pagemodels/Agency.sah"
+,,,"loadSahi","../pagemodels/Agents.sah"
+,,,"loadSahi","../pagemodels/Signup.sah"
+,,,"loadSahi","../pagemodels/AdminStaff.sah"
+,,,"loadSahi","../pagemodels/BookOfBusiness.sah"
+,,,"loadSahi","../pagemodels/ENGSVC-1216_lib.sah"
+,,,"loadSahi","../scenariofiles/create_data/CreateAgency.sah"
+,,,"loadSahi","../scenariofiles/create_data/CreateAgent.sah"
+,,,"loadSahi","../pagemodels/DelegationHistory.sah"
+,,,"loadSahi","../pagemodels/cap_memberView.sah"
+,,,"loadSahi","../pagemodels/SoapRequest.sah"
+,,,"loadSahi","../resources/delegation_history/DataForDelegationHistoryTests.sah"
+
+,,"[Global]","[SetUp]"
+,,,"maximizeWindow"
+,,,"createDbObj"
+,,,"[Documentation]","accessing data from
+resources/delegation_history/DataForDelegationHistoryTests.sah"
+,,,"$agencyOneData =","$AGENCY_ONE_ID_50"
+,,,"$agencyTwoData =","$AGENCY_TWO_ID_50"
+,,,"$consumerData =","[]"
+,,,"$delegationHistoryRecordsAgencyOne=","[]"
+,,,"$delegationHistoryRecordsAgencyTwo=","[]"
+,,,"$capSupervisor =","""auto_supervisor_50@yopmail.com"""
+,,,"$capSupervisorRole =","""SUPERVISOR"""
+
+
+"Create two agencies and designate
+consumer to agent in agency one","all","id=50","[Documentation]","1.Create two agencies and designate consumer to an agent in agency one.
+2. Decertify agent and verify that designation ended
+3. Designate consumer to an agent in agency two and verify
+active delegation.
+4. Login as CSR supervisor and verify delegations
+5. Login as Individual and verify delegations"
+,,,"$automationAgency = createAutomationAgencyIfNotExist","$agencyOneData"
+,,,"$automationAgencyTwo = createAutomationAgencyIfNotExist","$agencyTwoData"
+,,,"$household=createIndividualWithDesignation","$automationAgency.agents[0].recordID"
+"//",,,"[Documentation]","data","variableName","test id","clear file? Y or null"
+"//",,,"saveDataInFile","$household","""$household""","""50""","""Y"""
+"//",,,"_include","""C:/Sahi/CA/householdData50.sah"""
+,,,"logOut"
+"Login in to agency one
+and transfer consumer from
+one agent to other agent
+to populate first record",,,"[Documentation]"
+,,,"Login","$automationAgency.email","""ghix123"""
+,,,"[Documentation]","$fromAgent","$toAgent","$countOfConsumers","$verificationFlag"
+,,,"bulkTransferConsumers","$automationAgency.agents[0].name","$automationAgency.agents[1].name","1","""N"""
+,,,"$consumerData[0]=getConsumerData","$household"
+,,,"[Documentation]","$agents","$counselors","$agentOrCecNameToDelegate","$consumerData"
+,,,"$delegationHistoryRecords=createDelegationHistoryRecord","$automationAgency.agents",,"$automationAgency.agents[1].name","$consumerData"
+,,,"logOut"
+"Login as broker admin and de-certify agent
+with delegation from agency one",,,"[Documentation]"
+,,,"Login","brokeradmin@ghix.com","ghix123"
+,,,"[Documentation]","$agentNum","current status","change to","$agentInfo"
+,,,"brokerSearchForAgentCertifyAgent","""1""","""Certified""","""Pending""","$automationAgency.agents[1]"
+,,,"brokerSearchForAgentCertifyAgent","""1""","""Pending""","""Certified""","$automationAgency.agents[1]"
+,,,"updateStatusInDesignateBrokerTableToInactive","$household.people[0].personMedicaidIdentification"
+,,,"[Documentation]","$delegationHistoryRecords","$newRecords","$reason","$option"
+,,,"$delegationHistoryRecords=updateDelegationHistoryRecords","$delegationHistoryRecords","$delegationHistoryRecords","""Agent/CEC certification ended""","""same records"""
+
+,,,"logOut"
+"Login into agency one and 
+verify that designation ended
+on delegation history",,,"[Documentation]"
+,,,"Login","$automationAgency.email","""ghix123"""
+,,,"navigateToDelegationHistoryInAgency"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""agency""","$delegationHistoryRecords"
+,,,"logOut"
+"Designate consumer to agent in
+agency two and verify delegation history",,,"[Documentation]"
+,,,"updateBrokerIdAndStatusAfterDesignationToDifferentAgency","$household.people[0].personMedicaidIdentification","$automationAgencyTwo.agents[0].recordID"
+,,,"Login","$automationAgencyTwo.email","""ghix123"""
+,,,"[Documentation]","$fromAgent","$toAgent","$countOfConsumers","$verificationFlag"
+,,,"bulkTransferConsumers","$automationAgencyTwo.agents[0].name","$automationAgencyTwo.agents[1].name","1","""N"""
+,,,"[Documentation]","$agents","$counselors","$agentOrCecNameToDelegate","$consumerData"
+,,,"$delegationHistoryRecordsAgencyTwo=createDelegationHistoryRecord","$automationAgencyTwo.agents",,"$automationAgencyTwo.agents[1].name","$consumerData"
+,,,"[Documentation]","$delegationHistoryRecords","$newRecords","$reason","$option"
+,,,"$delegationHistoryRecords=updateDelegationHistoryRecords","$delegationHistoryRecords","$delegationHistoryRecordsAgencyTwo"
+,,,"navigateToDelegationHistoryInAgency"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""agency""","$delegationHistoryRecordsAgencyTwo"
+,,,"logOut"
+"Login as exadmin and search for
+consumer to get CAP url",,,"[Documentation]","username","password","$household"
+,,,"$capURL=loginAsExadminAndSearchForIndividual",,,"$household"
+,,,"logOut"
+"Login as supervisor and verify
+delegation history page by searching
+case id. Both records should be displayed",,,"[Documentation]","username","role"
+,,,"createCsrUserIfNotExist","$capSupervisor","$capSupervisorRole"
+,,,"[Documentation]","username","password","$household","URL","$role"
+,,,"loginAsCapAdmin","$capSupervisor","""ghix123""","$household","$capURL","""supervisor"""
+,,,"navigateToDelegationHistoryOnCapPortal"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecords"
+"Search by agent first name and last name
+from agency one and case id and verify
+ended delegation. There should be only one
+record",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory",,"$automationAgency.agents[1].firstName","$automationAgency.agents[1].lastName"
+,,,"$delegationHistoryRecordsAgencyOne[0]=","$delegationHistoryRecords[1]"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsAgencyOne"
+,,,"clickResetAllButton","$delegationHistoryRecords"
+"Search by agent first name and last name
+from agency two and case id and verify
+active delegation. There should be only one
+record",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId","$automationAgencyTwo.agents[1].firstName","$automationAgencyTwo.agents[1].lastName"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""supervisor""","$delegationHistoryRecordsAgencyTwo"
+,,,"clickResetAllButton"
+,,,"logOut"
+"Login as individual and
+verify delegation history
+after transferring to other agent",,,"[Documentation]"
+,,,"Login","$household.people[0].email","""ghix123#"""
+,,,"clickLinkMyDelegatesOnMemberPortal"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""individual""","$delegationHistoryRecords"
+"As individual search by agent first name and 
+last name from agency one and verify
+ended delegation. There should be only one
+record",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory",,"$automationAgency.agents[1].firstName","$automationAgency.agents[1].lastName"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""individual""","$delegationHistoryRecordsAgencyOne"
+,,,"clickResetAllButton","$delegationHistoryRecords","""same"""
+"As individual search by agent first name and 
+last name from agency two and verify
+active delegation. There should be only one
+record",,,"[Documentation]","$caseId","$agentFirstName","$agentLastName","$agentLicenseNum","$cecFirstName","$cecLastName"
+,,,"searchOnDelegationHistory",,"$automationAgencyTwo.agents[1].firstName","$automationAgencyTwo.agents[1].lastName"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""individual""","$delegationHistoryRecordsAgencyTwo"

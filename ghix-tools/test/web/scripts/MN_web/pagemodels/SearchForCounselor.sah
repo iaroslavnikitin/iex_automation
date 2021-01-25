@@ -1,0 +1,53 @@
+var $SearchForCounselor = true;
+
+var $searchForCounselorLocationHeader = _heading4("Search By Location");
+var $searchForCounselorZipCode = _textbox("zipCode");
+var $searchForCounselorDistance = _select("distance");
+var $searchForCounselorLanguage = _textbox(3);
+var $searchForCounselorLocationSubmit = _button("Search");
+var $searchForCounselorNameHeader = _heading4("Search By Organization Name");
+var $searchForCounselorName = _textbox("entityName");
+var $searchForCounselorNameSubmit = _submit("Search");
+var $searchForCounselorResultsHeader = _heading1(1);
+var $searchForCounselorResultsBack = _link("Back");
+
+function verifyElementsForCounselorSearch() {
+	_assertVisible($searchForCounselorLocationHeader);
+	_assertVisible($searchForCounselorZipCode);
+	_assertVisible($searchForCounselorDistance);
+	_assertVisible($searchForCounselorLanguage);
+	_assertVisible($searchForCounselorLocationSubmit);
+	_assertVisible($searchForCounselorNameHeader);
+	_assertVisible($searchForCounselorName);
+	_assertVisible($searchForCounselorNameSubmit);
+}
+
+function clickSearchForCounselorByLocation($zip, $distance, $language) {
+	if ($distance === undefined) {
+		$distance = "5";
+	}
+	if ($language === undefined) {
+		$language = "English";
+	}
+	_setValue($searchForCounselorZipCode, $zip);
+	_setSelected($searchForCounselorDistance, $distance);
+	_click(_listItem($language));
+	_click($searchForCounselorLocationSubmit);
+	verifyResultsForCounselorSearch();
+}
+
+function clickSearchForCounselorByName($name) {
+	_setValue($searchForCounselorName, $name);
+	_click($searchForCounselorNameSubmit);
+	verifyResultsForCounselorSearch();
+}
+
+function verifyResultsForCounselorSearch() {
+	_assertTrue(new RegExp("organization").test(_getText($searchForCounselorResultsHeader)));
+	_assertVisible($searchForCounselorResultsBack);
+}
+
+function clickBackForCounselorSearch() {
+	_click($searchForCounselorResultsBack);
+	verifyElementsForCounselorSearch();
+}

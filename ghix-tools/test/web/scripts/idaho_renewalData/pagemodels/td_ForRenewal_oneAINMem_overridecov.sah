@@ -1,0 +1,147 @@
+//HIX-75717 LCE (add another child) to dental only enrollment, Shop Different Plan
+
+_include("Signup.sah");
+_include("SignupPreferences.sah");
+_include("global_include.sah");
+
+
+
+$signupMode = "Individual";
+_click(_link("START SHOPPINGIndividual"));
+_click(_link("Skip and Sign up"));
+var $fullname = clickSubmitOnSignUpPage("","James","Paul");
+clickContinueOnCommunicationPreference("417 S 6th St","","Boise"	,"Idaho",	"83702"	,"","","","","English",	"English");
+loginAdminAndVerifyIdentity();
+
+
+//////2019
+_click(_link("2019"));
+_click(_button("/REPORT LIFE EVENT AND SHOP/"))
+_click(_image("addresschange.png"))	
+_click(_link("Continue"));
+_click(_link("START YOUR APPLICATION"));
+_click(_submit("Apply without Cost-Savings"))
+
+////////
+
+	_check(_checkbox("acceptanceCB"));
+_call(_link("Continue").click());
+_call(_link("Continue").click())
+_setValue(_textbox("dateOfBirth"), "01/01/1990")	//change dob for kid
+_setValue(_textbox("first_phoneNo"), "(461) 237-8416")
+	
+
+_setValue(_textbox("home_addressLine1"), "417 S 6th St");
+_setValue(_textbox("home_primary_city"),"Boise");
+_setValue(_textbox("home_primary_zip"), "83702");
+_setSelected(_select("home_primary_county"), "Ada");
+
+_click(_checkbox("mailingAddressIndicator"));
+_call(_link("Continue").click())
+_click(_radio("authorizedRepresentativeHelpNo"))
+_call(_link("Continue").click())
+_click(_radio("ApplyingForhouseHoldMember"))	
+_call(_link("Continue").click());
+_check(_checkbox("appscr57checkseekingcoverage1"))
+_call(_link("Continue").click());
+_call(_link("Continue").click());
+_call(_link("Continue").click());
+//_click(_link("Add Another Person"));
+//_setValue(_textbox("appscr57FirstName2"), "Jinna") 
+//_setValue(_textbox("appscr57MiddleName2"), "")
+//_setValue(_textbox("appscr57LastName2"), "Graham") 
+//_setSelected(_select("appscr57Suffix2"), "Suffix")
+//_setValue(_textbox("appscr57DOB2"), "01/01/1990") 
+//_check(_checkbox("appscr57checkseekingcoverage2"));
+//_call(_link("Continue").click())
+//	_call(_link("Continue").click())
+//		_call(_link("Continue").click())
+		_click(_radio("appscr61GenderMaleID"))
+		_click(_radio("socialSecurityCardHolderIndicatorYes"))	
+	enterSSN()	;
+_click(_radio("fnlnsSameIndicatorYes"));
+_call(_link("Continue").click());
+_click(_radio("UScitizenIndicatorYes"));
+_wait(500);
+_call(_link("Continue").click());
+_click(_checkbox("race"));//select Native American
+_call(_link("Continue").click());
+_click(_checkbox("peopleBelowTo"));
+_click(_radio("AmericonIndianQuestionRadioYes1"));
+_setSelected(_select("americonIndianQuestionSelect1"), "Idaho");
+
+_setSelected(_select("tribeName1"), "Kootenai Tribe of Idaho");
+
+//_click(_radio("appscr61GenderFemaleID"))
+//	_click(_radio("socialSecurityCardHolderIndicatorYes"));
+//enterSSN();
+//_click(_radio("fnlnsSameIndicatorYes"))
+//_call(_link("Continue").click())				
+//				
+//_click(_radio("UScitizenIndicatorYes"))		
+//	_call(_link("Continue").click())
+//		_call(_link("Continue").click())
+//			_call(_link("Continue").click())
+//				_call(_link("Continue").click())
+//					_setSelected(_select(0, _in(_listItem("relationshipSelection1"))), "Spouse");
+					_call(_link("Continue").click())
+						_call(_link("Continue").click())
+							_call(_link("Continue").click())
+								_call(_link("Continue").click())
+									_check(_checkbox("ononeIncarceratedStatus"));
+_click(_radio("useIncomeDataIndicatorYes"))
+	
+	_check(_checkbox("agree_stat4"))
+		_check(_checkbox("agree_stat5"))
+			_setValue(_textbox("appscr85ESignature"), $fullname);
+//_click(_link("Submit Application[2]"));
+clickSubmitSSAP("Loss of Minimum Essential Coverage");
+_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+_click(_link("Logout End of dropdown"));
+
+
+_setValue(_textbox("Email Address"), "sheryl.sanders@yopmail.com");
+_setValue(_password("/password/i"), "ghix123#");
+_click(_submit("submit"));
+_click(_link("Members Dropdown Menu. Press enter to open it and tab through its options"))
+_click(_link("Manage Members"))
+_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_setValue(_textbox("householdEmail"), $signupEmail);
+_click(_submit("Go")) ;
+_click(_link(0, _in(_cell(2))));
+_click(_link("Applications"));
+_setSelected(_select(0), "2019");
+_click(_span("Actions"));
+_click(_link("CHANGE COVERAGE START DATE"));
+_setValue(_textarea(0), "override Coverage Date");
+_click(_link("Continue"));
+_setValue(_textbox("cov"), "01/01/2019");
+_click(_link("Continue[1]"));
+_click(_link("OK[3]"));
+_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+_click(_link("Logout End of dropdown"));
+_assertVisible(_label("Email Address"));
+
+_setValue(_textbox("Email Address"), $signupEmail);
+_setValue(_password("/password/i"), "ghix123#");
+_click(_submit("submit"));
+
+_click(_link("/" + 2019 + "/"));
+_click(_button("SHOP FOR PLANS"));
+_click(_link("Save and Continue"));
+_click(_radio("tobaccoUser-no"));
+
+_click(_radio("tobaccoUser-no[1]"));
+_click(_link("Save and Continue"));
+_click(_link("Shop Health Plans (1 Member)"));
+_click(_submit("Skip to View Plans"));
+
+_wait(500000);
+
+
+		
+
+										
+				
+				

@@ -1,0 +1,134 @@
+_includeOnce("Indportal.sah");
+_includeOnce("Utils.sah");
+
+var $AccountSettings = true;
+
+var $PasswordHeader = _heading4("Password");
+var $ChangePassword = _link("pwdChange");
+var $PasswordLabel = _dTerm("Password");
+var $PasswordAccessors = [$PasswordHeader, $ChangePassword, $PasswordLabel];
+var $SecurityQuestionHeader = _heading4("Security Question");
+var $ChangeSecurityQuestion = _link("Change Your Security Question");
+var $SecurityQuestionLabel = _dTerm("Security Question");
+var $SecurityAnswerLabel = _dTerm("Answer");
+var $SecurityQuestionAccessors = [$SecurityQuestionHeader, $ChangeSecurityQuestion, $SecurityQuestionLabel, $SecurityAnswerLabel];
+var $EmailAddressHeader = _heading4("Email Address");
+var $ChangeEmailAddress = _link("Change Your Email Address");
+var $EmailAddressLabel = _dTerm("Email Address");
+var $EmailAddressAccessors = [$EmailAddressHeader, $ChangeEmailAddress, $EmailAddressLabel];
+var $ChangePasswordHeader = _heading3("password-modal");
+var $CurrentPasswordLabel = _label("/Current Password/");
+var $CurrentPassword = _password("currentpswd");
+var $NewPasswordLabel = _label("/New Password/");
+var $NewPassword = _password("newpassword");
+var $ConfirmNewPasswordLabel = _label("/Confirm New Password/");
+var $ConfirmNewPassword = _password("confirmpassword");
+var $ChangePasswordCancel =_submit("cancelbutton1");
+var $ChangePasswordSave = _button("changePwdSave");
+var $ChangePasswordAccessors = [$ChangePasswordHeader, $CurrentPasswordLabel, $CurrentPassword, $NewPasswordLabel,
+								$NewPassword, $ConfirmNewPasswordLabel, $ConfirmNewPassword, $ChangePasswordCancel,
+								$ChangePasswordSave];
+var $ChangeSecurityQuestionHeader = _heading3("questions-modal");
+var $ChangeSecurityQuestionInstructions = _paragraph("This question adds an extra layer of security to your account. We may ask you to provide an answer to this question to verify your security in certain specific situations.");
+var $ChangeSecurityQuestionSecurityQuestionLabel = _heading4("Security Question");
+var $ChangeSecurityQuestionSecurityQuestion = _select("securityQuestion1");
+var $ChangeSecurityQuestionSecurityAnswerLabel = _label("Answer");
+var $ChangeSecurityQuestionSecurityAnswer = _textbox("securityAnswer1");
+var $ChangeSecurityQuestionCancel = _submit("cancelbutton2");
+var $ChangeSecurityQuestionSave = _submit("Save");
+var $ChangeSecurityQuestionAccessors = [$ChangeSecurityQuestionHeader, $ChangeSecurityQuestionInstructions,
+										$ChangeSecurityQuestionSecurityQuestionLabel, $ChangeSecurityQuestionSecurityQuestion,
+										$ChangeSecurityQuestionSecurityAnswerLabel, $ChangeSecurityQuestionSecurityAnswer,
+										$ChangeSecurityQuestionCancel, $ChangeSecurityQuestionSave];
+
+function verifyElementsOnAccountSettingPage() {
+	verifyArray($PasswordAccessors);
+	verifyArray($SecurityQuestionAccessors);
+	verifyArray($EmailAddressAccessors);
+}
+
+function clickChangePassword($old, $new) {
+	_click($ChangePassword);
+	verifyArray($ChangePasswordAccessors);
+	_setValue($CurrentPassword, $old);
+	_setValue($NewPassword, $new);
+	_setValue($ConfirmNewPassword, $new);
+	_click($ChangePasswordSave);
+}
+
+function clickChangeSecurityQuestion($questionIndex, $answer) {
+	$questionIndex="2";
+	_click($ChangeSecurityQuestion);
+	$signupSecurityQuestion = _getValue(_select("securityQuestion1"));
+	_wait(3000);
+	verifyArray($ChangeSecurityQuestionAccessors);
+	_setSelected($signupSecurityQuestionMenu, $questionIndex);
+	if($answer==null || $answer==""){
+		$answer="securityanswer";
+	}
+	_setValue(_textbox("securityAnswer1"), $answer);
+	_click($ChangeSecurityQuestionSave);
+	_assertNotEqual($signupSecurityQuestion, _getText(_dDesc(1)));
+}
+
+function clickAccountSettingsGotoDashboard(){
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Dashboard"));
+	if(_isVisible((_list("nav nav-tabs multi-year-tab")))){
+		var $now= _call(window.moment()).format("MM/DD/YYYY");
+		var $currentDay = parseInt(_fetch(window.moment($now).get('date')));
+		var $currentMonth =  parseInt(_fetch(window.moment($now).get('month')))+1;
+		var $year="";
+		if($currentMonth == 11){
+			if($currentDay > 15){
+				$year = parseInt(_fetch(window.moment($now).get('year')))+1;
+			}
+			else {
+				$year = parseInt(_fetch(window.moment($now).get('year')));
+			}
+		}
+		else {
+			$year = parseInt(_fetch(window.moment($now).get('year')));
+		}
+		selectApplicationYear($year);
+	}
+}
+
+function IndividualChangeSecurityQuestions(){
+	clickLogin();
+	loginEnterEmailAddress($signupEmail);
+	_maskLogs("Sensitive Data");
+	loginEnterPassword("ghix123#");
+	_unmaskLogs("Information end");
+	loginClickLoginButton();
+	_click(_link("My Account Settings"));
+	_assertVisible(_heading4("Password"));
+	_assertVisible(_heading4("Security Question"));
+	_assertVisible(_heading4("Email Address"));
+
+	clickChangeSecurityQuestion();
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Logout End of dropdown", _in(_listItem("My Account Dropdown Menu. Press enter to open it and tab through its options Account Settings Dashboard Logout End of dropdown"))));
+}
+
+function IndividualChangePassword($old,$new){
+	clickLogin();
+	loginEnterEmailAddress($signupEmail);
+	_maskLogs("Sensitive Data");
+	loginEnterPassword($signUpPassword);
+	_unmaskLogs("Information end");
+	loginClickLoginButton();
+	_click(_link("My Account Settings"));
+	_assertVisible(_heading4("Password"));
+	_assertVisible(_heading4("Security Question"));
+	_assertVisible(_heading4("Email Address"));
+	clickChangePassword($old, $new);
+	$signUpPassword=$new;
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Logout End of dropdown", _in(_listItem("My Account Dropdown Menu. Press enter to open it and tab through its options Account Settings Dashboard Logout End of dropdown"))));
+	loginEnterEmailAddress($signupEmail);
+	loginEnterPassword($signUpPassword);
+	loginClickLoginButton();
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Logout End of dropdown", _in(_listItem("My Account Dropdown Menu. Press enter to open it and tab through its options Account Settings Dashboard Logout End of dropdown"))));
+}

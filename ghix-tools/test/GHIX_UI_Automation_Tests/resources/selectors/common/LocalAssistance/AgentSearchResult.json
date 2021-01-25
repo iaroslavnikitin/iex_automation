@@ -1,0 +1,6 @@
+{
+  "searchResultHeader":"$('#search_results > div > div.row-fluid.result-count-header > h3 > a')",
+  "agentNameInSearchResultTable":"$('.aid-brkName')",
+  "agentContactInfo":"$('#list-only > tbody > tr > td:nth-child(2) > div')",
+  "agentSearchResultRow": "$$('#list-only>tbody>tr')"
+}

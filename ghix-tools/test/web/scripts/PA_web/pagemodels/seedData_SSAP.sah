@@ -1,0 +1,585 @@
+
+_includeOnce("../lib/DB.sah");
+
+
+
+var $signupPhoneNumberTextbox = [_textbox("phone1"), _textbox("phone2"), _textbox("phone3")];
+var $passwordBox = _password("password")
+var $confirmPassword = _password("confirmPassword")
+var $privacyPolicy = _checkbox("terms");
+var $submit = _button("Submit");
+
+var $adminSearchEmail = _textbox(" Sample text.  Email");
+var $adminSearchGo = _submit("Go");
+
+var $verifyUserButton = _button("Marked As Verified");
+
+var $mailingAddr = _textbox("addressLine1");
+var $cityBox = _textbox("city");
+var $state = _select("state");
+var $zipCodetxt = _textbox("zipcode");
+var $county = _select("county");
+var $startAppLink = _button("Start New Application");
+var $useInfo = _label("checkbox_page_00_acceptPrivacyIndicator_label");//_label("gi-checkbox-label");
+var $saveAndContinue = _button("Save & Continue");
+var $noHelpButton = _label("I am filling out this application for myself and/or my family");
+var $addFamilyMember = _button("Add Member");
+var $seekingCoverage= _label("Are you seeking coverage?");
+var $continue = _button("Continue");
+var $navBar = _button("btn btn-navbar");
+var $myAccount = _submit("My Account");//_link("My Account Dropdown Menu. Press enter to open it and tab through its options");
+var $logoutButton = _link("Logout");
+
+
+var $yes = _label("Yes");
+var $no = _label("No");
+var $ok = _button("Ok");
+
+var $loginEmail = _textbox("Email Address");
+var $loginPassword = _password("j_password");
+var $loginButton = _submit("Log In");
+
+var $spouseSeekingCoverage =_label("Are you seeking coverage?[1]")
+var $spouseFirst = _textbox("firstName[1]");
+var $spouseLast = _textbox("lastName[1]");
+var $spouseDOB1 = _numberbox("month[1]");
+var $spouseDOB2 = _numberbox("date[1]");
+var $spouseDOB3 = _numberbox("year[1]");
+
+var $relationship = _select("relation_1_to_2");
+var $none = _label("None of the Above");
+var $genderMale = _label("Male");
+var $SSNName = _label("Yes[1]");
+var $usCitizenYes = _label("Yes");
+var $naturalizedNo = _label("No[1]");
+var $aian = _label("American Indian or Alaska Native");
+
+var $genderFemale = _label("Female");
+var $hasSSN = _label("Yes");
+var $SSNBox = _textbox("socialSecurityNumber");
+
+var $aianState = _select("state");
+var $aianTribe = _select("tribeName");
+
+var $noJail = _label("No. No one listed on this health insurance application is incarcerated (in prison or jail).");
+var $agree = _label("I agree");
+var $change = _label("checkbox_page_21_isReadyToReportForChanges_label");//_label("gi-checkbox-label[1]");
+
+var $submitApp = _button("/Submit Application/i");//_span("/Submit Application/i")
+
+var $event = _select("sepEvent");
+var $month = _numberbox("month");
+var $date = _numberbox("date");
+var $year = _numberbox("year");
+
+var $isMarriedBox = _label("Yes");
+
+var $incomeYes = _label("Yes");
+var $incomeSelect = _select("type");
+var $employerName = _textbox("sourceName");
+var $amount = _textbox("amount");
+var $freq = _select("frequency");
+var $save = _button("Save");
+
+
+function createSSAPApplication($adminUser,$financialAssistance){
+	$memberInfo = fillSignupPage();
+	$memberInfo = fillCommunicationsInfo("4510 Marketplace Way", "Pennsylvania","17025",0,$memberInfo);
+	logout();
+	verifyUserCreated($memberInfo[0].email,$memberInfo[0].firstName, $memberInfo[0].lastName,$adminUser);
+	loginUser($memberInfo[0].email,"Ghix123#");
+	if($financialAssistance==true){
+		createFNApplication($financialAssistance);
+	}
+	else{
+		startUserApplication($memberInfo[0].firstName+" "+$memberInfo[0].lastName ,false);
+		$memberInfo = addAnotherMember(1, "Alexa", "Johns", "01/01/1990",["Spouse", ""],$memberInfo);
+	
+		clickSaveContinue();
+		finishApplicationOfFamily(true);
+		$memberInfo = personalMemberInfo(true,true,true,false,0, $memberInfo );
+		$memberInfo = spouseInfo(1,$memberInfo);
+		reviewAndSignAppliction($memberInfo[0].firstName+" "+$memberInfo[0].lastName);
+	//enterQualifyingEventDetails();
+	}
+//	logout();
+	return $memberInfo;
+}
+
+function fillSignupPage(){
+	var $people = [];
+	_click(_link("START SHOPPINGIndividual"));
+	_click(_link("Skip and Sign up"));
+	
+	$firstName = randomFirstName();
+	$lastName = randomLastName();
+	$fullName = $firstName+" " +$lastName;
+	var $currentTime = new Date().getTime();
+	$email = $firstName+"_"+$currentTime+"@yopmail.com";
+	var $digits = phoneGen();
+	var $ssn = getRandomSSN().split('-');
+	//$dob = getRandomDateOfBirth();
+	$dob = "11111990"
+	
+	
+	
+	_setValue(_textbox("First Name Required "), $firstName);
+	_setValue(_textbox("Last Name Required "), $lastName);
+	_setValue(_emailbox("email"), $email);
+	_setValue(_emailbox("confirmEmail"),$email);
+	
+	for (var $i = 0; $i < $digits.length; $i++) {
+		_setValue($signupPhoneNumberTextbox[$i], $digits[$i]);
+	}
+	
+	_setValue(_password("ssn1"), $ssn[0]);
+	_setValue(_password("ssn2"), $ssn[1]);
+	_setValue(_textbox("ssn3"), $ssn[2]);	
+		
+	_setValue(_password("confirmSsn1"), $ssn[0]);
+	_setValue(_password("confirmSsn2"), $ssn[1]);
+	_setValue(_textbox("confirmSsn3"), $ssn[2]);
+	
+	_setValue(_textbox("birthDate"), $dob);
+	
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	_setValue(_textbox("Security Answer"), "abc");
+	
+	_setValue($passwordBox, "ghix123#");
+	_setValue($confirmPassword, "ghix123#");
+	_click($privacyPolicy);
+	_click($submit);	
+/*
+	$people=[{
+		"$firstName":$firstName,
+		"$lastName":$lastName,
+		"$dob":$dob,
+		"$SSN":$ssn,
+		"$email":$email,
+		"$phoneNumber":$digits,
+	}];
+	
+	*/
+	
+	$people.push({
+			firstName:$firstName,
+			lastName:$lastName,
+			dob:$dob,
+			SSN:$ssn,
+			email:$email,
+			$phoneNumber:$digits,
+			fullName:$fullName,
+	});
+			
+	
+	return $people;
+	
+}
+
+
+function fillCommunicationsInfo($address, $city, $zip, $num, $people) {
+	_assertVisible($mailingAddr);
+	_setValue($mailingAddr, $address);
+	_setValue($cityBox, $city);
+	_setSelected($state, "Pennsylvania");
+	_setValue($zipCodetxt, $zip);
+	_click($continue);
+	if(_isVisible(_heading3("Select your address"))){
+		_click(_submit("OK"));
+	}
+	$people[$num].mailingAddr = $address;
+	$people[$num].city = $city;
+	$people[$num].state = "NJ"
+	$people[$num].zipcode = $zip;
+	
+	return $people;
+	
+}
+
+
+function verifyUserCreated($email,$fname,$lname, $adminUser){
+	//_setValue(_textbox("Email Address"), "auto_admin@yopmail.com");
+	_setValue(_textbox("Email Address"), $adminUser);
+	_setValue(_password("j_password"), "ghix123#");
+	_click(_submit("Log In"));
+	if(_isVisible(_label("Email Address"))|| _isVisible(_div("×close Your Password has expired! Please change your password to continue"))){
+		activateUserfromDb($adminUser);
+		if(_isVisible(_submit("Cancel"))){
+			_click(_submit("Cancel"));
+		};
+		_setValue(_textbox("Email Address"), $adminUser);
+		_setValue(_password("j_password"), "ghix123#");
+		_click(_submit("Log In"));
+	}
+	_setValue($adminSearchEmail, $email);
+	_click($adminSearchGo);
+	var $userLink = _link("/"+$fname + ' ' + $lname+"/i");
+	_assertVisible($userLink);
+	_click($userLink);
+	_assertVisible($verifyUserButton);
+	_click($verifyUserButton);
+	_assertVisible(_strong("Verified Account"));
+	
+	
+	_click(_button("btn btn-navbar"))
+	_assertVisible(_link("My Account Dropdown Menu. Press enter to open it and tab through its options")) 
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options")) 
+	_click(_link("Logout End of dropdown"))
+	
+}
+
+
+function loginUser($email, $password) {
+	
+	_setValue(_textbox("Email Address"), $email) 
+	_setValue(_password("j_password"), "ghix123#")
+	_click(_submit("Log In"))
+}
+
+function startUserApplication($name, $paymentHelp){
+	_assertVisible($startAppLink);
+	_click($startAppLink);
+	_assertVisible($useInfo);
+	_click($useInfo);
+	_click($saveAndContinue);
+	_assertVisible($continue);
+	_click($continue);
+	_assertVisible($saveAndContinue);
+	_click($saveAndContinue);
+	_assertVisible($noHelpButton);
+	_click($noHelpButton);
+	_click($saveAndContinue);
+	_wait(1000);
+	if ($paymentHelp) {
+		_click(_label("Yes. (You will have to provide income information to see what you may qualify for.)"));
+	}
+	else{
+		_click(_label("No. (You will pay full cost for Exchange health coverage.)"));
+	}
+	_assertVisible($saveAndContinue);
+	_click($saveAndContinue);
+//	var $familyInsuranceButton = _label($name + " and other family members");
+//	_assertVisible($familyInsuranceButton);
+//	_click($familyInsuranceButton);
+//	_click($saveAndContinue);
+//	_click(_label("Are you seeking coverage?"))
+	_click(_label("Yes", _in(_div("Are you seeking coverage?YesNo"))));
+
+}
+
+function addAnotherMember($memberNum, $fname, $lname, $DOB, $relations, $people){
+	_click(_button("Add person"));
+	var $fnameBox = _textbox("firstName[" + $memberNum + "]");
+	var $lnameBox = _textbox("lastName[" + $memberNum + "]");
+	var $fullName = $firstName+" " +$lastName;
+	var $month = _numberbox("month[" + $memberNum + "]");
+	var $date = _numberbox("date[" + $memberNum + "]");
+	var $year = _numberbox("year[" + $memberNum + "]");
+	var $famCoverage = _label("Yes", _near(_span("Are you seeking coverage?["+ $memberNum + "]")));
+	_setValue($fnameBox, $fname);
+	_setValue($lnameBox, $lname);
+	setPhoneNum($month, $date, $year, $DOB.split('/'));
+	_click($famCoverage);
+	clickSaveContinue();
+	_wait(1000);
+	if (_isVisible(_button("Ok"))) {
+		_click(_button("Ok"));
+		clickSavContinue();
+	}
+	var $DOB = $DOB.replace(/[/]/g, "");
+	for (var $i = 0; $i< $memberNum; $i++) {
+	//var $memberOneName= $first.$firstName+" "+$first.$lastName
+	//var $memeberTwoName = $second.$firstName+" "+$second.$lastName
+		
+		$menu = _select(0, _near(_label("/"+$fullName+"/")));
+		//var $selector = _select("relation_" + ($i + 1) + "_to_" + ($memberNum + 1));
+		_setSelected($menu, $relations[$i]);
+		//_setSelected($selector, $relations[$i]);
+	}
+	//var $DOB = $DOB.replace(/[/]/g, "");
+	$people.push({
+			firstName:$fname,
+			lastName:$lname,
+			dob:$DOB,
+			fullName:$fullName,
+			
+			
+	});
+	
+	return $people
+}
+
+function clickSaveContinue($numTimes) {
+	_setStrictVisibilityCheck(true);
+	_click(_button("/Save/"))
+	_setStrictVisibilityCheck(false);
+	/*
+	_setStrictVisibilityCheck(true);
+	if ($numTimes == null) {
+		clickSaveAndContinue(1);
+	}
+	for (var $i = 0; $i < $numTimes; $i++) {
+		_wait(1000);
+		_assertVisible($saveAndContinue);
+		_click($saveAndContinue);
+	}
+	_setStrictVisibilityCheck(false);
+	*/
+}
+
+function logout() {
+	//_click($navBar);
+	//_assertVisible($myAccount);
+	_windowAction("maximize");
+	_click($myAccount);
+	_click($logoutButton);
+}
+
+function finishApplicationOfFamily($liveTogether) {
+	if ($liveTogether) {
+		_assertVisible($none);
+		_click($none);
+		clickSaveContinue();
+		_assertVisible(_heading3("Household Members"));
+	}
+	_click(_button("Continue"));
+	_assertVisible(_heading1("Get Ready"));
+	_click(_button("Continue"));
+	_assertVisible(_heading1("Personal Information"));
+}
+
+function personalMemberInfo($isMale, $isAian, $ssnEntered, $householdInfoNeeded, $num,$people) {
+	if ($isMale) {
+		_click($genderMale);
+	$people[$num].personSex="Male";
+	}
+	else {
+		_click($genderFemale);
+		$people[$num].personSex = "Female"
+	}
+	if (!$ssnEntered) {
+		_click($hasSSN);
+		var $ssn = getRandomSSN();
+		_setValue($SSNBox, $ssn);
+		$people[$num].SSN = $ssn;
+	}
+	_click($SSNName);
+	clickSaveContinue();
+	_wait(1000);
+	_assertVisible($usCitizenYes);
+	_click($usCitizenYes);
+	_click($naturalizedNo);
+	clickSaveContinue();
+	_wait(1000);
+	if ($householdInfoNeeded) {
+		_assertVisible($yes);
+		_click($yes);
+		_click($yes);
+		_click(_label("No[1]"));
+		_click(_label("No[2]"));
+		clickSaveContinue();
+	}
+	if ($isAian) {
+		_assertVisible($aian);
+		_click($aian);	
+	}
+	_wait(1000);
+	
+	clickSaveContinue();
+	return $people;
+}
+
+function spouseInfo($member, $people,$financialAssistance) {
+	_assertVisible($genderFemale);
+	_click($genderFemale);
+	$people[$member].personSex = "Female"
+	_click($hasSSN);
+	var $ssn = getRandomSSN().split('-').join('');
+	_setValue($SSNBox, $ssn);
+	$people[$member].SSN = $ssn;
+	_click($SSNName);
+	clickSaveContinue();
+	_wait(1000);
+	_assertVisible($usCitizenYes);
+	_click($usCitizenYes);
+	_click($naturalizedNo);
+	clickSaveContinue();
+	_wait(1000);
+	clickSaveContinue();
+	_assertVisible(_heading1("Military Service"));
+	_click(_label("None of the Above"));
+	_click(_button("Save & Continue"));
+	if($financialAssistance != true){
+		_assertVisible(_heading1("American Indian/Alaska Native"));
+		_click(_label("None of the Above"));
+		clickSaveContinue();
+		_assertVisible(_heading3("Review and Confirm"));
+		_click(_button("Continue"));
+		_assertVisible(_heading1("Review and Sign"));
+		_click(_button("Continue"));
+	//_assertVisible(_heading1("Final Review"));
+	
+		_click(_button("Continue"));
+	}
+	return $people;
+}
+
+function setPhoneNum($box1, $box2, $box3, $num) {
+	_setValue($box1, $num[0]);
+	_setValue($box2, $num[1]);
+	_setValue($box3, $num[2]);
+}
+
+function reviewAndSignAppliction($name,$isDefaultEvent){
+	_click($noJail);
+	_wait(1000);
+	_click($agree);
+	_click($change);
+	// _click(_label("checkbox_page_21_isReadyToReportForChanges_label"));
+	_click(_label("checkbox_page_21_isTruthful_label"));
+	_setValue(_textbox("signature"), $name);
+	_click($submitApp);
+	_wait(10000,_isVisible(_heading4("My Stuff")));
+	if(_isVisible(_heading3("Application is in progress..."))){
+		_wait(60000, !_isVisible(_heading3("Application is in progress...")));
+	}
+	if($inOEP == "ON"){
+		_assertVisible(_heading1("/Welcome/"));
+	}
+	else if($isDefaultEvent == null){
+		_assertVisible(_button("CONFIRM EVENT AND SHOP"));
+		enterConfirmEventAndShop();
+	}
+	logout();
+}
+
+function enterQualifyingEventDetails(){
+	_setSelected(_select("sepEvent"), "DEATH");
+	$date = getMidOfLastMonth();
+	_setValue(_numberbox("month"), $date.substring(0,2));
+	
+	_setValue(_numberbox("date"), $date.substring(3,5));
+	_setValue(_numberbox("year"), $date.substring(6,10));
+	_click(_button("Submit Application"));
+	_assertVisible(_heading1("/Welcome/"));
+	
+}
+
+function enterConfirmEventAndShop(){
+	var $eventdate = getBackDate(2);
+	_click(_button("CONFIRM EVENT AND SHOP"));
+	_wait(5000);
+	$date = getBackDate(2);
+	_setSelected(_select("qualifyEventSelected"), "Marriage");
+	_setValue(_textbox("qualifyEventDate"), $eventdate);
+	clickTermsContinueAndConfirmQle();
+	_wait(60000, !_isVisible(_heading3("Application is in progress...")));
+	_wait(30000, _isVisible(_button("SHOP FOR PLANS")));
+	return $eventdate;
+}
+
+function clickTermsContinueAndConfirmQle(){
+	_click(_checkbox("terms"));
+	_click(_submit("Continue"));
+	_wait(5000);
+	_assertVisible(_link("Change Event Date"));
+	_assertVisible(_link("Confirm"));
+	_click(_link("Confirm"));
+	_wait(5000);
+}
+
+function clickSubmitAppForCAP(){
+//	_wait(5000);
+	_click(_button("/Submit Application/i"));
+	_wait(60000, !_isVisible(_heading3("Application is in progress...")));
+//	_wait(30000, _isVisible(_heading4("My Stuff")));
+	_wait(20000);
+	_assertVisible(_link("Edit application"));
+	_wait(20000);
+}
+
+
+
+function createFNApplication($financialAssistance){
+	startUserApplication($memberInfo[0].firstName+" "+$memberInfo[0].lastName ,true);
+	$memberInfo = addAnotherMember(1, "Alexa", "Johns", "01/01/1990",["Spouse", ""],$memberInfo);
+	clickSaveContinue();
+	finishApplicationOfFamily(true);
+	$memberInfo = personalMemberInfo(true,true,true,false,0, $memberInfo );
+	$memberInfo = spouseInfo(1,$memberInfo,$financialAssistance);
+	goToHouseholdInformation($memberInfo[0].firstName,$memberInfo[0].lastName);
+	selectToMakeChangesOnHouseHoldInformation("","No");
+	selectFederalTaxFiler([0,1]);
+	selectPrimaryTaxFiler(0);
+	goToAIAN();
+	goToMedicaidChipDenialInformation();
+	goToPregnancyInformation();
+	selectPregnancyInformation();		
+	goToDisabilityInformation();	
+	selectDisabilityInformation();	
+	selectNeedHelpWithActivities();	
+	goToFamilyAndHouseholdSummary();
+	goToIncomeInformation();
+	goToIncomeSources(0);			
+	selectIncomeCurrently(0,true);
+	addIncomeSource(0,"Job","31176","Yearly");
+	goToDeductionSources(0);	
+	selectToTellAboutDeductions(0,false);
+	goToExpectedIncome(0);			
+	changeExpectedIncome(0,true);
+	goToIndividualIncomeSummary(0);
+	
+	goToIncomeSources(1);			
+	selectIncomeCurrently(1,true);
+	addIncomeSource(1);
+	goToDeductionSources(1);	
+	selectToTellAboutDeductions(1,false);
+	goToExpectedIncome(1);			
+	changeExpectedIncome(1,true);
+	goToIndividualIncomeSummary(1);
+	goToIncomeSummary();
+	
+	goToOtherHealthCoverage(0);	
+	selectHealthCoverageEnrollment(0,"Yes",["Medicare"]);
+	goToReconcilationOfAPTC(0);		
+	selectReconciledAPTCPastYear(0,"Yes")
+	goToEmployerCoverageDetail(0);		
+	selectEmployerCoverageDetails(0,"No");
+	goToStateEmployeeHealthBenefit(0);		
+	selectStateEmployeeHealthBenefit(0,"No");
+			
+	goToAdditionalInformationPage(0);
+	selectIfNeedHelpPayingBills(0,"No");
+			
+	goToAddtionalInformationSummary([0]);
+	
+
+//	finishApplicationOfFamily(true);
+//	$memberInfo = personalMemberInfo(true,true,true,false,0, $memberInfo );
+//	$memberInfo = spouseInfo(1,$memberInfo);
+	reviewAndSignAppliction($memberInfo[0].firstName+" "+$memberInfo[0].lastName);
+}
+
+
+function checkAndCreateAdminAccounts($firstName, $lastName, $email, $role){
+	if(getUserId($email)==""){
+		_click(_link("Log In"));
+		_setValue(_textbox("Email Address"), "opsadmin@ghix.com");
+	    _setValue(_password("Password"), "ghix123");
+		_click(_submit("Log In"));
+		_assertVisible(_list("nav navPhixbar"));
+		_click(_link("Users"));
+		_click(_link("Add User"));
+		_setSelected(_select("role"), $role);
+		_setValue(_textbox("firstName"), $firstName);
+		_setValue(_textbox("lastName"), $lastName);
+		_setValue(_textbox("EmailRequired"), $email);
+		_setValue(_textbox("phone1"), "408");
+		_setValue(_textbox("phone2"), "444");
+		_setValue(_textbox("phone3"), "4444");
+		_click(_button("Save and Send Email"));
+		_assertVisible(_div("Account activation emailclose"));
+		_click(_button("Ok"));
+	}
+
+}

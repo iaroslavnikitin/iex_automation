@@ -1,0 +1,6 @@
+{
+    "rb_tobaccoUserno":"$('//*[@id=\"submitTobacco\"]//table//tr[th[text()=\"tUser\"]]//*[@id=\"tobaccoUser-no\"]')",
+    "rb_tobaccoUseryes":"$('//*[@id=\"submitTobacco\"]//table//tr[th[text()=\"tUser\"]]//*[@id=\"tobaccoUser-yes\"]')",
+    "pageHeader": "$('h4')"
+}
+

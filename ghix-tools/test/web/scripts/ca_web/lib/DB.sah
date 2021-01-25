@@ -1,0 +1,1486 @@
+_includeOnce("DbDetails.sah");
+_includeOnce("CommonFunctions.sah");
+
+var $db;
+
+function createDbObj(){
+//	if(getBaseDomain() =="caupgrade5qa.ghixqa.com"){
+//		$server = "oracle11db.ghixqa.com";
+//		$port = "1521";
+//		$username ="caupgrade5qa";
+//		$password = "ZDg3MmYzZWQ4YjYx";
+//		$SID = "ghixdb";
+//	}
+//	$db = _getDB("oracle.jdbc.driver.OracleDriver","jdbc:oracle:thin:@"+$server+":"+$port+":"+$SID,$username,$password);
+	
+	$db = getDb();
+}
+
+/**
+* Step 1: Agency Information
+*/
+
+function accessAgencyInformationDB($agency){
+	if($agency){
+		$agencyName = $agency;
+	}
+	//cannot include first and last name because agency manager has not yet been created
+	var $agencyInformationQuery = "select agency_name, business_legal_name, federal_tax_id, license_number, creation_timestamp, certification_status, certification_number, certification_date from agency where agency_name ='"+$agencyName+"'";
+	_log($agencyInformationQuery);
+	var $showAgencyInfoVerification = $db.select($agencyInformationQuery);
+	_log($showAgencyInfoVerification);
+	//_assertEqual("1", $showAgencyInfoVerification.length, "There should only be one row of data from agency information");
+	return $showAgencyInfoVerification;
+}
+
+
+/**
+* Step 3: Agency Manager Information
+*/
+function accessAgencyManagerInformationDB(){
+//	var $agencyManagerInfoQuery = "SELECT u.first_name, u.last_name, b.license_number, b.license_renewal_date, b.certification_status FROM brokers b JOIN users u ON b.userid = u.id WHERE u.first_name ='" + $firstName + "' AND u.last_name  ='"+$lastName+"'";
+	var $agencyManagerInfoQuery = "SELECT u.first_name, u.last_name, b.license_number, b.license_renewal_date, b.certification_status,b.contactnumber, b.business_contact_phone_number,b.communication_pref, b.your_public_email, b.personal_email_address, l.address1, l.city, l.state, l.zip FROM brokers b JOIN users u ON b.userid = u.id JOIN locations l ON b.location_id = l.id WHERE u.first_name ='" + $firstName + "' AND u.last_name  ='"+$lastName+"'";
+	_log($agencyManagerInfoQuery);
+	var $showAgencyManagerInfo = $db.select($agencyManagerInfoQuery);
+	_log("Agency manager information: " + $showAgencyManagerInfo);
+	return $showAgencyManagerInfo;
+}
+
+/**
+* Step 4: Public Profile
+*/
+
+function accessAgencyManagerPublicProfileDB(){
+	var $agencyManagerPublicProfileQuery = "select b.clients_served,b.languages_spoken, b.product_expertise, b.your_web_site, b.your_public_email, b.about_me from brokers b JOIN users u ON b.userid = u.id WHERE u.first_name ='" + $firstName + "' AND u.last_name  = '"+$lastName+"'";
+	_log($agencyManagerPublicProfileQuery);
+	var $showAgencyManagerPublicProfile = $db.select($agencyManagerPublicProfileQuery);
+	_log("Agency manager public profile: " + $showAgencyManagerPublicProfile);
+	return $showAgencyManagerPublicProfile;
+}
+
+function accessAgencyManagerActiveStatusDB(){
+	var $accessAgencyManagerActiveStatusQuery = "select b.status, c.comment_text from brokers b JOIN users u ON b.userid = u.id JOIN comments c ON b.comments_id = c.id WHERE u.first_name = '" + $firstName + "' AND u.last_name  = '"+$lastName+"'";
+	_log($accessAgencyManagerActiveStatusQuery);
+	var $showAgencyManagerActiveStatus = $db.select($accessAgencyManagerActiveStatusQuery);
+	_log("Agency manager activity status: " + $showAgencyManagerActiveStatus);
+	return $showAgencyManagerActiveStatus;
+}
+
+/**
+* Step 5: Document Upload
+*/
+
+function accessDocumentUploadDB(){
+	var $documentUploadQuery = "select * from agency_documents where agency_id = (select id from agency where agency_name ='"+$agencyName+"')";
+	_log($documentUploadQuery);
+	var $showDocumentUpload =  $db.select($documentUploadQuery);
+	_log("Document upload information: " + $showDocumentUpload);
+	return $showDocumentUpload;
+}
+
+/**
+* Step 6: Certification Status
+*/
+
+function accessCertificationStatusDB(){
+	var $certificationStatusQuery = "select Agency_Name, creation_timestamp, Certification_Status, Certification_Number, Certification_Date,recertify_date from Agency where agency_name ='"+$agencyName+"'";
+	_log($certificationStatusQuery);
+	var $showCertificationStatus = $db.select($certificationStatusQuery);
+	_log("Certification status information: " + $showCertificationStatus);
+	return $showCertificationStatus;
+}
+
+/**
+* Change the Business Legal Name to equal the Agency Name in the DB (to easily search for the agency)
+*/
+function setAgencyNameEqualToBusinessLegalNameInDB($defaultAgencyName){
+	if ($defaultAgencyName) {
+		$agencyName = $defaultAgencyName;
+	}
+	var $agencyIDQuery = "select id from agency where AGENCY_NAME = '" +$agencyName+"' order by 1 desc";
+	_log($agencyIDQuery);
+	var $agencyID = $db.select($agencyIDQuery);
+	var $brokerIDUpdateQuery = "update brokers set COMPANY_NAME = '"+$agencyName+"' where AGENCY_ID = "+$agencyID;
+	//Updating the changes to the DB
+	var $agencyIDUpdateQuery = "update agency set BUSINESS_LEGAL_NAME = AGENCY_NAME where id = " +$agencyID;
+	$db.update($agencyIDUpdateQuery);
+	_log($brokerIDUpdateQuery);
+	$db.update($brokerIDUpdateQuery);
+}
+
+
+function getAgenciesWithName($defaultAgencyName){
+	var $query = "select agency_name from agency where agency_name ='"+$defaultAgencyName+"'";
+	_log($query);
+	var $agencies = $db.select($query);
+	return $agencies;
+}
+
+function getAgenciesWithNameLike($defaultAgencyName){
+	var $query = "select agency_name from agency where agency_name like '"+$defaultAgencyName+"%'";
+	_log($query);
+	var $agencies = $db.select($query);
+	_log("agencies: "+$agencies);
+	return $agencies;
+}
+function getAgentEmailFromUsers($agentName){
+	var $query = "select EMAIL from users where FIRST_NAME like '"+$agentName+"%' order by 1 desc";
+	_log($query);
+	var $agentEmail = $db.select($query);
+	_log($agentEmail);
+	return $agentEmail;
+}
+
+
+function getAgentfromDb($defaultAgent){
+	var $query = "select * from brokers where id =(select id from users where first_name = '"+$defaultAgent+"')";
+	_log($query);
+	var $agents = $db.select($query);
+	return $agents;
+}
+
+function updateBusinessLegalNameOfAgency($businessName, $agencyName){
+	var $query = "update agency set BUSINESS_LEGAL_NAME = '"+$businessName+"' where AGENCY_NAME = '"+$agencyName+"'";
+	_log($query);
+	$db.update($query);
+}
+
+function getIND35CountForAgentCertificationStatusChange($name, $agency){
+var $query ="select count(*) from gi_ws_payload where ENDPOINT_FUNCTION = 'IND35' and response_code = '200' and status = 'SUCCESS' and request_payload like '%"+$name+"%' and request_payload like '%"+$agency+"%' order by 1 desc";
+	_log($query);
+	var $count = $db.select($query)[0];
+	return $count;
+}
+
+function getTotalNumberOfAgentsFound(){
+	$query = "select count(*) from brokers b inner join users u on  u.id = b.userid inner join locations l on l.id = b.location_id left outer join agency a on a.id = b.agency_id where clients_served is not null and b.certification_status = 'Certified' and (b.status is null or b.status='Active')" ;
+	_log($query);
+	var $count = $db.select($query)[0];
+	return $count;
+}
+
+
+
+function associateAgentToAgentWithAgency($agentName, $AgentTobeAssociated,$companyName){
+	
+	$query = "select ID from users where FIRST_NAME ='"+$agentName+"'";
+	_log($query);
+	var $userId = $db.select($query)[0];
+	$query = "select ID from brokers where company_name like '"+$companyName+"' and FIRST_NAME = '" +$AgentTobeAssociated+ "'";
+	_log($query);
+	var $brokerId = $db.select($query)[0];
+	var $query = "update brokers set USERID = "+$userId+ " where id ="+$brokerId;
+	_log($query);
+	$db.update($query);
+	
+}
+
+function associateAgentToAgency($agencyName){
+	var $query = "select id from agency where AGENCY_NAME = '"+$agencyName+"' order by 1 desc";
+	_log($query);
+	var $agencyId = $db.select($query)[0];
+	_log($agencyId);
+	$query = "update brokers set AGENCY_ID="+$agencyId+" where company_name = '"+$agencyName+"'";
+	_log($query);
+	$db.update($query);
+	
+}
+
+function getAgencyInfofromAgencySite($primaryLocation){
+	$query = "select id, EMAIL_ADDRESS, PHONE_NUMBER from agency_site where agency_id = (select id from agency where agency_name like '"+$agencyName+"') and SITE_LOCATION_NAME = '"+$primaryLocation+"'";
+	_log($query);
+	var $agencyInfo = $db.select($query);
+	return $agencyInfo;
+}
+
+function getUpdatedHour($agencyId,$day){
+	$query = "select FROM_TIME, to_time from agency_site_hours where AGENCY_SITE_ID ="+ $agencyId+" and day = '"+$day+"'";
+	_log($query);
+	var $agencyHours = $db.select($query);
+	return $agencyHours;
+}
+
+function getInfofromEnrollmentAfterTransferDelegations($caseId){
+	//$query = "select id,AGENT_BROKER_NAME,LAST_UPDATE_TIMESTAMP,LAST_UPDATED_BY from enrollment where HOUSEHOLD_CASE_ID='"+$caseId+"'order by id desc";
+	$query = "select id,AGENT_BROKER_NAME,LAST_UPDATE_TIMESTAMP,LAST_UPDATED_BY from enrollment where EXT_HOUSEHOLD_CASE_ID='"+$caseId+"'order by id desc";
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+}
+
+function getInfofromEnrollmentAud($caseId){
+	//$query = "select id,AGENT_BROKER_NAME,LAST_UPDATE_TIMESTAMP,LAST_UPDATED_BY from enrollment_aud where HOUSEHOLD_CASE_ID='"+$caseId+"'order by last_update_timestamp desc";
+	$query = "select id,AGENT_BROKER_NAME,LAST_UPDATE_TIMESTAMP,LAST_UPDATED_BY from enrollment_aud where EXT_HOUSEHOLD_CASE_ID='"+$caseId+"'order by rev desc";
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+}	
+
+function getInfoFromEnrollmentEventAfterTransferDelegations($caseId){
+	//$query = "select * from (select id,enrollment_id,TXN_IDENTIFIER,LAST_UPDATED_BY,LAST_UPDATE_TIMESTAMP from enrollment_event where enrollment_id in(select id from enrollment where HOUSEHOLD_CASE_ID='"+$caseId+"') order by LAST_UPDATE_TIMESTAMP desc) where ROWNUM <=1"; 
+	$query = "select * from (select id,enrollment_id,TXN_IDENTIFIER,LAST_UPDATED_BY,LAST_UPDATE_TIMESTAMP from enrollment_event where enrollment_id in(select id from enrollment where EXT_HOUSEHOLD_CASE_ID='"+$caseId+"') order by id desc) where ROWNUM <=1"; 
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+}
+
+function getInfofromEnrollmentEventAud($caseId){
+	//$query = "select * from (select id,enrollment_id,TXN_IDENTIFIER,LAST_UPDATED_BY,LAST_UPDATE_TIMESTAMP from enrollment_event_aud where enrollment_id in(select id from enrollment where HOUSEHOLD_CASE_ID='"+$caseId+"') order by LAST_UPDATE_TIMESTAMP desc) where ROWNUM <=1"; 
+	$query = "select * from (select id,enrollment_id,TXN_IDENTIFIER,LAST_UPDATED_BY,LAST_UPDATE_TIMESTAMP from enrollment_event_aud where enrollment_id in(select id from enrollment where EXT_HOUSEHOLD_CASE_ID='"+$caseId+"') order by rev desc) where ROWNUM <=1"; 
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+
+}
+
+function getInfoFromEnrollmentforBulkTransfer($agent){
+	var $currentYear = _fetch(window.moment().format('YYYY'));
+	$query ="select id,AGENT_BROKER_NAME,LAST_UPDATE_TIMESTAMP,LAST_UPDATED_BY from enrollment where agent_broker_name = '"+$agent+"' and insurance_type_lkp=1832 and extract(year from benefit_effective_date)="+$currentYear;
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+
+}
+
+function getInfoFromEnrollAudforBulkTransfer($agent){
+	$query ="select id,AGENT_BROKER_NAME,LAST_UPDATE_TIMESTAMP,LAST_UPDATED_BY from enrollment_aud where household_Case_id in (select household_case_Id from enrollment where  agent_broker_name = '"+$agent
+	+"') and insurance_type_lkp=1832 order by rev desc";	
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+
+}
+
+function getInfoFromEnrollmentEventforBulkTransfer($agent){
+	$query ="select * from (select id,enrollment_id,TXN_IDENTIFIER,LAST_UPDATED_BY,LAST_UPDATE_TIMESTAMP from enrollment_event where enrollment_id in(select id from enrollment where agent_broker_name = '"
+	+$agent+"' and insurance_type_lkp=1832) and txn_identifier='BROKER_DESIGNATE' order by LAST_UPDATE_TIMESTAMP desc)";
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+}
+
+function getInfoFromEnrollEventAudforBulkTransfer($agent){
+	
+	$query = "select * from (select id,enrollment_id,TXN_IDENTIFIER,LAST_UPDATED_BY,LAST_UPDATE_TIMESTAMP from enrollment_event_Aud where enrollment_id in(select id from enrollment where agent_broker_name = '"
+	+$agent+"' and insurance_type_lkp=1832) and txn_identifier='BROKER_DESIGNATE' order by LAST_UPDATE_TIMESTAMP desc)";
+	_log($query);
+	var $enrollmentInfo = $db.select($query);
+	_log(" Results  ----"+ $enrollmentInfo);
+	return $enrollmentInfo;
+	
+}
+
+/**
+* Get Agent Info from DB
+*/
+
+function accessAgentInformationDB($firstName,$lastName){
+	var $agentInfoQuery = "SELECT b.first_name, b.last_name, b.license_number, b.license_renewal_date, b.certification_status,b.contactnumber, b.business_contact_phone_number,b.communication_pref, b.your_public_email, b.personal_email_address, l.address1, l.city, l.state, l.zip, b.federal_ein FROM brokers b JOIN locations l ON b.location_id = l.id WHERE b.first_name ='" + $firstName + "' AND b.last_name  ='"+$lastName+"'";
+	_log($agentInfoQuery);
+	var $showAgentInfo = $db.select($agentInfoQuery);
+	_log("Agency manager information: " + $showAgentInfo);
+	return $showAgentInfo;
+}
+//Agent user account created
+function accessAgentInformationWithUserAccountDB($userEmail){
+	var $agentInfoQuery = "select u.first_name, u.last_name,b.id, b.contactnumber, b.business_contact_phone_number, b.alternate_phone_number, b.communication_pref, b.personal_email_address, b.your_public_email, b.company_name, b.federal_ein, r.description, b.status, l.address1, l.city, l.state, l.zip, b.license_number, b.id, b.languages_spoken, b.product_expertise, b.education, b.clients_served, b.your_web_site, b.about_me, b.certification_number, b.broker_number, b.certification_date, b.recertify_date, b.certification_status, b.delegation_code, b.status_change_date, b.license_renewal_date, s.site_location_name,l.address2, u.email, b.fax_number, b.application_date from users u JOIN brokers b on u.id = b.userid JOIN locations l ON b.location_id = l.id JOIN user_roles ur ON u.id = ur.user_id JOIN roles r ON ur.role_id = r.id JOIN agency_site s ON l.id = s.location_id where u.username = '"+$userEmail+"'";
+	_log($agentInfoQuery);
+	var $showAgentInfo = $db.select($agentInfoQuery);
+	_log("Agency manager information: " + $showAgentInfo);
+	return $showAgentInfo;
+}
+
+function getAgentCorrespondenceAddressDB($userEmail){
+	var $correspAddressQuery = "select l.address1, l.address2, l.city, l.state, l.zip from users u JOIN brokers b ON b.userid = u.id JOIN locations l ON b.mailing_locaton_id = l.id where u.username = '"+$userEmail+"'";
+	_log($correspAddressQuery);
+	var $correspAddress = $db.select($correspAddressQuery);
+	_log("Agent corespondence address: " + $correspAddress);
+	return $correspAddress;
+}
+
+function getIdFromBrokersDB($individualEmail){
+	var $brokerIdQuery = "select id from brokers where personal_email_address='"+$individualEmail+"'";
+	_log($brokerIdQuery);
+	var $brokerIdDB = $db.select($brokerIdQuery);
+	_log("Broker ID: "+$brokerIdDB);
+	return $brokerIdDB;
+}
+
+function accessAgentPublicProfileDB($firstName,$lastName){
+	var $agentPublicProfileQuery = "select clients_served,languages_spoken, product_expertise, your_web_site, your_public_email, about_me from brokers WHERE first_name ='" + $firstName + "' AND last_name  = '"+$lastName+"'";
+	_log($agentPublicProfileQuery);
+	var $showAgentPublicProfile = $db.select($agentPublicProfileQuery);
+	_log("Agent public profile: " + $showAgentPublicProfile);
+	return $showAgentPublicProfile;
+}
+
+function accessAgentActiveStatusDB($firstName,$lastName){
+	var $accessAgentActiveStatusQuery = "select b.status, c.comment_text from brokers b JOIN comments c ON b.comments_id = c.id WHERE b.first_name = '"+$firstName+"' AND b.last_name ='"+$lastName+"'";
+	_log($accessAgentActiveStatusQuery);
+	var $showAgentActiveStatus = $db.select($accessAgentActiveStatusQuery);
+	_log("Agent activity status: " + $showAgentActiveStatus);
+	return $showAgentActiveStatus;
+}
+
+function getAgentInfoFromBrokers($firstName,$agentLicenseNumber){
+	var $query = "SELECT FIRST_NAME,ID,CERTIFICATION_STATUS,STATUS from BROKERS where FIRST_NAME='"+$firstName+"' and LICENSE_NUMBER="+$agentLicenseNumber+"";
+	_log($query);
+	var $agentInfoDB = $db.select($query);
+	_log($agentInfoDB);
+	return $agentInfoDB;
+}
+
+function getAgentInfoFromBrokersAUD($firstName,$agentLicenseNumber){
+	var $query = "Select ID,REV,CERTIFICATION_STATUS,STATUS from (Select ID,REV,CERTIFICATION_STATUS,STATUS from BROKERS_AUD where ID in (Select ID from BROKERS where FIRST_NAME='"+$firstName+"' and LICENSE_NUMBER="+$agentLicenseNumber+") order by REV desc) where ROWNUM=1";
+	_log($query);
+	var $agentInfoDB = $db.select($query);
+	_log($agentInfoDB);
+	return $agentInfoDB;
+}
+
+function getAgentCreatedByFromBrokers($firstName,$agentLicenseNumber){
+	var $query = "select email from users where ID = (SELECT LAST_UPDATED_BY from BROKERS where FIRST_NAME='"+$firstName+"' and LICENSE_NUMBER="+$agentLicenseNumber+")";
+	_log($query);
+	var $agentCreatedByDB = $db.select($query);
+	_log($agentCreatedByDB);
+	return $agentCreatedByDB;
+}
+function getAgentCreatedByFromBrokersAUD($firstName,$agentLicenseNumber){
+	var $query = "select email from users where ID = (Select LAST_UPDATED_BY from (Select LAST_UPDATED_BY from BROKERS_AUD where ID in (Select ID from BROKERS where FIRST_NAME='"+$firstName+"' and LICENSE_NUMBER="+$agentLicenseNumber+") order by REV desc) where ROWNUM=1)";
+	_log($query);
+	var $agentCreatedByDB = $db.select($query);
+	_log($agentCreatedByDB);
+	return $agentCreatedByDB;
+}
+
+function getIND35Generated($firstName,$agentLicenseNumber){
+//	var $query = "SELECT Request_PAYLOAD,RESPONSE_CODE from GI_WS_PAYLOAD where REQUEST_PAYLOAD like '%"+$firstName+"%' and REQUEST_PAYLOAD like '%"+$agentLicenseNumber+"%' and ENDPOINT_FUNCTION='IND35' order by created_timestamp desc";
+	var $query = "SELECT REQUEST_PAYLOAD,RESPONSE_CODE, response_payload from (SELECT REQUEST_PAYLOAD,RESPONSE_CODE,response_payload from GI_WS_PAYLOAD where REQUEST_PAYLOAD like '%"+$firstName+"%' and REQUEST_PAYLOAD like '%"+$agentLicenseNumber+"%' and ENDPOINT_FUNCTION='IND35' order by created_timestamp desc)where ROWNUM=1";
+	_log($query);
+	var $agentIND35InfoDB = $db.select($query);
+	_log($agentIND35InfoDB);
+	return $agentIND35InfoDB;
+}
+
+function getIND54Generated($firstName,$agentLicenseNumber){
+	var $query = "SELECT REQUEST_PAYLOAD,RESPONSE_CODE, response_payload from GI_WS_PAYLOAD where REQUEST_PAYLOAD like '%"+$firstName+"%' and REQUEST_PAYLOAD like '%"+$agentLicenseNumber+"%' and ENDPOINT_FUNCTION='IND54'";
+	_log($query);
+	var $agentIND54InfoDB = $db.select($query);
+	_log($agentIND54InfoDB);
+	return $agentIND54InfoDB;
+}
+
+/**
+* Get Admin Staff Info from DB
+*/
+
+function accessAdminStaffInformationDB($firstName,$lastName){
+	var $staffInfoQuery = "select a.first_name, a.last_name, a.primary_contact_number, a.business_contact_number, a.personal_email_address, a.business_email_address, a.communication_pref, a.business_legal_name, a.assistant_role, a.agency_assistant_id, l.address1, l.city, l.state, l.zip, a.id, a.agency_assistant_id, a.approval_status, a.approval_date, a.approval_number, a.delegation_code, a.status, a.creation_date, l.address2, s.site_location_name from agency_assistant a JOIN locations l ON a.business_address = l.id JOIN agency_site s ON l.id = s.location_id where a.first_name like '"+$firstName+"%' and a.last_name like '"+$lastName+"%'";
+	_log($staffInfoQuery);
+	var $showStaffInfo = $db.select($staffInfoQuery);
+	_log("Admin Staff information: " + $showStaffInfo);
+	return $showStaffInfo;
+}
+function getAdminStaffCorrespondenceAddressDB($firstName,$lastName){
+	var $staffInfoQuery = "select l.address1, l.city, l.state, l.zip from agency_assistant a JOIN locations l ON a.correspondence_address = l.id where a.first_name like '"+$firstName+"%' and a.last_name like '"+$lastName+"%'";
+	_log($staffInfoQuery);
+	var $showStaffInfo = $db.select($staffInfoQuery);
+	_log("Staff correspondence address: " + $showStaffInfo);
+	return $showStaffInfo;
+}
+function getConsumerInfoFromExternalIndividual($individualCaseId){
+	//var $consumerInfoQuery = "Select INDIVIDUAL_CASE_ID,FIRSTNAME,LASTNAME,EMAILID,PRI_PHONE,ADDRESSLINE1,CITY,STATE,ZIP from external_individual where individual_case_id="+$individualCaseId;
+	var $consumerInfoQuery = "Select INDIVIDUAL_CASE_ID,FIRSTNAME,LASTNAME,EMAILID,PRI_PHONE,ADDRESSLINE1,CITY,STATE,ZIP from external_individual where individual_case_id=(select EXCHG_SUBSCRIBER_IDENTIFIER from enrollment where EXT_HOUSEHOLD_CASE_ID = '"+$individualCaseId+"' and rownum=1)";
+	_log($consumerInfoQuery);
+	var $showConsumerInfo = $db.select($consumerInfoQuery);
+	_log("Consumer Info: " + $showConsumerInfo);
+	return $showConsumerInfo;
+}
+
+/*
+Enrollment
+*/
+
+function getLatestIdFromExternalIndividual(){
+	var $latestIdQuery = "select id from (select id from external_individual order by 1 desc) where rownum=1";
+	_log("query: "+$latestIdQuery);
+	var $latestID=$db.select($latestIdQuery);
+	_log("Latest id: "+$latestID);
+	return $latestID;
+}
+
+function insertInToExternalIndividual($individualCaseId,$firstName,$lastName,$household){
+
+	var $cmrHouseholdIdDb = getCmrIdForIndividual($individualCaseId);
+	var $cmrHouseholdId = "null";
+	var $addressLine1 = $household.people[0].homeAddress.street;
+	var $city = $household.people[0].homeAddress.city;
+	var $state = $household.people[0].homeAddress.state;
+	var $zipcode = $household.people[0].homeAddress.zipcode;
+	var $ssn = $household.people[0].SSN;
+	var $dob = $household.people[0].dob;
+	$dob = _fetch(window.moment($dob).format("DD-MMM-YY hh.mm.ss.SSSSSSSSS A"));
+
+	if($cmrHouseholdIdDb.length > 0){
+		$cmrHouseholdId = $cmrHouseholdIdDb[0][0];
+	}
+
+	var $designationDate = getCurrentDate("DD-MMM-YY hh.mm.ss.SSSSSSSSS A");
+	var $insertIndividualQuery = "Insert into external_individual (ID,INDIVIDUAL_CASE_ID,FIRSTNAME,MIDDLENAME,LASTNAME,CASE_START_DATE,CASE_END_DATE,PREF_COMM_METHOD,PREF_SPOKEN_LANG,PREF_WRITTEN_LANG,GENDER,SSN,CITIZEN,DOB,EMAILID,PRI_PHONE,ADDRESSLINE1,ADDRESSLINE2,CITY,STATE,ZIP,SUFFIX,HEADOFHOUSEHOLDNAME,NUMBEROFHOUSEHOLDMEMBERS,ENROLLMENT_STATUS,CONTACTADDRESSCOUNTY,HOUSEHOLD_INCOME,COUNTY,ELIGIBILITY_STATUS,CMR_HOUSEHOLD_ID) values (External_Individual_Seq.NEXTVAL,"+$individualCaseId+",'"+$firstName+"',null,'"+$lastName+"',null,null,'Mail','English','English','M','"+$ssn+"','Y',to_timestamp('"+$dob+"','DD-MON-RR HH.MI.SS.FF AM'),'fnagentata@af.fgh',5757577575,'"+$addressLine1+"',null,'"+$city+"','"+$state+"','"+$zipcode+"','Sr','HAN MING YEE 01',1,null,'Sacramento',1420,null,'ELIGIBLE',"+$cmrHouseholdId+")";
+	_log("query: "+$insertIndividualQuery);
+	$db.update($insertIndividualQuery);
+}
+
+function insertIntoDesignateBroker($brokerId,$individualCaseId){
+	var $designationDate = getCurrentDate("DD-MMM-YY hh.mm.ss.SSSSSSSSS A");
+	var $insertIntoDesignateBrokerQuery = "Insert into  DESIGNATE_BROKER (ID,BROKERID,EMPLOYERID,CREATION_TIMESTAMP,LAST_UPDATE_TIMESTAMP,STATUS,ESIGN_BY,ESIGN_DATE,INDIVIDUALID,EXTERNALEMPLOYERID,EXTERNALINDIVIDUALID,DELEGATION_CODE,SHOW_SWITCH_ROLE_POPUP,CREATED_BY,LAST_UPDATED_BY) values (BROKERS_SEQ.NEXTVAL,"+$brokerId+",null,to_timestamp('"+$designationDate+"','DD-MON-RR HH.MI.SS.FF AM'),to_timestamp('"+$designationDate+"','DD-MON-RR HH.MI.SS.FF AM'),'Active','Agent Sanity622',to_date('15-NOV-13','DD-MON-RR'),null,null,"+$individualCaseId+",null,'Y',null,null)";
+	_log($insertIntoDesignateBrokerQuery);
+	$db.update($insertIntoDesignateBrokerQuery);
+}
+
+function insertIntoDesignateAssister($assisterId,$entityId,$individualCaseId){
+	var $designationDate = getCurrentDate("DD-MMM-YY hh.mm.ss.SSSSSSSSS A");
+	var $insertIntoDesignateAssisterQuery = "Insert into ee_designate_assisters (ID,ASSISTER_ID,ENTITY_ID,CREATION_TIMESTAMP,LAST_UPDATE_TIMESTAMP,STATUS,ESIGN_BY,ESIGN_DATE,INDIVIDUAL_ID,DELEGATION_CODE,SHOW_SWITCH_ROLE_POPUP,CREATED_BY,LAST_UPDATED_BY,PROCESSED) values (EE_DESIGNATE_ASSISTERS_SEQ.NEXTVAL,"+$assisterId+","+$entityId+",to_timestamp('"+$designationDate+"','DD-MON-RR HH.MI.SS.FF AM'),to_timestamp('"+$designationDate+"','DD-MON-RR HH.MI.SS.FF AM'),'Active','CEC Sanity622',to_date('15-NOV-13','DD-MON-RR'),"+$individualCaseId+",null,'Y',null,null,0)";
+										  
+	_log($insertIntoDesignateAssisterQuery);
+	$db.update($insertIntoDesignateAssisterQuery);
+}
+
+/*
+Plan display
+*/
+
+function getPlanRateDB($planId,$zipCode,$county,$toDate,$applicableYear,$age,$insuranceType){
+	var $planRateQuery = "SELECT prate.rate  AS pre,prate.rate_option AS rate_option,childtable.plan_id AS plan_id,p2.name AS plan_name,childtable.cost_sharing AS cost_sharing,childtable.plan_level AS plan_level FROM plan_health childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id in(SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL)) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate     > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='"+$insuranceType+"' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year ="+$applicableYear+" AND p2.id="+$planId;
+	_log("query: "+$planRateQuery);
+	var $planRate=$db.select($planRateQuery);
+	_log("Plan rate: "+$planRate);
+	return $planRate;
+} 
+
+function getPrimaryCareVisitAndGenericDrugsDB($planId,$applicableYear,$insuranceType){
+	var $primaryCareVisitAndGenericDrugsQuery = "Select P.name, P.network_type, PH.plan_level, PHB.name, PHB.network_t1_tile_display,  PHB.network_t1_display FROM PLAN P, PLAN_HEALTH PH, PLAN_HEALTH_BENEFIT PHB WHERE P.ID = PH.PLAN_ID AND PH.ID = PHB.PLAN_HEALTH_ID AND P.is_deleted='N' AND P.applicable_year='"+$applicableYear+"' AND P.insurance_type='"+$insuranceType+"' AND P.id="+$planId+" AND PHB.name in ('PRIMARY_VISIT', 'GENERIC') order by 4";
+	_log("query: "+$primaryCareVisitAndGenericDrugsQuery);
+	var $primaryCareVisitAndGenericDrugs=$db.select($primaryCareVisitAndGenericDrugsQuery);
+	_log("Plan rate: "+$primaryCareVisitAndGenericDrugs);
+	return $primaryCareVisitAndGenericDrugs;
+} 
+
+function getCountyCodeByZipDB($zip){
+	var $countyQuery = "select state_fips,county_fips from zipcodes where zipcode="+$zip;
+	_log("query: "+$countyQuery);
+	var $county=$db.select($countyQuery);
+	_log("county: "+$county);
+	var $countyCode = $county[0][0]+$county[0][1];
+	_log("county code: "+$countyCode);
+	return $countyCode;
+}
+
+function getZipcodesDataDB($zip){
+	var $zipcodesData = [];
+	
+	var $query = "select * from zipcodes where zipcode="+$zip;
+	_log($query);
+	$db = getDb();
+	var $zipcodesDataDB;
+
+	for (var $n = 0; $n < 10; $n++) {
+		 $zipcodesDataDB = $db.selectWithHeader($query);
+		 if ($zipcodesDataDB.length > 1) break;
+		 _wait(5000);
+		 _log("waiting..."+$n);
+	}
+	
+	// loop to return data in key:value format --> $zipcodesData[0].ID
+	for (var $j=1;$j<$zipcodesDataDB.length;$j++){
+		var $zipcodesObj={};
+		
+		for (var $i=0;$i<$zipcodesDataDB[0].length;$i++){
+			$zipcodesObj[$zipcodesDataDB[0][$i]]=$zipcodesDataDB[$j][$i];
+		}
+		
+		$zipcodesData.push($zipcodesObj);
+	}
+	
+	var $str = JSON.stringify($zipcodesData);
+	_log("JSON: "+$str);
+	return $zipcodesData;
+}
+
+function getYearlyDeductibleAndOOPDB($planId,$applicableYear,$insuranceType){
+	var $query = "Select P.name, P.network_type, PH.plan_level, PHC.* FROM PLAN P, PLAN_HEALTH PH, PLAN_HEALTH_COST PHC WHERE P.ID = PH.PLAN_ID AND PH.ID = PHC.PLAN_HEALTH_ID AND P.is_deleted='N' AND P.applicable_year='"+$applicableYear+"' AND P.insurance_type='"+$insuranceType+"' AND P.id="+$planId+" AND PHC.NAME in ('DEDUCTIBLE_DRUG','DEDUCTIBLE_MEDICAL','MAX_OOP_INTG_MED_DRUG') order by phc.name";
+	_log("query: "+$query);
+	var $yearlyDeductibleAndOOPDB=$db.select($query);
+	_log("YearlyDeductibleAndOOPDB: "+$yearlyDeductibleAndOOPDB);
+	return $yearlyDeductibleAndOOPDB;
+}
+
+function getQualityRatingDB($planId,$applicableYear){
+	var $effectiveEndDate = $applicableYear.substring($applicableYear.length-2,$applicableYear.length);
+	var $query = "Select * from issuer_quality_rating where is_deleted='N' and plan_hios_id in (select ISSUER_PLAN_NUMBER from plan where is_deleted='N' and applicable_year='"+$applicableYear+"' and insurance_type='HEALTH' and id="+$planId+") and EFFECTIVE_END_DATE like '%-"+$effectiveEndDate+"' order by CREATION_TIMESTAMP desc";
+	_log("query: "+$query);
+	var $qualityRatingDB=$db.select($query);
+	_log("qualityRatingDB: "+$qualityRatingDB);
+	return $qualityRatingDB;
+}
+
+function getNumberOfHealthPlans($zipCode,$county,$toDate,$applicableYear,$age,$CS){
+	if($CS == "CS4" || $CS == "CS5" || $CS == "CS6"){
+		var $planCountQuery1 = "SELECT COUNT(*)FROM (SELECT  distinct childtable.plan_id, p2.name, childtable.plan_level as plan_level, childtable.cost_sharing AS cost_sharing FROM plan_health childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id   in (SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL) ) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='HEALTH' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year = "+$applicableYear+" AND childtable.cost_sharing in ('CS1') AND childtable.plan_level not in('SILVER') order by cost_sharing, plan_level)";
+		var $planCountQuery2 = "SELECT COUNT(*)FROM (SELECT  distinct childtable.plan_id, p2.name, childtable.plan_level as plan_level, childtable.cost_sharing AS cost_sharing FROM plan_health childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id   in (SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL) ) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='HEALTH' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year = "+$applicableYear+" AND childtable.cost_sharing in ('"+$CS+"') order by cost_sharing, plan_level)";
+		_log("query 1: "+$planCountQuery1);
+		_log("query 2: "+$planCountQuery2);
+		
+		var $planCount1=$db.select($planCountQuery1);
+		_log("planCount1: "+$planCount1);
+		
+		var $planCount2=$db.select($planCountQuery2);
+		_log("planCount2: "+$planCount2);
+		
+		return (parseInt($planCount1[0][0]) + parseInt($planCount2[0][0]));
+	}
+	
+	if($CS == "CS2" || $CS == "CS3"){
+		var $planCountQuery1 = "SELECT COUNT(*)FROM (SELECT  distinct childtable.plan_id, p2.name, childtable.plan_level as plan_level, childtable.cost_sharing AS cost_sharing FROM plan_health childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id   in (SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL) ) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='HEALTH' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year = "+$applicableYear+" AND childtable.cost_sharing in ('"+$CS+"') order by cost_sharing, plan_level)";
+		_log("query: "+$planCountQuery1);
+		
+		var $planCount1=$db.select($planCountQuery1);
+		_log("planCount1: "+$planCount1);
+		return $planCount1[0][0];
+	}
+	
+	if($CS == "CS1" || $CS == null || $CS == ""){
+		var $planCountQuery1 = "SELECT COUNT(*)FROM (SELECT  distinct childtable.plan_id, p2.name, childtable.plan_level as plan_level, childtable.cost_sharing AS cost_sharing FROM plan_health childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id   in (SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL) ) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='HEALTH' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year = "+$applicableYear+" AND childtable.cost_sharing in ('CS1') order by cost_sharing, plan_level)";
+		_log("query: "+$planCountQuery1);
+		
+		var $planCount1=$db.select($planCountQuery1);
+		_log("planCount1: "+$planCount1);
+		return $planCount1[0][0];
+	}
+	return "Check CS parameter";
+}
+
+function getPlanToEnrollFromDB($zipCode,$county,$toDate,$applicableYear,$age,$CS,$planLevel){
+	
+	var $query = "SELECT * FROM (SELECT  distinct childtable.plan_id, p2.name,p2.NETWORK_TYPE, childtable.plan_level as plan_level, childtable.cost_sharing AS cost_sharing, iss.NAME as issuer_name FROM plan_health childtable, pm_service_area psarea, pm_plan_rate prate, plan p2, issuers iss WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.ISSUER_ID = iss.id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id   in (SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL) ) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='HEALTH' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year = "+$applicableYear+" AND childtable.cost_sharing in ('"+$CS+"') AND childtable.plan_level in('"+$planLevel+"') order by cost_sharing, plan_level)";
+	
+	_log("query: "+$query);	
+	var $planInfo=$db.select($query);
+	_log("planInfo: "+$planInfo);
+
+	return $planInfo
+}
+
+function getDocumentLinksHealthPlanDB($planId,$applicableYear){
+	var $documentLinksQuery = "select p.name, p.issuer_plan_number, ph.cost_sharing, ph.benefits_url as SBC, p.brochure as Plan_Brochure, N.network_url as Provider_DIR from plan p, plan_health ph, network N where p.provider_network_id=N.id and p.id=ph.plan_id and p.id = "+$planId+" and P.is_deleted='N' AND P.applicable_year='"+$applicableYear+"'";
+	_log("query: "+$documentLinksQuery);
+	var $documentLinks=$db.select($documentLinksQuery);
+	_log("summary Of Benefits And Coverage DB: "+$documentLinks[0][3]);
+	_log("plan Brochure DB: "+$documentLinks[0][4]);
+	_log("provider Directory DB: "+$documentLinks[0][5]);
+	return $documentLinks;
+} 
+
+/*Dental plans info*/
+
+function getDentalPlanRateDB($planId,$zipCode,$county,$toDate,$applicableYear,$age,$insuranceType){
+	var $planRateQuery = "SELECT prate.rate  AS pre,prate.rate_option AS rate_option,childtable.plan_id AS plan_id,p2.name AS plan_name,childtable.cost_sharing AS cost_sharing,childtable.plan_level AS plan_level FROM plan_dental childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id in(SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL)) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='"+$insuranceType+"' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year ="+$applicableYear+" AND p2.id = "+$planId;					  
+	_log("query: "+$planRateQuery);
+	var $planRate=$db.select($planRateQuery);
+	_log("Plan rate: "+$planRate);
+	return $planRate;
+} 
+
+function getDentalCheckupDB($planId,$applicableYear){
+	var $dentalCheckupQuery = "Select P.name, P.network_type, PD.plan_level, PDB.name, PDB.network_t1_tile_display,  PDB.network_t1_display FROM PLAN P, PLAN_DENTAL PD, PLAN_DENTAL_BENEFIT PDB WHERE P.ID = PD.PLAN_ID AND PD.ID = PDB.PLAN_DENTAL_ID AND P.is_deleted='N' AND P.applicable_year='"+$applicableYear+"' AND P.insurance_type='DENTAL' AND P.id = "+$planId+" AND PDB.name in ('RTN_DENTAL_ADULT', 'DENTAL_CHECKUP_CHILDREN') order by 4 desc";
+	_log("query: "+$dentalCheckupQuery);
+	var $dentalCheckup=$db.select($dentalCheckupQuery);
+	_log("Dental Checkup: "+$dentalCheckup);
+	return $dentalCheckup;
+}
+
+function getDentalYearlyDeductibleDB($planId,$applicableYear){
+	var $dentalYearlyDeductibleQuery = "Select P.name, P.network_type, PD.plan_level, PDC.* FROM PLAN P, PLAN_DENTAL PD, PLAN_DENTAL_COST PDC WHERE P.ID = PD.PLAN_ID AND PD.ID = PDC.PLAN_DENTAL_ID AND P.is_deleted='N' AND P.applicable_year='"+$applicableYear+"' AND P.insurance_type='DENTAL' AND P.id = "+$planId+" and PDC.name = 'DEDUCTIBLE_MEDICAL' order by 6";
+	_log("query: "+$dentalYearlyDeductibleQuery);
+	var $dentalYearlyDeductible=$db.select($dentalYearlyDeductibleQuery);
+	_log("Dental Yearly Deductible: "+$dentalYearlyDeductible);
+	return $dentalYearlyDeductible[0][6];
+}
+
+function getNumberOfDentalPlans($zipCode,$county,$toDate,$applicableYear,$age){
+	var $planCountQuery = "SELECT COUNT(*)FROM (SELECT  distinct childtable.plan_id, p2.name, childtable.plan_level as plan_level,childtable.cost_sharing AS cost_sharing FROM plan_dental childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '"+$zipCode+"' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id in (SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '"+$county+"' AND (pzcrarea.zip = '"+$zipCode+"' OR pzcrarea.zip IS NULL)) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( ("+$age+" >= prate.min_age AND "+$age+" <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate > 0 AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '"+$county+"' AND TO_DATE ('"+$toDate+"', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='DENTAL' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year = "+$applicableYear+" order by cost_sharing, plan_level)";
+	_log("query 1: "+$planCountQuery);
+	var $planCount=$db.select($planCountQuery);
+	_log("Dental Plan Count: "+$planCount);
+	return $planCount;
+}
+
+function getDocumentLinksDentalPlanDB($planId,$applicableYear){
+	var $documentLinksQuery = "select p.name, p.issuer_plan_number, pd.cost_sharing, pd.benefits_url as SBC, p.brochure as Plan_Brochure, N.network_url as Provider_DIR from plan p, plan_dental pd, network N where p.provider_network_id=N.id and p.id=pd.plan_id and p.id = "+$planId+" and P.is_deleted='N' AND P.applicable_year='"+$applicableYear+"'";
+	_log("query: "+$documentLinksQuery);
+	var $documentLinks=$db.select($documentLinksQuery);
+	_log("summary Of Benefits And Coverage DB: "+$documentLinks[0][3]);
+	_log("plan Brochure DB: "+$documentLinks[0][4]);
+	_log("provider Directory DB: "+$documentLinks[0][5]);
+	return $documentLinks;
+}
+
+/**
+* SSN from DB
+*/
+function isSSNAlreadyPresent($SSN){
+	$SSN = $SSN.replace(/\(|\)|\-|\ /g, "");
+	var $query ="select * from cmr_household where ssn = "+$SSN;
+	_log($query);
+	var $SSNPresent = $db.select($query);
+	_log("SSN From cmr_household  table ==== "+$SSNPresent);
+	return $SSNPresent;
+}
+
+/*
+function showPreviousYearTab(){ 
+	var $query = "select property_value from gi_app_config where property_key like '%iex.indportal.show_previous_year_tab_until%'"; 
+	_log($query); 
+	var $showPrevYearTab = $db.select($query); 
+	_log("show PrevYear Tab until "+$showPrevYearTab); 
+	$showPrevYearTab = $showPrevYearTab[0][0];
+	return (_fetch(window.moment().isBefore($showPrevYearTab)));
+
+} 
+*/
+
+function getIndShowPreviousYearTabUntil(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.indportal.show_previous_year_tab_until%'"; 
+	_log($query); 
+	var $showPrevYearTab = $db.select($query); 
+	_log("show PrevYear Tab until "+$showPrevYearTab);
+	return	$showPrevYearTab
+}
+
+function getIndShowCurrentYearTabFrom(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.indportal.show_current_year_tab_from%'"; 
+	_log($query); 
+	var $showCurrentYearTab = $db.select($query); 
+	_log("show PrevYear Tab until "+$showCurrentYearTab); 
+	return $showCurrentYearTab;
+}
+
+
+function getOEPStartDate(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_start_date%'"; 
+	_log($query);
+	var $oepStartDate = $db.select($query); 
+	return $oepStartDate;
+
+}
+
+function getGiAppConfigDB(){
+	var $query = "select PROPERTY_KEY,PROPERTY_VALUE from gi_app_config where PROPERTY_KEY in ('iex.indportal.global_oe_coverage_effective_date','iex.prev_oe_start_date','iex.prev_oe_end_date','iex.prev_coverage_year','iex.indportal.show_previous_year_tab_until','iex.indportal.show_current_year_tab_from','iex.current_oe_start_date','iex.current_oe_end_date','iex.current_coverage_year','iex.accounttransfer.coverage.years','iex.oe_enroll_start_date','iex.oe_enroll_end_date','iex.QEPDuringOEStartDate','iex.QEPDuringOEEndDate','iex.renewal_coverage_year','iex.referral.OEP.ESD','global.exchangeStartYear','iex.lce.enrollmentEndDate.gracePeriod')"; 
+	_log($query);
+	var $giAppConfigDataDB = $db.select($query); 
+	var $giAppConfig={};
+
+	//var $renewalApplicationsDataDB = $db.selectWithHeader($query);
+	_log("giAppConfigDataDB  table: "+$giAppConfigDataDB);
+	
+	// loop to return data in key:value format
+	for (var $j=1;$j<$giAppConfigDataDB.length;$j++){
+		var $propertyName = $giAppConfigDataDB[$j][0].replace(/\./g,"_");
+		$giAppConfig[$propertyName] = $giAppConfigDataDB[$j][1];
+	}
+	
+	var $str = JSON.stringify($giAppConfig);
+	_log("JSON: "+$str);
+	return $giAppConfig;
+
+}
+
+function getOEPEndDate(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'"; 
+	_log($query);
+	var $oepEndDate = $db.select($query); 
+	return $oepEndDate;
+
+}
+
+
+function getGracePeriodFromDb(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.lce.enrollmentEndDate.gracePeriod%'"; 
+	_log($query);
+	var $timePeriod = $db.select($query); 
+	$timePeriod = parseInt($timePeriod)
+	return $timePeriod
+}
+
+function getOECoverageYearDB(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage_year%'"; 
+	_log($query);
+	var $OECoverageYear = $db.select($query); 
+	return $OECoverageYear;
+
+}
+
+function getOECoverageYearDBForOE(){
+	var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage_year%'"; 
+	_log($query);
+	var $OECoverageYear = $db.select($query); 
+	return $OECoverageYear;
+
+}
+
+/**
+* AT DB verification
+*/
+
+function getCMRHouseholdData($email){
+	var $CMRHouseholdData = {};
+	var $query ="select EMAIL_ADDRESS,PHONE_NUMBER,USER_ID,ZIPCODE,FIRST_NAME,LAST_NAME,GI_HOUSEHOLD_ID,CONTACT_LOCATION_ID,LOCATION_ID,BIRTH_DATE,SSN,EXTERNAL_HOUSEHOLD_CASE_ID, ID from cmr_household where  lower(EMAIL_ADDRESS) = '"+$email.toLowerCase()+"'";
+	_log($query);
+	var $CMRHouseholdDataDB = $db.select($query);
+	_log("cmr_household  table: "+$CMRHouseholdDataDB);
+	$CMRHouseholdData.email = $CMRHouseholdDataDB[0][0];
+	$CMRHouseholdData.phone = $CMRHouseholdDataDB[0][1];
+	$CMRHouseholdData.userid = $CMRHouseholdDataDB[0][2];
+	$CMRHouseholdData.zipcode = $CMRHouseholdDataDB[0][3];
+	$CMRHouseholdData.firstName = $CMRHouseholdDataDB[0][4];
+	$CMRHouseholdData.lastName = $CMRHouseholdDataDB[0][5];
+	$CMRHouseholdData.giHouseholdId = $CMRHouseholdDataDB[0][6];
+	$CMRHouseholdData.contactLocationId = $CMRHouseholdDataDB[0][7];
+	$CMRHouseholdData.locatinId = $CMRHouseholdDataDB[0][8];
+	$CMRHouseholdData.birthDate = $CMRHouseholdDataDB[0][9].substring(0,10);
+	$CMRHouseholdData.SSN = $CMRHouseholdDataDB[0][10];
+	$CMRHouseholdData.householdCaseId = $CMRHouseholdDataDB[0][11];
+	$CMRHouseholdData.ID = $CMRHouseholdDataDB[0][12];
+	return $CMRHouseholdData;
+}
+
+function getCMRHouseholdDataRecord($email){
+	var $query ="select EMAIL_ADDRESS,PHONE_NUMBER,USER_ID,ZIPCODE,FIRST_NAME,LAST_NAME,GI_HOUSEHOLD_ID,CONTACT_LOCATION_ID,LOCATION_ID,BIRTH_DATE,SSN,EXTERNAL_HOUSEHOLD_CASE_ID, ID from cmr_household where  lower(EMAIL_ADDRESS) = '"+$email.toLowerCase()+"'";
+	_log($query);
+	var $CMRHouseholdDataDB = $db.select($query);
+	return $CMRHouseholdDataDB;
+}
+
+function getCMRHouseholdCount($email){
+	var $query ="SELECT COUNT(*) FROM cmr_household where lower(EMAIL_ADDRESS) = '"+$email.toLowerCase()+"'";
+	_log($query);
+	var $CMRHouseholdDataDB = $db.select($query);
+	return $CMRHouseholdDataDB;
+}
+
+function isExternalCaseIdexistInDB($externalCaseId){
+	var $isExternalCaseIdexist = false;
+	var $query ="SELECT COUNT(*) FROM cmr_household where EXTERNAL_HOUSEHOLD_CASE_ID = '"+$externalCaseId+"'";
+	_log($query);
+	var $CMRHouseholdDataDB = $db.select($query);
+	_log("cmr_household  count: "+$CMRHouseholdDataDB[0][0]);
+
+	if ($CMRHouseholdDataDB[0][0] > 0) {
+		$isExternalCaseIdexist = true;
+	}
+	return $isExternalCaseIdexist;
+}
+
+
+
+
+function getSSAPApplicationsDataDB($cmrHouseholdId, $household){
+
+	var $SSAPApplicationsData = {};
+	var $appNum = $household.applicationCount-1;
+	var $query = "select ID,START_DATE,CASE_NUMBER,ESIGN_FIRST_NAME,ESIGN_LAST_NAME,ESIGN_DATE,APPLICATION_DATA,APPLICATION_STATUS,APPLICATION_TYPE,CMR_HOUSEOLD_ID,ELIGIBILITY_STATUS,FINANCIAL_ASSISTANCE_FLAG,EXCHANGE_ELIGIBILITY_STATUS,CSR_LEVEL,MAXIMUM_APTC,ELECTED_APTC,COVERAGE_YEAR,EXTERNAL_APPLICATION_ID,ELIGIBILITY_RECEIVED_DATE,NATIVE_AMERICAN_FLAG,VALIDATION_STATUS from (select * from ssap_applications where CMR_HOUSEOLD_ID="+$cmrHouseholdId+" order by 1) OFFSET "+$appNum+" ROWS";
+	_log($query);
+	var $SSAPApplicationsDataDB = $db.select($query);
+	_log("cmr_household  table: "+$SSAPApplicationsDataDB);
+	$SSAPApplicationsData.ID = $SSAPApplicationsDataDB[0][0];
+	$SSAPApplicationsData.START_DATE = $SSAPApplicationsDataDB[0][1];
+	_set($SSAPApplicationsData.START_DATE, _call(window.moment($SSAPApplicationsData.START_DATE).format("YYYY-MM-DD")));
+	$SSAPApplicationsData.CASE_NUMBER = $SSAPApplicationsDataDB[0][2]; //not verified
+	$SSAPApplicationsData.ESIGN_FIRST_NAME = $SSAPApplicationsDataDB[0][3];
+	$SSAPApplicationsData.ESIGN_LAST_NAME = $SSAPApplicationsDataDB[0][4];
+	$SSAPApplicationsData.ESIGN_DATE = $SSAPApplicationsDataDB[0][5]; 
+	_set($SSAPApplicationsData.ESIGN_DATE, _call(window.moment($SSAPApplicationsData.ESIGN_DATE).format("YYYY-MM-DD")));
+	$SSAPApplicationsData.APPLICATION_DATA = $SSAPApplicationsDataDB[0][6]; //not verified
+	$SSAPApplicationsData.APPLICATION_STATUS = $SSAPApplicationsDataDB[0][7];
+	$SSAPApplicationsData.APPLICATION_TYPE = $SSAPApplicationsDataDB[0][8];
+	$SSAPApplicationsData.CMR_HOUSEOLD_ID = $SSAPApplicationsDataDB[0][9].substring(0,10);
+	$SSAPApplicationsData.ELIGIBILITY_STATUS = $SSAPApplicationsDataDB[0][10];  //not verified
+	$SSAPApplicationsData.FINANCIAL_ASSISTANCE_FLAG = $SSAPApplicationsDataDB[0][11];
+	$SSAPApplicationsData.EXCHANGE_ELIGIBILITY_STATUS = $SSAPApplicationsDataDB[0][12];
+	$SSAPApplicationsData.CSR_LEVEL = $SSAPApplicationsDataDB[0][13];
+	$SSAPApplicationsData.MAXIMUM_APTC = $SSAPApplicationsDataDB[0][14];
+	$SSAPApplicationsData.ELECTED_APTC = $SSAPApplicationsDataDB[0][15];
+	$SSAPApplicationsData.COVERAGE_YEAR = $SSAPApplicationsDataDB[0][16];
+	$SSAPApplicationsData.EXTERNAL_APPLICATION_ID = $SSAPApplicationsDataDB[0][17];
+	$SSAPApplicationsData.ELIGIBILITY_RECEIVED_DATE = $SSAPApplicationsDataDB[0][18];	
+	$SSAPApplicationsData.NATIVE_AMERICAN_FLAG = $SSAPApplicationsDataDB[0][19];
+	$SSAPApplicationsData.VALIDATION_STATUS = $SSAPApplicationsDataDB[0][20];																  
+	return $SSAPApplicationsData;
+}
+
+function getSSAPApplicationsDataRecord($cmrHouseholdId,$appStatus){
+	var $query ="select * from ssap_applications where CMR_HOUSEOLD_ID="+$cmrHouseholdId+" and APPLICATION_STATUS='"+$appStatus+"' order by 1 desc";
+	_log($query);
+	var $SSAPApplicationsDataDB = $db.select($query);
+	return $SSAPApplicationsDataDB;
+}
+
+function getSSAPApplicationsCount($cmrHouseholdId,$appStatus){
+
+	var $query;
+	if($appStatus){
+		$query ="select count(*) from ssap_applications where CMR_HOUSEOLD_ID="+$cmrHouseholdId+" and APPLICATION_STATUS='"+$appStatus+"' order by 1 desc";	
+	}else{
+		$query ="select count(*) from ssap_applications where CMR_HOUSEOLD_ID="+$cmrHouseholdId+" order by 1 desc";	
+	}
+	
+	_log($query);
+	var $SSAPApplicationsDataDB = $db.select($query);
+	return $SSAPApplicationsDataDB;
+}
+
+function getSSAPApplicationsCountByExtAppId($extAppId,$appStatus){
+
+	var $query;
+	if($appStatus){
+		$query ="select count(*) from ssap_applications where EXTERNAL_APPLICATION_ID='"+$extAppId+"' and APPLICATION_STATUS='"+$appStatus+"' order by 1 desc";	
+	}else{
+		$query ="select count(*) from ssap_applications where EXTERNAL_APPLICATION_ID='"+$extAppId+"' order by 1 desc";	
+	}
+	
+	_log($query);
+	var $SSAPApplicationsDataDB = $db.select($query);
+	return $SSAPApplicationsDataDB;
+}
+
+function getAddressFromLocationsDB($locationId){
+	var $addressFromDB = {};
+	var $query ="select ADDRESS1,CITY,STATE,ZIP from locations where id = "+$locationId;
+	_log($query);
+	var $addressDB = $db.select($query);
+	_log("getAddressFromLocations  table: "+$addressDB);
+	$addressFromDB.ADDRESS1 = $addressDB[0][0];
+	$addressFromDB.CITY = $addressDB[0][1];
+	$addressFromDB.STATE = $addressDB[0][2];
+	$addressFromDB.ZIP = $addressDB[0][3];
+	return $addressFromDB;
+}
+
+function getApplicantsDataDB($applicationId){
+	var $applicantsData = [];
+	
+	var $query ="select ID,EXTERNAL_APPLICANT_ID,FIRST_NAME,LAST_NAME,BIRTH_DATE,GENDER,MARRIED,TOBACCOUSER,APPLYING_FOR_COVERAGE,HOUSEHOLD_CONTACT_FLAG,SSAP_APPLICATION_ID,MAILIING_LOCATION_ID,PRIMARY_LOC_ID,SSN,PERSON_ID, PHONE_NUMBER,EMAIL_ADDRESS, CSR_LEVEL, MONTHLY_APTC_AMOUNT,ELIGIBILITY_STATUS,RELATIONSHIP,NATIVE_AMERICAN_FLAG,STATUS,ON_APPLICATION,APPLICANT_GUID from ssap_applicants where ssap_application_id="+$applicationId+" order by PERSON_ID";
+	_log($query);
+	
+	var $applicantsDataDB = $db.selectWithHeader($query);
+	_log("applicantsDataDB  table: "+$applicantsDataDB);
+	
+	// loop to return data in key:value format --> $applicantsData[0].EXTERNAL_APPLICANT_ID
+	for (var $j=1;$j<$applicantsDataDB.length;$j++){
+		var $applicants={};
+		
+		for (var $i=0;$i<$applicantsDataDB[0].length;$i++){
+			$applicants[$applicantsDataDB[0][$i]]=$applicantsDataDB[$j][$i];
+		}
+		
+		$applicantsData.push($applicants);
+	}
+	
+	var $str = JSON.stringify($applicantsData);
+	_log("JSON: "+$str);
+	return $applicantsData;
+}
+
+function getSsapApplicationEventsDataDB($applicationId){
+	var $ssapApplicationEventsData = [];
+	
+	var $query ="select * from ssap_application_events where SSAP_APPLICATION_ID="+$applicationId;
+	_log($query);
+	
+	var $ssapApplicationEventsDataDB = $db.selectWithHeader($query);
+	_log("ssapApplicationEventsDataDB  table: "+$ssapApplicationEventsDataDB);
+	
+	// loop to return data in key:value format --> $renewalApplications[0].EXTERNAL_APPLICANT_ID
+	for (var $j=1;$j<$ssapApplicationEventsDataDB.length;$j++){
+		var $ssapApplicationEvents={};
+		
+		for (var $i=0;$i<$ssapApplicationEventsDataDB[0].length;$i++){
+			$ssapApplicationEvents[$ssapApplicationEventsDataDB[0][$i]]=$ssapApplicationEventsDataDB[$j][$i];
+		}
+		
+		$ssapApplicationEventsData.push($ssapApplicationEvents);
+	}
+	
+	var $str = JSON.stringify($ssapApplicationEventsData);
+	_log("JSON: "+$str);
+	return $ssapApplicationEventsData;
+}
+
+function getSsapApplicantEventsDataDB($applicantsDataDB){
+	var $applicantEventsData = [];
+	var $applicantsId = [];
+	for (var $i = 0; $i < $applicantsDataDB.length; $i++) {
+		$applicantsId[$i] = $applicantsDataDB[$i].ID;
+	}
+	$applicantsId = $applicantsId.toString();
+	_log("$applicantsId: "+$applicantsId);
+	
+	var $query ="select * from ssap_applicant_events where ssap_applicant_id in ("+$applicantsId+") order by SSAP_APPLICANT_ID";
+	_log($query);
+	
+	var $applicantEventsDataDB = $db.selectWithHeader($query);
+	_log("applicantEventsDataDB  table: "+$applicantEventsDataDB);
+	
+	// loop to return data in key:value format --> $applicantEventsData[0].EXTERNAL_APPLICANT_ID
+	for (var $j=1;$j<$applicantEventsDataDB.length;$j++){
+		var $applicantsEvent={};
+		
+		for (var $i=0;$i<$applicantEventsDataDB[0].length;$i++){
+			$applicantsEvent[$applicantEventsDataDB[0][$i]]=$applicantEventsDataDB[$j][$i];
+		}
+		
+		$applicantEventsData.push($applicantsEvent);
+	}
+	
+	var $str = JSON.stringify($applicantEventsData);
+	_log("JSON: "+$str);
+	return $applicantEventsData;
+}
+function getProgramEligibilitiesDataDB($ssapApplicantId,$eligibilityType){
+	
+	var $query ="select ID,ELIGIBILITY_TYPE,ELIGIBILITY_INDICATOR,ELIGIBILITY_START_DATE,ELIGIBILITY_END_DATE,ELIGIBILITY_DETERMINATION_DATE, INELIGIBLE_REASON from program_eligibilities where SSAP_APPLICANT_ID = "+$ssapApplicantId+" and ELIGIBILITY_TYPE = '"+$eligibilityType+"' order by ELIGIBILITY_TYPE desc";
+	_log($query);
+	
+	var $programEligibilitiesDataDB = $db.selectWithHeader($query);
+	_log("ProgramEligibilitiesDataDB table: "+$programEligibilitiesDataDB);
+	
+	var $programEligibilitiesData = {};
+		
+	for (var $i=0;$i<$programEligibilitiesDataDB[0].length;$i++){
+		$programEligibilitiesData[$programEligibilitiesDataDB[0][$i]]=$programEligibilitiesDataDB[1][$i];
+	}
+	var $str = JSON.stringify($programEligibilitiesData);
+	_log("JSON: "+$str);
+	return $programEligibilitiesData;
+}
+
+function getRenewalApplicationsDataDB($applicationId){
+	var $renewalApplicationsData = [];
+	
+	var $query ="select * from renewal_applications where ssap_application_id="+$applicationId;
+	_log($query);
+	
+	var $renewalApplicationsDataDB = $db.selectWithHeader($query);
+	_log("renewalApplicationsDataDB  table: "+$renewalApplicationsDataDB);
+	
+	// loop to return data in key:value format --> $renewalApplications[0].EXTERNAL_APPLICANT_ID
+	for (var $j=1;$j<$renewalApplicationsDataDB.length;$j++){
+		var $renewalApplications={};
+		
+		for (var $i=0;$i<$renewalApplicationsDataDB[0].length;$i++){
+			$renewalApplications[$renewalApplicationsDataDB[0][$i]]=$renewalApplicationsDataDB[$j][$i];
+		}
+		
+		$renewalApplicationsData.push($renewalApplications);
+	}
+	
+	var $str = JSON.stringify($renewalApplicationsData);
+	_log("JSON: "+$str);
+	return $renewalApplicationsData;
+}
+
+function getRenewalApplicantsDataDB($applicationId){
+	var $renewalApplicantsData = [];
+	
+	var $query ="select * from renewal_applicants where ssap_application_id="+$applicationId;
+	_log($query);
+	
+	var $renewalApplicantsDataDB = $db.selectWithHeader($query);
+	_log("renewalApplicantsDataDB  table: "+$renewalApplicantsDataDB);
+	
+	// loop to return data in key:value format --> $renewalApplications[0].EXTERNAL_APPLICANT_ID
+	
+	for (var $j=1;$j<$renewalApplicantsDataDB.length;$j++){
+		var $renewalApplications={};
+		for (var $i=0;$i<$renewalApplicantsDataDB[0].length;$i++){
+			$renewalApplications[$renewalApplicantsDataDB[0][$i]]=$renewalApplicantsDataDB[$j][$i];
+		}
+		
+		$renewalApplicantsData.push($renewalApplications);
+	}
+	
+	var $str = JSON.stringify($renewalApplicantsData);
+	_log("JSON: "+$str);
+	return $renewalApplicantsData;
+}
+
+function getEnrollmentDataDB($ssapApplicationId,$insuranceTypeLkp,$exchngSubscriberIdentifier,$planId){
+	var $enrollmentData = [];
+	var $query ="select * from enrollment where SSAP_APPLICATION_ID="+$ssapApplicationId+" and INSURANCE_TYPE_LKP = '"+$insuranceTypeLkp+"' and EXCHG_SUBSCRIBER_IDENTIFIER = '"+$exchngSubscriberIdentifier+"' and PLAN_ID="+$planId+" order by 1 desc";
+	_log($query);
+	
+	var $enrollmentDataDB = $db.selectWithHeader($query);
+	_log("enrollmentDataDB table: "+$enrollmentDataDB);
+	
+	for (var $j=1;$j<$enrollmentDataDB.length;$j++){
+		// loop to return data in key:value format --> $enrollmentData[0].SPONSOR_NAME
+		var $enrollment = {};
+		for (var $i=0;$i<$enrollmentDataDB[0].length;$i++){
+			$enrollment[$enrollmentDataDB[0][$i]]=$enrollmentDataDB[$j][$i];
+		}
+		$enrollmentData.push($enrollment);
+	}
+
+	var $str = JSON.stringify($enrollmentData);
+	_log("JSON: "+$str);
+	return $enrollmentData;
+}
+
+function getGrossPremiumFromEnrollment($exchngSubscriberIdentifier,$insuranceType){
+	
+	var $query ="select GROSS_PREMIUM_AMT from enrollment where ENROLLMENT_STATUS_LKP ='1765' and INSURANCE_TYPE_LKP = '"+$insuranceType+"' and EXCHG_SUBSCRIBER_IDENTIFIER = '"+$exchngSubscriberIdentifier+"' order by 1";
+				
+	_log($query);
+	
+	var $enrollmentDataDB = $db.select($query);
+	_log("enrollmentDataDB table: "+$enrollmentDataDB);
+	return $enrollmentDataDB[0][0];
+}
+
+function getCountOfEnrollee($enrollmentId){
+	var $query ="select COUNT(*) from enrollee where enrollment_id="+$enrollmentId;
+	_log($query);
+	
+	var $countOfEnrollee = $db.select($query);
+	_log("countOfEnrollee : "+$countOfEnrollee[0][0]);
+	return $countOfEnrollee[0][0];
+}
+
+function getLookupValueDataByValueIdDB($lookupValueId){
+	
+	var $query ="select * from lookup_value where lookup_value_id="+$lookupValueId;
+	_log($query);
+	
+	var $lookupValueDataDB = $db.selectWithHeader($query);
+	_log("lookupValueDataDB table: "+$lookupValueDataDB);
+	
+	
+	// loop to return data in key:value format
+	var $lookupValueData = {};
+	for (var $i=0;$i<$lookupValueDataDB[0].length;$i++){
+		$lookupValueData[$lookupValueDataDB[0][$i]]=$lookupValueDataDB[1][$i];
+	}
+	
+	var $str = JSON.stringify($lookupValueData);
+	_log("JSON: "+$str);
+	return $lookupValueData;
+}
+
+function getSubscriberLookupValueIdDB(){
+	var $query ="select LOOKUP_VALUE_ID from lookup_value where LOOKUP_VALUE_LABEL = 'Subscriber'";
+	_log($query);
+	var $subscriberLookupValueIdDB = $db.select($query);
+	_log("SubscriberLookupValueIdDB : "+$subscriberLookupValueIdDB[0][0]);
+	return $subscriberLookupValueIdDB[0][0];
+}
+
+function getEnrolleeLookupValueIdDB(){
+	var $query ="select LOOKUP_VALUE_ID from lookup_value where LOOKUP_VALUE_LABEL = 'Enrollee'";
+	_log($query);
+	var $enrolleeLookupValueIdDB = $db.select($query);
+	_log("EnrolleeLookupValueIdDB : "+$enrolleeLookupValueIdDB[0][0]);
+	return $enrolleeLookupValueIdDB[0][0];
+}
+
+
+
+function getEnrolleeRaceDB($enroleeId){
+	var $query ="select LOOKUP_VALUE_LABEL from lookup_value where lookup_value_id in (select RACE_ETHNICITY_LKP from ENROLLEE_RACE where ENROLEE_ID="+$enroleeId+")";
+	_log($query);
+	var $enrolleeRaceDB = $db.select($query);
+	var $enrolleeRaceArrDB = [];
+	for (var $i = 0; $i < $enrolleeRaceDB.length; $i++) {
+		$enrolleeRaceArrDB[$i] = $enrolleeRaceDB[$i][0];
+	}
+	_log("EnrolleeRace : "+$enrolleeRaceArrDB.toString());
+	
+	return $enrolleeRaceArrDB;
+}
+
+function getEnrolleeLanguageDB($enrolleeDataDB){
+
+	var $query ="select LOOKUP_VALUE_LABEL from lookup_value where lookup_value_id = "+$enrolleeDataDB[0].LANGUAGE_SPOKEN_LKP;
+	_log($query);
+	var $enrolleeLanguageDB = $db.select($query);
+	var $enrolleeLanguageObjDB = {};
+	
+	$enrolleeLanguageObjDB.spokenLanguage = $enrolleeLanguageDB[0][0];
+
+	$query ="select LOOKUP_VALUE_LABEL from lookup_value where lookup_value_id = "+$enrolleeDataDB[0].LANGUAGE_WRITTEN_LKP;
+	_log($query);
+	$enrolleeLanguageDB = $db.select($query);
+	$enrolleeLanguageObjDB.writtenLanguage = $enrolleeLanguageDB[0][0];
+	var $str = JSON.stringify($enrolleeLanguageObjDB);
+	_log("enrolleeLanguageObjDB : "+$str);
+	
+	return $enrolleeLanguageObjDB;
+}
+
+function getEnrolleeGenderDB($enrolleeDataDB){
+	var $query ="select LOOKUP_VALUE_LABEL from lookup_value where lookup_value_id = "+$enrolleeDataDB[0].GENDER_LKP;
+	_log($query);
+	var $enrolleeGenderDB = $db.select($query);
+	return $enrolleeGenderDB[0][0];
+}
+
+function getEnrolleeMaritalStatusDB($enrolleeDataDB){
+	var $query ="select LOOKUP_VALUE_CODE from lookup_value where lookup_value_id = "+$enrolleeDataDB[0].MARITAL_STATUS_LKP;
+	_log($query);
+	var $enrolleeMaritalStatusDB = $db.select($query);
+	return $enrolleeMaritalStatusDB[0][0];
+}
+
+function getEnrolleeDataDB($enrollmentId,$SSN,$personType){
+	var $enrolleeData = [];
+	
+	var $query ="select ID,TAX_ID_NUMBER,LAST_NAME,FIRST_NAME,PRIMARY_PHONE_NO,HOME_ADDRESS_ID,BIRTH_DATE,GENDER_LKP,MAILING_ADDRESS_ID,TOTAL_INDV_RESPONSIBILITY_AMT,RATING_AREA,ENROLLEE_STATUS_LKP,MARITAL_STATUS_LKP,EFFECTIVE_START_DATE,EFFECTIVE_END_DATE,EXCHG_INDIV_IDENTIFIER,PERSON_TYPE_LKP,RESP_PERSON_ID_CODE,RELATIONSHIP_HCP_LKP,DEATH_DATE,ENROLLMENT_REASON,LAST_EVENT_ID,HEALTH_COV_PREM_EFF_DATE,DISENROLL_TIMESTAMP,RATING_AREA_EFF_DATE,QUOTING_DATE,LANGUAGE_SPOKEN_LKP,LANGUAGE_WRITTEN_LKP from enrollee where enrollment_id="+$enrollmentId+" and TAX_ID_NUMBER = "+$SSN+" and PERSON_TYPE_LKP = "+$personType+" order by CREATION_TIMESTAMP";
+	_log($query);
+	
+	var $enrolleeDataDB = $db.selectWithHeader($query);
+	_log("EnrolleeDataDB : "+$enrolleeDataDB);
+
+	for (var $j=1;$j<$enrolleeDataDB.length;$j++){
+		// loop to return data in key:value format --> $enrolleeData[0].SPONSOR_NAME
+		var $enrollee = {};
+		for (var $i=0;$i<$enrolleeDataDB[0].length;$i++){
+			$enrollee[$enrolleeDataDB[0][$i]]=$enrolleeDataDB[$j][$i];
+		}
+		$enrolleeData.push($enrollee);
+	}
+	var $str = JSON.stringify($enrolleeData);
+	_log("JSON: "+$str);
+	return $enrolleeData;
+}
+
+function getEnrollmentEventDataDB($enrollmentId,$enrolleeId){
+	var $enrollmentEventData = [];
+	var $query;
+	if ($enrolleeId) {
+		$query ="select * from enrollment_event where enrollment_id="+$enrollmentId+" and ENROLLEE_ID = "+$enrolleeId+" order by CREATION_TIMESTAMP";
+	}else{
+		$query ="select * from enrollment_event where enrollment_id="+$enrollmentId+" order by CREATION_TIMESTAMP";
+	}
+	
+	
+	_log($query);
+	
+	var $enrollmentEventDataDB = $db.selectWithHeader($query);
+	_log("enrollmentEventDataDB : "+$enrollmentEventDataDB);
+
+	for (var $j=1;$j<$enrollmentEventDataDB.length;$j++){
+		// loop to return data in key:value format --> $enrolleeData[0].SPONSOR_NAME
+		var $enrollee = {};
+		for (var $i=0;$i<$enrollmentEventDataDB[0].length;$i++){
+			$enrollee[$enrollmentEventDataDB[0][$i]]=$enrollmentEventDataDB[$j][$i];
+		}
+		$enrollmentEventData.push($enrollee);
+	}
+	var $str = JSON.stringify($enrollmentEventData);
+	_log("JSON: "+$str);
+	return $enrollmentEventData;
+}
+
+function getCMSPlanId($plan, $HouseHoldIdCaseId){
+	var $insuranceType;
+	if($plan =="dental"){
+		$insuranceType = 1831;
+	}
+	else{
+		$insuranceType = 1832;
+	}
+	var $query ="select CMS_Plan_id from enrollment where INSURANCE_TYPE_LKP = '"+$insuranceType+"' and Household_case_id = "+$HouseHoldIdCaseId;
+	_log($query);
+
+	var $CMSPlanId = $db.select($query);
+	_log("CMSPlanId : "+$CMSPlanId[0][0]);
+	return $CMSPlanId[0][0];
+
+}
+
+
+function getExchangeAssignedPolicyId($plan, $HouseHoldIdCaseId){
+	var $insuranceType;
+	if($plan =="dental"){
+		$insuranceType = 1831;
+	}
+	else{
+		$insuranceType = 1832;
+	}
+	var $query ="select id from enrollment where INSURANCE_TYPE_LKP = '"+$insuranceType+"' and Household_case_id = "+$HouseHoldIdCaseId;
+	_log($query);
+
+	var $policyId = $db.select($query);
+	_log("Exchange Assigned Policy ID: "+$policyId[0][0]);
+	return $policyId[0][0];
+
+}
+
+function getSSAPapplicationId($householdCaseId){
+	var $query ="select prior_ssap_application_id from enrollment where INSURANCE_TYPE_LKP = '1832'  and Household_case_id = "+$householdCaseId;
+	_log($query);
+	var $applicationId = $db.select($query);
+	_log("Exchange Assigned application ID: "+$applicationId[0][0]);
+	return $applicationId[0][0];
+}
+
+function getIndividualRespAmountFromEnrolee($ssn,$planId,$insuranceType,$enrollmentStatus,$extHouseholdCaseID){
+	var $query ="select TOTAL_INDV_RESPONSIBILITY_AMT from enrollee where TAX_ID_NUMBER = "+$ssn+" and TOTAL_INDV_RESPONSIBILITY_AMT is not null and enrollment_id=(select id from enrollment where PLAN_ID = "+$planId+" and INSURANCE_TYPE_LKP='"+$insuranceType+"' and ENROLLMENT_STATUS_LKP='"+$enrollmentStatus+"' and EXT_HOUSEHOLD_CASE_ID='"+$extHouseholdCaseID+"') order by 1 desc";
+	_log($query);
+	var $individualRespAmountFromEnrolee = $db.select($query);
+	var $amount = $individualRespAmountFromEnrolee[0][0];
+	$amount = parseFloat($amount).toFixed(2);
+	_log("individualRespAmountFromEnrolee: "+$amount);
+	return $amount;
+}
+
+
+function getSSAPApplicationStatusDB($externalAppId){
+	var $query ="select APPLICATION_STATUS from ssap_applications where EXTERNAL_APPLICATION_ID = '"+$externalAppId+"' order by 1 desc";
+	_log($query);
+	var $applicationStatus = $db.select($query);
+	_log("APPLICATION_STATUS: "+$applicationStatus[0][0]);
+	return $applicationStatus[0][0];
+}
+
+
+
+function getPlanIdByPlanDetailsDB($issuerPlanNumber,$planName,$applicableYear,$insuranceType,$issuerName){
+	var $query ="select id,name from plan where ISSUER_PLAN_NUMBER like '"+$issuerPlanNumber+"' and APPLICABLE_YEAR = "+$applicableYear+" and INSURANCE_TYPE = '"+$insuranceType+"' and STATUS = 'CERTIFIED' and ENROLLMENT_AVAIL = 'AVAILABLE' and ISSUER_VERIFICATION_STATUS = 'VERIFIED' and IS_DELETED = 'N' and issuer_id = (select id from issuers where name='"+$issuerName+"')";
+	_log($query);
+	var $planId = $db.select($query);
+	_log("$planId: "+$planId[0][0]);
+	_log("$name: "+$planId[0][1]);
+	return $planId;
+}
+
+function getPlanDetailsByIdDB($planId){
+	var $query ="select name,ISSUER_PLAN_NUMBER from plan where ID="+$planId;
+	_log($query);
+	var $planDetails = $db.select($query);
+	_log("$name: "+$planDetails[0][0]);
+	_log("issuer plan number: "+$planDetails[0][1]);
+	return $planDetails;
+}
+
+function getPlanEhbPremiumByIdDB($planId){
+	var $query ="select EHB_PREMIUM_FRACTION from plan where ID="+$planId;
+	_log($query);
+	var $planDetails = $db.select($query);
+	_log("$planDetails: "+$planDetails[0][0]);
+	return $planDetails;
+}
+
+function getRecordsByMedIdDB($medId){
+	var $totalCount=0;
+	var $query ="select count(*) from enrollee where EXCHG_INDIV_IDENTIFIER='"+$medId+"'";
+	_log($query);
+	var $countDB = $db.select($query);
+	_log("$count: "+$countDB[0][0]);
+	$totalCount = $totalCount + $countDB[0][0];
+
+	var $queryTwo ="select count(*) from enrollment where EXCHG_SUBSCRIBER_IDENTIFIER = '"+$medId+"'";
+	_log($queryTwo);
+	$countDB = $db.select($queryTwo);
+	_log("$count: "+$countDB[0][0]);
+	$totalCount = $totalCount + $countDB[0][0];
+
+	var $queryThree ="select count(*) from ssap_applicants where EXTERNAL_APPLICANT_ID='"+$medId+"'";
+	_log($queryThree);
+	$countDB = $db.select($queryThree);
+	_log("$count: "+$countDB[0][0]);
+	$totalCount = $totalCount + $countDB[0][0];
+
+	return $totalCount;
+}
+
+function getFalloutReasonCode($lookupValueLabel){
+	var $query ="select LOOKUP_VALUE_ID from lookup_value where LOOKUP_VALUE_LABEL='"+$lookupValueLabel+"'";
+	_log($query);
+	var $falloutReasonCode = $db.select($query);
+	_log("$falloutReasonCode[0][0]: "+$falloutReasonCode[0][0]);
+
+	return $falloutReasonCode[0][0];
+}
+
+function getCrossWalkPlan($group){
+	var $currentHiosPlanId = "";
+	if($group.healthPlan != "null"){
+		$currentHiosPlanId = $group.healthPlan.issuerPlanNumber;	
+	}else{
+		$currentHiosPlanId = $group.dentalPlan.issuerPlanNumber;	
+	}
+	
+	$currentHiosPlanId = $currentHiosPlanId.substring(0,$currentHiosPlanId.length-2);
+	var $coverageYear = parseInt($group.coverageYear)+1;
+	var $query ="select crosswalk_hios_plan_id from pm_crosswalk where current_hios_plan_id = '"+$currentHiosPlanId+"' and applicable_year="+$coverageYear+" and is_deleted='N'";
+	_log($query);
+	var $crossWalkPlanId = $db.select($query);
+	_log("$crossWalkPlanId: "+$crossWalkPlanId);
+
+	return $crossWalkPlanId;
+}
+
+function getUserWithUsername($username){
+	$username = $username.toLowerCase();
+	var $query ="select USERNAME from users where USERNAME='"+$username+"'";
+	_log($query);
+	var $username = $db.select($query);
+	_log("$username: "+$username);
+
+	return $username;
+}
+
+function createNewCrsUser($username,$role){
+	var $notInUse = _fetch(window.moment().format('YYMMDDhhmmss'));
+	var $firstName = $role.replace("_","");
+	var $lastName = $role.replace("_","");
+	var $insertQueryUsers = "insert into users (id, first_name, last_name, password, UUID,recovery, username, email, confirmed, status) values (users_seq.nextval,'"+$firstName+"','"+$lastName+"', '$2a$10$.SNF9LnSbESXh/EH5yjlPe8ePh7qyJJP2wvWsQ/Zf48KjXjS7TQRS','2f398f71-5b6a-46ae-8032-e915391f141a','"+$notInUse+"', '"+$username+"','"+$username+"', 1, 'Active')";
+	_log("query 1: "+$insertQueryUsers);
+	$db.update($insertQueryUsers);
+
+	_wait(5000);
+	var $insertQueryUserRoles = "insert into user_roles (id, creation_timestamp, last_update_timestamp, role_id,user_id, default_role, is_active) values (user_roles_seq.nextval, SYSDATE, SYSDATE, (select id from roles where name='"+$role+"'), (select id from users where email='"+$username+"'), 'Y', 'Y')";
+	_log("query 1: "+$insertQueryUserRoles);
+	$db.update($insertQueryUserRoles);
+
+}
+
+function getOverridenCovStartDateFromDb($caseNumber){
+	var $query = "select id, overwritten_coverage_date from ssap_application_events where ssap_application_id in (select id from ssap_applications where case_number='"+$caseNumber+"')";
+    _log($query);
+    var $overridenCoverageDate = $db.select($query);
+    _log("Overridden Coverage Date:  "+$overridenCoverageDate);
+    return $overridenCoverageDate;
+}
+
+function getEnrollmentPremiumDB($enrollmentId){
+	var $query = "select * from enrollment_premium where enrollment_id="+$enrollmentId+" order by MONTH"; 
+	_log($query);
+	var $enrollmentPremiumDB = $db.selectWithHeader($query); 
+	var $enrollmentPremiumMonth={};
+	var $enrollmentPremiumAllMonths=[];
+
+	//var $renewalApplicationsDataDB = $db.selectWithHeader($query);
+	_log("enrollmentPremiumDB  table: "+$enrollmentPremiumDB);
+	
+	// loop to return data in key:value format
+	for (var $j=1;$j<$enrollmentPremiumDB.length;$j++){
+
+		for (var $i = 0; $i < $enrollmentPremiumDB[0].length; $i++) {
+			var $propertyName = $enrollmentPremiumDB[0][$i];
+			$enrollmentPremiumMonth[$propertyName] = $enrollmentPremiumDB[$j][$i];
+		}
+		var $monthData = JSON.parse(JSON.stringify($enrollmentPremiumMonth));
+		$enrollmentPremiumAllMonths[$j-1]=$monthData;
+	}
+	
+	var $str = JSON.stringify($enrollmentPremiumAllMonths);
+	_log("JSON: "+$str);
+	return $enrollmentPremiumAllMonths;
+
+}
+
+function getSlcspHistoryDB($household){
+	
+	var $query = "select * from cmr_hh_slcsp_history where CMR_HOUSEHOLD_ID="+$household.cmrHouseholdId+" and YEAR="+$household.coverageYear+" order by MONTH"; 
+	_log($query);
+	var $enrollmentPremiumDB = $db.selectWithHeader($query); 
+	var $enrollmentPremiumMonth={};
+	var $enrollmentPremiumAllMonths=[];
+
+	//var $renewalApplicationsDataDB = $db.selectWithHeader($query);
+	_log("enrollmentPremiumDB  table: "+$enrollmentPremiumDB);
+	
+	// loop to return data in key:value format
+	for (var $j=1;$j<$enrollmentPremiumDB.length;$j++){
+
+		for (var $i = 0; $i < $enrollmentPremiumDB[0].length; $i++) {
+			var $propertyName = $enrollmentPremiumDB[0][$i];
+			$enrollmentPremiumMonth[$propertyName] = $enrollmentPremiumDB[$j][$i];
+		}
+		var $monthData = JSON.parse(JSON.stringify($enrollmentPremiumMonth));
+		$enrollmentPremiumAllMonths[$j-1]=$monthData;
+	}
+	
+	var $str = JSON.stringify($enrollmentPremiumAllMonths);
+	_log("JSON: "+$str);
+	return $enrollmentPremiumAllMonths;
+
+}
+
+function updateStatusInDesignateBrokerTableToInactive($individualCaseId){
+	var $designationDate = getCurrentDate("DD-MMM-YY hh.mm.ss.SSSSSSSSS A");
+	var $updateStatusInDesignateBrokerTableQuery = "update designate_broker set STATUS='InActive' where EXTERNALINDIVIDUALID="+$individualCaseId;
+	_log($updateStatusInDesignateBrokerTableQuery);
+	$db.update($updateStatusInDesignateBrokerTableQuery);
+}
+
+function updateStatusInDesignateBrokerTableToActive($individualCaseId){
+	var $designationDate = getCurrentDate("DD-MMM-YY hh.mm.ss.SSSSSSSSS A");
+	var $updateStatusInDesignateBrokerTableQuery = "update designate_broker set STATUS='Active' where EXTERNALINDIVIDUALID="+$individualCaseId;
+	_log($updateStatusInDesignateBrokerTableQuery);
+	$db.update($updateStatusInDesignateBrokerTableQuery);
+}
+
+function updateBrokerIdInDesignateBrokerTable($individualCaseId,$newBrokerId){
+	var $designationDate = getCurrentDate("DD-MMM-YY hh.mm.ss.SSSSSSSSS A");
+	var $updateStatusInDesignateBrokerTableQuery = "update designate_broker set BROKERID='"+$newBrokerId+"' where EXTERNALINDIVIDUALID="+$individualCaseId;
+	_log($updateStatusInDesignateBrokerTableQuery);
+	$db.update($updateStatusInDesignateBrokerTableQuery);
+}
+
+function getCmrIdForIndividual($individualCaseId){
+	var $query = "select CMR_HOUSEOLD_ID from ssap_applications where id = (select SSAP_APPLICATION_ID from ssap_applicants where applicant_guid='"+$individualCaseId+"' and rownum =1)";
+    _log($query);
+    var $cmrHouseholdId = $db.select($query);
+    _log("cmrHouseholdId:  "+$cmrHouseholdId);
+    return $cmrHouseholdId;
+}
+
+function getAccountActivationDataDB($externalCaseId){
+	var $accountActivationData = [];
+	
+	var $query ="select * from account_activation where CREATED_OBJECT_ID=(select id from cmr_household where EXTERNAL_HOUSEHOLD_CASE_ID='"+$externalCaseId+"')";
+	_log($query);
+	$db = getDb();
+	var $accountActivationDataDB;
+
+	for (var $n = 0; $n < 10; $n++) {
+		 $accountActivationDataDB = $db.selectWithHeader($query);
+		 if ($accountActivationDataDB.length > 1) break;
+		 _wait(5000);
+		 _log("waiting..."+$n);
+	}
+	
+	// loop to return data in key:value format --> $accountActivationData[0].ID
+	for (var $j=1;$j<$accountActivationDataDB.length;$j++){
+		var $accountActivationObj={};
+		
+		for (var $i=0;$i<$accountActivationDataDB[0].length;$i++){
+			$accountActivationObj[$accountActivationDataDB[0][$i]]=$accountActivationDataDB[$j][$i];
+		}
+		
+		$accountActivationData.push($accountActivationObj);
+	}
+	
+	var $str = JSON.stringify($accountActivationData);
+	_log("JSON: "+$str);
+	return $accountActivationData;
+}

@@ -1,0 +1,153 @@
+_includeOnce("../lib/Utils.sah");
+
+
+
+/**
+* Step 1: Agency Creation from Integrated Environment
+*/
+	
+var $businessName = "Agency_"+ randomString(4,"A");
+
+function  IntegrationEnvCreateAgency(){
+	
+	var $agencyEINNumber = randomStringWithoutStartingZero(9, "N");
+	var $agencyManagerName = "AgencyManager" + randomString(4,"A");
+	var $licenseNumber = randomStringWithoutStartingZero(7,"N"); 
+	var $managerEmail = $agencyManagerName+"yopmail.com"
+	
+	_click(_link("Start Here to Create an Account"));
+	_click(_link("Create Account", _near(_div("Insurance Agency"))));
+	_check(_checkbox("checkBoxTermCondition"))
+	_click(_submit("Continue"));
+	
+	//Business Information page
+	_assertVisible(_heading2("Business Information"));
+	_setValue(_textbox("businessLegalName"), $businessName);
+	_setValue(_textbox("federalEIN"), $agencyEINNumber);
+	_click(_button("Continue"));
+		
+	//UserInformarion
+	_assertVisible(_heading2("/USER INFORMATION/"));
+	_setValue(_textbox("firstName"), $agencyManagerName);
+	_setValue(_textbox("lastName"), $agencyManagerName);
+	_setValue(_textbox("dateOfBirth"), "10/10/1990");
+	_setValue(_textbox("brokerLicenseNumber"), $licenseNumber);
+	_setSelected(_select("preferredModeOfComm"), "Phone");
+	_click(_button("Continue"));
+	
+	//Contact Information
+	_assertVisible(_heading2("/CONTACT INFORMATION/"));
+	_setValue(_textbox("streetAddress1"), "1120 N Street");
+	_setValue(_textbox("city"), " Sacramento");
+	_setValue(_textbox("zipCode"), "95814");
+	_setValue(_textbox("email"), $managerEmail);
+	_setValue(_textbox("phoneNumber"), "4088650073");
+	_click(_button("Continue"));
+	
+	//Confirm mailing Address Pop up
+	_assertVisible(_link("Confirm Your Mailing Address"));
+	_click(_button("button-ok"));
+	
+	// User Name And Password
+	_assertVisible(_heading2("USERNAME & PASSWORD"));
+	_setValue(_textbox("userName"), $agencyManagerName);
+	_setValue(_password("newPassword"), "Ghix123#");
+	_setValue(_password("reEnterNewPassword"), "Ghix123#");
+	_check(_div("recaptcha-checkbox-checkmark"));
+	_setValue(_password("newPIN"), "1234");
+	_setValue(_password("reEnterNewPIN"), "1234");
+	_click(_button("Continue"));
+	_assertVisible(_heading2("Account Summary"));
+	_click(_button("Continue"));
+	
+	//Create Account Confirmation popup
+	_click(_button("Log In"));
+	return agencyManagerName;
+	
+}
+
+
+/**
+* Step 2: Login function on Integrated Environment
+*/
+	
+
+function IntegrationEnvlogin($userName, $password){
+	_setValue(_textbox("Username"), $userName);
+	_setValue(_password("pass"), $password);
+	_click(_submit("Log In"));	
+	_assertNotVisible(_submit("Log In"));
+}
+
+
+
+function IntegrationEnvEnterSecurityQuestions(){
+	// Question 1
+	_setSelected(_select("securityQuestion1"), "What was the model of your first car?");
+	_setValue(_textbox("securityAnswer1"), "car");
+	
+	//Question 2
+	_setSelected(_select("securityQuestion2"), "What was the name of your first pet?");
+	_setValue(_textbox("securityAnswer2"), "pet");
+	
+	//Question 3
+	_setSelected(_select("securityQuestion3"), "What was the first name of your first boss?");
+	_setValue(_textbox("securityAnswer3"), "boss");
+	
+	_click(_submit("Continue"));
+	
+	//Login Assistance Page
+	_assertVisible(_heading2("LOGIN ASSISTANCE - REGISTER EMAIL AND PHONE NUMBER"));
+	_check(_checkbox("optOutOTP"));
+	_click(_button("Continue"));
+	
+	//Opt Out Confirmation 
+	_assertVisible(_link("Opt Out Confirmation"));
+	_click(_span("Continue[1]"));
+	
+	// Legal Notice
+	_assertVisible(_heading2("Legal Notice"));
+	_click(_button("Continue"));
+	_assertVisible(_heading4("Step 1: Agency Information"));
+}
+
+function IntegrationEnvEnterAgencyInformation(){
+	fillAgencyInformationRequired($businessName);
+	
+}
+	
+///Broker LogIn Flow
+
+function IntegrationEnvClickContinue(){
+	
+	if(_isVisible(_heading2("Answer Question"))){
+		var $Question = _getText(_label(0));
+		var text = _getText(_label(0)).split(" ")
+	text[text.length()-1]
+		_setValue(_password("answer"), "123");
+	
+	}
+	_click(_button("Continue"));
+	_assertVisible(_link("Agents"));
+}
+
+function IntegrationEnvCertifyAgent(){
+	
+	
+	
+	
+}	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

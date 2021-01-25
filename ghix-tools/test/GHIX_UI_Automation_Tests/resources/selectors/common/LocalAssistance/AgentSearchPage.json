@@ -1,0 +1,10 @@
+{
+  "pageHeader": "$('h1')",
+  "searchByName":
+  {
+    "tb_agent_firstName": "$('#firstName')",
+    "tb_agent_lastName": "$('#lastName')",
+    "tb_agent_businessName": "$('#companyName')",
+    "btn_submit":"$('#submit')"
+  }
+}

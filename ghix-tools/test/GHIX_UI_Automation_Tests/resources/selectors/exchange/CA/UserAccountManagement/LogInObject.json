@@ -1,0 +1,5 @@
+{
+    "dd_myAccount_CAP":"$('//span[contains(text(),\"My Account\")]')",
+    "lk_logout":"$('*=Log Out')",
+    "lk_logout2":"$('#aid_logout_01')"
+}

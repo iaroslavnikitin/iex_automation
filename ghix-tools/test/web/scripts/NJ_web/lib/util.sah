@@ -1,0 +1,592 @@
+_includeOnce("DB.sah");
+
+$FIELD_LENGTH = 10;
+function getBaseURL() {
+	var $baseUrl = _suiteInfo()["baseURL"]
+	_log("Base URL = "+ $baseUrl);
+	return _suiteInfo()["baseURL"];
+}
+
+function getBaseDomain(){
+	return _suiteInfo()["baseURL"].split("/")[2];
+}
+
+function getApplicationLanguage(){
+	return _suiteInfo()["language"];
+}
+
+
+function getRandomInt($min, $max) {
+  $min = Math.ceil($min);
+  $max = Math.floor($max);
+  return Math.floor(Math.random() * ($max - $min)) + $min; //The maximum is exclusive and the minimum is inclusive
+}
+
+
+function takePageScreenShot(){
+	_lockWindow();
+	_focusWindow();
+	_wait(1000);
+	_takePageScreenShot();
+	_wait(1000);
+	_unlockWindow();
+}
+
+function encodeForRegEx($string){
+	return $string
+		.replace(/\(/g, "[(]")
+		.replace(/\)/g, "[)]")
+		.replace(/\?/g, "[?]")
+		.replace(/\’/g, "[’]")
+		.replace(/\//g, "[/]");
+}
+
+function convertMoneyToNumber($money){
+	$money = $money.replace("$", "");
+	return parseFloat($money);
+}
+
+function maximizeWindow(){
+	_windowAction("maximize"); // mazimize window.
+}
+
+function toTitleCase($str){
+	$str = $str.toLowerCase().split(' ');
+	for (var $i = 0; $i < $str.length; $i++) {
+		$str[$i] = $str[$i].charAt(0).toUpperCase() + $str[$i].slice(1);
+	}
+	$str= $str.join(' ');
+	return $str;
+}
+
+function randomFirstName(){
+
+	var $firstNamesArray = ["Jackson", "Aiden", "Liam", "Lucas", "Noah", "Mason", "Jayden", "Ethan", "Jacob", "Jack", "Caden", "Logan", "Benjamin", "Michael", "Caleb", "Ryan", "Alexander", "Elijah", "James", "William", "Oliver", "Connor", "Matthew", "Daniel", "Luke", "Brayden", "Jayce", "Henry", "Carter", "Dylan", "Gabriel", "Joshua", "Nicholas", "Isaac", "Owen", "Nathan", "Grayson", "Elise", "Landon", "Andrew", "Maxim", "Samuel", "Gavin", "Wyatt", "Christian", "Hunter", "Cameron", "Evan", "Charlie", "David", "Sebastian", "Joseph", "Dominic", "Anthony", "Colton", "John", "Tyler", "Zachary", "Thomas", "Julian", "Levi", "Adam", "Isaiah", "Alex", "Aaron", "Parker", "Cooper", "Miles", "Chase", "Muhammad", "Christopher", "Blake", "Austin", "Jordan", "Leon", "Jonathan", "Adrian", "Colin", "Hudson", "Ianic", "Xavier", "Camden", "Tristan", "Carson", "Jason", "Nolan", "Riley", "Lincoln", "Brody", "Bentley", "Nathaniel", "Josiah", "Declan", "Jake", "Asher", "Jeremiah", "Cole", "Mateo", "Micah", "Elliot","Sophia", "Emma", "Olivia", "Isabella", "Miaa", "Avaa", "Lily", "Zoee", "Emily", "Chloe", "Layla", "Madison", "Madelyn", "Abigail", "Aubrey", "Charlotte", "Amelia", "Ella", "Kaylee", "Avery", "Aaliyah", "Hailey", "Hannah", "Addison", "Riley", "Harper", "Aria", "Arianna", "Mackenzie", "Lila", "Evelyn", "Adalyn", "Grace", "Brooklyn", "Ellie", "Anna", "Kaitlyn", "Isabelle", "Sophie", "Scarlett", "Natalie", "Leah", "Sarah", "Nora", "Mila", "Elizabeth", "Lillian", "Kylie", "Audrey", "Lucy", "Maya", "Annabelle", "Makayla", "Gabriella", "Elena", "Victoria", "Claire", "Savannah", "Peyton", "Maria", "Alaina", "Kennedy", "Stella", "Liliana", "Allison", "Samantha", "Keira", "Alyssa", "Reagan", "Molly", "Alexandra", "Violet", "Charlie", "Julia", "Sadie", "Ruby", "Evali", "Alice", "Eliana", "Taylor", "Callie", "Penelope", "Camilla", "Bailey", "Kaelyn", "Alexis", "Kayla", "Katherine", "Sydney", "Lauren", "Jasmine", "London", "Bella", "Adeline", "Caroline", "Vivian", "Juliana", "Gianna", "Skyler", "Jordyn"];
+	return $firstNamesArray[_random($firstNamesArray.length)]
+}
+
+
+
+function randomLastName(){
+
+	var $lastNameArray = ["Anderson", "Ashwoon", "Aikin", "Bateman", "Bongard", "Bowers", "Boyd", "Cannon", "Cast", "Deitz", "Dewalt", "Ebner", "Frick", "Hancock", "Haworth", "Hesch", "Hoffman", "Kassing", "Knutson", "Lawless", "Lawicki", "Mccord", "Mccormack", "Miller", "Myers", "Nugent", "Ortiz", "Orwig", "Oryg", "Paiser", "Paki", "Pettigrew", "Quinn", "Quizoz", "Lee", "Resnick", "Smith", "Schickowski", "Schiebel", "Sellon", "Severson", "Shaffer", "Solberg", "Soloman", "Sonderling", "Soukup", "Soulis", "Stahl", "Sweeney", "Tandy", "Trebil", "Trusela", "Trussel", "Turco", "Uddin", "Uflan", "Ulrich", "Upson", "Vader", "Vail", "Valente", "Vanzandt", "Vanderpoel", "Ventotla", "Vogal", "Wagle", "Wagner", "Wakefield", "Weinstein", "Weiss", "Woow", "Yang", "Yates", "Yocum", "Zeaser", "Zeller", "Ziegler", "Bauer", "Baxster", "Casal", "Cataldi", "Caswell", "Celedon", "Chambers", "Chapman", "Christensen", "Darnell", "Davidson", "Davis", "Delorenzo", "Dinkins", "Doran", "Dugelman", "Dugan", "Duffman", "Eastman", "Ferro", "Ferry", "Fletcher", "Fietzer", "Hylan", "Hydinger", "Illingsworth", "Ingram", "Irwin", "Jagtap", "Jenson", "Johnson", "Johnsen", "Jones", "Jurgenson", "Kalleg", "Kaskel", "Keller", "Leisinger", "Lepage", "Lewis", "Linde", "Lulloff", "Maki", "Martin", "McGinnis", "Mills", "Moody", "Moore", "Napier", "Nelson", "Norquist", "Nuttle", "Olson", "Ostrander", "Reamer", "Reardon", "Reyes", "Rice", "Ripka", "Roberts", "Rogers", "Root", "Sandstrom", "Sawyer", "Schlicht", "Schmitt", "Schwager", "Schutz", "Schuster", "Tapia", "Thompson", "Tiernan", "Tisler" ]
+	return $lastNameArray[_random($lastNameArray.length)]
+
+}
+
+
+function capitalizeFirstLetter($name){
+        return  $name.substring(0, 1).toUpperCase() + $name.substring(1).toLowerCase();
+ 
+}
+
+function stopTestInOpenEnrollment($inOEP){
+	
+	if($inOEP == "ON"){
+		_log("Stopping test case here as Open enrollment has Started");
+		_stop();
+	}
+}
+
+function writeInFile($json, $fileName){
+	var $str = JSON.stringify($json);
+	_writeFile($str, $fileName, true);
+}
+
+function readJsonFromFile($fileName){
+	var $str = _readFile($fileName);
+	_log($str);
+	return JSON.parse($str);
+}
+
+
+function verifyTooltip($el, $message){
+	_lockWindow(10000);
+	_focusWindow();
+	_focus($el);
+	_wait(2000, _isVisible(_div($message)));
+	_assertVisible(_div($message));
+	_assertEqual($message, _getText(_div("L:tooltip-inner")));
+	_blur($el);
+	_wait(2000, !_isVisible(_div($message)));
+	_unlockWindow();
+}
+
+function clickElement($el){
+	_assertVisible($el);
+	_assertFalse(_getAttribute($el, "disabled"));
+	_click($el);
+}
+
+function waitForLoad(){
+	_wait(5000, _isVisible(_div("/ball/")));
+	_wait(5000, !_isVisible(_div("/ball/")));
+}
+
+
+/*
+SSN RULES: Some special numbers are never allocated:
+			Numbers with all zeros in any digit group (000-##-####, ###-00-####, ###-##-0000).
+			Numbers with 666 or 900-999 (Individual Taxpayer Identification Number) in the first digit group.
+*/
+function getRandomSSN(){
+// Keep generating until a valid SSN is generated
+	var $SSN;
+	var $SSNFlag;
+	do {
+		$SSN = randomString(3, true) + "-" + randomString(2, true) + "-" + randomString(4, true);
+		$SSNFlag = isSSNAlreadyPresent($SSN);
+		// Conform to SSN requirements  
+	}
+	while(($SSN.charAt(0) === '0' && $SSN.charAt(1) === '0' && $SSN.charAt(2) === '0')
+		|| ($SSN.charAt(0) === '6' && $SSN.charAt(1) === '6' && $SSN.charAt(2) === '6') 
+		|| $SSN.charAt(0) === '9'
+		|| ($SSN.charAt(4) === '0' && $SSN.charAt(5) === '0') 
+		|| ($SSN.charAt(7) === '0' && $SSN.charAt(8) === '0' && $SSN.charAt(9) === '0' && $SSN.charAt(10) === '0'
+		||$SSNFlag != ""));
+	
+	return $SSN;
+
+}
+
+
+
+function getBackDate($days, $format){
+	if(!$format){
+		$format = "MM/DD/YYYY"
+	}
+	var $backDate = _fetch(window.moment().subtract($days,'d').format($format));
+	_log($backDate);
+	return $backDate;
+}
+
+
+function randomString($length, $digits) {
+	var $chars;
+	var $str = "";
+	if ($digits) {
+		$chars = "1234567890";
+	}
+	else {
+		$chars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklzxcvbnm";
+	}
+
+	for (var $i = 0; $i < $length; $i++) {
+		var $index = Math.floor(Math.random() * $chars.length);
+		$str += $chars.charAt($index);
+	}
+	return $str;
+}
+
+/*
+function phoneGen() {
+	var $first;
+	//do {
+		$first = "408"
+	//}
+	//while ($first.charAt(0) === "0");
+
+	var $second = randomString(3, true);
+	var $third = randomString(4, true);
+	return [$first, $second, $third];
+}
+*/
+
+/*
+RULES FOR CREATING PHONE NUNBER
+	The phone number should consist of 10 digits
+	The first 3 are the area code and should not begin with 0, 8 or 9
+	The second 3 digits should not be greater than 742 and not less than 100.
+	The last 4 digits can be any digits
+
+*/
+
+function phoneGen() {
+	
+	
+	do{
+		var $firstDigit = ["408", "650","510", "530", "559", "562","661", "669", "707", "714","201","202","203","204","205","206","207","208","209","210","211","212","213","214",]
+		var $first = $firstDigit[Math.floor(Math.random() * $firstDigit.length)];
+ 
+		var $second = Math.floor(Math.random() * 742) + 100
+		var $third = randomString(4, true);
+		var $isPresent = isPhoneNumberAlreadyPresent($first+$second+$third)
+	}while($isPresent!="")
+	return [$first, $second, $third];
+}
+
+
+
+
+function verifyArray($array) {
+	for (var $i = 0; $i < $array.length; $i++) {
+		_assertVisible($array[$i]);
+	}
+}
+
+/*
+* Copied from http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+* and             http://stackoverflow.com/questions/3561493/is-there-a-regexp-escape-function-in-javascript
+*/
+function escapeRegExp($str) {
+	return $str.replace(/[-\/\\^$*+?.()|[\]{}:]/g, '\\$&');
+}
+
+function convertDate($str) {
+	var $date =_fetch(window.moment($str).format("MMM DD, YYYY"));
+	return $date;
+}
+
+function getCoverageStartDate($eventType, $eventDate,$event, $isOEP){
+	var $currentDate = parseInt(_fetch(window.moment().format('D')));
+	var $currentMonth = parseInt(_fetch(window.moment().format('MM')));
+	_log($currentMonth)
+	var $currentYear = parseInt(_fetch(window.moment().format('YY')));
+	_log($currentYear)
+	var $coverageYear = getOECoverageYearDB();
+	_log($coverageYear);
+	var $OEPEndDate = getOEPEndDate();
+	var $coverageDate;
+	var $coverageMonth;
+
+
+	if($inOEP == "ON"){
+	/*
+	  if($currentMonth < 11){//remove in Qep
+		if($currentMonth == 11 && $currentDate > 15 ){
+			//$coverageMonth = _fetch(window.moment().add(2, 'M').format('MM'))
+			$coverageMonth = "01"
+				$coverageDate = $coverageMonth+"/01/"+$coverageYear;
+		}
+		else if($eventType == 3){
+			if($currentDate <= 15){
+				$coverageDate = _fetch(window.moment().add(1, 'M').format('MM/DD/YYYY'));
+				$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+			}
+			else{
+				$coverageDate = _fetch(window.moment().add(2, 'M').format('MM/DD/YYYY'));
+				$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+			}
+
+		}
+					
+		
+		else{
+			$coverageDate = "01/01/"+getCurrentCoverageYear();
+		}
+	}
+	else{
+	*/
+		$coverageDate = "01/01/"+getCurrentCoverageYear();// remove in Qep
+	//}
+	}
+	/*
+if($eventType == 1){
+//add check todays date is less than be benefit effective date
+$isBefore = _fetch(window.moment().isBefore($OEPEndDate));
+
+if($isBefore && $currentMonth == 01 && $currentYear == $coverageYear){
+$coverageMonth = _fetch(window.moment().add(1, 'M').format('MM'))
+$coverageDate = $coverageMonth+"/01/"+$coverageYear;
+}
+else{
+$coverageDate = "01/01/"+_fetch(window.moment().add(1, 'Y').format('YYYY'));
+}
+
+}
+else if($eventType == 2){
+$isBefore = _fetch(window.moment().isBefore($OEPEndDate));
+
+if($isBefore && $currentMonth == 01 && $currentYear == $coverageYear){
+$coverageMonth = _fetch(window.moment().add(1, 'M').format('MM'))
+$coverageDate = $coverageMonth+"/01/"+$coverageYear;
+}
+else{
+$coverageDate = "01/01/"+_fetch(window.moment().add(1, 'Y').format('YYYY'));
+}
+}
+else if($eventType == 3 && ($currentMonth == 12 && $currentDate > 15)){
+$coverageDate = "01/01/"+_fetch(window.moment().add(2, 'M').format('YYYY'));
+}
+*/
+	else if($eventType == 1){
+		$coverageDate = _fetch(window.moment().add(1, 'M').format('MM/DD/YYYY'));
+			$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+	}
+	else if($eventType =="1" && ($currentMonth != 11 && $currentMonth != 12)){
+		_log("Event selected is "+$eventType);
+		if(($event =="remove") || ($event =="Death")){
+			$coverageDate=$covDateAfterTypeOneAdd;
+			$memberCoverageEndDate=$eventDate;
+		}
+		else{
+			$coverageDate = $eventDate;
+			$memberCoverageEndDate=$eventDate;
+		}
+	}
+	else if($eventType == 2){
+		$coverageDate = _fetch(window.moment().add(1, 'M').format('MM/DD/YYYY'));
+		$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+	}
+	else if($eventType == 3){
+		if($currentDate <= 15){
+			$coverageDate = _fetch(window.moment().add(1, 'M').format('MM/DD/YYYY'));
+			$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+		}
+		else{
+			$coverageDate = _fetch(window.moment().add(2, 'M').format('MM/DD/YYYY'));
+			$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+		}
+
+	}
+	else if($eventType == 4){
+		$coverageDate = _fetch(window.moment($eventDate).add(1, 'M').format('MM/DD/YYYY'));
+		$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+	}
+	else{
+		//TODO: Below code for Extented OE
+		_log("If no event is passed, coverage date will be calculated for event 2(Marriage)");
+		/*
+		if($currentDate >15){
+			$coverageDate = _fetch(window.moment().add(2, 'M').format('MM/DD/YYYY'));
+			_log("Coverage Date after 15th: "+$coverageDate);
+			$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+		}
+		else{
+		*/
+		//Outside OE
+			$coverageDate = _fetch(window.moment().add(1, 'M').format('MM/DD/YYYY'));
+			$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+		//}
+	}
+
+	_log("Coverage Start Date ="+ $coverageDate);
+	return $coverageDate
+}
+
+
+
+function inGlobalOEP(){
+	//if (!$inGlobalOEP) {
+	
+		var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'";
+		_log($query);
+		var $endDate = $db.select($query)[0];
+		_log("OE end date  = "+ $endDate);
+		$endDate = _call(window.moment($endDate, "MM/DD/YYYY"));
+		
+		
+		var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_start_date%'";
+		_log($query);
+		var $startDate = $db.select($query)[0];
+		_log("OE start date  = "+$startDate);
+		$startDate = _call(window.moment($startDate, "MM/DD/YYYY"));
+		
+		
+		var $isAfter = _fetch(window.moment().isAfter($startDate));
+		var $isBefore = _fetch(window.moment().isBefore($endDate));
+		var $dbCurrentCoverageYear = getCurrentCoverageYear();
+			
+		//_log(" Start date = "+ $startDate+"   end date = "+$endDate+ $isAfter +"    "+$isBefore);
+		
+		if( $isBefore && $isAfter) {
+			$inGlobalOEP = "ON";
+		} else
+			$inGlobalOEP = "OFF";
+		_log($inGlobalOEP);
+	
+	return $inGlobalOEP;
+}
+
+
+function isValidDate($dateString) {
+	// First check for the pattern
+	if(!/^\d{1,2}\/\d{1,2}\/\d{4}$/.test($dateString)){
+		_assertEqual("Please enter valid date", _getText(_div("popover-content ng-binding")));
+	}
+	// Parse the date parts to integers
+	var $parts = $dateString.split("/");
+	var $day = parseInt($parts[1], 10);
+	var $month = parseInt($parts[0], 10);
+	var $year = parseInt($parts[2], 10);
+
+	// Check the ranges of month and year
+	if($year < 1000 || $year > 3000 || $month == 0 || $month > 12){
+		_assertEqual("Please enter valid date", _getText(_div("popover-content ng-binding")));
+	}
+	var $monthLength = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+	// Adjust for leap years
+	if($year % 400 == 0 || ($year % 100 != 0 && $year % 4 == 0))
+		$monthLength[1] = 29;
+
+	// Check the range of the day
+	return $day > 0 && $day <= $monthLength[$month - 1];
+};
+
+
+function isTrue($value){
+	return $value === "Y" || $value === "TRUE";
+}
+
+// remove these functions if not used anywhere
+function ageGreaterThan120($date){
+	_log(parseInt(($people[0].$age)));
+	if((parseInt(($people[$people.length-1].$age)) >= 120) && (parseInt(($people[$people.length-1].$age))!=$currentYear )){
+		_assertEqual("Please enter an age below 120.", _getText(_div("popover-content ng-binding")));
+	}
+}
+
+function countssapPeople() {
+	// Compute the number of adults and children
+	$numberOfAdults = 0;
+	$numberOfChildren = 0;
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		$ssapPeople[$i].$age= calculateAge($ssapPeople[$i].$doB);
+		if ($ssapPeople[$i].$age > 18 && $ssapPeople[$i].$applying=="Yes") {
+			$numberOfAdults++;
+		}
+		else if ($ssapPeople[$i].$age <= 18 && $ssapPeople[$i].$applying=="Yes") {
+			$numberOfChildren++;
+		}
+	}
+}
+
+function showPreviousYearTab(){
+	var $tabFrom = getIndShowCurrentYearTabFrom();
+	var $tabTill = getIndShowPreviousYearTabUntil();
+	
+	return (_fetch(window.moment().isBefore($tabTill[0][0])) && _fetch(window.moment().isAfter($tabFrom[0][0])) );
+
+}
+
+function getTodaysDate(){
+	var $todaysDate = _fetch(window.moment().format('MM/DD/YYYY'));
+	_log("Todays Date: " +$todaysDate);
+	return $todaysDate;
+}
+
+function getEndDateOfLastMonth(){
+	var $endDateOfLastMonth=_fetch(window.moment().subtract(1,'months').endOf('month').format('MM/DD/YYYY'));
+	if(inGlobalOEP()=="ON"){
+		$endDateOfLastMonth = $endDateOfLastMonth.substring(0,6)+   getCurrentCoverageYear();
+	}
+	_log(" End of last month for coverage Year is "+$endDateOfLastMonth)
+
+		return $endDateOfLastMonth;
+}
+
+
+function createEmailWithTimeStamp($firstName) {
+	var $timestamp = new Date().getTime();
+	return $firstName + $timestamp + "@yopmail.com";
+}
+
+function setPhoneNum($box1, $box2, $box3, $num) {
+	_setValue($box1, $num[0]);
+	_setValue($box2, $num[1]);
+	_setValue($box3, $num[2]);
+}
+
+
+function getMidOfLastMonth(){
+	var $midDate;
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	if($currentMonth == 1)
+	{
+		$midDate="01/02/"+$coverageYear;
+	}
+	else{
+		$midDate=_fetch(window.moment().subtract(1, 'months').format('MM/16/YYYY'));
+	}
+	return $midDate;
+}
+
+
+
+function getStartDateOfYear(){
+	$startDateOfYear = "01/01/"+$coverageYear;
+	_log("Start Date of Year: " +$startDateOfYear);
+	return $startDateOfYear;
+}
+
+function stopTestInOpenEnrollment(){
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	if($inOEP == "ON"|| $currentMonth ==12|| $currentMonth == 01){
+		_log("Stopping test case here as Open enrollment has Started");
+		_stop();
+	}
+}
+
+function getDateInMmDdYyyyFormat($dateToFormat){
+	$dateToFormat=$dateToFormat.split(" ");
+	var $formattedDate=_fetch(window.moment($dateToFormat[0]).format('MM/DD/YYYY'));
+	_log("Formatted Date: " +$formattedDate);
+	return $formattedDate;
+}
+
+///* Assert that all elements of an array are not visible */
+function verifyHiddenArray($notVisibleArray) {
+	for (var $i = 0; $i < $notVisibleArray.length; $i++) {
+		_assertNotVisible($notVisibleArray[$i]);
+	}
+}
+//
+///* Returns true if all of the corresponding elements of two arrays are equal */
+function compareArrays($arr1, $arr2) {
+	for (var $i = 0; i < $arr1.length; $i++) {
+		if ($arr1[$i] !== $arr2[$i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+function calculateEventDate($days){
+	var $now= _call(window.moment()).format("MM/DD/YYYY");
+	var $currentMonth = _fetch(window.moment().get('month')) + 1;
+	_log($currentMonth);
+	if($currentMonth == 1)
+	{
+	$now="01/01/"+$coverageYear;
+		$now=_fetch(window.moment($now).format("MM/DD/YYYY"));
+	}
+	else{
+		if($days === undefined){
+			$eventDate  = $now;
+		}
+		else {
+		$now = _call(window.moment($now)).subtract($days,'d').format("MM/DD/YYYY");
+		if($removeHH == "true"){
+		}
+			else{
+				$eventDate = $now;
+			_log($eventDate);
+		}
+	}
+	}
+	_log("Calculated Date"+$now);
+	return $now;
+}
+
+function getEndDateOfCurrentMonth(){
+	var $endDateOfCurrentMonth=_fetch(window.moment().endOf('month').format('MM/DD/YYYY'));
+	if(inGlobalOEP()=="ON"){
+		$endDateOfCurrentMonth = $endDateOfCurrentMonth.substring(0,6)+ getCurrentCoverageYear();
+	}
+	_log(" End of month for coverage Year is "+$endDateOfCurrentMonth)
+		return $endDateOfCurrentMonth;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

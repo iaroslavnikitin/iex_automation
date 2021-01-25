@@ -1,0 +1,44 @@
+{
+
+    "leftNav":
+    {
+        "filterBy":
+        {
+            "planTier":
+            {        
+                "label_planTier":"$('h3*=Plan Tier)",
+                "cb_low" :"$('#filter_plantTier_low')",
+                "cb_high" :"$('#filter_plantTier_high')",
+                "label_low" :"$('//label[@for=\"filter_plantTier_low\")]')",
+                "label_high" :"$('//label[@for=\"filter_plantTier_high\")]')"
+            },
+            "deductible":
+            {
+                "label_Deductible" :"$('//div[@id=\"filter\"]/fieldset/div[4]/h3')",
+                "cb_49":"$('#deductible_filter_49')",
+                "cb_99":"$('#deductible_filter_99')",
+                "cb_100":"$('#deductible_filter_10000')",
+                "lbl_49":"$('//label[@for=\"deductible_filter_49\")]')",
+                "lbl_99":"$('//label[@for=\"deductible_filter_99\")]')",
+                "lbl_100":"$('//label[@for=\"deductible_filter_10000\")]')"
+            
+            }
+        }
+    },
+    
+    "planTiles":
+    {
+        "planTypeTier":"$$('.cp-tile__metal-tier')[index]",
+        "routineDental":"$$('//tbody/tr[1]/td[@class=\"cp-tile__value\"]')[index]",
+        "dentalCheckup":"$$('//tbody/tr[2]/td[@class=\"cp-tile__value\"]')[index]"
+     },
+     "compare":
+     {
+     
+         "compareTier":"$$('//div[@class=\"cp-compare-plans__name\"]')[i]"
+ 
+     }
+}
+	
+	
+	

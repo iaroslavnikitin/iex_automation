@@ -1,0 +1,13 @@
+{ "pageHeader": "$('h1')",
+    "txt_firstName": "$('#firstName')",
+    "txt_lastName": "$('#lastName')",
+    "txt_birthDate": "$('#birthDate')",
+    "txt_phoneNumber": "$('#phoneNumber')",
+    "txt_county": "$('#county')",
+    "rb_GenderMale": "$('[value*=male]')",
+    "rb_GenderFemale": "$('[value*=female]')",
+    "txt_email": "$('[name*=emailAddress]')",
+    "txt_zipCode": "$('#zipCode')",
+    "txt_householdTotal": "$('#householdTotal')",
+    "btn_submit": "$('#submit')"
+}

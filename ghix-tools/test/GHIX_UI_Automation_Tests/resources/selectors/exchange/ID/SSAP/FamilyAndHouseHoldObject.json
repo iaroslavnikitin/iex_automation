@@ -1,0 +1,30 @@
+
+{
+    "personalInformation":{
+        "personalInformationHeader":"$('h1')", 
+        "rb_male_id":"$('.usa-fieldset li:nth-child(1)>label')",
+        "rb_female_id" : "$('.usa-fieldset li:nth-child(2)>label')",  
+        "rb_yesForSocialSecurity_id": "$('#page_09_hhm0_socialSecurityCard_socialSecurityNumber')",          
+        "rb_yesForSameNameOnSSN":"$('#page_09_socialSecurityCard_nameSameOnSSNCardIndicator_label0')", 
+        "tb_socialSecurityNumber": "$('*[name=socialSecurityNumber]')",
+        "rb_noForSameNameOnSSN":"$('#page_09_socialSecurityCard_nameSameOnSSNCardIndicator_label1')",
+        "btn_saveAndContinue":""
+    },
+    "citizenshipImmigrationStatus":{
+        "citizenshipHeading":"$('h1')", 
+        "rb_citizenYes":"$('#page_10_citizenshipImmigrationStatus_citizenshipStatusIndicator_label0')",
+        "rb_citizenNo":"$('#page_10_citizenshipImmigrationStatus_citizenshipStatusIndicator_label1')",
+        "rb_natualCitizenYes":"$('#page_10_citizenshipImmigrationStatus_naturalizedCitizenshipIndicator_label0')",
+        "rb_natualCitizenNo":"$('#page_10_citizenshipImmigrationStatus_naturalizedCitizenshipIndicator_label1')"
+    },   
+    "ethnicityAndRace":{
+        "ethnicityAndRaceHeading":"$('h1')",
+        "rb_hispanicOriginYes":"$('[id*=page_11_ethnicityAndRace_hispanicLatinoSpanishOriginIndicator_label0]')",
+        "rb_hispanicOriginNo":"$('[id*=page_11_ethnicityAndRace_hispanicLatinoSpanishOriginIndicator_label1]')",
+        "cb_race":"$('[lable*='race]')"
+    },
+    "americanAlaskanNative":{
+        "americanAlaskanNativeHeading":"$('h1')",
+        "rb_noneOfAboveNative":"$('[id*=checkbox_page_13_noneOfTheAbove_label]')"
+    } 
+}

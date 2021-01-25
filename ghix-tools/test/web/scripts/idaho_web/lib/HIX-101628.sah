@@ -1,0 +1,20 @@
+_includeOnce("../pagemodels/ViewHistory.sah");
+_includeOnce("../pagemodels/User.sah");
+
+function verifyCAPHistoryNotificationPreference($admin, $password, $preference){
+	login($email, $password);
+	if(_isVisible(_heading3("Find Help Near You"))){
+		_click(_link("Don't ask again"));
+	}
+	goToMyPreferences();
+	verifyNotificationPreferences();
+	var $oldPreference = selectNotificationPreference($preference);
+	logOut();
+	login($admin, $password);
+	clickManageMember();
+	searchMemberByEmail($email);
+	selectTestMember();
+	goToHistoryPage();
+	expandPreferencesData($oldPreference, $preference);
+	logOut();
+}

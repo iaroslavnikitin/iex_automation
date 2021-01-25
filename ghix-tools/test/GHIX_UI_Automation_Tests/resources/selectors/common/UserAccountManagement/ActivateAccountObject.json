@@ -1,0 +1,17 @@
+{
+    "btn_submitBtn": "$('#submitBtn')",
+    "tb_verificationCode": "$('//input[@id=\"verificationCode\"]')",
+    "btn_verifycode_btn": "$('#verifycode-btn')",
+    "lb_AccountSetUp": "$('h1')",
+    "hd_yourInformation":"$('h4*=Your information')",
+    "hd_AccountSetup":"$('h1*=Counselor Account Set-Up')",
+    "tb_confirmEmail": "$('#confirmEmail')",
+    "sb_agent_securityQues": "$('#securityQuestion1')",
+    "sb_agent_securityOptions": "$$('//select[@id=\"securityQuestion1\"]/option')[index]",
+    "tb_agent_securityAnswers": "$('#securityAnswer1')",
+    "tb_password": "$('#password')",
+    "tb_confirmPassword": "$('#confirmPassword')",
+    "cb_terms": "$('#terms')",
+    "btn_submitbtn": "$('#submitbtn')",
+    "btn_submit": "$('#submit')"
+}

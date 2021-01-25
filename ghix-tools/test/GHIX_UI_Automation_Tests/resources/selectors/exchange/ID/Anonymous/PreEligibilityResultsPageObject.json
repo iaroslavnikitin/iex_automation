@@ -1,0 +1,9 @@
+{   "lbl_requiredNotice":" $('//li[contains(text(),\"This is an estimate only\")]')",
+    "lbl_requiredNotice2":" $('//li[contains(text(),\"not stored or monitored\")]')",
+    "lbl_esimatedTaxCredit": "eval($('//*[@id=\"container\"]')).$('//*[@class=\"subtitle\"]')",
+    "lbl_esimatedTaxCreditContent": "eval($('//*[@id=\"container\"]')).$('//div[contains(text(),\"Advanced Premium\")]')",
+    "lbl_noTaxCredit": "eval($('//*[@id=\"container\"]')).$('//*[@class=\"title\"]')",
+    "lbl_noTaxCreditContent": "eval($('//*[@id=\"container\"]')).$('//div[contains(text(),\"While you do not qualify\")]')",
+    "lbl_medicaid": "eval($('//*[@id=\"container\"]')).$('h3')",
+    "lbl_medcaidQualifyContent": "eval($('//*[@id=\"container\"]')).$('//p[contains(text(),\"coverage with Medicaid\")]')"
+}

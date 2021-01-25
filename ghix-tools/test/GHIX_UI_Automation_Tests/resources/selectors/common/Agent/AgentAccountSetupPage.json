@@ -1,0 +1,18 @@
+{
+  "pageHeader":"$('h1')",
+  "tb_agent_firstName": "$('#firstName')",
+  "tb_agent_lastName": "$('#lastName')",
+  "tb_agent_email": "$('#email')",
+  "tb_agent_confirmEmail": "$('#confirmEmail')",
+  "tb_agent_Phone1": "$('#phone1')",
+  "tb_agent_Phone2": "$('#phone2')",
+  "tb_agent_Phone3": "$('#phone3')",
+  "sb_agent_securityQues": "$('#securityQuestion1')",
+  "agent_securityOptions": "$$('//select[@id=\"securityQuestion1\"]/option')[index]",
+  "tb_agent_securityAnswers": "$('#securityAnswer1')",
+  "tb_agent_password": "$('#password')",
+  "tb_agent_confirmPassword": "$('#confirmPassword')",
+  "cb_agent_cbTerms": "$('#terms')",
+  "btn_agent_submit": "$('#submitbtn')",
+  "btn_Continue": "$('a*=Continue')"
+}

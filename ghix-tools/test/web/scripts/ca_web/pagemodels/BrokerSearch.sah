@@ -1,0 +1,157 @@
+_includeOnce("../lib/DB.sah");
+
+/**
+* searchByName()
+*/
+function searchByName($firstName, $lastName, $businessName){
+	if ($firstName) {
+		_setValue(_textbox("firstName"), $firstName);
+	}
+	if ($lastName) {
+		_setValue(_textbox("lastName"), $lastName);
+	}
+	if ($businessName) {
+		_setValue(_textbox("companyName"), $businessName);
+	}
+	
+	click(_submit("Search", _in(_div("name_search"))));
+}
+
+/**
+* verifyNoBrokerAgentFound($url)
+* @param $url - URL of the 
+*/
+function verifyNoBrokerAgentFound($url, $firstName, $lastName){
+	_assertVisible(_link("/0 "+"Agents found"+"/"));
+	verifyURL($url);
+	_assertVisible(_link("0 Agents found "+$firstName + " " + $lastName));
+	_assertVisible(_div("No matching records found."));
+}
+
+function verifyBrokerAgentFound($url, $firstName, $lastName){
+	verifyURL($url);
+	_assertVisible(_span($firstName + " " + $lastName));
+	_assertVisible(_cell($firstName + " " + $lastName));
+}
+
+/* --Functions Above-- */
+
+_includeOnce("../lib/CommonFunctions.sah");
+
+function navigateToBrokerSearch(){
+	_navigateTo("/hix/broker/search?anonymousFlag=Y?lang=es");
+	_assertVisible(_link("Find an Agent"));
+	_assertVisible(_link("Find Certified Enrollment Counselor"));
+	_assertVisible(_link("Find County Office"));
+}
+
+function clickFindAnAgent(){
+	click(_link("Find an Agent"));
+	_assertVisible(_div("Find Local Help Search for a Certified Insurance Agent in California"));
+}
+
+function searchInActiveAgentByName($firstName, $lastName, $businessName){
+	searchByName($firstName, $lastName, $businessName);
+	verifyNoBrokerAgentFound("broker/searchlist", $firstName, $lastName);
+
+}
+
+function searchNonCertifiedAgentByName($firstName, $lastName, $businessName){
+	searchByName($firstName, $lastName, $businessName);
+	verifyNoBrokerAgentFound("broker/searchlist", $firstName, $lastName);
+}
+
+function searchCertifiedAgentByName($firstName, $lastName, $businessName){
+	searchByName($firstName, $lastName, $businessName);
+	verifyBrokerAgentFound("broker/searchlist", $firstName, $lastName);
+}
+
+function searchAgentByBusinessName($businessName){
+	searchByName("", "", $businessName);
+}
+
+function verifyAgentFound($agent){
+	var $row =  _parentRow(_cell($agent.firstName + " " + $agent.lastName));
+	_assertVisible(_span($agent.firstName + " " + $agent.lastName, _under(_tableHeader("Name")), _in($row)));
+	_assertVisible(_strong($agent.businessName, _under(_tableHeader("Contact Information")), _in($row)));
+}
+
+function verifyAssociatedAgentFound($agent){
+_assertContainsText($agent, _cell("broker-name"),"Verify agent is displayed in search");
+
+}
+
+function navigateToFindCountyOfficeAndVerify(){
+	_click(_link("Find County Office"));
+	_assertVisible(_span("×", _in(_div("warningBox"))));
+	_assertVisible(_heading4("You are now leaving Covered California Web site.", _in(_div("warningBox"))));
+	_assertVisible(_link("http://www.dhcs.ca.gov/services/medi-cal/Pages/CountyOffices.aspx", _in(_div("warningBox"))));
+	
+	_assertVisible(_link("/No, Take Me Back/", _in(_div("warningBox"))));
+	_assertVisible(_link("yesBtn", _in(_div("warningBox"))));
+	_click(_link("yesBtn", _in(_div("warningBox"))));
+	// _wait(5000);
+	
+	// var $windows = _getWindows();
+	// var $title = "";
+	// var $url = "";
+	// for($i=0;$i<$windows.length;$i++){
+	// 	if($windows[$i].windowTitle == "County Offices"){
+	// 		$title=$windows[$i].windowTitle;
+	// 		$url=$windows[$i].windowURL;
+	// 		break;
+	// 	}
+	// }
+	// _selectWindow($title);
+	// _assertEqual ("https://www.dhcs.ca.gov/services/medi-cal/Pages/CountyOffices.aspx", $url, "URL should match")
+	// _assertVisible(_heading1("​County Offices to Apply for Health Coverage, Medi-Cal, and Other Benefits"));
+	
+	
+}
+
+
+function activateAgencyManager(){
+	_click(_link("My Agent Profile"));
+	
+	if(_isIE()){
+		_click(_link("StatusEnd of dropdown"));
+		_log("IE browser");
+	}else{
+		_click(_link("Status End of dropdown"));
+		_log("Firefox and Chrome browser");
+	}
+	
+	
+	_click(_link("Edit"));
+	_setSelected(_select("activityStatus"), "Active");
+	_click(_submit("Submit"));
+	_assertVisible(_strong("Active"));
+	logOut();
+}
+
+function verifyAllBrokersAreDisplayed(){
+	var $expectedAgents = getTotalNumberOfAgentsFound();
+	_assertContainsText($expectedAgents, _heading3("/Agents found Search Again/")," Verify Agents displayed are same as that in DB");
+
+}
+
+function serchAgentByLocation($zipcode, $Distance){
+	_setValue(_textbox("location.zip"), $zipcode);
+	_setSelected(_select("distance"), $Distance);
+	_click(_div("languagesSpoken_chzn"));
+	_assertVisible(_list("chzn-results"));
+	_click(_submit("Search", _in(_div("location_search"))));
+}
+
+function searchByZipCode($zipCode){
+	serchAgentByLocation($zipCode);
+	if($zipCode ==""){
+		_assertVisible(_span("!Please enter zip code."));
+	}
+	else{
+		_assertContainsText("Agents found "+$zipCode, _link("skip"));
+		_assertNotEqual("0 Agents found "+$zipCode, _getText(_link("skip"))," Verify Agent search is not zero");
+		
+	}
+	
+}

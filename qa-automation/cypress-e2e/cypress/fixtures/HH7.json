@@ -1,0 +1,6 @@
+{
+    "description": "2adults/2 kids household default (CS4) ",
+    "hhFamily": {"size": 5, "singleParent": false},
+    "hhLastName": true,
+    "aptcMaximumAmount": 250
+}

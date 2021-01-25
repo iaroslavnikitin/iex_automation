@@ -1,0 +1,15 @@
+"Tags","TestCase","[Keyword]","Argument 1","Argument 2","Argument 3","Argument 4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+
+"all,Security,account_validation","CSR Supervisor - Create individual account without SSN from add user page","[Documentation]"
+,,"openBrowser"
+,,"[Documentation]","Email address - Supervisor CSR","Password","Permission","SSN Required","User First Name","User Last Name","Role"
+,,"csrCreateAndManageIndividual","auto_supervisor@yopmail.com","ghix123#","""Y""","""N""","""autoSupervisor""","""Martyn""","""Supervisor Customer Support"""

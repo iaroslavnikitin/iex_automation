@@ -1,0 +1,347 @@
+_includeOnce("../lib/Utils.sah");
+_includeOnce("../pagemodels/QualifyingEvent.sah");
+
+_includeOnce("../pagemodels/SoapRequest.sah");
+_includeOnce("../pagemodels/cap_memberView.sah");
+_includeOnce("../pagemodels/Esignature.sah");
+_includeOnce("../pagemodels/PlanSelection.sah");
+
+function pushAccountTransferAndCreateIndividual($caseNumber,$numOfMembers,$eventDate,$eventCode,$isOEP,$updatedDataObject,$isNeedDental){
+	//stopTestInOpenEnrollment($eventCode);
+	var $eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+	var $eventType = getEventType($eventCode);
+	var $verificationFlag = "N";
+	
+	var $household = accountTransfer($caseNumber,$numOfMembers,$eventDate,$isOEP,null,$eventCode,null,null,null,null,null,$updatedDataObject);
+	
+
+	$household.coverageStartDate = getCoverageStartDate($eventType, $eventDate,$eventCode, $isOEP);
+	$household.coverageEndDate = getCoverageEndDate($eventType, $eventCode,$isOEP);	
+	clickLinkIndividual();
+	var $groupAptc = "group1:$"+$household.people[0].maxAPTC;
+	var $groupCsLevel = "group1:"+convertCSRLevel($household.people[0].csrLevel,'Short');
+	var $defaultGroup=defineGroups("group1:0,1,2,3",$household,$groupAptc,$groupCsLevel);
+	createIndividual($household,"In Progress",$defaultGroup,"SHOP FOR PLANS",null,null,$verificationFlag);
+
+	return $household;
+}
+
+function enrollGroupInHealth($defaultGroup,$groupToEnroll){
+	_setStrictVisibilityCheck(true);
+	waitUntilElementVisible(_paragraph($defaultGroup[0].coverageYear), 20);
+	_click(_paragraph($defaultGroup[0].coverageYear));
+	_setStrictVisibilityCheck(false);
+	var $verificationFlag = "N";
+	clickShopForPlans($household,$defaultGroup,"Y","N",$verificationFlag);	
+	createCustomGroup($defaultGroup[$groupToEnroll]);						
+	clickShopHealthPlan($household,$verificationFlag);										
+	clickNextPreferences();												
+	clickNextPreferences();
+	clickViewPlans("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,$noOfAdults,$noOfChildren,"NO","","YES",$defaultGroup[$groupToEnroll],$verificationFlag);
+	verifyPlanFeatureFilterOnPlanPage("Platinum");
+	$defaultGroup[$groupToEnroll].healthPlan = clickAddPlanFromPlanSelection("", "YES");
+	clickContinueToCart($defaultGroup[$groupToEnroll].healthPlan,"",$household.coverageStartDate,$defaultGroup[$groupToEnroll],"YES","",$verificationFlag);
+	clickNextButtonOnCart();
+	enterBindingArbitrationAgreement($household);
+	clickEnroll($defaultGroup[$groupToEnroll],$defaultGroup[$groupToEnroll].healthPlan,"",$household.coverageStartDate);	
+	clickGoToDashboardFromEsig("In Progress",$household,"CONTINUE SHOPPING",$eventDate,$defaultGroup,"Y","","",$verificationFlag);
+	$premiumTable = calculateMonthlyPremium($defaultGroup[$groupToEnroll]);
+	$defaultGroup[$groupToEnroll].healthPlan.premiumTable = $premiumTable;
+
+	
+	return $defaultGroup;
+}
+
+function enrollGroupInDental($household,$defaultGroup,$groupToEnroll){
+	var $verificationFlag = "N";	
+	clickContinueShopping($household, $defaultGroup,"Y","N","","","Dental");
+	clickShopDentalPlan("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,2, 2,"NO","","YES",$defaultGroup[$groupToEnroll]);
+	$defaultGroup[$groupToEnroll].dentalPlan = clickAddPlanFromPlanSelection("","YES");
+	clickContinueToCart("",$defaultGroup[$groupToEnroll].dentalPlan,$household.coverageStartDate,$defaultGroup[$groupToEnroll],"YES");
+	clickNextButtonOnCart();
+
+	enterBindingArbitrationAgreement($household, true);
+	clickEnroll($defaultGroup[$groupToEnroll],"",$defaultGroup[$groupToEnroll].dentalPlan,$household.coverageStartDate);
+	clickGoToDashboardFromEsig("Enrolled",$household, "REPORT A CHANGE",$eventDate,$defaultGroup,"Y","Y",null,null,null,"Y");
+}
+
+function createIndividualAndEnrollSingleGroup($caseNumber,$numOfMembers,$eventDate,$eventCode,$isOEP,$updatedDataObject,$isNeedDental){
+	stopTestInOpenEnrollment($eventCode);
+	var $eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+	var $eventType = getEventType($eventCode);
+	var $verificationFlag = "N";
+	
+	var $household = accountTransfer($caseNumber,$numOfMembers,$eventDate,$isOEP,null,$eventCode,null,null,null,null,null,$updatedDataObject);
+	
+
+	$household.coverageStartDate = getCoverageStartDate($eventType, $eventDate,$eventCode, $isOEP);
+	$household.coverageEndDate = getCoverageEndDate($eventType, $eventCode,$isOEP);	
+	clickLinkIndividual();
+	var $groupAptc = "group1:$"+$household.people[0].maxAPTC;
+	var $groupCsLevel;
+	if ($household.people[0].csrEligibility == 'true') {
+		$groupCsLevel = "group1:"+convertCSRLevel($household.people[0].csrLevel,'Short');	
+	}else{
+		$groupCsLevel = "CS1";
+	}
+	var $defaultGroup=defineGroups("group1:0,1,2,3",$household,$groupAptc,$groupCsLevel);
+	createIndividual($household,"In Progress",$defaultGroup,"SHOP FOR PLANS",null,null,$verificationFlag);
+	
+	clickShopForPlans($household,$defaultGroup,"Y","N",$verificationFlag);							
+	clickShopHealthPlan($household,$verificationFlag);										
+	clickNextPreferences();												
+	clickNextPreferences();
+	clickViewPlans("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,$noOfAdults,$noOfChildren,"NO","","YES",$defaultGroup[0],$verificationFlag);
+	verifyPlanFeatureFilterOnPlanPage("Platinum");
+	$defaultGroup[0].healthPlan = clickAddPlanFromPlanSelection("", "YES");
+	clickContinueToCart($defaultGroup[0].healthPlan,"",$household.coverageStartDate,$defaultGroup[0],"YES","",$verificationFlag);
+	clickNextButtonOnCart();
+	enterBindingArbitrationAgreement($household);
+	clickEnroll($defaultGroup[0],$defaultGroup[0].healthPlan,"",$household.coverageStartDate);	
+	clickGoToDashboardFromEsig("In Progress",$household,"CONTINUE SHOPPING",$eventDate,$defaultGroup,"Y","","",$verificationFlag);
+	$premiumTable = calculateMonthlyPremium($defaultGroup[0]);
+	$defaultGroup[0].healthPlan.premiumTable = $premiumTable;
+	$defaultGroup[0].groupDataBeforeSep = copyObject($defaultGroup[0]);
+
+	if($isNeedDental){
+		var $dentalGroups=defineGroups("group1:0,1,2,3",$household,$groupAptc,$groupCsLevel);
+		$defaultGroup[1]= $dentalGroups[0];
+		clickContinueShopping($household, $defaultGroup,"Y","N","","","Dental");
+		clickShopDentalPlan("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,2, 2,"NO","","YES",$defaultGroup[1]);
+		$defaultGroup[1].dentalPlan = clickAddPlanFromPlanSelection	("","YES");
+		clickContinueToCart("",$defaultGroup[1].dentalPlan,$household.coverageStartDate,$defaultGroup[1],"YES");
+		clickNextButtonOnCart();
+
+		enterBindingArbitrationAgreement($household, true);
+		clickEnroll($defaultGroup[1],"",$defaultGroup[1].dentalPlan,$household.coverageStartDate);
+		clickGoToDashboardFromEsig("Enrolled",$household, "REPORT A CHANGE",$eventDate,$defaultGroup,"Y","Y");
+	}
+	
+	
+	$household.customGroup = $defaultGroup;
+	var $str = JSON.stringify($household);
+	
+	_log("person1 address: "+$household.people[0].homeAddress.street);
+	//_writeFile($str, "JSONfileHousehold.txt", true);
+	return $household;
+}
+
+function designateAgent($brokerId, $household){
+	_log("med id: "+$household.people[0].personMedicaidIdentification);
+	_log("med id: "+$household.people[0].firstName);
+	_log("med id: "+$household.people[0].lastName);
+	
+	insertInToExternalIndividual($household.people[0].personMedicaidIdentification,$household.people[0].firstName,$household.people[0].lastName,$household);
+	insertIntoDesignateBroker($brokerId,$household.people[0].personMedicaidIdentification);	
+}
+
+function createIndividualWithDesignation($brokerId){
+	stopTestInOpenEnrollment("BirthOrAdoption");
+	var $noOfAdults=2;
+	var $noOfChildren=2;
+	var $eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+	var $eventDateForAT = getQualifyingDate("60days","YYYY-MM-DD");
+	var $household = accountTransfer(9,4,$eventDateForAT,null,null,"BirthOrAdoption");
+	var $eventType = getEventType("BirthOrAdoption");
+	$household.coverageStartDate = getCoverageStartDate($eventType,$eventDate);
+	$household.coverageEndDate = getCoverageEndDate($eventType);	
+	clickLinkIndividual();
+	var $defaultGroup=defineGroups("group1:0,1,2,3",$household,"group1:$150.25","group1:CS4");
+	createIndividual($household,"In Progress",$defaultGroup,"SHOP FOR PLANS",null,null,"N");
+
+	if ($brokerId) {	
+		designateAgent($brokerId, $household);
+	}
+	return $household;
+}
+
+function createDesignationBeforeAT($brokerId){
+	stopTestInOpenEnrollment("BirthOrAdoption");
+	var $noOfAdults=2;
+	var $noOfChildren=2;
+	var $eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+	var $eventDateForAT = getQualifyingDate("60days","YYYY-MM-DD");
+	var $updatedDataObject = changeXmlBeforAccountTransfer("5","4",$eventDateForAT,"BirthOrAdoption",null,"0:elig-3,CS1,0.00,90.25;1:elig-3,CS1;2:elig-3,CS1;3:elig-3,CS1",null,null);
+	$updatedDataObject.household = getHouseholdInfo($updatedDataObject.updatedXmlFile, "4");
+	
+	if ($brokerId) {	
+		designateAgent($brokerId, $updatedDataObject.household);
+	}
+
+	return $updatedDataObject;
+}
+
+function createIndividualAndEnrollHealth($brokerId,$eligibility,$isNeedDental,$data,$individualData){
+	stopTestInOpenEnrollment("BirthOrAdoption");
+	var $noOfAdults=2;
+	var $noOfChildren=2;
+	var $eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+	var $eventDateForAT = getQualifyingDate("60days","YYYY-MM-DD");
+	
+	var $household;
+	var $aptc;
+	var $stateSubsidy;
+	var $scLevel;
+	var $updatedDataObject;
+
+	if ($data) {
+		$eligibility = $data.eligibility1;
+	}
+
+	if($eligibility){
+		$updatedDataObject=changeXmlBeforAccountTransfer(5,4,$eventDateForAT,"BirthOrAdoption",null,$eligibility,null,null);
+		if ($individualData) {
+			var $toChangeName = "0:name-"+$individualData.firstName+","+$individualData.lastName;
+			var $toChangeSsn = "0:ssn-"+$individualData.lastFourSsn;
+			var $toChangeDob = "0:dob--"+$individualData.dob;
+			var $toChangeAddressLine1 = "0:addressLine1-"+$individualData.houseNumber+";"+
+										"1:addressLine1-"+$individualData.houseNumber+";"+
+										"2:addressLine1-"+$individualData.houseNumber+";"+
+										"3:addressLine1-"+$individualData.houseNumber;
+
+			$updatedDataObject=changeXmlBeforAccountTransfer(5,4,$eventDateForAT,"BirthOrAdoption",null,$toChangeName,null,$updatedDataObject);
+			$updatedDataObject=changeXmlBeforAccountTransfer(5,4,$eventDateForAT,"BirthOrAdoption",null,$toChangeSsn,null,$updatedDataObject);
+			$updatedDataObject=changeXmlBeforAccountTransfer(5,4,$eventDateForAT,"BirthOrAdoption",null,$toChangeDob,null,$updatedDataObject);
+			$updatedDataObject=changeXmlBeforAccountTransfer(5,4,$eventDateForAT,"BirthOrAdoption",null,$toChangeAddressLine1,null,$updatedDataObject);
+		}
+		
+		
+		$household = accountTransfer("5","4",$eventDateForAT,null,null,"BirthOrAdoption",null,null,null,null,null,$updatedDataObject);
+		
+		$aptc = $eligibility.split(';')[0].split(',')[2];
+		$stateSubsidy = $eligibility.split(';')[0].split(',')[3];
+		$scLevel = $eligibility.split(';')[0].split(',')[1];
+
+	}else{
+		$household = accountTransfer(9,4,$eventDateForAT,null,null,"BirthOrAdoption");
+	}
+	
+	var $eventType = getEventType("BirthOrAdoption");
+	$household.coverageStartDate = getCoverageStartDate($eventType,$eventDate);
+	$household.coverageEndDate = getCoverageEndDate($eventType);	
+	clickLinkIndividual();
+	var $defaultGroup
+	if($eligibility){
+		$defaultGroup=defineGroups("group1:0,1,2,3",$household,"group1:$"+$aptc,"group1:"+$scLevel,"group1:$"+$stateSubsidy);	
+	}else{
+		$defaultGroup=defineGroups("group1:0,1,2,3",$household,"group1:$150.25","group1:CS4");	
+	}
+	createIndividual($household,"In Progress",$defaultGroup,"SHOP FOR PLANS",null,null,"N");
+
+	if ($brokerId) {
+		designateAgent($brokerId, $household);
+	}
+	
+	//clickConfirmEventAndShop();
+	//var $eventDate = selectQualifyingDate("60days");											
+	//selectQualifyingEvent("Moved into State");					
+	//clickContinue("In Progress",$household,"SHOP FOR PLANS",$eventDate,$defaultGroup);	
+	clickShopForPlans($household,$defaultGroup,"Y","N","N");							
+	clickShopHealthPlan($household,"N");										
+	clickNextPreferences();												
+	clickNextPreferences();
+	clickViewPlans("Y",$defaultGroup[0].aptc,$household.people[0].homeAddress.zipcode,$household.coverageStartDate,$noOfAdults,$noOfChildren,"NO",null,"YES",$defaultGroup[0],"N");
+	
+	if ($individualData) {
+		verifyCompanyFilterOnPlanPage($individualData.issuerHealth);
+	}
+
+	$defaultGroup[0].healthPlan = clickAddPlanFromPlanSelection("", "YES");
+	clickContinueToCart($defaultGroup[0].healthPlan,"",$household.coverageStartDate,$defaultGroup[0],"YES","N","N");
+	clickNextButtonOnCart();
+	enterBindingArbitrationAgreement($household);
+	clickEnroll($defaultGroup[0],$defaultGroup[0].healthPlan,"",$household.coverageStartDate,null,null,"N");	
+	
+
+	
+	$defaultGroup[0].healthPlan.enrollmentEvents[0] = createEnrollmentEvent(1,"Individual");
+	$premiumTable = calculateMonthlyPremium($defaultGroup[0]);
+	$defaultGroup[0].healthPlan.premiumTable = $premiumTable;
+
+	if($isNeedDental){
+		clickGoToDashboardFromEsig(null, null, null,null,null,null,null,null,"N",null,null);
+		var $dentalGroups=defineGroups("group1:0,1,2,3",$household,"group1:$150.25","group1:CS4");
+		$defaultGroup[1]= $dentalGroups[0];
+		clickContinueShopping($household, $defaultGroup,"Y","N","","","Dental","N");
+		clickShopDentalPlan("","",$household.people[0].homeAddress.zipcode,$household.coverageStartDate,2, 2,"NO","","YES",$defaultGroup[1],"N");
+		if ($individualData) {
+			verifyCompanyFilterOnPlanPage($individualData.issuerDental);
+		}
+
+		$defaultGroup[1].dentalPlan = clickAddPlanFromPlanSelection	("","YES");
+		clickContinueToCart("",$defaultGroup[1].dentalPlan,$household.coverageStartDate,$defaultGroup[1],"YES",null,"N");
+		clickNextButtonOnCart();
+
+		enterBindingArbitrationAgreement($household, true);
+		clickEnroll($defaultGroup[1],"",$defaultGroup[1].dentalPlan,$household.coverageStartDate,null,null,"N");
+		
+	}
+
+	$household.customGroup = $defaultGroup;
+
+	
+
+	var $str = JSON.stringify($household);
+	
+	_log("person1 address: "+$household.people[0].homeAddress.street);
+	//_writeFile($str, "JSONfileHousehold.txt", true);//
+
+	if ($data && $data.isRenewalsAt) {
+		$updatedDataObject=changeXmlBeforAccountTransfer(5,4,$eventDateForAT,"BirthOrAdoption",null,$data.eligibility2,null,$updatedDataObject);
+		$updatedDataObject=changeXmlBeforAccountTransfer(null,null,null,null,null,"0:renewalYear;1:renewalYear;2:renewalYear;3:renewalYear",null,$updatedDataObject);
+		$SEPHousehold = accountTransfer(5,4,null,"YES",null,null,null,null,null,null,null,$updatedDataObject);
+	}
+	
+	return $household;
+}
+
+function createEnrollment($brokerId,$numOfIndividuals,$isNeedDental,$data){
+	// onScriptError = function($e){
+	// 	_logExceptionAsFailure($e); // Explicitly log the exception as failure.
+	// 	_log("In onScriptError", "FAILURE"); // Log with a Failure tag.
+	// 	logOut();
+	// 	if($numOfIndividuals){
+	// 		for(var $i=0;$i<$numOfIndividuals;$i++){
+	// 			var $household = createIndividualAndEnrollHealth($brokerId,null,$isNeedDental,$data);
+	// 			Logout();
+	// 		}
+	// 	}
+	// }
+
+	if($numOfIndividuals){
+		for(var $i=0;$i<$numOfIndividuals;$i++){
+			if ($data) {
+				if ($data.individuals) {
+					var $household = createIndividualAndEnrollHealth($brokerId,null,$isNeedDental,$data,$data.individuals[$i]);
+				}else{
+					var $household = createIndividualAndEnrollHealth($brokerId,null,$isNeedDental,$data,null);
+				}
+			}else{
+				var $household = createIndividualAndEnrollHealth($brokerId,null,$isNeedDental,null,null);
+			}
+			
+			
+			Logout();
+		}
+	}else{
+		Login("brokeradmin@ghix.com", "ghix123");
+	}
+}
+
+function finalizePlansAddMemberSameGroup($SEPHousehold,$defaultGroup){
+
+	$eventDate = getQualifyingDate("60days","MM/DD/YYYY");
+
+	_click(_paragraph($defaultGroup[0].coverageYear));
+
+	clickFinalizePlans($SEPHousehold,$defaultGroup,"N","Y",1,"YES");
+	$defaultGroup[0].coverageChangeEffectiveDate = $SEPHousehold.people[4].coverageStartDate;
+	var $SEPdefaultGroup = clickAddToThisPlan($SEPHousehold,$defaultGroup,"4",0,"Add to plan","Birth");
+	clickNextButtonOnCart();
+	enterBindingArbitrationAgreement($SEPHousehold);
+	clickEnroll($SEPdefaultGroup[0],$SEPdefaultGroup[0].healthPlan,null,$SEPHousehold.coverageStartDate);
+	clickGoToDashboardFromEsig("Enrolled",$SEPHousehold,"CONTINUE SHOPPING",$eventDate,$SEPdefaultGroup,"Y","Y",null,null,null,"Y");
+	clickMyEnrollments($SEPdefaultGroup,$SEPHousehold,$SEPHousehold.coverageStartDate,$SEPHousehold.coverageEndDate,"Pending");
+
+	return $SEPdefaultGroup;
+}

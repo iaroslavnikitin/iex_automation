@@ -1,0 +1,11 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/User.sah"
+
+"HIX-101657","[Documentation]","Verify Counselor setup up notification preferences under Communication Preferences for individual"
+,"createNewUser"
+,"[Keyword]","verifyCounselorsNotificationPreferences"
+,"[Documentation]","password","preferenceType","counselor"
+,"[Data]","ghix123#","Postal Mail","$counselor"
+,,"ghix123#","Both (E-mail and Postal)","$counselor"
+,,"ghix123#","None","$counselor"
+,,"ghix123#","Email","$counselor"

@@ -1,0 +1,95 @@
+_includeOnce("../lib/Utils.sah");
+
+var $planSummaryLink = _link("Plan Summary");
+var $householdAndContactInfoLink = _link("Household and Contact information");
+
+function clickPlanSummary($household){
+	click($planSummaryLink);
+	_assertVisible(_heading4("My Plan Details"));
+}
+
+function clickHouseholdAndContactInfo(){
+	click($householdAndContactInfoLink);
+	_assertVisible(_heading1("Household and Contact Information"));
+}
+
+function verifyMyEligibilityHistory($household,$groups,$isEnrolled,$isSEP){
+
+	verifyCurrentApplication($household,$groups,$isEnrolled,$isSEP);
+}
+
+function verifyCurrentApplication($household,$groups,$isEnrolled,$isSEP){
+
+	verifyTopInformation($household,$groups,$isEnrolled,$isSEP);
+	
+	 _assertVisible(_link("Household and Contact information", _in(_div("currentAppStatus"))));
+	 _assertVisible(_paragraph("To view your changes click here.", _in(_div("currentAppStatus"))));
+	 _assertVisible(_link("here", _in(_paragraph("aid_toViewYourChanges"))));
+	 _assertNotVisible(_div("To view your documents click here.", _in(_div("currentAppStatus"))));
+	 _assertVisible(_link("Eligibility Results", _in(_div("currentAppStatus"))));
+	
+	if($isEnrolled){
+		_assertVisible(_paragraph("You have been enrolled. Plan Summary", _in(_div("currentAppStatus"))));
+	}else{
+	 	_assertNotVisible(_paragraph("You have been enrolled. Plan Summary", _in(_div("currentAppStatus"))));
+	}
+	
+}
+
+function verifyTopInformation($household,$groups,$isEnrolled,$isSEP){
+	var $todaysDate = getCurrentDate('MMM D, YYYY');
+	_setSelected(_select("", _in(_span("aid_coverageYearDd"))), $household.coverageYear);
+
+	var $currentAppDiv = _div("currentAppStatus");
+	_assertVisible(_div("/"+$household.coverageYear+" Coverage"+"/", _in($currentAppDiv)));
+	if(!$isSEP){
+		_assertVisible(_div("Type: Initial Application", _in($currentAppDiv)));	
+	}
+	_assertVisible(_div("Case Number: "+$household.externalHouseholdCaseId, _in($currentAppDiv)));
+
+	 _assertVisible(_div("/"+"Creation Date: "+$todaysDate+"/",_in($currentAppDiv)));
+	 _assertVisible(_div("/"+"Last Updated: "+$todaysDate+"/",_in($currentAppDiv)));
+	var $isFinancial = false;
+	var $isCSR = false;
+
+	for (var $i = 0; $i < $household.people.length; $i++) {
+	 	if($household.people[$i].aptcEligibility == "true"){
+	 		$isFinancial = true;
+	 	}
+	 	if($household.people[$i].csrEligibility == "true"){
+	 		$isCSR = true;
+	 	}
+	}
+
+	if($isFinancial){
+		_assertVisible(_paragraph("Federal APTC: $"+$household.people[0].maxAPTC, _in($currentAppDiv)));
+	}else{
+		_log("assertion for non aptc needs to be added!!!!");
+	}
+	 
+	if($isCSR){
+		_assertVisible(_paragraph("CSR: one or more members are eligible", _in($currentAppDiv)));
+	}else{
+		_log("assertion for non csr needs to be added!!!!");
+	}
+}
+
+function clickViewYourChanges($household,$event,$eventDate){
+	_setStrictVisibilityCheck(true);
+	_click(_link("here", _in(_paragraph("aid_toViewYourChanges"))));	
+	_assertVisible(_heading3("Summary of Reported Events"));
+	_assertVisible(_button("/×/", _rightOf(_heading3("Summary of Reported Events"))));
+	_assertVisible(_row("Name Event Event Date"));
+	_assertVisible(_link("OK", _in(_div("modal-footer"))));
+	for (var $i = 0; $i < $household.people.length; $i++) {
+		var $fullName = $household.people[$i].firstName+" "+$household.people[$i].lastName;
+	 	_assertVisible(_cell($eventDate, _rightOf(_cell($event, _rightOf(_cell($fullName, _in(_table("/table/"))))))));
+	}
+	_click(_link("OK", _in(_div("modal-footer"))));
+	_assertNotVisible(_heading3("Summary of Reported Events"));
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyPastApplication($household,$groups,$isEnrolled,$isSEP){
+
+}

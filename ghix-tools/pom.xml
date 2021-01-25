@@ -1,0 +1,247 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <artifactId>iex</artifactId>
+        <groupId>com.getinsured.iex</groupId>
+        <version>MAIN-BUILD-SNAPSHOT</version>
+    </parent>
+    
+    <groupId>com.getinsured.iex.tools</groupId>
+    <artifactId>ghix-tools</artifactId>
+    <packaging>war</packaging>
+    <name>GHIX Tools for different tasks</name>
+    <url>http://maven.apache.org</url>
+    <properties>
+        <jdk.version>1.8</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <junit.version>4.7</junit.version>
+        <jclouds.version>1.7.2</jclouds.version>
+        <apache.commons.io.version>2.4</apache.commons.io.version>
+    </properties>
+    
+    <dependencies>    
+        <!-- 
+            CDN dependecies 
+         -->
+        <dependency>
+            <groupId>org.apache.jclouds</groupId>
+            <artifactId>jclouds-blobstore</artifactId>
+            <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.driver</groupId>
+              <artifactId>jclouds-slf4j</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.apache.jclouds.driver</groupId>
+            <artifactId>jclouds-sshj</artifactId>
+            <version>${jclouds.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>bcprov-ext-jdk15on</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
+              </exclusions>
+        </dependency>
+        
+        <!-- 
+            Rackspace US dependencies 
+        -->
+        <dependency>
+            <groupId>org.apache.jclouds.provider</groupId>
+              <artifactId>rackspace-cloudservers-us</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+              <groupId>org.apache.jclouds.labs</groupId>
+              <artifactId>rackspace-cloudfiles-us</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+              <groupId>org.apache.jclouds.provider</groupId>
+              <artifactId>rackspace-cloudblockstorage-us</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+              <groupId>org.apache.jclouds.provider</groupId>
+              <artifactId>rackspace-clouddatabases-us</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+              <groupId>org.apache.jclouds.labs</groupId>
+              <artifactId>rackspace-cloudqueues-us</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+              <groupId>org.apache.jclouds.provider</groupId>
+              <artifactId>rackspace-cloudloadbalancers-us</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        <dependency>
+              <groupId>org.apache.jclouds.provider</groupId>
+              <artifactId>rackspace-clouddns-us</artifactId>
+              <version>${jclouds.version}</version>
+        </dependency>
+        <!-- 
+            YUI JS Compressor
+         -->
+        <dependency>
+            <groupId>com.yahoo.platform.yui</groupId>
+            <artifactId>yuicompressor</artifactId>
+            <version>2.4.7</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <!-- 
+            Servlet/JSP dependencies
+         -->
+         <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>servlet-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet.jsp</groupId>
+            <artifactId>jsp-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+        </dependency> 
+        
+        <dependency>
+	<groupId>org.apache.poi</groupId>
+	<artifactId>poi-ooxml</artifactId>
+</dependency>
+
+<dependency>
+<groupId>org.freemarker</groupId>
+  <artifactId>freemarker</artifactId>
+</dependency>
+    </dependencies>
+    
+    <!-- JUnit reporting/test coverage -->
+    <reporting>
+        <excludeDefaults>true</excludeDefaults>
+        <outputDirectory>${project.build.directory}/site</outputDirectory>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-project-info-reports-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
+                    <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>dependencies</report>
+                            <report>scm</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-report-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <outputName>ghix-tools-tests</outputName>                 
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+    <!-- // JUnit reporting -->
+    <build>
+        <finalName>ghix-tools</finalName>
+        <pluginManagement>
+            <plugins>
+                <!-- Compiler plugin enforces Java 1.7 compatibility -->
+                <plugin>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.1</version>
+                    <configuration>
+                        <source>${jdk.version}</source>
+                        <target>${jdk.version}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>1.3</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>java</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <mainClass>com.getinsured.cdn.cloud.RackspaceCDNProvider</mainClass>
+                        <cleanupDaemonThreads>false</cleanupDaemonThreads>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>package</phase> 
+                            <goals>           
+                                <goal>test-jar</goal>
+                            </goals>
+                            <configuration>
+                                <includes>
+                                    <include>com/getinsured/**</include>
+                                </includes>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ghixbuild</id>
+            <name>ghixbuild-snapshots</name>
+            <url>http://artifactory.ghixqa.com:8081/artifactory/libs-release-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+</project>

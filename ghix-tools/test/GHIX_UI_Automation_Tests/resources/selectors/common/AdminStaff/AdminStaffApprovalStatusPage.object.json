@@ -1,0 +1,12 @@
+{
+  "rightPanel":
+  {
+    "rightPanelHeader": "$('#adminStaffApproval > div > h4')",
+    "adminStaffNumber": "$('#adminStaffApproval > table > tbody > tr:nth-child(1) > td.span6 > strong')",
+    "applicationSubmittionDate": "$('#adminStaffApproval > table > tbody > tr:nth-child(2) > td:nth-child(2) > strong')",
+    "lbl_approvalStatus": "$('#adminStaffApproval > table > tbody > tr:nth-child(3) > td.span4.txt-right.ng-binding')",
+    "approvalStatus": "$('#adminStaffApproval > table > tbody > tr:nth-child(3) > td:nth-child(2) > strong')"
+
+  }
+
+}

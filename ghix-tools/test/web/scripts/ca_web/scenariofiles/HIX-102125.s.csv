@@ -1,0 +1,79 @@
+"Comments","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/Broker.sah"
+,,"loadSahi","../pagemodels/HIX-102125_lib.sah"
+,,"loadSahi","../pagemodels/Agency.sah"
+,,"loadSahi","../pagemodels/Login.sah"
+,,"loadSahi","""C:/Sahi/CA/agents.sah"""
+,,"loadSahi","""C:/Sahi/CA/agencies.sah"""
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+
+"Verify that all the agents with same license number is searched","Verify status changed for agents with same license number","[Documentation]","Prerequisite
+Two or more agents must have same license number say 123456789
+
+STR:
+
+1.Login as Agency
+2.Agent View List page is shown
+3.In the left navigation pane enter license number as ""123456789""
+4.Click on GO button
+5.Verify that all the agents with license number as ""123456789"" is shown
+
+
+Expected - All the agents with same license should be shown in the search results"
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"refineAgentsForAgency","""""","""""","""""","""""","$CertifiedAgencyA.agentLicenseNumber"
+,,"logOut"
+
+"Verify that IND35 is triggered when agent status is changed",,"[Documentation]","Prerequisite
+Agent is added by agency manager say 'Vikram Ranjeet'
+
+
+STR:
+
+1.Login as Brokeradmin
+2.List of agents is displayed
+3.Search the agent from the left navigation pane
+4.Click on GO button
+5.Now select the gear icon and click on EDIT
+6.Select the status of agent as CERTIFIED
+7.Now go to DB and run the below query
+
+select * from gi_ws_payload where ENDPOINT_FUNCTION = 'IND35' order by 1 desc;
+
+and verify that IND35 for agent 'Vikram Ranjeet' is triggered
+8.Also verify that the status should show as 'SUCCESS'
+
+
+Expected - IND35 should be triggered when agent status is changed from brokeradmin portal"
+,,"loginAsBrokerAdmin","brokeradmin@ghix.com","ghix123"
+,,"refineAgentsForBroker","$INDAAINDAy.firstName","$INDAAINDAy.lastName","""""","""""","Pending"
+,,"goToEditAgentPageAsBroker","$INDAAINDAy.firstName","$INDAAINDAy.lastName"
+,,"updateCertificationStatus","Certified","Y","$INDABINDAy.firstName","$INDACINDAy.firstName"
+,,"verifyIND35TriggerCountForCertificationChange","$INDABINDAy.firstName","1","$INDABINDAy.businessName"
+,,"verifyIND35TriggerCountForCertificationChange","$INDACINDAy.firstName","0","$INDABINDAy.businessName"
+,,"goToManageAgents"
+,,"refineAgentsForBroker","$INDAAINDAy.firstName","$INDAAINDAy.lastName","""""","""""","Certified"
+,,"goToEditAgentPageAsBroker","$INDAAINDAy.firstName","$INDAAINDAy.lastName"
+,,"updateCertificationStatus","Pending","Y","$INDABINDAy.firstName","$INDACINDAy.firstName"
+,,"verifyIND35TriggerCountForCertificationChange","$INDABINDAy.firstName","2","$INDABINDAy.businessName"
+,,"verifyIND35TriggerCountForCertificationChange","$INDACINDAy.firstName","0","$INDABINDAy.businessName"
+,,"logOut"
+
+
+"Verify Status of All agents are changed when brokeradmin tries to change the status of Agents with same Licence Number",,"[Documentation]","1.Login as Brokeradmin
+2.List of agents is displayed
+3.Search the agent from the left navigation pane
+4.Click on GO button
+5.Now select the gear icon and click on EDIT
+6.Select the status of agent as CERTIFIED
+7. Check All agents in the pop up
+8. Click 'Update Status' Button
+9. Search all agents by licence number and verify all are certified."
+
+,,"loginAsBrokerAdmin","brokeradmin@ghix.com","ghix123"
+,,"refineAgentsForBroker","$INDAAINDAy.firstName","$INDAAINDAy.lastName"
+,,"goToEditAgentPageAsBroker","$INDAAINDAy.firstName","$INDAAINDAy.lastName"
+,,"updateCertificationStatusForAllAgents","""Certified"""
+,,"goToManageAgents"
+,,"verifyStatusOfAllAgents","""Certified""","$INDAAINDAy.licenseNumber"

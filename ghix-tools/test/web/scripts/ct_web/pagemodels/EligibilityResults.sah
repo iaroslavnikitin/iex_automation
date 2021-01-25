@@ -1,0 +1,20 @@
+var $EligibilityResultsLink = _link("currentAppLink", _in(_div("currentAppStatus")));
+var $MyEligibilityHeading =  _heading4("My Eligibility");
+
+function clickEligibilityResults($eligibility){
+	if($eligibility=="N"){
+		_assertNotVisible(_link("ELIGIBILITY RESULTS"));
+	}
+	else {
+		_click(_link("currentAppLink", _in(_div("currentAppStatus"))));
+		verifyEligibilityResults();
+	}
+}
+
+function verifyEligibilityResults(){
+	_assertVisible($MyEligibilityHeading);
+	_assertEqual("Qualified Health Plan & Qualified Dental Plan (QHP & QDP) Some or all of the people in your household are approved to purchase Qualified Health Plan and Qualified Dental Plan on Your Health Idaho. Premium Tax Credit Your household is eligible for an Advanced Payment of the Premium Tax Credit. Your tax credit amount is each month, which is for the year. You can use these tax credits to help pay your health and dental insurance premium. Cost Sharing Reduction You are eligible for cost sharing reductions, which allow you to pay less for things like doctor visits and medicine. The cost-sharing reductions will reduce the copays and deductibles associated with your plan. IMPORTANT: YOUR ACTION REQUIRED Click My Applications to the left to see the documents you need to provide for each household member to complete the verification process. Failure to submit these documents may result in a loss of exchange eligibility. Check your notice for deadlines. If you believe this eligibility result is incorrect, please click the button below to submit an appeal. Also, if you are still interested in purchasing health and dental insurance, you can contact an agent or broker or a health insurance company to purchase insurance off the exchange.", _getText(_div("margin10-t gutter10", _in(_div("span7")))));
+	_assertEqual("For instructions on next steps, continue to WHAT NEXT?", _getText(_paragraph("pull-right margin20-r margin10-b", _near(_div("span7")))));
+	_assertEqual("Eligibility Status: Eligible Conditional", _getText(_paragraph("Eligibility Status: Eligible Conditional", _in(_div("applicationState ng-scope")))));
+	_assertEqual($ssapPeople[0].fullName(), _getText(_strong("/ng-binding/", _in(_div("applicationState ng-scope")))));
+}

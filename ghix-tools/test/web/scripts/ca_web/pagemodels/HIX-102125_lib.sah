@@ -1,0 +1,54 @@
+_include("../lib/Utils.sah");
+_includeOnce("../lib/CommonFunctions.sah");
+_includeOnce("../lib/DB.sah");
+
+function goToEditAgentPageAsBroker($firstName, $lastName){
+	click(_link(0, _rightOf(_cell($firstName + " "+ $lastName))));
+	click(_link("/"+"Edit"+"/"));
+	verifyURL("editcertificationstatus");
+	_assertVisible(_heading4("Certification Status"));
+	_assertVisible(_heading4("Update Certification"));
+}
+
+function updateCertificationStatus($newStatus, $hasMultipleAccounts, $checkAccount, $uncheckAccount){
+	_setSelected(_select("certificationStatus"), $newStatus);
+	_setValue(_textarea("comments"), "Status updated by Sahi");
+	click(_button("Submit"));
+	if (isTrue($hasMultipleAccounts)) {
+		_lockWindow();
+		_focusWindow();
+		_assertVisible(_heading4("Following additional profiles exist for this agent. You can click on the 'Update Status' below to make the same certification status change for all profiles."));
+		_assertVisible(_link("Update Status"));
+		var $checkBoxes = _collectAttributes("_checkbox","brokerIds","checked")
+		for(var $i =0; $i< $checkBoxes.length; $i++){
+			_assertFalse($checkBoxes[$i],"All check box should be unchecked")
+	
+		}
+		if ($checkAccount) {
+			_check(_checkbox("brokerIds", _in(_row("/"+$checkAccount+"/"))));
+		}
+		if ($uncheckAccount) {
+			_uncheck(_checkbox("brokerIds", _in(_row("/"+$uncheckAccount+"/"))));
+		}
+		click(_link("Update Status"));
+		_unlockWindow();
+	}
+	_assertEqual($newStatus, _getText(_cell(0, _rightOf(_cell("Certification Status")))));
+}
+
+function verifyIND35TriggerCountForCertificationChange($name, $expectedCount, $agency){
+	var $count = getIND35CountForAgentCertificationStatusChange($name, $agency);
+	_assertEqual($expectedCount, $count, "Number of records returned with ENDPOINT 'IND35', response_code '200' and status 'SUCCESS' is not " + $expectedCount);
+}
+
+function updateCertificationStatusForAllAgents($newStatus){
+	_setSelected(_select("certificationStatus"), $newStatus);
+	_setValue(_textarea("comments"), "Status updated by Sahi");
+	click(_button("Submit"));
+	var $checkBox = _collect("_checkbox","/./",_in(_div("multipleBrokerBox")));
+	for($i=0; $i<$checkBox.length; $i++){
+		_click($checkBox[$i]);
+	}
+	_click(_link("Update Status"));
+	
+}

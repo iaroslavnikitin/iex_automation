@@ -1,0 +1,5 @@
+{
+    "description": "2 adults household CS4 with APTC=true",
+    "hhFamily": {"size": 2, "singleParent": false},
+    "hhLastName": true
+}

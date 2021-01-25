@@ -1,0 +1,31 @@
+_includeOnce("Apply.sah");
+_includeOnce("Indportal.sah");
+
+var $QEPEligible = true;
+
+var $qepEligibleHeader = _heading3("You probably qualify for a Special Enrollment Period");
+var $qepEligibleStart = _link("START YOUR APPLICATION");
+
+function qepEligibleVerify() {
+	_assertVisible($qepEligibleHeader);
+	_assertVisible(_link("START YOUR APPLICATION"));
+	_assertTrue(new RegExp("Welcome, " + $firstName + " " + $lastName, "i").test(_getText($indportalHeader)));
+}
+
+function qepEligibleClickStartApplication() {
+	_click($qepEligibleStart);
+	//verifyElementsOfApplyPopUp(true);
+	_assertVisible(_heading1("Before We Begin"));
+	_assertVisible(_heading3("Privacy of Your Information"));
+	_assertVisible(_paragraph(0, _in(_div("subsection"))));
+	_assertEqual("The privacy of your information is our top priority. We'll keep your information private as required by law. Your answers on this form will only be used to determine eligibility for health coverage. We'll verify your answers using the information in our electronic databases and the databases of state and federal agencies. If the information doesn't match, we may ask you to send us additional proof. We won't ask any questions about your medical history.", _getText(_paragraph(0, _in(_div("subsection")))));
+	
+	_assertVisible(_paragraph(1, _in(_div("subsection"))));
+	
+	_assertEqual("As part of the application process, we may need to retrieve your information from the Social Security Administration, the Department of Homeland Security, a consumer reporting agency, and other services available through the Federal Data Services Hub. We need this information to check your ability to enroll in for coverage on Nevada Health Link. We may also re-verify your information at a later time to make sure your information is up to date and will notify you if we find something has changed.",_getText(_paragraph(1, _in(_div("subsection")))));
+	
+	_assertVisible(_label("gi-checkbox-label"),"Verify checkbox on page Before We Begin is displayed" );
+	
+	_assertVisible(_span("Save & Continue"));
+
+}

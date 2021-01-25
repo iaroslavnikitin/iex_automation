@@ -1,0 +1,96 @@
+_includeOnce("../lib/Utils.sah");
+
+var $EVENT_TYPE = ["--- Select ---",
+				"Birth Or Adoption",
+				"Change in Address",
+				"Change in American Indian / Alaska Native Status",
+				"Change in Household Size",
+				"Change in Legal Presence",
+				"Change in U.S. Citizenship Status",
+				"Child Aged out from old application",
+				"Divorce",
+				"Exemption Cancelled",
+				"Income Change",
+				"Loss of coverage through employer",
+				"Lost other minimum essential coverage",
+				"Marriage",
+				"Moved into State",
+				"Primary Eligible for other minimum essential coverage",
+				"Primary in Another Application Died",
+				"Primary in Another Application Incarcerated",
+				"Removed as Dependent from Another Application"];
+
+
+function verifyQualifyingEventPage(){
+	
+	//_assertVisible(_heading1("Financial Application - Life Change Reporting"));
+	_assertVisible(_paragraph("alert"));
+	_assertEqual("Important: In order to continue, we need more information about the life event you reported. Life events must be reported within 60 days of the event.", _getText(_paragraph("alert")));
+		
+	_assertVisible(_heading4("You have Qualifying Events") || _heading4("Select your Qualifying Life Event and the date the event occurred"))
+	_assertVisible(_div("Qualifying Event Required") || _div("Qualifying Life EventRequired"));
+	var $list = _getOptions(_select("qualifyEventSelected"))
+	_assertEqual($EVENT_TYPE, $list)
+	_assertVisible(_link("Back to DashBoard") || _link("Back to Dashboard"));
+	_assertVisible(_submit("Continue"));
+	
+	_assertNotVisible(_checkbox("terms"));	
+}
+
+
+function selectQualifyingDate($pastDate){
+	/*
+	var $eventDate ="";
+	if($pastDate == "60days"){
+		$eventDate = _fetch(window.moment().subtract(60, 'd').format('MM/DD/YYYY'));
+	}
+	if($pastDate == "currentDate"){
+		$eventDate = _fetch(window.moment().format('MM/DD/YYYY'));
+	}
+	*/
+	var $eventDate = getQualifyingDate($pastDate,"MM/DD/YYYY");
+	_setValue(_textbox("qualifyEventDate"), $eventDate);
+	return $eventDate;
+}
+
+//$event =  "Birth"
+function selectQualifyingEvent($event){
+	
+	_setSelected(_select("qualifyEventSelected"), $event);
+	
+}
+
+//staus :In Progress
+function clickContinue($status, $household,$actionButton,$eventDate,$groups,$isHealthEnrollmentComplete,$isFromToday,$event,$verificationFlag){
+	//clickTermsCheckBox();
+	_click(_submit("Continue"));
+	verifyConfirmEventDatePopup($eventDate,$event);
+	waitForDelayPopup();
+	if ($verificationFlag != "N") {
+		verifyIndividualDashboard($status, $household,$actionButton,$eventDate,$groups,$isHealthEnrollmentComplete,$isFromToday);
+	}
+
+}
+
+function verifyConfirmEventDatePopup($eventDate,$event){
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_div("futureDateModalConfirm"));
+	_assertVisible(_div('Please confirm that date '+$eventDate+' for event "'+$event+'" is correct', _in(_div("futureDateModalConfirm"))));
+	_assertVisible(_link("Change Event Date", _in(_div("futureDateModalConfirm"))));
+	_assertVisible(_link("Confirm", _in(_div("futureDateModalConfirm"))));
+
+	_click(_link("Confirm", _in(_div("futureDateModalConfirm"))));
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+}
+
+function clickBackToDashBoard(){
+	_click(_link("Back to DashBoard"));
+	verifyIndividualDashboard($status, $household,$actionButton,$eventDate,$groups,$isHealthEnrollmentComplete,$isFromToday);
+}
+
+function clickTermsCheckBox(){
+	_click(_checkbox("terms"));
+}

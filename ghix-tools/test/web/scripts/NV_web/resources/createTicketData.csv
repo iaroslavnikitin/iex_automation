@@ -1,0 +1,24 @@
+"users","email","password","role","ticketType","subType","createdForRole","user","expUser","priority"
+,"autocsr_l1cs1@yopmail.com","ghix123#","""L1 Customer Support""","""Triage""",,"""L1 Customer Support""","""autoCSRL1""","""autoCSRL1CS1 Martyn""","""High"""
+,"autocsr_l2cs2@yopmail.com","ghix123#","""L2 Customer Support""","""Triage""",,"""L2 Customer Support""","""autoCSRL2""","""autoCSRL2CS2 Martyn""","""Low"""
+,"auto_supervisor@yopmail.com","ghix123#","""Supervisor Customer Support""","""Triage""",,"""L2 Customer Support""","""autoCSRL2""","""autoCSRL2CS2 Martyn""","""Low"""
+,"auto_admin@yopmail.com","ghix123#","""Administrator""","""Triage""",,"""L2 Customer Support""","""autoCSRL2""","""autoCSRL2CS2 Martyn""","""Low"""
+
+"archive","email","password","role","archivePermission","ticketType","subType","createdForRole","user","expUser","priority"
+,"auto_admin@yopmail.com","ghix123#","""Administrator""","""Y""","""Triage""",,"""L1 Customer Support""","""autoCSRL1""","autoCSRL1CS1 Martyn","""High"""
+,"auto_operations@yopmail.com","ghix123#","""Operations""","""Y""","""Triage""",,"""L2 Customer Support""","""autoCSRL2""","""autoCSRL2CS2 Martyn""","""Low"""
+,"autocsr_l1cs1@yopmail.com","ghix123#","""L1 Customer Support""","""N""","""Triage""",,"""L1 Customer Support""","""autoCSRL1""","""autoCSRL1CS1 Martyn""","""High"""
+
+"export","email","password","wrkgrp1","wrkgrp2","p1","p2","role","multiWrkgrp","multiP"
+,"auto_admin@yopmail.com","ghix123#","""Document Verification Workgroup""","""Triage Workgroup""","""High""","""Medium""","""Administrator""","""Document Verification Workgroup,Triage Workgroup""","""High,Medium"""
+"//","auto_operations@yopmail.com","ghix123#","""Document Verification Workgroup""","""Triage Workgroup""","""High""","""Medium""","""Operations""","""Document Verification Workgroup,Triage Workgroup""","""High,Medium"""
+
+"Add/Remove From Workgroup","email","csrlogin","password","wrkgrp1","wrkgrp2","user","role","searchUser"
+,"auto_admin@yopmail.com","autocsr_l2cs2@yopmail.com","ghix123#","""Document Verification Workgroup""","""Triage Workgroup""","""autoCSRL2CS2 Martyn""","""L2_CSR""","""autoCSRL2CS2"""
+,"auto_supervisor@yopmail.com","autocsr_l2cs2@yopmail.com","ghix123#","""Document Verification Workgroup""","""Triage Workgroup""","""autoCSRL2CS2 Martyn""","""L2_CSR""","""autoCSRL2CS2"""
+
+"reopen","email","password","role","assignPermission","archivePermission","ticketType","subType","createdForRole","user","expUser","priority"
+,"autocsr_l1cs1@yopmail.com","ghix123#","""L1 Customer Support""","""N""","""N""","""Triage""",,"""L1 Customer Support""","""autoCSRL1""","autoCSRL1CS1 Martyn","""High"""
+,"autocsr_l2cs2@yopmail.com","ghix123#","""L2 Customer Support""","""Y""","""N""","""Triage""",,"""L2 Customer Support""","""autoCSRL2""","""autoCSRL2CS2 Martyn""","""Low"""
+,"auto_supervisor@yopmail.com","ghix123#","""Supervisor Customer Support""","""Y""","""N""","""Triage""",,"""L2 Customer Support""","""autoCSRL2""","""autoCSRL2CS2 Martyn""","""Low"""
+,"auto_admin@yopmail.com","ghix123#","""Administrator""","""Y""","""Y""","""Triage""",,"""L2 Customer Support""","""autoCSRL2""","""autoCSRL2CS2 Martyn""","""Low"""

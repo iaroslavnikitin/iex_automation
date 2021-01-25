@@ -1,0 +1,307 @@
+
+
+function verifyIssuerLandingPage($issuer){
+	verifyIssuerNavigationBar();
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Welcome"));
+	verifyLeftNavigationLinksOnIssuerRepPage();
+	_assertVisible(_textbox("effectiveStartDate"));
+	_assertVisible(_link("View Consumer Shopping"));
+	verifyIssuerProfile($issuer);
+}
+
+function verifyIssuerProfile($issuer){
+	_assertVisible(_heading4("Issuer Information"));
+	_assertNotVisible(_link("Edit"));
+	_assertEqual($issuer, _getText(_cell(1, _near(_cell("Name")))));
+	var $issuerDetails = getIssuerDetailsfromDB($issuer);
+	_assertEqual($issuerDetails[0][1], _getText(_cell(1, _near(_cell("NAIC Company Code tooltip link")))),"Verify NAIC Company Code is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_cell("NAIC Group Code tooltip link")))), $issuerDetails[0][2],"Verify NAIC Group Code is same as that in DB");
+	
+	_assertEqual(_getText(_cell(0, _rightOf(_cell("Federal Employer ID tooltip link")))), $issuerDetails[0][3],"Verify Federal Employer ID is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_cell("HIOS Issuer ID tooltip link")))), $issuerDetails[0][4],"Verify HIOS Issuer ID is same as that in DB");
+	
+	var $issuerAddress = getIssuerAddressFromDB($issuer);
+	_assertEqual(_getText(_cell(0, _rightOf(_cell("Address line 1")))), $issuerAddress[0][0],"Verify Issuer Address is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_cell("City")))), $issuerAddress[0][1],"Verify City is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_cell("State")))), $issuerAddress[0][2],"Verify State is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_cell("Zip Code")))), $issuerAddress[0][3],"Verify Zip code is same as that in DB");
+}
+
+/**
+Common methods used for issuer Rep portal
+
+*/	
+
+function verifyLeftNavigationLinksOnIssuerRepPage(){
+	_assertVisible(_link("Issuer Profile"));
+	_assertVisible(_link("Company Profile"));
+	_assertVisible(_link("Individual Market Profile"));
+	_assertVisible(_link("Accreditation Documents"));
+	_assertVisible(_link("Certification Status"));
+	_assertVisible(_link("Issuer History"));
+	_assertVisible(_link("Plan ID Crosswalk"));
+	_assertVisible(_link("Network Rating"));
+
+}
+
+function verifyIssuerNavigationBar(){
+	_assertVisible(_listItem("Issuer Home"));
+	_assertVisible(_link("Plans"));
+	_assertVisible(_link("Account"));
+
+}
+
+
+/**
+  Methods used under Account tab 
+
+*/
+
+function clickAccountFromTopNavigationBar(){
+	
+	_click(_link("/Account Dropdown /", _in(_list("nav navPhixbar"))));
+	_assertVisible(_link("Authorized Representatives"));
+	_assertVisible(_link("Issuer Profile End of dropdown"));
+}
+
+function clickAutorizedRepresentatives(){
+	_click(_link("Authorized Representatives"));
+	verifyAuthorizedRepresentativesPage();
+
+}
+
+function verifyAuthorizedRepresentativesPage(){
+	_assertVisible(_heading1("/Manage Authorized Representatives .* total members/"));
+	_assertVisible(_heading4("Search Representatives"));
+	_assertVisible(_textbox("repname", _near(_label("Name"))));
+	_assertVisible(_textbox("reptitle", _near(_label("Title"))));
+	_assertVisible(_select("status", _near(_label("Status"))));
+	_assertEqual("SELECT,Inactive,Active,Suspended", _getOptions(_select("status")))
+}
+
+function searchIssuerRep($name, $title, $status){
+	_setValue(_textbox("repname"), $name);
+	_setValue(_textbox("reptitle"), $title);
+	_setSelected(_select("status"), $status);
+	_click(_submit("Go"));
+	if($name){
+		$issuerName = _getTableContents(_table("table table-striped"), [0,"Name"] )[1];
+		_assertEqual("/"+$name+"/", $issuerName, "Verify filter results has issuer name") 
+	}
+	if($status){
+		var $statusFromTable = _getTableContents(_table("table table-striped"), [3,"Status"] );
+		for(var $i=1; $i< $statusFromTable.length; $i++){
+			_assertEqual($status, $statusFromTable[$i], "Verify all the isuuers have '"+$status+"' status");
+		}
+	}
+	if($title){
+		var $statusFromTable = _getTableContents(_table("table table-striped"), [1,"Title"] );
+		for(var $i=1; $i< $statusFromTable.length; $i++){
+			_assertEqual($status, $statusFromTable[$i], "Verify all the isuuers have '"+$status+"' status");
+		}
+	}
+
+}
+
+function clickIssuerFromManageAuthorizedRep($issuer){
+	_click(_link("/"+$issuer+"/"));	
+	var $repInfo = getRepresentativeInfoFromDb($issuerName);
+	_assertEqual($repInfo[0][1], _getText(_cell(1, _near(_cell("Title")))), "Verify title is same as that in DB" );
+	 var $match = $repInfo[0][2].match(/^(\d{3})(\d{3})(\d{4})$/); //change to phone format
+	var $expectedPhone = '(' + match[1] + ') ' + match[2] + ' ' + match[3];
+	
+	_assertEqual($expectedPhone, _getText(_cell(1, _near(_cell("Phone Number:")))),"Verify phone is is same as that in DB");
+	_assertEqual( $repInfo[0][3], _getText(_cell(1, _near(_cell("Email Address:")))),"Verify email address is same as that in DB");
+	_assertEqual($repInfo[0][4], _getText(_cell(1, _near(_cell("Primary Contact")))), "Verify primary contact is same as that in DB");
+	
+	
+}
+
+function clickEditAuthorizedRepFromGearIcon($issuer){
+	var title = _getText(_cell(1, _near(_link($issuer))));
+	_click(_link("dLabel", _near(_link($issuer))));
+	_click(_link("Edit"));
+	_assertVisible(_heading1("/"+$issuer+"/"));
+	_assertVisible(_heading4("Representative Information"));
+	_assertVisible(_link("Cancel"));
+	_assertVisible(_button("Save"));
+	_assertVisible(_heading4("Details"));
+	_assertVisible(_listItem("Please review the details of your authorized representative"));
+	
+	
+}
+
+function clickEditOnRepresentativeInformation(){
+	
+	var $headingText = _getText(_heading1(0)); 
+	var $firstName = _getText(_cell(1, _near(_cell("First Name"))));
+	var $lastName = _getText(_cell(1, _near(_cell("Last Name"))));
+	var $title = _getText(_cell(1, _near(_cell("Title"))));
+	var $phone = _getText(_cell(1, _near(_cell("Phone Number:"))));//(408) 444 8765
+
+	var $email = _getText(_cell(1, _near(_cell("Email Address:"))))
+	var $primaryContact = _getText(_cell(1, _near(_cell("Primary Contact"))));
+	
+	_click(_link("Edit"));
+	_assertVisible(_heading1($headingText),"Verify name of the representative is displayed");
+	_assertEqual($firstName, _getValue(_textbox("firstName")),"Verify first name");
+	_assertEqual($lastName, _getValue(_textbox("lastName")),"Verify last name" );
+	_assertEqual($title, _getValue(_textbox("title")), "Verify title");
+	_assertEqual($email, _getValue(_textbox("email")), "Verify email address");
+	_assertEqual($primaryContact, _getSelectedText(_select("primaryContact")), "Verify primary contact number");
+	var $expectedPhone = _getText(_textbox("Phone first three digits required ")) +_getText(_textbox("Phone second three digits required "))+_getText(_textbox("Phone last four digits required "))
+	var match = $$expectedPhone.match(/^(\d{3})(\d{3})(\d{4})$/); //change to phone format
+	var $expectedPhone = '(' + match[1] + ') ' + match[2] + ' ' + match[3];
+	_assertEqual($expectedPhone,$phone, "Verify phone number");
+}
+
+
+function clickSaveOnRepresentativeInformation(){
+	_click(_button("Save"));
+	verifyAuthorizedRepresentativesPage();
+}
+
+/**
+  Methods that will be used under plans tab
+
+*/
+
+function clickPlanFromTopNavigationBar(){
+	_click(_link("Plans", _in(_div("menu"))));
+	_assertVisible(_link("Manage QHPs"));
+	_assertVisible(_link("Manage SADPs"));
+
+}
+
+function clickManageQHPs(){
+	_click(_link("Manage QHPs"));
+	verifyManageQHP();
+
+}
+
+function verifyManageQHP(){
+	
+	_assertVisible(_heading1("/Qualified Health Plans .* Total Plans/"));
+	_assertVisible(_heading4("Refine Results", _in(_div("sidebar"))));
+	_assertVisible(_textbox("Plan Number"));
+	_assertVisible(_select("planLevel"));
+	_assertEqual("Plan Level,Platinum,Gold,Silver,Bronze,Expanded Bronze,Catastrophic",_getOptions(_select("planLevel")))
+	_assertVisible(_select("status"));
+	_assertEqual("Any,Certified,De-certified,Incomplete,Loaded",_getOptions(_select("status")))
+	
+	_assertVisible(_select("enrollmentAvailability"));
+	_assertEqual("Any,Available,Dependents Only,Not Available",_getOptions(_select("enrollmentAvailability")))
+	_assertVisible(_submit("Go"));
+	_assertVisible(_small("Plan Year"));
+	
+
+}
+
+function searchQHP($planNumber,$planLevel, $planStatus, $enrollmentAvailability){
+	
+	_setValue(_textbox("Plan Number"), $planNumber);
+	_setSelected(_select("planLevel"), $planLevel);
+	_setSelected(_select("status"), $planStatus);
+	_setSelected(_select("enrollmentAvailability"), $enrollmentAvailability);
+	_click(_submit("Go"));
+	if($planNumber){
+		_assertEqual(2,_getTableContents(_table(0), [1,"Plan Number Sortable Ascending"] ).length, "Verify only one plan is displayed in search");
+		_assertEqual($planNumber,_getTableContents(_table(0), [1,"Plan Number Sortable Ascending"] )[1])
+	}
+	if($planLevel){
+		var $statusFromTable = _getTableContents(_table(0), [3,"level"] );
+		for(var $i=1; $i< $statusFromTable.length; $i++){
+			_assertEqual($planLevel, $statusFromTable[$i], "Verify all the isuuers have '"+$planLevel+"' Level");
+		}
+		
+	}
+	if($planStatus){
+		var $statusFromTable = _getTableContents(_table(0), [5,"Status"] );
+		for(var $i=1; $i< $statusFromTable.length; $i++){
+			_assertEqual($planStatus, $statusFromTable[$i], "Verify all the isuuers have '"+$planStatus+"' status");
+		}
+	}
+	if($enrollmentAvailability){
+		var $statusFromTable = _getTableContents(_table(0), [5,"Status"] );
+		for(var $i=1; $i< $statusFromTable.length; $i++){
+			_assertEqual($enrollmentAvailability, $statusFromTable[$i], "Verify all the isuuers have '"+$enrollmentAvailability+"' status");
+		}
+		
+	}
+	
+}
+
+
+
+function verifyUniquePlanDIsplayed(){
+	var $totalPlanString = _getText(_heading1("Qualified Health Plans 272 Total Plans"))
+	var $totalPlan = _extract($totalPlanString, "Plans"+" (.*)", true).toString().match(/\d+/g).map(Number);
+	var $set=new java.util.HashSet(); 
+	var $count = 1;
+	var $pageNumber = 0;
+	
+	while($count < $totalPlan){
+		$pageNumber++;
+		_click(_link("/Page "+$pageNumber+"/"));
+		var $planNumbers = _getTableContents(_table(0), [1,"Plan Number Sortable Ascending"] );
+		$count = $count + $planNumbers.length - 1;
+		 _log($count);
+		for(var $i=1; $i < $planNumbers.length; $i++){
+			 if(!$set.contains($planNumbers[$i])){ 
+				$set.add($planNumbers[$i]) 
+				_log($planNumbers[$i] +" This plan is not duplicate.");
+			}
+			else{
+				_fail(" There are duplicate Plans");
+			}
+		}
+		if($pageNumber%10 == 0 ){
+			_click(_link("Next"));
+			
+		}
+		
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

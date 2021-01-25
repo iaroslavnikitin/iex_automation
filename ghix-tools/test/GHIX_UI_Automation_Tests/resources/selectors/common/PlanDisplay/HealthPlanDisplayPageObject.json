@@ -1,0 +1,87 @@
+{
+    "header":
+    {
+    "aptcAmount":"$('.ps-eligibility__amount')",
+    "editFamilyInfo" :"$('//a[contains(@href,\"preeligibility\")]')"
+    },
+
+    "leftNav":
+    {
+        "sortBy":
+        {
+        "rb_estimate":"$('#estimatedTotalHealthCareCost')",
+        "label_expenseEstimate":"$('//label[@for=\"estimatedTotalHealthCareCost\"]')"
+     
+        },
+        "filterBy":
+        {
+            "planType":
+            {
+            "cb_POS":"$('#plantype_filter_checkbox_POS')",
+            "label_POS":"$('//label[@for=\"plantype_filter_checkbox_POS\"]')"
+            },
+            "planFeatures":
+            {
+            "label_planFeature":"$('//div[@id=\"filter\"]/fieldset/div[2]/h3')",
+            "cb_HSA":"$('#plantype_filter_hsa')",
+            "label_HSA":"$('//label[@for=\"plantype_filter_hsa\"]')"
+            },
+            "metalTier":
+            {        
+                "label_metalTier":"$('.gtm_metal_tier_heading')",
+                "cb_Platinum" :"$('#filter_platinum')",
+                "cb_Gold" :"$('#filter_gold')",
+                "cb_Silver" :"$('#filter_silver')",
+                "cb_Bronze" :"$('#filter_bronze')",
+                "cb_Catastrophic" :"$('#filter_catastrophic')",
+                "label_Platinum" :"$('//label[@for=\"filter_platinum\")]')",
+                "label_Gold" :"$('//label[@for=\"filter_gold\")]')",
+                "label_Silver" :"$('//label[@for=\"filter_silver\")]')",
+                "label_Bronze" :"$('//label[@for=\"filter_bronze\")]')",
+                "label_Catastrophic" :"$('//label[@for=\"filter_catastrophic\")]')"
+            },
+            "deductible":
+            {
+                "label_deductible" :"$('//div[@id=\"filter\"]/fieldset/div[5]/h3')",
+                "cb_2500":"$('#deductible_filter_2500')",
+                "cb_5000":"$('#deductible_filter_5000')",
+                "cb_7500":"$('#deductible_filter_7500')",
+                "cb_10000" :"$('#deductible_filter_10000')",
+                "cb_12000" :"$('#deductible_filter_12000')",
+                "cb_15000" :"$('#deductible_filter_15000')",
+                "cb_17500" :"$('#deductible_filter_17500')",
+                "cb_20000" :"$('#deductible_filter_20000')",
+                "lbl_2500":"$('//label[@for=\"deductible_filter_2500\")]')",
+                "lbl_5000":"$('//label[@for=\"deductible_filter_5000\")]')",
+                "lbl_7500":"$('//label[@for=\"deductible_filter_7500\")]')",
+                "lbl_10000" :"$('//label[@for=\"deductible_filter_10000\")]')",
+                "lbl_12000" :"$('//label[@for=\"deductible_filter_12000\")]')",
+                "lbl_15000" :"$('//label[@for=\"deductible_filter_15000\")]')",
+                "lbl_17500" :"$('//label[@for=\"deductible_filter_17500\")]')",
+                "lbl_20000" :"$('//label[@for=\"deductible_filter_20000\")]')"
+            
+            }
+
+        }
+    },
+    "planTiles":
+    {
+        "planExpense":"$$('.gtm_tile_total_expense')[index]",
+        "planTypeTier":"$$('//div[@class=\"cp-tile\"]/div/div[2]/span[1]')[index]",
+        "appliedAptc": "$$('.cp-tile__tax-credit')[index]",
+        "detail_aptc":"$$('//div[@class=\"cp-tile__tax-credit\"]/a')[index]",
+        "OfficeVisit":"$$('//table/tbody/tr[1]/td')[index]",
+        "genericDrug" :"$$('//table/tbody/tr[2]/td')[index]"
+     },
+     "compare":
+     {
+     
+         "compareTier":"$$('//div[@class=\"cp-compare-plans__name\"]/span[1]')[i]"
+ 
+     },
+     "updateResultsPopup":
+     {
+        "updateResults" :"$('//button[@id=\"shopping-modal-update\"]')",
+        "seekingCoveragePopUp": "$('#shopping-modal').$('#shoppingforHeader')"
+     }
+}

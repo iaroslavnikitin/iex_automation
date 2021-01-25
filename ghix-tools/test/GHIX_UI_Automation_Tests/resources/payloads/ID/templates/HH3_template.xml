@@ -1,0 +1,544 @@
+<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope">
+    <soap:Header>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soap:mustUnderstand="true">
+            <wsse:UsernameToken wsu:Id="MN-AccountTransfer-WDIO">
+                <wsse:Username>AT_USERNAME</wsse:Username>
+                <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">AT_PASSWORD_DIGEST</wsse:Password>
+                <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">AT_NONCE</wsse:Nonce>
+                <wsu:Created>AT_CREATED</wsu:Created>
+            </wsse:UsernameToken>
+        </wsse:Security>
+    </soap:Header>
+    <soap:Body>
+        <AccountTransferRequest ns3:atVersionText="2.3" xmlns="http://at.dsh.cms.gov/exchange/1.0" xmlns:ns1="http://niem.gov/niem/structures/2.0" xmlns:ns2="http://niem.gov/niem/niem-core/2.0" xmlns:ns3="http://at.dsh.cms.gov/extension/1.0" xmlns:ns4="http://hix.cms.gov/0.1/hix-core" xmlns:ns5="http://hix.cms.gov/0.1/hix-ee" xmlns:ns6="http://niem.gov/niem/domains/screening/2.1" xmlns:ns7="http://hix.cms.gov/0.1/hix-pm">
+            <ns3:TransferHeader>
+                <ns3:TransferActivity>
+                    <ns2:ActivityIdentification>
+                        <ns2:IdentificationID>REMOTE_ID</ns2:IdentificationID>
+                    </ns2:ActivityIdentification>
+                    <ns2:ActivityDate>
+                        <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                    </ns2:ActivityDate>
+                    <ns3:TransferActivityReferralQuantity>3</ns3:TransferActivityReferralQuantity>
+                    <ns3:RecipientTransferActivityCode>Exchange</ns3:RecipientTransferActivityCode>
+                </ns3:TransferActivity>
+            </ns3:TransferHeader>
+            <ns4:Sender ns1:id="SenderMedicaid">
+                <ns4:InformationExchangeSystemCategoryCode>MedicaidAgency</ns4:InformationExchangeSystemCategoryCode>
+                <ns4:InformationExchangeSystemStateCode>ID</ns4:InformationExchangeSystemStateCode>
+            </ns4:Sender>
+            <ns4:Receiver ns1:id="ReceiverExchange">
+                <ns4:InformationExchangeSystemCategoryCode>Exchange</ns4:InformationExchangeSystemCategoryCode>
+            </ns4:Receiver>
+            <ns5:InsuranceApplication>
+                <ns4:ApplicationCreation>
+                    <ns2:ActivityDate>
+                        <ns2:Date>CURRENT_DATE_YYYY-MM-DD</ns2:Date>
+                    </ns2:ActivityDate>
+                </ns4:ApplicationCreation>
+                <ns4:ApplicationSubmission>
+                    <ns2:ActivityDate>
+                        <ns2:Date>CURRENT_DATE_YYYY-MM-DD</ns2:Date>
+                    </ns2:ActivityDate>
+                </ns4:ApplicationSubmission>
+                <ns4:ApplicationIdentification>
+                    <ns2:IdentificationID>APPLICATION_ID</ns2:IdentificationID>
+                    <ns2:IdentificationCategoryText>ApplicationID</ns2:IdentificationCategoryText>
+                </ns4:ApplicationIdentification>
+                <ns5:InsuranceApplicant>
+                    <ns4:RoleOfPersonReference ns1:ref="Person1"/>
+                    <ns5:InsuranceApplicantFixedAddressIndicator>true</ns5:InsuranceApplicantFixedAddressIndicator>
+                    <ns5:InsuranceApplicantLawfulPresenceStatus>
+                        <ns5:LawfulPresenceStatusArrivedBefore1996Indicator>false</ns5:LawfulPresenceStatusArrivedBefore1996Indicator>
+                        <ns5:LawfulPresenceStatusEligibility xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    </ns5:InsuranceApplicantLawfulPresenceStatus>
+                    <ns5:APTCEligibility ns1:id="Person1APTCEligibilityRef">
+                        <ns5:EligibilityDateRange>
+                            <ns2:StartDate>
+                                <ns2:Date>PERSON1_APTC_ELIGIBILITY_START_DATE</ns2:Date>
+                            </ns2:StartDate>
+                            <ns2:EndDate>
+                                <ns2:Date>PERSON1_APTC_ELIGIBILITY_END_DATE</ns2:Date>
+                            </ns2:EndDate>
+                        </ns5:EligibilityDateRange>
+                        <ns5:EligibilityDetermination>
+                            <ns2:ActivityDate>
+                                <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                            </ns2:ActivityDate>
+                        </ns5:EligibilityDetermination>
+                        <ns5:EligibilityReasonText>PERSON1_APTC_ELIGIBILITY_REASON_TEXT</ns5:EligibilityReasonText>
+                        <ns5:EligibilityIndicator>PERSON1_APTC_ELIGIBILITY_INDICATOR</ns5:EligibilityIndicator>
+                        <ns5:APTC>
+                            <ns5:APTCMaximumAmount>APTC_AMT</ns5:APTCMaximumAmount>
+                        </ns5:APTC>
+                    </ns5:APTCEligibility>
+                    <ns5:CSREligibility ns1:id="Person1CSREligibilityRef">
+                        <ns5:EligibilityDateRange>
+                            <ns2:StartDate>
+                                <ns2:Date>PERSON1_CSR_ELIGIBILITY_START_DATE</ns2:Date>
+                            </ns2:StartDate>
+                            <ns2:EndDate>
+                                <ns2:Date>PERSON1_CSR_ELIGIBILITY_END_DATE</ns2:Date>
+                            </ns2:EndDate>
+                        </ns5:EligibilityDateRange>
+                        <ns5:EligibilityDetermination>
+                            <ns2:ActivityDate>
+                                <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                            </ns2:ActivityDate>
+                        </ns5:EligibilityDetermination>
+                        <ns5:EligibilityReasonText>PERSON1_CSR_ELIGIBILITY_REASON_TEXT</ns5:EligibilityReasonText>
+                        <ns5:EligibilityIndicator>PERSON1_CSR_ELIGIBILITY_INDICATOR</ns5:EligibilityIndicator>
+                        <ns5:CSRAdvancePayment>
+                            <ns5:CSRCategoryAlphaCode>PERSON1_CSR_CATEGORY_ALPHA_CODE</ns5:CSRCategoryAlphaCode>
+                        </ns5:CSRAdvancePayment>
+                    </ns5:CSREligibility>
+                    <ns5:ReferralActivity>
+                        <ns2:ActivityIdentification>
+                            <ns2:IdentificationID>PERSON1_MEDICAID_ID</ns2:IdentificationID>
+                        </ns2:ActivityIdentification>
+                        <ns2:ActivityDate>
+                            <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                        </ns2:ActivityDate>
+                        <ns5:ReferralActivitySenderReference ns1:ref="SenderMedicaid"/>
+                        <ns5:ReferralActivityReceiverReference ns1:ref="ReceiverExchange"/>
+                        <ns5:ReferralActivityStatus>
+                            <ns5:ReferralActivityStatusCode>Updated</ns5:ReferralActivityStatusCode>
+                        </ns5:ReferralActivityStatus>
+                        <ns5:ReferralActivityEligibilityReasonReference ns1:ref="Person1APTCEligibilityRef"/>
+                        <ns5:ReferralActivityEligibilityReasonReference ns1:ref="Person1CSREligibilityRef"/>
+                    </ns5:ReferralActivity>
+                </ns5:InsuranceApplicant>
+                <ns5:InsuranceApplicant>
+                    <ns4:RoleOfPersonReference ns1:ref="Person2"/>
+                    <ns5:InsuranceApplicantFixedAddressIndicator>true</ns5:InsuranceApplicantFixedAddressIndicator>
+                    <ns5:InsuranceApplicantLawfulPresenceStatus>
+                        <ns5:LawfulPresenceStatusArrivedBefore1996Indicator>false</ns5:LawfulPresenceStatusArrivedBefore1996Indicator>
+                        <ns5:LawfulPresenceStatusEligibility xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    </ns5:InsuranceApplicantLawfulPresenceStatus>
+                    <ns5:APTCEligibility ns1:id="Person2APTCEligibilityRef">
+                        <ns5:EligibilityDateRange>
+                            <ns2:StartDate>
+                                <ns2:Date>PERSON2_APTC_ELIGIBILITY_START_DATE</ns2:Date>
+                            </ns2:StartDate>
+                            <ns2:EndDate>
+                                <ns2:Date>PERSON2_APTC_ELIGIBILITY_END_DATE</ns2:Date>
+                            </ns2:EndDate>
+                        </ns5:EligibilityDateRange>
+                        <ns5:EligibilityDetermination>
+                            <ns2:ActivityDate>
+                                <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                            </ns2:ActivityDate>
+                        </ns5:EligibilityDetermination>
+                        <ns5:EligibilityReasonText>PERSON2_APTC_ELIGIBILITY_REASON_TEXT</ns5:EligibilityReasonText>
+                        <ns5:EligibilityIndicator>PERSON2_APTC_ELIGIBILITY_INDICATOR</ns5:EligibilityIndicator>
+                    </ns5:APTCEligibility>
+                    <ns5:CSREligibility ns1:id="Person2CSREligibilityRef">
+                        <ns5:EligibilityDateRange>
+                            <ns2:StartDate>
+                                <ns2:Date>PERSON2_CSR_ELIGIBILITY_START_DATE</ns2:Date>
+                            </ns2:StartDate>
+                            <ns2:EndDate>
+                                <ns2:Date>PERSON2_CSR_ELIGIBILITY_END_DATE</ns2:Date>
+                            </ns2:EndDate>
+                        </ns5:EligibilityDateRange>
+                        <ns5:EligibilityDetermination>
+                            <ns2:ActivityDate>
+                                <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                            </ns2:ActivityDate>
+                        </ns5:EligibilityDetermination>
+                        <ns5:EligibilityReasonText>PERSON2_CSR_ELIGIBILITY_REASON_TEXT</ns5:EligibilityReasonText>
+                        <ns5:EligibilityIndicator>PERSON2_CSR_ELIGIBILITY_INDICATOR</ns5:EligibilityIndicator>
+                        <ns5:CSRAdvancePayment>
+                            <ns5:CSRCategoryAlphaCode>PERSON2_CSR_CATEGORY_ALPHA_CODE</ns5:CSRCategoryAlphaCode>
+                        </ns5:CSRAdvancePayment>
+                    </ns5:CSREligibility>
+                    <ns5:ReferralActivity>
+                        <ns2:ActivityIdentification>
+                            <ns2:IdentificationID>PERSON2_MEDICAID_ID</ns2:IdentificationID>
+                        </ns2:ActivityIdentification>
+                        <ns2:ActivityDate>
+                            <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                        </ns2:ActivityDate>
+                        <ns5:ReferralActivitySenderReference ns1:ref="SenderMedicaid"/>
+                        <ns5:ReferralActivityReceiverReference ns1:ref="ReceiverExchange"/>
+                        <ns5:ReferralActivityStatus>
+                            <ns5:ReferralActivityStatusCode>Updated</ns5:ReferralActivityStatusCode>
+                        </ns5:ReferralActivityStatus>
+                        <ns5:ReferralActivityEligibilityReasonReference ns1:ref="Person2APTCEligibilityRef"/>
+                        <ns5:ReferralActivityEligibilityReasonReference ns1:ref="Person2CSREligibilityRef"/>
+                    </ns5:ReferralActivity>
+                </ns5:InsuranceApplicant>
+                <ns5:InsuranceApplicant>
+                    <ns4:RoleOfPersonReference ns1:ref="Person3"/>
+                    <ns5:InsuranceApplicantFixedAddressIndicator>true</ns5:InsuranceApplicantFixedAddressIndicator>
+                    <ns5:InsuranceApplicantLawfulPresenceStatus>
+                        <ns5:LawfulPresenceStatusArrivedBefore1996Indicator>false</ns5:LawfulPresenceStatusArrivedBefore1996Indicator>
+                        <ns5:LawfulPresenceStatusEligibility xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    </ns5:InsuranceApplicantLawfulPresenceStatus>
+                    <ns5:APTCEligibility ns1:id="Person3APTCEligibilityRef">
+                        <ns5:EligibilityDateRange>
+                            <ns2:StartDate>
+                                <ns2:Date>PERSON3_APTC_ELIGIBILITY_START_DATE</ns2:Date>
+                            </ns2:StartDate>
+                            <ns2:EndDate>
+                                <ns2:Date>PERSON3_APTC_ELIGIBILITY_END_DATE</ns2:Date>
+                            </ns2:EndDate>
+                        </ns5:EligibilityDateRange>
+                        <ns5:EligibilityDetermination>
+                            <ns2:ActivityDate>
+                                <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                            </ns2:ActivityDate>
+                        </ns5:EligibilityDetermination>
+                        <ns5:EligibilityReasonText>PERSON3_APTC_ELIGIBILITY_REASON_TEXT</ns5:EligibilityReasonText>
+                        <ns5:EligibilityIndicator>PERSON3_APTC_ELIGIBILITY_INDICATOR</ns5:EligibilityIndicator>
+                    </ns5:APTCEligibility>
+                    <ns5:CSREligibility ns1:id="Person3CSREligibilityRef">
+                        <ns5:EligibilityDateRange>
+                            <ns2:StartDate>
+                                <ns2:Date>PERSON3_CSR_ELIGIBILITY_START_DATE</ns2:Date>
+                            </ns2:StartDate>
+                            <ns2:EndDate>
+                                <ns2:Date>PERSON3_CSR_ELIGIBILITY_END_DATE</ns2:Date>
+                            </ns2:EndDate>
+                        </ns5:EligibilityDateRange>
+                        <ns5:EligibilityDetermination>
+                            <ns2:ActivityDate>
+                                <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                            </ns2:ActivityDate>
+                        </ns5:EligibilityDetermination>
+                        <ns5:EligibilityReasonText>PERSON3_CSR_ELIGIBILITY_REASON_TEXT</ns5:EligibilityReasonText>
+                        <ns5:EligibilityIndicator>PERSON3_CSR_ELIGIBILITY_INDICATOR</ns5:EligibilityIndicator>
+                        <ns5:CSRAdvancePayment>
+                            <ns5:CSRCategoryAlphaCode>PERSON3_CSR_CATEGORY_ALPHA_CODE</ns5:CSRCategoryAlphaCode>
+                        </ns5:CSRAdvancePayment>
+                    </ns5:CSREligibility>
+                    <ns5:ReferralActivity>
+                        <ns2:ActivityIdentification>
+                            <ns2:IdentificationID>PERSON3_MEDICAID_ID</ns2:IdentificationID>
+                        </ns2:ActivityIdentification>
+                        <ns2:ActivityDate>
+                            <ns2:DateTime>CURRENT_DATE_UTCZ</ns2:DateTime>
+                        </ns2:ActivityDate>
+                        <ns5:ReferralActivitySenderReference ns1:ref="SenderMedicaid"/>
+                        <ns5:ReferralActivityReceiverReference ns1:ref="ReceiverExchange"/>
+                        <ns5:ReferralActivityStatus>
+                            <ns5:ReferralActivityStatusCode>Updated</ns5:ReferralActivityStatusCode>
+                        </ns5:ReferralActivityStatus>
+                        <ns5:ReferralActivityEligibilityReasonReference ns1:ref="Person3APTCEligibilityRef"/>
+                        <ns5:ReferralActivityEligibilityReasonReference ns1:ref="Person3CSREligibilityRef"/>
+                    </ns5:ReferralActivity>
+                </ns5:InsuranceApplicant>
+                <ns5:InsuranceApplicationRequestingFinancialAssistanceIndicator>true</ns5:InsuranceApplicationRequestingFinancialAssistanceIndicator>
+                <ns5:InsuranceApplicationCoverageRenewalYearQuantity xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                <ns5:SSFSigner>
+                    <ns4:RoleOfPersonReference ns1:ref="Person1"/>
+                    <ns5:Signature>
+                        <ns4:SignatureDate>
+                            <ns2:Date>CURRENT_DATE_YYYY-MM-DD</ns2:Date>
+                        </ns4:SignatureDate>
+                    </ns5:Signature>
+                    <ns5:SSFAttestation>
+                        <ns5:SSFAttestationCollectionsAgreementIndicator>true</ns5:SSFAttestationCollectionsAgreementIndicator>
+                        <ns5:SSFAttestationMedicaidObligationsIndicator>true</ns5:SSFAttestationMedicaidObligationsIndicator>
+                        <ns5:SSFAttestationNonPerjuryIndicator>true</ns5:SSFAttestationNonPerjuryIndicator>
+                        <ns5:SSFAttestationNotIncarceratedIndicator>true</ns5:SSFAttestationNotIncarceratedIndicator>
+                        <ns5:SSFAttestationInformationChangesIndicator>true</ns5:SSFAttestationInformationChangesIndicator>
+                        <ns5:SSFAttestationApplicationTermsIndicator>true</ns5:SSFAttestationApplicationTermsIndicator>
+                    </ns5:SSFAttestation>
+                </ns5:SSFSigner>
+                <ns5:InsuranceApplicationRequestingMedicaidIndicator>false</ns5:InsuranceApplicationRequestingMedicaidIndicator>
+                <ns5:SSFPrimaryContact>
+                    <ns4:RoleOfPersonReference ns1:ref="Person1"/>
+                    <ns5:SSFPrimaryContactPreferenceCode>Mail</ns5:SSFPrimaryContactPreferenceCode>
+                </ns5:SSFPrimaryContact>
+                <ns5:InsuranceApplicationTaxReturnAccessIndicator>true</ns5:InsuranceApplicationTaxReturnAccessIndicator>
+                <ns5:ApplicationExtension>
+                    <ns5:CoverageYear>COVERAGE_YEAR</ns5:CoverageYear>
+
+                    <ns5:ExtendedApplicant>
+                        <ns5:ExtendedApplicantMemberIdentification>
+                            <ns2:IdentificationID>11514298</ns2:IdentificationID>
+                        </ns5:ExtendedApplicantMemberIdentification>
+                        <ns5:ExtendedApplicantEvent>
+                            <ns5:ExtendedApplicantEventCode>Birth</ns5:ExtendedApplicantEventCode>
+                            <ns5:ExtendedApplicantEventDate>
+                                <ns2:Date>PAST_DATE_YYYY-MM-DD</ns2:Date>
+                            </ns5:ExtendedApplicantEventDate>
+                            <ns5:ExtendedApplicantReportDate>
+                                <ns2:Date>PAST_DATE_YYYY-MM-DD</ns2:Date>
+                            </ns5:ExtendedApplicantReportDate>
+                        </ns5:ExtendedApplicantEvent>
+                    </ns5:ExtendedApplicant>
+
+
+
+
+                </ns5:ApplicationExtension>
+            </ns5:InsuranceApplication>
+            <ns4:Person ns1:id="Person1">
+                <ns2:PersonBirthDate>
+                    <ns2:Date>PERSON1_BIRTH_DATE</ns2:Date>
+                </ns2:PersonBirthDate>
+                <ns2:PersonName>
+                    <ns2:PersonGivenName>PERSON1_FIRST_NAME</ns2:PersonGivenName>
+                    <ns2:PersonSurName>PERSON1_LAST_NAME</ns2:PersonSurName>
+                </ns2:PersonName>
+                <ns2:PersonRaceText>PERSON1_RACE_TEXT</ns2:PersonRaceText>
+                <ns2:PersonSexText>PERSON1_GENDER</ns2:PersonSexText>
+                <ns2:PersonSSNIdentification>
+                    <ns2:IdentificationID>PERSON1_SSN</ns2:IdentificationID>
+                </ns2:PersonSSNIdentification>
+                <ns2:PersonUSCitizenIndicator>PERSON1_CITIZENSHIP_INDICATOR</ns2:PersonUSCitizenIndicator>
+                <ns2:PersonSeekingCoverageIndicator>PERSON1_SEEKING_COVERAGE_INDICATOR</ns2:PersonSeekingCoverageIndicator>
+                <ns4:TribalAugmentation>
+                    <ns4:PersonAmericanIndianOrAlaskaNativeIndicator>PERSON1_AIAN_INDICATOR</ns4:PersonAmericanIndianOrAlaskaNativeIndicator>
+                    <ns2:LocationStateUSPostalServiceCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                </ns4:TribalAugmentation>
+                <ns4:PersonAugmentation>
+                    <ns4:PersonAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:PersonReference ns1:ref="Person2"/>
+                        <ns4:FamilyRelationshipCode>01</ns4:FamilyRelationshipCode>
+                    </ns4:PersonAssociation>
+                    <ns4:PersonAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:PersonReference ns1:ref="Person3"/>
+                        <ns4:FamilyRelationshipCode>19</ns4:FamilyRelationshipCode>
+                    </ns4:PersonAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>false</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactMailingAddress>
+                                <ns2:StructuredAddress>
+                                    <ns2:LocationStreet>
+                                        <ns2:StreetFullText>ADDRESS_LINE_1</ns2:StreetFullText>
+                                    </ns2:LocationStreet>
+                                    <ns2:LocationCityName>CITY_NAME</ns2:LocationCityName>
+                                    <ns2:LocationCountyCode>COUNTY_CODE</ns2:LocationCountyCode>
+                                    <ns2:LocationStateUSPostalServiceCode>STATE_CODE</ns2:LocationStateUSPostalServiceCode>
+                                    <ns2:LocationPostalCode>ZIP_CODE</ns2:LocationPostalCode>
+                                </ns2:StructuredAddress>
+                            </ns2:ContactMailingAddress>
+                        </ns4:ContactInformation>
+                        <ns4:ContactInformationCategoryCode>Mailing</ns4:ContactInformationCategoryCode>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>false</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactMailingAddress>
+                                <ns2:StructuredAddress>
+                                    <ns2:LocationStreet>
+                                        <ns2:StreetFullText>ADDRESS_LINE_1</ns2:StreetFullText>
+                                    </ns2:LocationStreet>
+                                    <ns2:LocationCityName>CITY_NAME</ns2:LocationCityName>
+                                    <ns2:LocationCountyCode>COUNTY_CODE</ns2:LocationCountyCode>
+                                    <ns2:LocationStateUSPostalServiceCode>STATE_CODE</ns2:LocationStateUSPostalServiceCode>
+                                    <ns2:LocationPostalCode>ZIP_CODE</ns2:LocationPostalCode>
+                                </ns2:StructuredAddress>
+                            </ns2:ContactMailingAddress>
+                        </ns4:ContactInformation>
+                        <ns4:ContactInformationCategoryCode>Home</ns4:ContactInformationCategoryCode>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>true</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactTelephoneNumber>
+                                <ns2:FullTelephoneNumber>
+                                    <ns2:TelephoneNumberFullID>PHONE_NUMBER_VAR</ns2:TelephoneNumberFullID>
+                                </ns2:FullTelephoneNumber>
+                            </ns2:ContactTelephoneNumber>
+                        </ns4:ContactInformation>
+                        <ns4:ContactInformationCategoryCode>Home</ns4:ContactInformationCategoryCode>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>false</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactEmailID>PERSON1_EMAIL</ns2:ContactEmailID>
+                        </ns4:ContactInformation>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonPregnancyStatus xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    <ns4:PersonMedicaidIdentification>
+                        <ns2:IdentificationID>PERSON1_MEDICAID_ID</ns2:IdentificationID>
+                    </ns4:PersonMedicaidIdentification>
+                    <ns4:PersonMarriedIndicator>PERSON1_MARRIED_INDICATOR</ns4:PersonMarriedIndicator>
+                </ns4:PersonAugmentation>
+            </ns4:Person>
+            <ns4:Person ns1:id="Person2">
+                <ns2:PersonBirthDate>
+                    <ns2:Date>PERSON2_BIRTH_DATE</ns2:Date>
+                </ns2:PersonBirthDate>
+                <ns2:PersonName>
+                    <ns2:PersonGivenName>PERSON2_FIRST_NAME</ns2:PersonGivenName>
+                    <ns2:PersonSurName>PERSON2_LAST_NAME</ns2:PersonSurName>
+                </ns2:PersonName>
+                <ns2:PersonRaceText>PERSON2_RACE_TEXT</ns2:PersonRaceText>
+                <ns2:PersonSexText>PERSON2_GENDER</ns2:PersonSexText>
+                <ns2:PersonSSNIdentification>
+                    <ns2:IdentificationID>PERSON2_SSN</ns2:IdentificationID>
+                </ns2:PersonSSNIdentification>
+                <ns2:PersonUSCitizenIndicator>PERSON2_CITIZENSHIP_INDICATOR</ns2:PersonUSCitizenIndicator>
+                <ns2:PersonSeekingCoverageIndicator>PERSON2_SEEKING_COVERAGE_INDICATOR</ns2:PersonSeekingCoverageIndicator>
+                <ns4:TribalAugmentation>
+                    <ns4:PersonAmericanIndianOrAlaskaNativeIndicator>PERSON2_AIAN_INDICATOR</ns4:PersonAmericanIndianOrAlaskaNativeIndicator>
+                    <ns2:LocationStateUSPostalServiceCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                </ns4:TribalAugmentation>
+                <ns4:PersonAugmentation>
+                    <ns4:PersonAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:PersonReference ns1:ref="Person1"/>
+                        <ns4:FamilyRelationshipCode>01</ns4:FamilyRelationshipCode>
+                    </ns4:PersonAssociation>
+                    <ns4:PersonAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:PersonReference ns1:ref="Person3"/>
+                        <ns4:FamilyRelationshipCode>19</ns4:FamilyRelationshipCode>
+                    </ns4:PersonAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>true</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactMailingAddress>
+                                <ns2:StructuredAddress>
+                                    <ns2:LocationStreet>
+                                        <ns2:StreetFullText>ADDRESS_LINE_1</ns2:StreetFullText>
+                                    </ns2:LocationStreet>
+                                    <ns2:LocationCityName>CITY_NAME</ns2:LocationCityName>
+                                    <ns2:LocationCountyCode>COUNTY_CODE</ns2:LocationCountyCode>
+                                    <ns2:LocationStateUSPostalServiceCode>STATE_CODE</ns2:LocationStateUSPostalServiceCode>
+                                    <ns2:LocationPostalCode>ZIP_CODE</ns2:LocationPostalCode>
+                                </ns2:StructuredAddress>
+                            </ns2:ContactMailingAddress>
+                        </ns4:ContactInformation>
+                        <ns4:ContactInformationCategoryCode>Home</ns4:ContactInformationCategoryCode>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>false</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactMailingAddress>
+                                <ns2:StructuredAddress>
+                                    <ns2:LocationStreet>
+                                        <ns2:StreetFullText>ADDRESS_LINE_1</ns2:StreetFullText>
+                                    </ns2:LocationStreet>
+                                    <ns2:LocationCityName>CITY_NAME</ns2:LocationCityName>
+                                    <ns2:LocationCountyCode>COUNTY_CODE</ns2:LocationCountyCode>
+                                    <ns2:LocationStateUSPostalServiceCode>STATE_CODE</ns2:LocationStateUSPostalServiceCode>
+                                    <ns2:LocationPostalCode>ZIP_CODE</ns2:LocationPostalCode>
+                                </ns2:StructuredAddress>
+                            </ns2:ContactMailingAddress>
+                        </ns4:ContactInformation>
+                        <ns4:ContactInformationCategoryCode>Mailing</ns4:ContactInformationCategoryCode>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonPregnancyStatus xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    <ns4:PersonMedicaidIdentification>
+                        <ns2:IdentificationID>PERSON2_MEDICAID_ID</ns2:IdentificationID>
+                    </ns4:PersonMedicaidIdentification>
+                    <ns4:PersonMarriedIndicator>false</ns4:PersonMarriedIndicator>
+                </ns4:PersonAugmentation>
+            </ns4:Person>
+            <ns4:Person ns1:id="Person3">
+                <ns2:PersonBirthDate>
+                    <ns2:Date>PERSON3_BIRTH_DATE</ns2:Date>
+                </ns2:PersonBirthDate>
+                <ns2:PersonName>
+                    <ns2:PersonGivenName>PERSON3_FIRST_NAME</ns2:PersonGivenName>
+                    <ns2:PersonSurName>PERSON3_LAST_NAME</ns2:PersonSurName>
+                </ns2:PersonName>
+                <ns2:PersonRaceText>PERSON3_RACE_TEXT</ns2:PersonRaceText>
+                <ns2:PersonSexText>PERSON3_GENDER</ns2:PersonSexText>
+                <ns2:PersonSSNIdentification>
+                    <ns2:IdentificationID>PERSON3_SSN</ns2:IdentificationID>
+                </ns2:PersonSSNIdentification>
+                <ns2:PersonUSCitizenIndicator>PERSON3_CITIZENSHIP_INDICATOR</ns2:PersonUSCitizenIndicator>
+                <ns2:PersonSeekingCoverageIndicator>PERSON3_SEEKING_COVERAGE_INDICATOR</ns2:PersonSeekingCoverageIndicator>
+                <ns4:TribalAugmentation>
+                    <ns4:PersonAmericanIndianOrAlaskaNativeIndicator>PERSON3_AIAN_INDICATOR</ns4:PersonAmericanIndianOrAlaskaNativeIndicator>
+                    <ns2:LocationStateUSPostalServiceCode xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                </ns4:TribalAugmentation>
+                <ns4:PersonAugmentation>
+                    <ns4:PersonAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:PersonReference ns1:ref="Person1"/>
+                        <ns4:FamilyRelationshipCode>03</ns4:FamilyRelationshipCode>
+                        <ns4:PersonCaretakerDependentCode>No</ns4:PersonCaretakerDependentCode>
+                    </ns4:PersonAssociation>
+                    <ns4:PersonAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:PersonReference ns1:ref="Person2"/>
+                        <ns4:FamilyRelationshipCode>03</ns4:FamilyRelationshipCode>
+                        <ns4:PersonCaretakerDependentCode>No</ns4:PersonCaretakerDependentCode>
+                    </ns4:PersonAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>true</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactMailingAddress>
+                                <ns2:StructuredAddress>
+                                    <ns2:LocationStreet>
+                                        <ns2:StreetFullText>ADDRESS_LINE_1</ns2:StreetFullText>
+                                    </ns2:LocationStreet>
+                                    <ns2:LocationCityName>CITY_NAME</ns2:LocationCityName>
+                                    <ns2:LocationCountyCode>COUNTY_CODE</ns2:LocationCountyCode>
+                                    <ns2:LocationStateUSPostalServiceCode>STATE_CODE</ns2:LocationStateUSPostalServiceCode>
+                                    <ns2:LocationPostalCode>ZIP_CODE</ns2:LocationPostalCode>
+                                </ns2:StructuredAddress>
+                            </ns2:ContactMailingAddress>
+                        </ns4:ContactInformation>
+                        <ns4:ContactInformationCategoryCode>Home</ns4:ContactInformationCategoryCode>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonContactInformationAssociation>
+                        <ns2:AssociationBeginDate xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                        <ns2:ContactInformationIsPrimaryIndicator>false</ns2:ContactInformationIsPrimaryIndicator>
+                        <ns4:ContactInformation>
+                            <ns2:ContactMailingAddress>
+                                <ns2:StructuredAddress>
+                                    <ns2:LocationStreet>
+                                        <ns2:StreetFullText>ADDRESS_LINE_1</ns2:StreetFullText>
+                                    </ns2:LocationStreet>
+                                    <ns2:LocationCityName>CITY_NAME</ns2:LocationCityName>
+                                    <ns2:LocationCountyCode>COUNTY_CODE</ns2:LocationCountyCode>
+                                    <ns2:LocationStateUSPostalServiceCode>STATE_CODE</ns2:LocationStateUSPostalServiceCode>
+                                    <ns2:LocationPostalCode>ZIP_CODE</ns2:LocationPostalCode>
+                                </ns2:StructuredAddress>
+                            </ns2:ContactMailingAddress>
+                        </ns4:ContactInformation>
+                        <ns4:ContactInformationCategoryCode>Mailing</ns4:ContactInformationCategoryCode>
+                    </ns4:PersonContactInformationAssociation>
+                    <ns4:PersonPregnancyStatus>
+                        <ns4:StatusIndicator>false</ns4:StatusIndicator>
+                    </ns4:PersonPregnancyStatus>
+                    <ns4:PersonMedicaidIdentification>
+                        <ns2:IdentificationID>PERSON3_MEDICAID_ID</ns2:IdentificationID>
+                    </ns4:PersonMedicaidIdentification>
+                    <ns4:PersonCHIPIdentification xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+                    <ns4:PersonMarriedIndicator>false</ns4:PersonMarriedIndicator>
+                </ns4:PersonAugmentation>
+            </ns4:Person>
+            <ns5:TaxReturn>
+                <ns5:TaxHousehold>
+                    <ns5:HouseholdIncome>
+                        <ns4:IncomeFederalPovertyLevelPercent>INCOME_FEDERAL_POVERTY_LEVEL_PERCENT</ns4:IncomeFederalPovertyLevelPercent>
+                    </ns5:HouseholdIncome>
+                    <ns5:HouseholdSizeQuantity>3</ns5:HouseholdSizeQuantity>
+                    <ns5:PrimaryTaxFiler>
+                        <ns4:RoleOfPersonReference ns1:ref="Person1"/>
+                    </ns5:PrimaryTaxFiler>
+                    <ns5:TaxDependent>
+                        <ns4:RoleOfPersonReference ns1:ref="Person2"/>
+                    </ns5:TaxDependent>
+                    <ns5:TaxDependent>
+                        <ns4:RoleOfPersonReference ns1:ref="Person3"/>
+                    </ns5:TaxDependent>
+                </ns5:TaxHousehold>
+                <ns5:TaxReturnIncludesDependentIndicator>false</ns5:TaxReturnIncludesDependentIndicator>
+            </ns5:TaxReturn>
+            <ns3:PhysicalHousehold>
+                <ns5:HouseholdMemberReference ns1:ref="Person1"/>
+            </ns3:PhysicalHousehold>
+        </AccountTransferRequest>
+    </soap:Body>
+</soap:Envelope>

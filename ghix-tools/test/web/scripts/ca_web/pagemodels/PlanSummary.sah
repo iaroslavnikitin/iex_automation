@@ -1,0 +1,94 @@
+function clickCancelOrDisenrollOnPlanSummary($healthPlan,$dentalPlan,$group,$reason,$terminationMonth){
+	var $planIndex;
+	var $verificationOption;
+	var $coverageEndDate;
+
+	if($healthPlan){
+		var $numOfHealthPlans = _collect("_div","/activeEnrollment/", _in(_div("myHealthPlan"))).length;
+		_log("No of health plan: "+$numOfHealthPlans);
+		for (var $i = 0; $i < $numOfHealthPlans; $i++) {
+			_log("healthplan name: "+$healthPlan);
+			if (_isVisible(_link($healthPlan, _in(_div("activeEnrollment ng-scope["+$i+"]"))))) {
+				$planIndex = $i;
+			}
+		}
+	}
+
+	if($dentalPlan){
+		var $numOfDentalPlans = _collect("_div", "/aid_dentalActiveEnrollment_/", _in(_div("myHealthPlan[1]"))).length;
+		
+		for (var $i = 0; $i < $numOfDentalPlans; $i++) {
+			if (_isVisible(_cell($memberFullName, _in(_div("aid_dentalActiveEnrollment_"+$i))))) {
+				$planIndex = $i;
+			}
+		}
+	}
+	
+	var $isBefore = _fetch(window.moment(getCurrentDate("MM/DD/YYYY")).isBefore($group.coverageStartDate));
+	_log("$isBefore: "+$isBefore);
+	
+	if($isBefore){
+		if($healthPlan){
+			_click(_span("Cancel coverage", _in(_div("activeEnrollment ng-scope["+$planIndex+"]"))));
+		}else{
+			_click(_span("Cancel coverage", _in(_div("aid_dentalActiveEnrollment_"+$planIndex))));
+		}
+	}else{
+		if($healthPlan){
+			_click(_span("DISENROLL FROM HEALTH PLAN", _in(_div("activeEnrollment ng-scope["+$planIndex+"]"))));
+		}else{
+			_click(_span("DISENROLL FROM DENTAL PLAN", _in(_div("aid_dentalActiveEnrollment_"+$planIndex))));
+		}
+		
+	}
+
+	$verificationOption = $isBefore ? "cancel" : "disenroll";
+	_log("$verificationOption: "+$verificationOption);
+
+
+	verifyVoluntaryDisenrollmentSurvey($verificationOption);
+	selectDisenrollmentReasonAndContinue($reason);
+
+	_log("$isBefore: "+$isBefore);
+	if($isBefore){
+		$coverageEndDate = $group.coverageStartDate;
+	}else{
+		verifySelectTerminationDate();
+		$coverageEndDate = selectTerminationMonthAndContinue($terminationMonth);
+		verifyConfirmCoverageEndDate($group,$coverageEndDate);
+		verifyConfirmCoverageEndDateAndSubmit($group,$coverageEndDate);
+	}
+	
+	verifyVoluntaryDisenrollmentRequestSubmitted($verificationOption);
+	
+	// if there is dental plan, create separate dental group
+
+	var $newGroup = JSON.parse(JSON.stringify($group));
+	
+	for (var $i = 0; $i < $group.member.length; $i++) {
+		$newGroup.member[$i].coverageEndDate = $coverageEndDate;
+	}
+
+	if($isBefore != true){
+		$newGroup.enrollmentStatus = "Terminated";
+		if($healthPlan){
+			$newGroup.healthPlan.enrollmentStatus = "Terminated";
+		}else{
+			$newGroup.dentalPlan.enrollmentStatus = "Terminated";
+		}
+		$newGroup.coverageEndDate = $coverageEndDate;
+	}else{
+		if($healthPlan){
+			$newGroup.healthPlan = "null";
+			$newGroup.previousHealthPlan = $group.healthPlan;	
+		}else{
+			$newGroup.dentalPlan = "null";
+			$newGroup.previousDentalPlan = $group.dentalPlan;
+		}
+		
+		$newGroup.coverageEndDate = $coverageEndDate;
+	}
+	
+	
+	return $newGroup;
+}

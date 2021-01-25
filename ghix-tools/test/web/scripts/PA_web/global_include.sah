@@ -1,0 +1,169 @@
+_includeOnce("/lib/util.sah");
+
+function onScriptError($e) {
+	return onScriptErrorDefault($e);
+}
+
+function onScriptFailure($e) {
+	onScriptFailureDefault($e);
+	_call(window.scrollTo(0, 0));
+}
+
+function onScriptErrorDefault($e) {
+	if ($e.isBrowserNotResponding) {
+		if (!_isPhantomJS()) {
+			_takeScreenShot();
+			dumpWindowInfo();
+		}
+	} else {
+//		_takeScreenShot(); // uncomment this if you want a full desktop screenshot too.
+		_lockWindow();
+		_log("Will take ScreenShot");
+		_focusWindow();
+		_takeScreenShot();
+		_wait(1000);
+		_takePageScreenShot();
+		_log("Should have taken screenshot");
+		_unlockWindow();
+	}
+	return false;
+}
+
+function onScriptFailureDefault($e) {
+	if ($e.isBrowserNotResponding) {
+		if (!_isPhantomJS()) {
+			_takeScreenShot();
+			dumpWindowInfo();
+		}
+	} else {
+//		_takeScreenShot(); // uncomment this if you want a full desktop screenshot too.
+		_lockWindow();
+		_focusWindow();
+		_takeScreenShot();
+		_wait(1000);
+		_takePageScreenShot();
+		_unlockWindow();
+	}
+}
+
+function dumpWindowInfo() {
+	var s = "<pre>";
+	var info = _getWindows();
+	for (var i=0; i<info.length; i++) {
+		var w = info[i];
+		s += "\n-------------------\nWindow " + i + ":\n-------";
+		s += "\n  windowName: " + w.windowName;
+		s += "\n  derivedName:" + w.derivedName;
+		s += "\n  windowTitle:" + w.windowTitle;
+		s += "\n  windowURL:" + w.windowURL;
+		s += "\n  wasOpened:" + w.wasOpened + " (" + (w.wasOpened == 1 ? "popup window" : "base window") + ")";
+		s += "\n  domain:" + w.domain;
+		var initDate = new Date(parseFloat(w.initialTime));
+		var lastDate = new Date(parseFloat(w.lastTime));
+		var currentDate = new Date();
+		s += "\n  initialTime:" + initDate.toUTCString();
+		s += "\n  lastTime:" + lastDate.toUTCString();
+		s += "\n  currentTime:" + currentDate.toUTCString();
+		s += "\n  Last communication:" +  (currentDate - lastDate) + " ms ago"; 
+	}
+	s += "</pre>";
+	_sahi._log(s);
+}
+
+
+
+// Below function will be used by local scripts
+
+
+var $db;
+var $database;
+var $server;
+var $port;
+var $username;
+var $password;
+
+
+var	$url = getUpdatedBaseURL("").split("/");
+var $suiteInfo = _suiteInfo();
+_log("URL: "+$url);
+
+// if ($url[2] =="pa1auto.eng.vimo.com"){
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "pa1auto";
+// 	$password = "ZDRmMjZiMsddiOe44Y";
+// }
+//
+// if ($url[2] =="pa1qa.ghixqa.com"){
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "pa1qa";
+// 	$password = "ZDRmMjZiMU2YdsW3";
+// }
+//
+// if ($url[2] =="pa2qa.ghixqa.com"){
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "pa2qa";
+// 	$password = "ZDRmMjZiMD322dsW";
+// }
+//
+// if ($url[2] =="pa1uat.ghixqa.com"){
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "pa1uat";
+// 	$password = "PTE1EEC2yYjE5D2Fx";
+// }
+//
+// if ($url[2] =="pa3qa.eng.vimo.com"){
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "pa3qa";
+// 	$password = "ZDRmMjZiMsdddw35T";
+// }
+// if ($url[2] == "mn2auto.eng.vimo.com") {
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "mn2auto";
+// 	$password = "Cze0aVe5V4.4D3cX";
+// }
+
+
+
+
+$database = $suiteInfo["databaseType"];
+$port = $suiteInfo["databasePort"];
+$server = $suiteInfo["databaseServer"];
+$username  = $suiteInfo["databaseUsername"];
+$password = $suiteInfo["databasePassword"];
+
+$SID = "ghixdb";
+
+_log("url :   "+$url);
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+
+if($database =="POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}
+
+var $inOEP = inGlobalOEP();
+//var $inOEP = "OFF"
+
+function getUpdatedBaseURL($append) {
+	var $suiteInfo = _suiteInfo();
+	var $baseURL = $suiteInfo["baseURL"];
+	var $updatedURL = $baseURL + $append;
+	return $updatedURL;
+}
+

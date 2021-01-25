@@ -1,0 +1,5 @@
+{
+    
+    "hd_confirmation": "$('h1*=Confirmation')",
+    "btn_goToDashBoard": "$('a*=Go to Dashboard')"
+}

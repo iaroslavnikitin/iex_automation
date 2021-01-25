@@ -1,0 +1,339 @@
+_includeOnce("SignUpSidebar.sah");
+_includeOnce("GetPopulationServed.sah");
+//_includeOnce("Utils.sah");
+_includeOnce("../lib/util.sah");
+_includeOnce("EntityCounselorInfo.sah");
+
+
+var $ENTITY_INFORMATION_COMMUNICATION_PREFERENCE_LENGTH = 4;
+var $ENTITY_INFORMATION_ORG_TYPE_MENU_LENGTH = 7;
+
+var $EntityInformation = true;
+var $recievedGrant;
+
+var $entityInformationHeader = _heading4("Step 1: Entity Information");
+var $entityInformationEntityTypeLabel = _fieldset("/Entity Type/");
+var $entityInformationTypeInPersonButton = _radio("inpersonassistance", _in(_fieldset("Entity Type required Required")));
+var $entityInformationTypeNavigatorButton = _radio("navigationorganization", _in(_fieldset("Entity Type required Required")));
+var $entityInformationTypeCounselorButton = _radio("certifiedApplicationCounselor", _in(_fieldset("Entity Type required Required")));
+var $entityInformationEntityNameLabel = _label("/Entity Name/");
+var $entityInformationEntityName = _textbox("entityName");
+var $entityInformationBusinessNameLabel = _label("/Business Name/");
+var $entityInformationBusinessName = _textbox("businessLegalName");
+var $entityInformationPrimaryEmailLabel = _label("/Primary Email Address/");
+var $entityInformationPrimaryEmail = _textbox("primaryEmailAddress");
+var $entityInformationPrimaryPhoneLabel = _label("/Primary Phone Number/");
+var $entityInformationPrimaryPhone = [_textbox("primaryPhone1"), _textbox("primaryPhone2"), _textbox("primaryPhone3")];
+var $entityInformationSecondaryPhoneLabel = _label("/Secondary Phone Number/");
+var $entityInformationSecondaryPhone = [_textbox("secondaryPhone1"), _textbox("secondaryPhone2"), _textbox("secondaryPhone3")];
+var $entityInformationContactLabel = _fieldset("How would you like for us to contact you?");
+var $entityInformationContactPreferencesEmailButton = _radio("email", _in(_fieldset("How would you like for us to contact you?")));
+var $entityInformationContactPreferencesPhoneButton = _radio("phone", _in(_fieldset("How would you like for us to contact you?")));
+var $entityInformationContactPreferencesFaxButton = _radio("fax", _in(_fieldset("How would you like for us to contact you?")));
+var $entityInformationContactPreferencesMailButton = _radio("mail", _in(_fieldset("How would you like for us to contact you?")));
+var $entityInformationFaxLabel = _label("/Fax/");
+var $entityInformationFax = [_textbox("faxNumber1"), _textbox("faxNumber2"), _textbox("faxNumber3")];
+var $entityInformationFederalTaxIDLabel = _label("/Federal Tax ID/");
+var $entityInformationFederalTaxID = _textbox("federalTaxID");
+var $entityInformationStateTaxIDLabel = _label("/State Tax ID/");
+var $entityInformationStateTaxID = _textbox("stateTaxID");
+var $entityInformationOrganizationTypeLabel = _label("/Organization Type/");
+var $entityInformationOrganizationType = _select("orgType");
+var $entityInformationCountiesLabel = _label("/Counties Served/");
+var $entityInformationCounties = _textbox(14);
+var $entityInformationOutreachLabel = _fieldset("Did your organization receive an Outreach and Education Grant?");
+var $entityInformationGotGrant = _radio("educationGrant1");
+var $entityInformationNoGrant = _radio("educationGrant2");
+var $entityInformationNext = _submit("SaveEntityInfo");
+
+var $entityInformationGrantHeader = _heading4("Tell us about the grant:");
+var $entityInformationGrantNumberLabel = _label("/Grant Contract Number/");
+var $entityInformationGrantNumber = _textbox("grantContractNo");
+var $entityInformationGrantAmountLabel = _label("/Grant Award Amount/");
+var $entityInformationGrantAmount = _textbox("/Grant Award Amount/");
+
+function selectEntityType($type) {
+	if ($type == null) {
+		$type = "Certified Application Counselor";
+	}
+
+	if ($type == "In-Person Assistance") {
+		_click($entityInformationTypeInPersonButton);
+	}
+	else if ($type == "Certified Navigator Entities") {
+		_click($entityInformationTypeNavigatorButton);
+	}
+	else if ($type == "Certified Application Counselor") {
+		_click($entityInformationTypeCounselorButton);
+	}
+	$entityInfo.entityType = $type;
+}
+
+function enterEntityName($name) {
+	if ($name == null) {
+		$name = randomFirstName();
+	}
+	_setValue($entityInformationEntityName, $name);
+	$entityInfo.entityName = $name;
+}
+
+function enterEntityBusinessName($name) {
+	if ($name == null) {
+		$name = randomFirstName();
+	}
+	_setValue($entityInformationBusinessName, $name);
+	$entityInfo.businessName = $name;
+}
+
+function enterEntityPrimaryEmail($email) {
+	if ($email == null) {
+		$email = createEmailWithTimeStamp($entityInfo.companyName);
+	}
+	_setValue($entityInformationPrimaryEmail, $email);
+	$entityInfo.entityEmail = $email;
+}
+
+function enterEntityPrimaryPhone($phone) {
+	if ($phone == null) {
+		$phone = phoneGen();
+	}
+	setPhoneNum($entityInformationPrimaryPhone[0], $entityInformationPrimaryPhone[1], $entityInformationPrimaryPhone[2], $phone);
+	$entityInfo.entityPrimaryPhone = $phone;
+}
+
+function enterEntitySecondaryPhone($phone) {
+	if ($phone == null) {
+		$phone = phoneGen();
+	}
+	setPhoneNum($entityInformationSecondaryPhone[0], $entityInformationSecondaryPhone[1], $entityInformationSecondaryPhone[2], $phone);
+	$entityInfo.entitySecondaryPhone = $phone;
+}
+
+function selectEntityContactPreference($preference) {
+	if ($preference == null) {
+		$preference = "Email";
+	}
+	if ($preference == "Email") {
+		_click($entityInformationContactPreferencesEmailButton);
+	}
+	else if ($preference == "Phone") {
+		_click($entityInformationContactPreferencesPhoneButton);
+	}
+	else if ($preference == "Fax") {
+		_click($entityInformationContactPreferencesFaxButton);
+	}
+	else if ($preference == "Mail") {
+		_click($entityInformationContactPreferencesMailButton);
+	}
+
+	$entityInfo.entityContactPreference = $preference;
+}
+
+function enterEntityFax($fax) {
+	if ($fax == null) {
+		$fax = phoneGen();
+	}
+	setPhoneNum($entityInformationFax[0], $entityInformationFax[1], $entityInformationFax[2], $fax);
+	$entityInfo.entityFax = $fax;
+}
+
+function enterEntityFederalTaxId($id) {
+	if ($id == null) {
+		$id = randomString(9, true);
+	}
+	_setValue($entityInformationFederalTaxID, $id);
+	$entityInfo.federalTaxId = $id;
+}
+
+function enterEntityStateTaxId($id) {
+	if ($id == null) {
+		$id = randomString(12, true);
+	}
+	_setValue($entityInformationStateTaxID, $id);
+	$entityInfo.stateTaxId = $id;
+}
+
+function selectEntityOrganizationType($type) {
+	if ($type == null) {
+		$type = "Private Partnership";
+	}
+	_setSelected($entityInformationOrganizationType, $type);
+	$entityInfo.organizationType = $type;
+}
+
+function enterEntityCountyServed($county) {
+	if ($county == null) {
+		$county = "Hudson";
+	}
+	_click(_listItem($county));
+	if ($entityInfo.countiesServed == null) {
+		$entityInfo.countiesServed = [];
+	}
+	$entityInfo.countiesServed.push($county);
+}
+
+function clickEntityReceivedGrant($grantNumber, $amount) {
+	_click($entityInformationGotGrant);
+	_setValue($entityInformationGrantNumber,$grantNumber);
+	_setValue($entityInformationGrantAmount, $amount);
+	$entityInfo.grantNum = $grantNumber;
+	$entityInfo.grantAmount = $amount;
+}
+
+function clickNextOnEntityInformationPage() {
+	_click($entityInformationNext);
+	verifyElementsOnPopulationServedPage();
+	verifyPopulationsServedSidebar();
+}
+
+function selectOutreachEducationGrant($isGranted){
+	if($isGranted ==  null || $isGranted == "No"){
+		$isGranted = "No";
+		_click(_radio($isGranted));
+	}
+	else{
+		_click(_radio($isGranted));
+		
+	}
+	$entityInfo.isGranted = $isGranted;
+}
+
+function saveMoreDetailsAboutEntity($entityType, $fName, $lName, $email,$primaryPhoneNumber, $secondaryPhoneNumber,$preference, $FaxNumber, $fedaralTaxID, $stateTaxID, $organizationType, $county, $isGranted){
+	var $fullName = $fName + " " + $lName;
+	selectEntityType($entityType);
+	enterEntityName($fullName);
+	enterEntityBusinessName($fullName);
+	enterEntityPrimaryEmail($email);
+	enterEntityPrimaryPhone($primaryPhoneNumber);
+	enterEntitySecondaryPhone($secondaryPhoneNumber);
+	selectEntityContactPreference($preference)
+	enterEntityFax($FaxNumber);
+	enterEntityFederalTaxId($fedaralTaxID);
+	enterEntityStateTaxId($stateTaxID);
+	selectEntityOrganizationType($organizationType);
+	enterEntityCountyServed($county);
+	selectOutreachEducationGrant($isGranted)
+	_log("Entity more info " +JSON.stringify($entityInfo));
+	return $entityInfo;
+}
+
+/*
+function submitSampleEntityInformation() {
+enterEntityName();
+enterEntityBusinessName();
+enterEntityPrimaryEmail();
+enterEntityPrimaryPhone();
+enterEntitySecondaryPhone();
+enterEntityFax();
+enterEntityFederalTaxId();
+enterEntityStateTaxId();
+selectEntityOrganizationType();
+enterEntityCountyServed();
+clickNextOnEntityInformationPage();
+}
+*/
+function verifyElementsOnEntityInformationPage() {
+	_assertVisible($entityInformationHeader);
+	_assertVisible($entityInformationEntityTypeLabel);
+	_assertVisible($entityInformationEntityNameLabel);
+	_assertVisible($entityInformationEntityName);
+	_assertVisible($entityInformationBusinessNameLabel);
+	_assertVisible($entityInformationBusinessName);
+	_assertVisible($entityInformationPrimaryEmailLabel);
+	_assertVisible($entityInformationPrimaryEmail);
+
+	_assertVisible($entityInformationPrimaryPhoneLabel);
+	for (var $i = 0; $i < $entityInformationPrimaryPhone.length; $i++) {
+		_assertVisible($entityInformationPrimaryPhone[$i]);
+	}
+
+	_assertVisible($entityInformationSecondaryPhoneLabel);
+	for (var $i = 0; $i < $entityInformationSecondaryPhone.length; $i++) {
+		_assertVisible($entityInformationSecondaryPhone[$i]);
+	}
+
+	_assertVisible($entityInformationContactLabel);
+	_assertVisible($entityInformationFaxLabel);
+	for (var $i = 0; $i < $entityInformationFax.length; $i++) {
+		_assertVisible($entityInformationFax[$i]);
+	}
+
+	_assertVisible($entityInformationFederalTaxIDLabel);
+	_assertVisible($entityInformationFederalTaxID);
+	_assertVisible($entityInformationStateTaxIDLabel);
+	_assertVisible($entityInformationStateTaxID);
+	_assertVisible($entityInformationOrganizationTypeLabel);
+	_assertVisible($entityInformationOrganizationType);
+	_assertVisible($entityInformationCountiesLabel);
+	_assertVisible($entityInformationCounties);
+	_assertVisible($entityInformationOutreachLabel);
+	_assertVisible($entityInformationGotGrant);
+	_assertVisible($entityInformationNoGrant);
+	_assertVisible($entityInformationNext);
+}
+
+function enterEntityInformation($county) {
+	var $val;
+	$val = randomString($FIELD_LENGTH);
+	_setValue($entityInformationEntityName, $val);
+
+	$val = randomString($FIELD_LENGTH);
+	_setValue($entityInformationBusinessName, $val);
+
+	$val = randomString($FIELD_LENGTH);
+	_setValue($entityInformationPrimaryEmail, $val + "@example.com");
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityInformationPrimaryPhone[$i], $val[$i]);
+	}
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityInformationSecondaryPhone[$i], $val[$i]);
+	}
+
+	$val = Math.floor(Math.random() * $ENTITY_INFORMATION_COMMUNICATION_PREFERENCE_LENGTH);
+	_click(_radio("communicationPreference[" + $val + "]"));
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityInformationFax[$i], $val[$i]);
+	}
+
+	$val = randomString(9, true);
+	_setValue($entityInformationFederalTaxID, $val);
+
+	$val = randomString(12, true);
+	_setValue($entityInformationStateTaxID, $val);
+
+	$val = Math.floor(Math.random() * ($ENTITY_INFORMATION_ORG_TYPE_MENU_LENGTH - 1)) + 1;
+	_setSelected($entityInformationOrganizationType, $val);
+
+	_click(_listItem($county));
+
+	$val = Math.floor(Math.random() * 2);
+	if ($val > 0) {
+		$recievedGrant = true;
+		_click($entityInformationGotGrant);
+
+		_assertVisible($entityInformationGrantHeader);
+		_assertVisible($entityInformationGrantNumberLabel);
+		_assertVisible($entityInformationGrantNumber);
+		_assertVisible($entityInformationGrantAmountLabel);
+		_assertVisible($entityInformationGrantAmount);
+
+		$val = randomString($FIELD_LENGTH, true);
+		_setValue($entityInformationGrantNumber, $val);
+
+		var $numDigits = Math.floor(Math.random() * 9) + 1;
+		$val = randomString($numDigits, true);
+		_setValue($entityInformationGrantAmount, $val);
+	}
+	else {
+		_click($entityInformationNoGrant);
+	}
+
+	_click($entityInformationNext);
+	verifyElementsOnPopulationServedPage();
+}

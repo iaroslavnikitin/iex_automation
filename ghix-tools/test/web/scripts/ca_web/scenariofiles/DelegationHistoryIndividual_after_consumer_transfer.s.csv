@@ -1,0 +1,95 @@
+"Comments","Tags","TestCase","Key Word","Argument 1",,"Argument 2"
+,,,"loadSahi","../pagemodels/Broker.sah"
+,,,"loadSahi","../pagemodels/Login.sah"
+,,,"loadSahi","../lib/CommonNameCreation.sah"
+,,,"loadSahi","../pagemodels/Agency.sah"
+,,,"loadSahi","../pagemodels/Agents.sah"
+,,,"loadSahi","../pagemodels/Signup.sah"
+,,,"loadSahi","../pagemodels/AdminStaff.sah"
+,,,"loadSahi","../pagemodels/BookOfBusiness.sah"
+,,,"loadSahi","../pagemodels/ENGSVC-1216_lib.sah"
+,,,"loadSahi","../scenariofiles/create_data/CreateAgency.sah"
+,,,"loadSahi","../scenariofiles/create_data/CreateAgent.sah"
+,,,"loadSahi","../pagemodels/DelegationHistory.sah"
+"//",,,"loadSahi","../pagemodels/cap_memberView.sah"
+,,,"loadSahi","../pagemodels/SoapRequest.sah"
+,,,"loadSahi","../resources/delegation_history/DataForDelegationHistoryTests.sah"
+
+,,"[Global]","[SetUp]"
+,,,"maximizeWindow"
+,,,"createDbObj"
+
+,,,"[Documentation]","accessing data from
+resources/delegation_history/DataForDelegationHistoryTests.sah"
+,,,"$agencyData =","$AGENCY_DATA_ID_48"
+,,,"$consumerData =","[]"
+,,,"$delegationHistoryRecordsFromAgent=","[]"
+,,,"$delegationHistoryRecordsToAgent=","[]"
+
+"Create consumer with designation","all","id=48","[Documentation]",">Login as Agency Manager
+> Transfer consumer from one agent to other agent 
+to populate first record in delegation history
+> Transfer consumer from one agent to other agent 
+to populate second record in delegation history
+> Verify delegation history page for individual with ended delegation and agent with active delegation
+>As agency manager mark consumer as inactive and verify delegation history
+for agency and individual"
+,,,"$automationAgency = createAutomationAgencyIfNotExist","$agencyData"
+,,,"$household=createIndividualWithDesignation","$automationAgency.agents[0].recordID"
+,,,"clickLinkMyDelegatesOnMemberPortal"
+,,,"verifyNoSearchResultsMessage"
+"//",,,"[Documentation]","data","variableName","test id","clear file? Y or null"
+"//",,,"saveDataInFile","$household","""$household""","""48""","""Y"""
+"//",,,"_include","""C:/Sahi/CA/householdData48.sah"""
+,,,"logOut"
+"Login as agency manager
+and transfer consumer from
+one agent to other agent
+to populate first record",,,"[Documentation]"
+,,,"Login","$automationAgency.email","""ghix123"""
+,,,"[Documentation]","$fromAgent","$toAgent","$countOfConsumers","$verificationFlag"
+,,,"bulkTransferConsumers","$automationAgency.agents[0].name","$automationAgency.agents[1].name","1","""N"""
+,,,"$consumerData[0]=getConsumerData","$household"
+,,,"[Documentation]","$agents","$counselors","$agentOrCecNameToDelegate","$consumerData"
+,,,"$delegationHistoryRecords=createDelegationHistoryRecord","$automationAgency.agents",,"$automationAgency.agents[1].name","$consumerData"
+
+"As agency manager transfer consumer from
+one agent to other agent to populate 
+second record",,,"[Documentation]","$fromAgent","$toAgent","$countOfConsumers","$verificationFlag"
+,,,"bulkTransferConsumers","$automationAgency.agents[1].name","$automationAgency.agents[0].name","1","""N"""
+,,,"[Documentation]","$agents","$counselors","$agentOrCecNameToDelegate","$consumerData"
+,,,"$delegationHistoryRecorsAfterTransfer=createDelegationHistoryRecord","$automationAgency.agents",,"$automationAgency.agents[0].name","$consumerData"
+,,,"[Documentation]","$delegationHistoryRecords","$newRecords","$reason","$option"
+,,,"$delegationHistoryRecords=updateDelegationHistoryRecords","$delegationHistoryRecords","$delegationHistoryRecorsAfterTransfer","""Transfer within Agency/Entity"""
+,,,"logOut"
+"Login as individual and
+verify delegation history
+after transferring to other agent",,,"[Documentation]"
+,,,"Login","$household.people[0].email","""ghix123#"""
+,,,"clickLinkMyDelegatesOnMemberPortal"
+,,,"verifyDelegationHistoryUI","""individual"""
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""individual""","$delegationHistoryRecords"
+,,,"logOut"
+"Login as agency manager
+and mark consumer as InActive.
+Verify that designation ended.",,,"[Documentation]"
+,,,"Login","$automationAgency.email","""ghix123"""
+,,,"goToActiveConsumers"
+,,,"searchConsumers","""FirstName""","$household.people[0].firstName"
+,,,"clickMarkAsInactiveLinkAndVerifyPopup","$household.people[0].name","""N"""
+,,,"clickConfirmInMarkAsInactivePopup","$household"
+,,,"[Documentation]","$delegationHistoryRecords","$newRecords","$reason","$option"
+,,,"$delegationHistoryRecords=updateDelegationHistoryRecords","$delegationHistoryRecords","$delegationHistoryRecords","""Agent/CEC initiated de-designation""","""same records"""
+,,,"navigateToDelegationHistoryInAgency"
+,,,"searchOnDelegationHistory","$household.externalHouseholdCaseId"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""agency""","$delegationHistoryRecords"
+,,,"logOut"
+"Login as individual and
+verify delegation history
+after agent initiated de-designation",,,"Login","$household.people[0].email","""ghix123#"""
+,,,"clickLinkMyDelegatesOnMemberPortal"
+,,,"[Documentation]","$role","$delegationHistoryRecords"
+,,,"verifyDataInDelegationHistory","""individual""","$delegationHistoryRecords"
+,,,"logOut"

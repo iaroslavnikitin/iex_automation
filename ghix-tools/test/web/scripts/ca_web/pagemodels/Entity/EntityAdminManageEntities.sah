@@ -1,0 +1,66 @@
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $manageEntitiesElements = {
+	"header_hd":{
+		"element": _heading1("/Certified Enrollment Entities/"),
+		"label": null
+	},
+	"refineResultsBy":{
+		"entityName_tb":{
+			"element": _textbox("entityName", _in(_div("sidebar"))),
+			"label": _label("Enrollment Entity Name", _in(_div("sidebar")))
+		},
+		"entityNumber_tb":{
+			"element": _textbox("entityNumber", _in(_div("sidebar"))),
+			"label": _label("Entity Number", _in(_div("sidebar")))
+		},
+		"status_dd":{
+			"element": _select("status", _in(_div("sidebar"))),
+			"label": _label("Status", _in(_div("sidebar")))
+		},
+		"go_btn":{
+			"element": _submit("submit", _in(_div("sidebar"))),
+			"label": _submit("Go", _in(_div("sidebar")))
+		}
+
+	},
+	"resultsTable":{
+		"table_div":{
+			"element": _table("enrollmententitiesmap"),
+			"label": null
+		},
+		"action_th":{
+			"element": _tableHeader("Action", _in(_table("enrollmententitiesmap"))),
+			"label": null
+		},
+		"gearIcon_ln":{
+			"element": _link("/Dropdown Menu/", _in(_table("enrollmententitiesmap"))),
+			"label": null
+		},
+		"updateStatus_ln":{
+			"element": _link("/Update Status/", _in(_table("enrollmententitiesmap"))),
+			"label": null
+		}
+
+	}
+}
+
+function searchByEntityName($entity){
+	setValue($manageEntitiesElements.refineResultsBy.entityName_tb.element, $entity.entityInformation.entityName);
+	click($manageEntitiesElements.refineResultsBy.go_btn.element);
+}
+
+function searchByEntityNumber($entity){
+	setValue($manageEntitiesElements.refineResultsBy.entityNumber_tb.element, $entity.entityInformation.entityNumber);
+	click($manageEntitiesElements.refineResultsBy.go_btn.element);
+}
+
+function searchByEntityNumber($entity){
+	setValue($manageEntitiesElements.refineResultsBy.entityNumber_tb.element, $entity.entityInformation.entityNumber);
+	click($manageEntitiesElements.refineResultsBy.go_btn.element);
+}
+
+function clickUpdateStatusUnderActions(){
+	click($manageEntitiesElements.resultsTable.gearIcon_ln.element);
+	click($manageEntitiesElements.resultsTable.updateStatus_ln.element);
+}

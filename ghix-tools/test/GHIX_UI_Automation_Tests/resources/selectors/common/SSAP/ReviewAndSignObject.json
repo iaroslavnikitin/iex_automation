@@ -1,0 +1,36 @@
+{
+    "btn_back": "$('button[id*=leftButton]')",
+    "btn_continue": "$('button[id*=rightButton]')",
+    "dd_myAccount":"$('//*[@id=\"my-authentication_6\"]/span')",
+    "lk_logout":"$('a*=Logout')" ,
+    "reviewAndSign":{
+        "reviewAndSignHeading": "$('h1')" 
+    },
+    "finalReview":{
+        "finalReviewHeading": "$('h1')" 
+    },
+    "signAndSubmit":{
+        "signAndSubmitHeading": "$('h1=Sign and Submit')",
+        "cb_noIncarceration": "$('[id *= incarcerationAsAttestedIndicator_label]')",
+        "cb_agreeToUseIncomeData":"$('//label[contains(text(),\"I agree\")]')",  
+        "cb_disagreeToUseIncomeData":"$('//label[contains(text(),\"I disagree\")]')", 
+        "cb_agreeToUseIncomeData2": "$('[id *= agreeToUseIncomeData_label0]')",
+        "cb_disagreeToUseIncomeData2": "$('[id *= agreeToUseIncomeData_label1]')",
+        "cb_agreeToEndCoverage": "$('[id *= agreeToEndCoverage_label]')",
+        "cb_agreeToCooperateMedicaid": "$('label[id*=agreeToCooperateMedicaid_label]')",
+        "cb_acknowledgeOutsideParent": "$('label[id*=acknowledgeOutsideParent_label]')",
+        "cb_isReadyToReportForChanges": "$('label[id*=isReadyToReportForChanges_label]')",
+        "cb_agreeToMoneyPersual": "$('label[id*=agreeToMoneyPersual_label]')",
+        "cb_medicaidConsent": "$('label[id*=medicaidConsent_label]')",
+        "cb_penaltyPerjury": "$('label[id*=penaltyPerjury_label]')",
+        "cb_claimNoticeDMAHSAcknowledgment": "$('label[id*=claimNoticeDMAHSAcknowledgment_label]')",
+        "cb_paybackDMAHSAcknowledgment": "$('label[id*=paybackDMAHSAcknowledgment_label]')",
+        "cb_isTruthful": "$('label[id*=isTruthful_label]')",
+        "tb_signature": "$('input[id*=signature]')",
+        "btn_submitApplication": "$('button[id*=rightButton]')",
+        "btn_goToDashBoard": "$('button[id*=eligibilityDetailsGoTo]')",
+        "hd_progressHeader": "$('h3*=Application is in progress')"
+    }
+}
+
+

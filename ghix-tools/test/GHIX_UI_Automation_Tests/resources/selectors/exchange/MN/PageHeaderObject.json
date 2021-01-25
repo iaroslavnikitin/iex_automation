@@ -1,0 +1,10 @@
+{
+    "commonHeaderAndFooter":
+    {
+        "lk_helpsupport":"$('//a[contains(text(),\"Get Help\")]')",
+        "lk_learnMore": "$('a=Learn More')"
+
+    }
+
+}
+

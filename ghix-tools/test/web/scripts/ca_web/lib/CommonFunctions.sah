@@ -1,0 +1,76 @@
+_resource("../resources/mini.jpg");
+_includeOnce("Utils.sah");
+
+function getUpdatedBaseURL() {
+	var $suiteInfo = _suiteInfo();
+	return $suiteInfo["baseURL"];
+}
+
+function getBaseDomain(){
+	var $url = getUpdatedBaseURL();
+	return $url.split("/")[2];
+}
+
+function Logout(){
+//	_click(_link("Logout"));
+	_click(_submit("Log Out"));
+}
+
+function maximizeWindow(){
+	_windowAction("maximize"); // mazimize window.
+}
+
+function wait($time){
+	_wait($time);
+}
+
+function waitUntilElementVisible2($element,$seconds){
+    for(var $i=0;$i<$seconds;$i++){
+        if(!_isVisible ($element)){
+            _wait(1000);
+            _log("waiting...");
+        }else{
+            break;
+        }
+    }
+
+}
+
+function click($el){
+	if (!_isVisible($el) && !_exists($el)) {
+		waitUntilElementVisible2($el,50);
+	}
+	_click($el);
+}
+
+function setValue($el,$value){
+	
+	if (!_isVisible($el) && !_exists($el)) {
+		waitUntilElementVisible2($el,50);
+	}
+	_setValue($el,$value);
+}
+
+function verifyURL($part){
+	var $url;
+	_set($url, _call(window.location.href));
+	_assert($url.indexOf($part) != -1, "Actual URL: " + $url);
+}
+
+function restartBrowser(){
+	_closeBrowser();
+	_openBrowser();
+}
+
+function closeBrowser(){
+	_closeBrowser();
+	_openBrowser();
+}
+
+function isAscending($order){
+	return $order == "Asc" || $order == "Ascending";
+}
+
+function isDescending($order){
+	return $order == "Desc" || $order == "Descending";
+}

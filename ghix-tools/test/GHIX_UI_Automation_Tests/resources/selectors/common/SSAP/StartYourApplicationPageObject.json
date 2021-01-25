@@ -1,0 +1,100 @@
+{
+    "beforeWeBegin":{
+        "beforeWeBeginHeader": "$('h1')",
+        "cb_acceptPrivacyIndicator":" $('#checkbox_page_00_acceptPrivacyIndicator_label')"
+       
+        
+    },
+    "getReady":{
+        "getReadyHeading":"$('h1')",
+        "navHeading":"$('.nav-heading')"
+        
+
+    },
+    "primaryContactInformation":{
+        "primaryContactInformationHeading":"$('h1')",
+        "cb_samePrimaryContactHomeAddress":"$('[id *= householdContact_mailingAddressSameAsHomeAddressIndicator_label]')",
+        "tb_firstName":"$('[id *= name_firstName]')",
+        "tb_middleName":"$('[id *= name_middleName]')",
+        "tb_lastName":"$('[id *= name_lastName]')",
+        "tb_Suffix":"$('[id *= name_suffix]')",
+        "tb_dob1":"$('#hhm0_dateOfBirth_1')",
+        "tb_dob2":"$('#hhm0_dateOfBirth_2')",
+        "tb_dob3":"$('#hhm0_dateOfBirth_3')",
+        "tb_emailAdd":"$('[id*=contactPreferences_emailAddress]')",
+        "tb_homeAddress1":"$('[id *=homeAddress_streetAddress1]')",
+        "tb_homeCity":"$('[id *=homeAddress_city]')",
+        "tb_homePostalCode":"$('[id *=homeAddress_postalCode]')",
+        "tb_homeState":"$('[id *=homeAddress_state]')",
+        "tb_homeCounty":"$('[id *=homeAddress_countyCode]')",
+        "tb_mailAddress1":"$('[id *=mailingAddress_streetAddress1]')",
+        "tb_mailCity":"$('[id *=mailingAddress_city]')",
+        "tb_mailPostalCode":"$('[id *=mailingAddress_postalCode]')",
+        "tb_mailState":"$('[id *=mailingAddress_state]')",
+        "tb_mailCounty":"$('[id *=mailingAddress_countyCode]')",
+        "tb_phone_phoneNumber":"$('[id *=phone_phoneNumber]')",
+        "tb_otherPhoneNumber":"$('[id *=otherPhone__phoneNumber]')",
+        "sb_spokenLanguage":"$('[id *=preferredSpokenLanguage]')",
+        "sb_writtenLanguage":"$('[id *=preferredWrittenLanguage]')",
+        "rb_contactMethod_paperless":"$('[id *=preferredContactMethod_label0]')",
+        "rb_contactMethod_mail":"$('[id *=preferredContactMethod_label1]')",
+        "rb_contactMethod_1095paperless":"$('[id *=paperless1095_label0]')",
+        "rb_contactMethod_1095mail":"$('[id *=paperless1095_label1]')",
+        "cb_emailMe": "$('[id *= _emailMe_label]')",
+        "cb_enableTxtMsg": "$('[id *= _textMe_label]')"
+    },
+    "helpApplyingForCoverage":{
+        "helpApplyingForCoverageHeading":"$('h1')",
+        "rb_fillingOutForMyselfAndFamilyTest":"$('#page_03_getHelpIndicator_label1')",
+        "rb_fillingOutForMyselfAndFamily":"$('[id *= getHelpIndicator_label1]')",
+        "rb_someoneIsHelpingMe":"$('[id *= getHelpIndicator_label0]')"
+        
+    
+    },
+    "helpPayingForCoverage":{
+        "helpPayingForCoverageHeading":"$('h1')",
+        "rb_provideIncomeInformation":"$('[id *=applyingForFinancialAssistanceIndicator_label0]')",
+        "rb_payFullCoverage":  "$('[id *=applyingForFinancialAssistanceIndicator_label1]')"
+        
+    },
+    "aboutYourHousehold":{
+        "aboutYourHouseholdHeading":"$('h1')",
+        "rb_seekingCoverage":"$('[id *= hhm0_applyingForCoverageIndicator_label0]')",
+       "rb_notSeekingCoverage":"$('[id *= hhm0_applyingForCoverageIndicator_label1]')", 
+        "btn_addPerson" :"$('[id *=addPersonButton]')",
+        "tb_firstName" :"$('[id *=hhm0_name_firstName]')",
+        "tb_middleName" :"$('[id *= hhm0_name_middleName]')",
+        "tb_lastName" :"$('[id *= hhm0_name_lastName]')",
+        "tb_Suffix" :"$('[id *= hhm0_name_Suffix]')",
+        "tb_dobOne":"$('[id *= hhm0_dateOfBirth_1]')",
+        "tb_dobTwo":"$('[id *= hhm0_dateOfBirth_2]')",
+        "tb_dobThree":"$('[id *= hhm0_dateOfBirth_3]')",
+        "tb_firstNameAuto" :"$('[id *=name_firstName]')",
+        "tb_lastNameAuto" :"$('[id *=name_lastName]')"
+
+    },
+    "householdRelationship":{
+        "header": "$('h1')",
+        "sb_household" :"$$('[id*=relation]')[count]"
+    },
+    "householdAddress":{
+        "cb_NoneOfTheAbove":"$('[id *= noneOfTheAbove_label]')",
+        "cb_member":"$('[lable*=memberName]')"
+
+    },
+    
+    "summary":{
+        "summaryOfStartApplicationHeading":"$('h1')",
+        "householdMemberHeading":"$('h3')"       
+     
+    },
+    
+    "medicarePopup":{
+        "header":"$('h3')",
+        "btn_close":"$('[button*=Close]')",
+        "btn_ok":"$('#modal-content').$('button*=Ok')",       
+        "medicarepopup":"$('[id *=modal-content]')"
+    }
+
+}
+

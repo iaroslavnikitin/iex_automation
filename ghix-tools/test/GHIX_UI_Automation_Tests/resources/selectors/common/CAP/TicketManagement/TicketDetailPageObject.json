@@ -1,0 +1,38 @@
+{
+    "header":"",
+    "subHeader":"$('#pageTitle')",
+    "topNav":{
+    "btn_claimTicket":"$('//input[@value=\"Claim\"]')",
+    "btn_markAsComplete":"$('//input[@value=\"Mark As Complete\"]')"
+    },
+    "leftNav":{
+        "lnk_cancelTicket":"",
+        "lnk_markAsComplete":"",
+        "lnk_sendMessage":"",
+        "lnk_reassign":"",
+        "lnk_addAttachment":"",
+        "lnk_addComment":"",
+        "lnk_viewMemberAccount":""
+    },
+    "documentVerificationPopUp":{
+        "verifyDocumentHeader":"$('//h4[contains(text(),\"Verify Document\")]')",
+        "dd_markDocumentAs":"$('#ticketStatusVerify')",
+        "MarkDocumentAs":{
+            "opAccepted":"$('//select[@id=\"ticketStatusVerify\"]/option[@value=\"accepted\"]')",
+            "opRejected":"$('//select[@id=\"ticketStatusVerify\"]/option[@value=\"rejected\"]')"
+        },
+        "tb_internalComments":"$('#commentVerifyBoxAction')",
+        "btn_taskComplete":"$('#ticketListtaskCompleteBtnVerify')"
+    },
+    "markAsCompletePopUp":{
+        "markAsCompletePopUpHeader":"eval($('#markCompleteDialogAction')).$('#taskHeader')",
+        "sb_markDocumentAs":"eval($('#taskPropertiesControls')).$('[name=\"selectField\"]')",         
+        "MarkDocumentAs":{
+            "opAccepted":"$('//select[@name=\"selectField\"]/option[@value=0]')",
+            "opRejected":"$('//select[@name=\"selectField\"]/option[@value=1]')"
+        },
+        "tb_internalComments":"eval($('#markCompleteDialogAction')).$('#commentBoxAction')",
+        "btn_taskComplete":"eval($('#markCompleteDialogAction')).$('#ticketListtaskCompleteBtn')"
+    },    
+    "ticketSubmissionHeader":"$('//h1[contains(text(),\"Ticket submission\")]')"
+}

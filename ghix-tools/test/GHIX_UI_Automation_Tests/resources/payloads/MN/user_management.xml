@@ -1,0 +1,44 @@
+<soapenv:Envelope xmlns:prov="http://mn1dev.ghixqa.com/provision" xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+   <soapenv:Header>
+      <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" soapenv:mustUnderstand="1">
+         <wsse:UsernameToken wsu:Id="UserManagement-WDIO">
+            <wsse:Username>UM_USERNAME</wsse:Username>
+            <wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText">UM_PASSWORD</wsse:Password>
+            <wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">UM_NONCE</wsse:Nonce>
+            <wsu:Created>UM_CREATED</wsu:Created>
+         </wsse:UsernameToken>
+      </wsse:Security>
+   </soapenv:Header>
+<soapenv:Body>
+      <prov:CreateUserRequest>
+         <!--Optional:-->
+         <remoteId>REMOTE_ID</remoteId>
+         <name>
+            <firstname>PERSON1_FIRST_NAME</firstname>
+            <lastname>PERSON1_LAST_NAME</lastname>            
+         </name>        
+         <dateOfBirth>1990-09-18</dateOfBirth>
+         <phone>         
+         <home_phone>4081111111</home_phone>
+         </phone>
+         <credentials>
+            <managed>false</managed>
+            <password>
+               <password>USER_PASSWORD</password>
+            </password>
+            <!--0 to 3 repetitions:-->
+            <security_question>
+               <question>What is the name of your first pet</question>
+               <answer>pet</answer>
+            </security_question>
+            <!--1 or more repetitions:-->
+            <role>
+               <rolename>INDIVIDUAL</rolename>
+               <is_default>true</is_default>
+            </role>
+         </credentials>
+         <email>PERSON1_EMAIL_ID</email>
+         <username>PERSON1_EMAIL_ID</username>
+      </prov:CreateUserRequest>
+   </soapenv:Body>
+</soapenv:Envelope>

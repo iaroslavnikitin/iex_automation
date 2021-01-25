@@ -1,0 +1,235 @@
+var $noSearchResultsMessage = _div("/usa-alert/");
+
+var $delegationHistoryHeading = _heading1("Delegation History");
+var $myDelegationHistoryHeading = _heading1("My Delegation History");
+var $myDelegatesHeading = _heading1("My Delegates");
+var $filtersHeading = _heading4("Filters");
+var $noteForSearch = _paragraph("Note: When filtering by First Name or Last Name, please enter the name in the applicable fields for the Agent or CEC, depending on whom you are searching for.");
+var $loadingData = _div("Loading data...");
+var $backToAdminSearchLink = _link("Back to admin search");
+
+var $agentFirstNameFilterLabel = _label("Agent First Name");
+var $agentLastNameFilterLabel = _label("Agent Last Name");
+var $agentLicenseNumberFilterLabel = _label("Agent License No.");
+var $householdCaseIdFilterLabel = _label("Case ID");
+var $cecFirstNameFilterLabel = _label("CEC First Name");
+var $cecLastNameFilterLabel = _label("CEC Last Name");
+
+
+var $delegationFilterLabelsElementsAll = {
+	"agentFirstName":$agentFirstNameFilterLabel,
+	"agentLastName":$agentLastNameFilterLabel,
+	"agentLicenseNumber":$agentLicenseNumberFilterLabel,
+	"householdCaseId":$householdCaseIdFilterLabel,
+	"cecFirstName":$cecFirstNameFilterLabel,
+	"cecLastName":$cecLastNameFilterLabel
+};
+
+var $agencyDelegationFilterLabelsElements = {
+	"agentFirstName":$agentFirstNameFilterLabel,
+	"agentLastName":$agentLastNameFilterLabel,
+	"agentLicenseNumber":$agentLicenseNumberFilterLabel,
+	"householdCaseId":$householdCaseIdFilterLabel
+};
+
+var $agentDelegationFilterLabelsElements = {
+	"householdCaseId":$householdCaseIdFilterLabel
+};
+
+var $individualDelegationFilterLabelsElements = {
+	"agentFirstName":$agentFirstNameFilterLabel,
+	"agentLastName":$agentLastNameFilterLabel,
+	"cecFirstName":$cecFirstNameFilterLabel,
+	"cecLastName":$cecLastNameFilterLabel
+};
+
+var $csrDelegationFilterLabelsElements = {
+	"agentFirstName":$agentFirstNameFilterLabel,
+	"agentLastName":$agentLastNameFilterLabel,
+	"agentLicenseNumber":$agentLicenseNumberFilterLabel,
+	"cecFirstName":$cecFirstNameFilterLabel,
+	"cecLastName":$cecLastNameFilterLabel,
+	"householdCaseId":$householdCaseIdFilterLabel
+};
+
+
+var $agentFirstNameFilter = _textbox("agentFirstName");
+var $agentLastNameFilter = _textbox("agentLastName");
+var $agentLicenseNumberFilter = _textbox("agentLicenseNumber");
+var $householdCaseIdFilter = _textbox("householdCaseId");
+
+var $cecFirstNameFilter = _textbox("cecFirstName");
+var $cecLastNameFilter = _textbox("cecLastName");
+
+var $delegationTextboxElementsAll = {
+	"agentFirstName":$agentFirstNameFilter,
+	"agentLastName":$agentLastNameFilter,
+	"agentLicenseNumber":$agentLicenseNumberFilter,
+	"householdCaseId":$householdCaseIdFilter,
+	"cecFirstName":$cecFirstNameFilter,
+	"cecLastName":$cecLastNameFilter
+};
+
+var $agencyDelegationTextboxElements = {
+	"agentFirstName":$agentFirstNameFilter,
+	"agentLastName":$agentLastNameFilter,
+	"agentLicenseNumber":$agentLicenseNumberFilter,
+	"householdCaseId":$householdCaseIdFilter
+};
+
+var $agentDelegationTextboxElements = {
+	"householdCaseId":$householdCaseIdFilter
+};
+
+var $individualDelegationTextboxElements = {
+	"agentFirstName":$agentFirstNameFilter,
+	"agentLastName":$agentLastNameFilter,
+	"cecFirstName":$cecFirstNameFilter,
+	"cecLastName":$cecLastNameFilter
+};
+
+var $csrDelegationTextboxElements = {
+	"agentFirstName":$agentFirstNameFilter,
+	"agentLastName":$agentLastNameFilter,
+	"agentLicenseNumber":$agentLicenseNumberFilter,
+	"cecFirstName":$cecFirstNameFilter,
+	"cecLastName":$cecLastNameFilter,
+	"householdCaseId":$householdCaseIdFilter
+};
+
+var $resetAllButton = _button("Reset All");
+var $applyButton = _button("Apply");
+
+var $delegationHistoryTable = _table("/usa-table/");
+var $householdPrimaryHeader = _tableHeader("Household Primary",_in($delegationHistoryTable));
+var $caseIdHeader = _tableHeader("Case ID",_in($delegationHistoryTable));
+var $agentHeader = _tableHeader("Agent",_in($delegationHistoryTable));
+var $agentLicenseNumHeader = _tableHeader("Agent License No.",_in($delegationHistoryTable));
+var $delegationStartDateHeader = _tableHeader("Delegation Start Date",_in($delegationHistoryTable));
+var $delegationEndDateHeader = _tableHeader("Delegation End Date",_in($delegationHistoryTable));
+var $reasonForEndHeader = _tableHeader("Reason for End",_in($delegationHistoryTable));
+var $agentOrCecNameHeader = _tableHeader("Agent/CEC Name",_in($delegationHistoryTable));
+var $typeHeader = _tableHeader("Type",_in($delegationHistoryTable));
+var $agencyOrEntityBusinessNameHeader = _tableHeader("Agency/Entity Business Name");
+
+
+function getTableHeaderInPosition($position){return _tableHeader($position, _in($delegationHistoryTable))}
+
+
+
+var $delegationTableHeadersElementsAll = {
+	"householdPrimary": $householdPrimaryHeader,
+	"caseID": $caseIdHeader,
+	"agent": $agentHeader,
+	"agentLicenseNo":$agentLicenseNumHeader,
+	"delegationStartDate": $delegationStartDateHeader,
+	"delegationEndDate": $delegationEndDateHeader,
+	"reasonForEnd": $reasonForEndHeader,
+	"agentOrCecName": $agentOrCecNameHeader,
+	"type": $typeHeader,
+	"agencyOrEntityBusinessName": $agencyOrEntityBusinessNameHeader
+};
+
+var $agencyDelegationTableHeadersElements = {
+	"householdPrimary": $householdPrimaryHeader,
+	"caseID": $caseIdHeader,
+	"agent": $agentHeader,
+	"agentLicenseNo":$agentLicenseNumHeader,
+	"delegationStartDate": $delegationStartDateHeader,
+	"delegationEndDate": $delegationEndDateHeader,
+	"reasonForEnd": $reasonForEndHeader
+};
+
+var $agentDelegationTableHeadersElements = {
+	"householdPrimary": $householdPrimaryHeader,
+	"caseID": $caseIdHeader,
+	"delegationStartDate": $delegationStartDateHeader,
+	"delegationEndDate": $delegationEndDateHeader,
+	"reasonForEnd": $reasonForEndHeader
+};
+
+var $individualDelegationTableHeadersElements = {
+	"agentOrCecName": $agentOrCecNameHeader,
+	"type": $typeHeader,
+	"agentLicenseNo":$agentLicenseNumHeader,
+	"agencyOrEntityBusinessName": $agencyOrEntityBusinessNameHeader,
+	"delegationStartDate": $delegationStartDateHeader,
+	"delegationEndDate": $delegationEndDateHeader,
+	"reasonForEnd": $reasonForEndHeader
+};
+
+var $csrDelegationTableHeadersElements = {
+	"householdPrimary": $householdPrimaryHeader,
+	"caseID": $caseIdHeader,
+	"agentOrCecName": $agentOrCecNameHeader,
+	"type": $typeHeader,
+	"agentLicenseNo":$agentLicenseNumHeader,
+	"agencyOrEntityBusinessName": $agencyOrEntityBusinessNameHeader,
+	"delegationStartDate": $delegationStartDateHeader,
+	"delegationEndDate": $delegationEndDateHeader,
+	"reasonForEnd": $reasonForEndHeader
+};
+
+var $agencyTopNavBar = _div("navbar");
+
+var $agencyTopNavBarElements = {
+	"agentsTab": _button("Agents"),
+	"adminStaffTab": _button("Admin Staff"),
+	"agencyDelegationsTab": _button("Agency Delegations"),
+	"agencyAccountTab": _button("Agency Account"),
+	"myDelegationsTab": _button("My Delegations"),
+	"myAgentProfileTab": _button("My Agent Profile"),
+};
+
+var $agentsTab = {
+	"viewAgentList":_link("View Agent List"),
+	"searchAgent":_link("Search an Agent"),
+	"addNewAgent":_link("Add a New Agent"),
+	"agentDelegationHistory":_link("Agent Delegation History")
+};
+
+var $adminStaffTab = {
+	"viewAdminStaffList":_link("View Admin Staff List"),
+	"searchAgent":_link("Add a New Admin Staff")
+};
+
+var $agencyDelegationsTab = {
+	"pendingDelegations":_link("Pending Delegation Requests"),
+	"activeConsumers":_link("Active Consumers"),
+	"transferConsumers":_link("Transfer Consumers")
+};
+
+var $agencyAccountTab = {
+	"agencyInformation":_link("Agency Information"),
+	"locationAndHours":_link("Location and Hours"),
+	"documentUpload":_link("Document Upload"),
+	"agencyCertification":_link("Agency Certification")
+};
+
+var $myDelegationsTab = {
+	"pendingDelegationRequests":_link("Pending delegation requests"),
+	"activeConsumers":_link("Active Consumers"),
+	"inactiveConsumers":_link("Inactive Consumers"),
+	"myDashboard":_link("My Dashboard")
+};
+
+var $myAgentProfileTab = {
+	"agentInformation":_link("Agent Information"),
+	"profile":_link("Profile"),
+	"certificationStatus":_link("Certification Status"),
+	"status":_link("Status")
+}
+
+var $agencyTopMenu = {
+	"agencyTopMenu":$agencyTopNavBarElements,
+	"agencyTopSubMenu":{
+		"agentsTab":$agentsTab,
+		"adminStaffTab":$adminStaffTab,
+		"agencyDelegationsTab":$agencyDelegationsTab,
+		"agencyAccountTab":$agencyAccountTab,
+		"myDelegationsTab":$myDelegationsTab,
+		"myAgentProfileTab":$myAgentProfileTab
+	}
+}
+
+var $myDelegationHistoryLinkOnLeftNav = _link("My Delegation History");

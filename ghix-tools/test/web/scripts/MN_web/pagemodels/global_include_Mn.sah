@@ -1,0 +1,107 @@
+_resource("../lib/iex_resources_es.properties");
+_resource("../lib/iex_resources.properties");
+_resource("../lib/Plan_display_es.properties");
+_resource("../lib/Plan_display.properties");
+
+_include("../lib/util.sah");
+
+
+
+var $db;
+var $database;
+var $server;
+var $port;
+var $username;
+var $password;
+
+var	$url = getUpdatedBaseURL("").split("/");
+var $suiteInfo = _suiteInfo();
+
+$database = $suiteInfo["databaseType"];
+$port = $suiteInfo["databasePort"];
+$server = $suiteInfo["databaseServer"];
+$username  = $suiteInfo["databaseUsername"];
+$password = $suiteInfo["databasePassword"];
+$SID = "ghixdb";
+
+
+
+
+if (getApplicationLanguage() == "spanish") {
+	// English to Spanish
+	_setLanguage("../lib/iex_resources_es.properties", "../lib/iex_resources.properties", true);
+	_setLanguage("../lib/Plan_display_es.properties", "../lib/Plan_display.properties", true);
+	
+	_log("Launguage selected is Spanish");
+}
+else if (getApplicationLanguage() == "english") {
+	// English
+	_setLanguage("../lib/iex_resources.properties", "../lib/iex_resources_es.properties", true);
+	_setLanguage("../lib/Plan_display.properties", "../lib/Plan_display_es.properties", true);
+	
+	_log("Launguage selected is English");
+}
+////comment this code b4 checkin
+
+var $url = getBaseDomain();
+
+// if (getBaseDomain() == "mnuat.ghixqa.com") {
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "mnuat";
+// 	$password = "ODQzNzE1OGE2Yzkx";
+// }
+
+// if (getBaseDomain() == "mn2auto.eng.vimo.com") {
+// 	$database = "POSTGRESQL";
+// 	$server = "sjc-pgqa1.eng.vimo.com";
+// 	$port = "5444";
+// 	$username = "mn2auto";
+// 	$password = "Cze0aVe5V4.4D3cX";
+// }
+
+/*
+if (getBaseDomain() == "mn1qa.ghixqa.com") {
+	$database = "POSTGRESQL";
+	$server = "sfo-pgqa1.ghixqa.com";
+	$port = "5444";
+	$username = "mn1qa";
+	$password = "YjhhZWNkNDEwNmIy";
+}
+
+if (getBaseDomain() == "sjc-mn3qa.eng.vimo.com") {
+	$database = "POSTGRESQL";
+	$server = "sjc-pgqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "mn3qa";
+	$password = "ZWI2NjY3ZDg1YWQy";
+}
+
+///////comment till here
+*/
+
+_log("url :   "+$url);
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+
+if($database =="POSTGRESQL"){
+		$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}
+
+function getDb(){
+	return $db;
+}
+
+function getUpdatedBaseURL($append) {
+	var $suiteInfo = _suiteInfo();
+	var $baseURL = $suiteInfo["baseURL"];
+	var $updatedURL = $baseURL + $append;
+	return $updatedURL;
+}
+
+

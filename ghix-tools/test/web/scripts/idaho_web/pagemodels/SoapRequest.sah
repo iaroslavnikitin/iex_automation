@@ -1,0 +1,670 @@
+//_includeOnce("../lib/Utils.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+//_includeOnce("../pagemodels/QualifyingEvent.sah");
+_resource("../resources/ID_QEPFN_1mem.txt");
+//_resource("../resources/QEPNF_4mem_tag_Birth.txt");
+//_resource("../resources/SEPNF_add_member.txt")
+//_resource("../resources/SEPFN_add_member.txt")
+//_resource("../resources/QEPFN_4mem.txt");
+//_resource("../resources/QEPFN_4mem_CS1.txt");
+//_resource("../resources/QEPFN_4mem_tag_Birth.txt");
+
+
+
+
+function getSoapHeaderWithPwdDigest($userName, $password) {
+	var $random = java.security.SecureRandom.getInstance("SHA1PRNG");
+	$random.setSeed(java.lang.System.currentTimeMillis());
+	var $nonceBytes = new java.lang.String("0000000000000000").getBytes("UTF-8");
+	$random.nextBytes($nonceBytes);
+	var $nonceBase64 = Packages.in.co.sahi.util.Base64Codec.toBase64($nonceBytes);
+	var $cal = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("GMT"));
+	var $isoDate = java.lang.String.format("%04.0f-%02.0f-%02.0fT%02.0f:%02.0f:%02.0f.%03.0fZ",
+										  $cal.get(java.util.Calendar.YEAR),
+												  $cal.get(java.util.Calendar.MONTH) + 1,
+														  $cal.get(java.util.Calendar.DATE),
+																  $cal.get(java.util.Calendar.HOUR_OF_DAY),
+																		  $cal.get(java.util.Calendar.MINUTE),
+																				  $cal.get(java.util.Calendar.SECOND),
+																						  $cal.get(java.util.Calendar.MILLISECOND));
+	//_log("created date: " + $isoDate);
+	var $createdDate = $isoDate;
+	var $nonce = $nonceBase64;
+	var $sha1 = java.security.MessageDigest.getInstance("SHA-1");
+	$sha1.update($nonceBytes);
+	$sha1.update(new java.lang.String($isoDate).getBytes("UTF-8"));
+	$sha1.update(new java.lang.String($password).getBytes("UTF-8"));
+	var $passwordDigest = Packages.in.co.sahi.util.Base64Codec.toBase64($sha1.digest());
+
+	var $soapHeader = '<soap:Header><wsse:Security soap:mustUnderstand="true" xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"><wsse:UsernameToken><wsse:Username>' + $userName + '</wsse:Username><wsse:Password Type="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordDigest">'
+		+ $passwordDigest + '</wsse:Password><wsse:Nonce EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary">' 
+		+ $nonce + '</wsse:Nonce><wsu:Created>' 
+		+ $createdDate + '</wsu:Created></wsse:UsernameToken></wsse:Security></soap:Header>';
+	_log($soapHeader);
+	return $soapHeader;
+}
+
+
+function accountTransferSoapRequest($xmlfile, $url){
+	/* 
+	* comment below three lines if passing xml file
+	*/
+	//var $url = "camainqa.ghixqa.com"
+	//var $xmlfile = "../resources/QEP4MM_NON_FN.xml";
+	//	var $body =  _readFile($xmlfile)
+	
+	var $body = $xmlfile;
+	var $request = new RESTRequest();
+	var $userName = "GI.ID*.ABC.001.001";
+	var $password = "kYL@I30ubFqZ7Ua";
+	var $soapHeader = getSoapHeaderWithPwdDigest($userName, $password);
+
+	$request.setHeader("Content-Type", "application/soap+xml;charset=UTF-8");
+	$request.setURL("https://"+$url+"/ghix-eligibility/endpoints/AccountTransfer");
+
+	$body = $body.replace(/<header><\/header>/, $soapHeader);
+	_log($body);
+	$request.setBody($body);
+
+	var $response = $request.submit("post");
+	var $responseBody = $response.getBodyAsString();
+	_log("$responseBody: " + $responseBody);
+	_assertEqual("200",  $response.getResponseCode(),"Verify valid HTTPS status code is received");
+	_assert($responseBody.indexOf("Success") != -1,"Verify Soap responce has Success status" );
+	//_writeFile($body, "output.xml", true);
+}	
+
+function accountTransfer($caseNumber,$numOfMembers,$eventDate,$isOEP,$dataForAccountTransfer,$eventCode,$saveXmlInHousehold){
+	var $updatedXmlFile;
+	var $data;
+	if($dataForAccountTransfer){
+		$data = $dataForAccountTransfer;
+	}else{
+		$data = getDataforAccountTransfer($isOEP);
+	}
+	
+	if($eventDate){
+		$eventDate = $eventDate.replace("/","-");
+		$data.eventDate = $eventDate;
+	}
+	if($caseNumber == 1){
+		$filePath = _resolvePath("../resources/ID_QEPFN_1mem.txt", "\\");
+		$updatedXmlFile = updateXmlFileForSoapRequest($filePath, $data,$numOfMembers);
+	}
+	/*
+	else if($caseNumber == 2){
+		$filePath = _resolvePath("../resources/QEPNF_4mem_tag_Birth.txt", "\\");
+		$updatedXmlFile = updateXmlFileForSoapRequest($filePath, $data,$numOfMembers, $eventCode);
+    }
+	else if($caseNumber == 3){
+		$filePath = _resolvePath("../resources/QEPFN_4mem_CS1.txt", "\\");
+		$updatedXmlFile = updateXmlFileForSoapRequest($filePath, $data,$numOfMembers);
+    }
+	else if($caseNumber == 4){
+		$filePath = _resolvePath("../resources/SEPNF_add_member.txt", "\\");
+		$updatedXmlFile = updateXmlFileForSoapRequest($filePath, $data,$numOfMembers,$eventCode);
+    }
+	else if($caseNumber == 5){
+		$filePath = _resolvePath("../resources/QEPFN_4mem.txt", "\\");
+		$updatedXmlFile = updateXmlFileForSoapRequest($filePath, $data,$numOfMembers);
+	}
+	else if($caseNumber == 6){
+		$filePath = _resolvePath("../resources/QEPFN_4mem_tag_Birth.txt", "\\");
+		$updatedXmlFile = updateXmlFileForSoapRequest($filePath, $data,$numOfMembers,$eventCode);
+	}
+	else if($caseNumber == 7){
+		$filePath = _resolvePath("../resources/SEPFN_add_member.txt", "\\");
+		$updatedXmlFile = updateXmlFileForSoapRequest($filePath, $data,$numOfMembers,$eventCode);
+    }
+	*/
+	
+	var $url = getBaseDomain();
+	_log($url)
+	var $household = getHouseholdInfo($updatedXmlFile, $numOfMembers);
+	$household.dataForAccountTransfer = $data;
+	if($saveXmlInHousehold = "Y"){
+		$household.request = $updatedXmlFile;
+	}
+	accountTransferSoapRequest($updatedXmlFile, $url);
+	return $household;
+}
+
+function updateXmlFileForSoapRequest($filePath, $data, $numOfMembers,$eventCode){
+	var $xmlStr;
+	$xmlStr=_readFile($filePath);
+	
+	$xmlStr = $xmlStr.replace(/<\?xml[^>]*\?>/, ""); // needed in some cases
+	$xmlStr = $xmlStr.replace(/(\r\n|\n|\r)/gm,"");
+	var $x = new XML($xmlStr);
+	/*//nv
+	//replacing external application id and external household case id
+	for (var $i = 0; $i < 2; $i++) {
+		default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4
+		var $appId = $x..ApplicationIdentification[$i];
+
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0"; //ns2
+		var $categoryText = $appId..IdentificationCategoryText.toString();
+		$appId = $appId..IdentificationID.toString();
+		
+		if($categoryText == "ApplicationID"){
+			_log("appId: "+$appId);
+			$xmlStr = $xmlStr.replace($appId, $data.applicationIdentification);
+		}
+		if($categoryText == "HouseholdCaseId"){
+			_log("HouseholdCaseId: "+$appId);
+			$xmlStr = $xmlStr.replace($appId, $data.externalHouseholdCaseID);
+		}
+		
+	}
+	*/
+	
+	//replacing applicant activity id
+	default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5
+	var $refActivityId = $x..ReferralActivity[0];
+	default xml namespace = "http://niem.gov/niem/niem-core/2.0"; //ns2
+	$refActivityId = $refActivityId..ActivityIdentification.IdentificationID.toString();
+	_log("refActivityId: "+$refActivityId);
+	$xmlStr = $xmlStr.replace($refActivityId, $data.randomActivityId);
+	
+	//replacing SSN
+	var $personSSN = $x..PersonSSNIdentification[0].IdentificationID.toString();
+	_log("personSSN: "+$personSSN);
+	$xmlStr = $xmlStr.replace($personSSN, $data.SSN);
+	
+	//replacing email
+	var $personEmail = $x..ContactEmailID.toString();
+	_log("personEmail: "+$personEmail);
+	$xmlStr = $xmlStr.replace($personEmail, $data.email);
+	
+	//replacing person medicaid id
+	for(var $i=0;$i<$numOfMembers;$i++){
+		default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4
+		var $personMedicaidID = $x..PersonMedicaidIdentification[$i];
+		_log("personMedicaidID: "+$personMedicaidID);
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0"; //ns2
+		$personMedicaidID = $personMedicaidID..IdentificationID.toString();
+		_log("personMedicaidID: "+$personMedicaidID);
+		
+		while($xmlStr.indexOf($personMedicaidID) != -1){
+			var $medId = $data.randomMedId+$i;
+			$xmlStr = $xmlStr.replace($personMedicaidID, $medId);
+		}	
+	}
+	_log("replacing person medicaid id");
+	//replacing first name
+	$personFirstName = $x..PersonGivenName[0].toString();
+	_log("personFirstName: "+$personFirstName);
+	$xmlStr = $xmlStr.replace($personFirstName, $data.firstName);
+	
+	//replacing coverage year
+	default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5	
+	var $coverageYear = $x..CoverageYear.toString();
+	$coverageYear = "<ns5:CoverageYear>"+$coverageYear+"</ns5:CoverageYear>"
+	var $currentYear = "<ns5:CoverageYear>"+$data.currentYear+"</ns5:CoverageYear>"
+	_log("coverageYear: "+$coverageYear);
+	_log("currentYear: "+$currentYear);
+	$xmlStr = $xmlStr.replace($coverageYear,$currentYear);
+	
+	//replacing event date and event code
+	if($data.eventDate != "null"){
+		var $oldEventDate = "<ns2:Date>eventDate</ns2:Date>";
+		var $newEventDate = "<ns2:Date>"+$data.eventDate+"</ns2:Date>";
+			
+		var $oldEventCode = "<ns5:ExtendedApplicantEventCode>Birth</ns5:ExtendedApplicantEventCode>";
+		var $newEventCode = "";
+		if ($eventCode){
+			$newEventCode = "<ns5:ExtendedApplicantEventCode>"+$eventCode+"</ns5:ExtendedApplicantEventCode>";
+		}
+		
+		while($xmlStr.indexOf($oldEventDate) != -1){
+			$xmlStr = $xmlStr.replace($oldEventDate,$newEventDate);
+			if($eventCode){
+				$xmlStr = $xmlStr.replace($oldEventCode,$newEventCode);
+			}
+		}	
+	}
+	
+	//replacing eligibility dates
+    var $newEligibilityStartDate=$data.currentYear+"-01-01";
+    var $newEligibilityEndDate=$data.currentYear+"-12-31";
+    
+    default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5   
+    var $exchangeEligibilityDate = $x..ExchangeEligibility[0];
+    
+    default xml namespace = "http://niem.gov/niem/niem-core/2.0"; //ns2
+    var $exchangeEligibilityStartDate = $exchangeEligibilityDate..StartDate.Date.toString();
+	_log("$exchangeEligibilityStartDate: "+$exchangeEligibilityStartDate);
+	
+    var $exchangeEligibilityEndDate = $exchangeEligibilityDate..EndDate.Date.toString();
+	_log("$exchangeEligibilityEndDate: "+$exchangeEligibilityEndDate);
+	
+    var $exchangeEligibilityDeterminationDate = $exchangeEligibilityDate..ActivityDate.DateTime.toString();
+	
+    
+    //while($xmlStr.indexOf($exchangeEligibilityStartDate) != -1){
+            $xmlStr = $xmlStr.replace($exchangeEligibilityStartDate,$newEligibilityStartDate);
+			
+            $xmlStr = $xmlStr.replace($exchangeEligibilityEndDate,$newEligibilityEndDate);
+   // }
+	
+    return $xmlStr;
+}
+
+function sepDemoChange($household, $names, $mailingAddress){
+	$xmlStr = $household.request;
+	$xmlStr = $xmlStr.replace(/<\?xml[^>]*\?>/, ""); // needed in some cases
+	$xmlStr = $xmlStr.replace(/(\r\n|\n|\r)/gm,"");
+	var $x = new XML($xmlStr);
+	
+	
+	//replacing first name
+	default xml namespace = "http://niem.gov/niem/niem-core/2.0"; //ns2
+	$personFirstName = $x..PersonGivenName[0].toString();
+	$strToReplace = $personFirstName.substring($personFirstName.length-3,$personFirstName.length);
+	$newPersonFirstName = $personFirstName.replace($strToReplace,randomString(3, "A").toLowerCase());
+	_log("personFirstName: "+$newPersonFirstName);
+	$xmlStr = $xmlStr.replace($personFirstName, $newPersonFirstName);
+	
+	//replacing last name
+	default xml namespace = "http://niem.gov/niem/niem-core/2.0"; //ns2
+	$personLastName = $x..PersonSurName[0].toString();
+	$strToReplace = $personLastName.substring($personLastName.length-3,$personLastName.length);
+	$newPersonLastName = $personLastName.replace($strToReplace,randomString(3, "A").toLowerCase());
+	_log("personFirstName: "+$newPersonLastName);
+	$xmlStr = $xmlStr.replace($personLastName, $newPersonLastName);
+	
+	//replacing mailing address
+	default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4
+	$address = $x..Person[0].PersonAugmentation.PersonContactInformationAssociation[1];
+	default xml namespace = "http://niem.gov/niem/niem-core/2.0";	//ns2
+	$mailingAddressStreet = $address..StreetFullText.toString();
+	$mailingAddressCity = $address..LocationCityName.toString();
+	$mailingAddressState = $address..LocationStateUSPostalServiceCode.toString();
+	$mailingAddressZipcode = $address..LocationPostalCode.toString();
+	
+	$strToReplace = $mailingAddressStreet.substring(0,3);
+	$newMailingStreet = $mailingAddressStreet.replace($strToReplace,randomStringWithoutStartingZero(3, "N"));
+	_log("personFirstName: "+$newMailingStreet);
+	$xmlStr = $xmlStr.replace($mailingAddressStreet, $newMailingStreet);
+	$xmlStr = $xmlStr.replace($mailingAddressCity, "Sunnyvale");
+	$xmlStr = $xmlStr.replace("<ns2:LocationPostalCode>"+$mailingAddressZipcode+"</ns2:LocationPostalCode>", "<ns2:LocationPostalCode>94087</ns2:LocationPostalCode>");
+	$xmlStr = $xmlStr.replace("<ns2:LocationCountyCode>005</ns2:LocationCountyCode>", "<ns2:LocationCountyCode>085</ns2:LocationCountyCode>");
+	
+	
+	var $url = getBaseDomain();
+	var $household = getHouseholdInfo($xmlStr, $household.people.length);
+	
+	$household.request = $xmlStr;
+	
+	accountTransferSoapRequest($xmlStr, $url);
+	return $household;
+}
+
+function sepAptcAndCSLevelUpdate($household,$newAptc,$newCS,$numOfMemberToUpdateCS,$event){
+	$xmlStr = $household.request;
+	$xmlStr = $xmlStr.replace(/<\?xml[^>]*\?>/, ""); // needed in some cases
+	$xmlStr = $xmlStr.replace(/(\r\n|\n|\r)/gm,"");
+	var $x = new XML($xmlStr);
+
+	/*If Not passing event then event tag will be removed from SEP AT, else will update with new event*/
+	if(!$event){
+		var $extracted = _extract($xmlStr, "/<ns5:ExtendedApplicant(.*)ns5:ExtendedApplicant>/",true);
+		$extracted = "<ns5:ExtendedApplicant"+$extracted+"ns5:ExtendedApplicant>";
+		$xmlStr = $xmlStr.replace($extracted,"");
+	}else{
+		default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5
+		var $oldEvent = $x..ExtendedApplicantEventCode[0].toString();
+		$oldEvent = "<ns5:ExtendedApplicantEventCode>"+$oldEvent+"</ns5:ExtendedApplicantEventCode>";
+		_log("$oldEvent: "+$oldEvent);
+		var $newEvent = "<ns5:ExtendedApplicantEventCode>"+$event+"</ns5:ExtendedApplicantEventCode>";
+		_log("$newEvent: "+$newEvent);
+
+		for(var $i=0;$i<$household.people.length;$i++){	
+			$xmlStr = $xmlStr.replace($oldEvent,$newEvent);
+		}
+
+	}
+
+	
+	//replacing aptc
+	if($newAptc){
+		default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5		
+		var $maxAPTC = $x..APTCMaximumAmount.toString();
+		$xmlStr = $xmlStr.replace("<ns5:APTCMaximumAmount>"+$maxAPTC+"</ns5:APTCMaximumAmount>", "<ns5:APTCMaximumAmount>"+$newAptc+"</ns5:APTCMaximumAmount>");
+	}
+
+	//replacing CS level
+	if($newCS){
+		default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5		
+		var $numOfMembers = $household.people.length;
+		var $count = 0;
+
+		//if new level is CS1
+		if($newCS == "CS1"){
+
+			for(var $i=0;$i<$numOfMembers;$i++){
+
+				$x..CSREligibility[$i].EligibilityIndicator = false;
+				var $CSREligibility = $x..CSREligibility[$i].EligibilityIndicator.toString();
+
+				_log("$CSREligibility: "+$CSREligibility);
+			}	
+
+			$xmlStr = updateXML($x,$xmlStr);
+
+		}else{
+
+			$newCS = convertCSRLevel($newCS,"Long");
+
+			for(var $i=0;$i<$numOfMembers;$i++){
+				var $csrLevel = $x..CSREligibility[$i].CSRAdvancePayment.CSRCategoryAlphaCode.toString();
+
+				/* if NOT passing $numOfMemberToUpdateCS then CS level will be updated for all members*/
+				if(!$numOfMemberToUpdateCS){	
+					$xmlStr = $xmlStr.replace($csrLevel, $newCS);
+				}else{
+					/*else only member under $numOfMemberToUpdateCS number*/
+					if($count == $numOfMemberToUpdateCS){
+						$xmlStr = $xmlStr.replace($csrLevel, $newCS);
+					}else{
+						$xmlStr = $xmlStr.replace($csrLevel, $csrLevel);
+					}
+				}
+				$count++;
+			}
+		}
+	}
+	
+	//_writeFile($xmlStr, "XMLfileHousehold.txt", true);
+
+	var $url = getBaseDomain();
+	var $household = getHouseholdInfo($xmlStr, $household.people.length);
+	
+	$household.request = $xmlStr;
+	
+	accountTransferSoapRequest($xmlStr, $url);	
+	return $household;
+}
+
+function sepRemoveMember($household,$membersToRemove,$event,$eventDate,$newAptc){
+
+	$membersToRemove = $membersToRemove.split(",");
+	var $numOfMembers = $membersToRemove.length;
+
+	$xmlStr = $household.request;
+	$xmlStr = $xmlStr.replace(/<\?xml[^>]*\?>/, ""); // needed in some cases
+	$xmlStr = $xmlStr.replace(/(\r\n|\n|\r)/gm,"");
+	var $x = new XML($xmlStr);
+
+
+	// changing EligibilityIndicators to false for removing member
+	default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5	
+	for(var $i=0;$i<$numOfMembers;$i++){
+
+		$x..ExchangeEligibility[$membersToRemove[$i]].EligibilityIndicator = false;
+		$x..CSREligibility[$membersToRemove[$i]].EligibilityIndicator = false;
+		$x..APTCEligibility[$membersToRemove[$i]].EligibilityIndicator = false;
+		var $ExchangeEligibility = $x..ExchangeEligibility[$membersToRemove[$i]].EligibilityIndicator.toString();
+		_log("$ExchangeEligibility: "+$ExchangeEligibility);
+
+	}	
+
+	$xmlStr = updateXML($x,$xmlStr);
+
+	//if not passing event then any event tag will be removed from AT
+	if(!$event){
+		var $extracted = _extract($xmlStr, "/<ns5:ExtendedApplicant(.*)ns5:ExtendedApplicant>/",true);
+		$extracted = "<ns5:ExtendedApplicant"+$extracted+"ns5:ExtendedApplicant>";
+		$xmlStr = $xmlStr.replace($extracted,"");
+	}else{
+		//if providing event then event will be used in AT
+		for(var $i=0;$i<$numOfMembers;$i++){
+			//getting nonQHP event tag	
+			var $personMedId = $household.people[$membersToRemove[$i]].personMedicaidIdentification;
+			var $eventTag = getNonQHPEventTag($event,$eventDate,$personMedId);
+			// removing old events if exists
+			var $extracted = _extract($xmlStr, "/<ns5:ExtendedApplicant(.*)ns5:ExtendedApplicant>/",true);
+			$extracted = "<ns5:ExtendedApplicant"+$extracted+"ns5:ExtendedApplicant>";
+			$xmlStr = $xmlStr.replace($extracted,"");
+
+			// extracting coverageYearTag from AT and replacing it with coverageYearTag + new event tag
+			default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5	
+			var $applicationExtension = $x..ApplicationExtension.toString();
+			_log("$applicationExtension: "+$applicationExtension);
+			var $coverageYearTag = _extract($applicationExtension, "/<ns5:CoverageYear>(......)ns5:CoverageYear>/",false);
+			$coverageYearTag = $coverageYearTag[0].toString();
+			_log("$coverageYearTag: "+$coverageYearTag);
+			var $newEventTag = $coverageYearTag+" "+$eventTag;
+			$xmlStr = $xmlStr.replace($coverageYearTag,$newEventTag);
+
+		}
+	}
+
+	//replacing aptc
+	if($newAptc){
+		default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5		
+		var $maxAPTC = $x..APTCMaximumAmount.toString();
+		$xmlStr = $xmlStr.replace("<ns5:APTCMaximumAmount>"+$maxAPTC+"</ns5:APTCMaximumAmount>", "<ns5:APTCMaximumAmount>"+$newAptc+"</ns5:APTCMaximumAmount>");
+	}
+	
+	//_writeFile($xmlStr, "XMLfileHousehold.txt", true);
+
+	var $url = getBaseDomain();
+	var $household = getHouseholdInfo($xmlStr, $household.people.length);
+	
+	$household.request = $xmlStr;
+	accountTransferSoapRequest($xmlStr, $url);	
+	return $household;
+}
+
+function getDataforAccountTransfer($isOEP){
+	
+	var $currentTime = new Date().getTime();
+	var $currentYear = getCurrentCoverageYear();//getOECoverageYearDB();
+	
+	if($isOEP == "YES"){
+		$currentYear = _fetch(window.moment().add(1, 'Y').format("YYYY")).toString();
+	}
+	_log("Application Year =  "+$currentYear);
+	var $firstName = randomFirstName();
+	var $lastName = randomLastName();
+	var $SSN = getRandomSSN();
+	$SSN = $SSN.replace(/\-/g, "")
+	var $email = $firstName+"_"+$currentTime+"@yopmail.com";
+	var $applicationIdentification = "CA"+ $currentTime+"aid";
+	var $externalHouseholdCaseID = "CA"+ $currentTime;
+	var $randomMedId = $currentTime;
+	var $randomActivityId = "activ"+$currentTime;
+	_log("First name = "+$firstName+ ",    Last Name = "+$lastName+",  email = "+ $email+",   SSN = "+$SSN+"med id = " +$randomMedId);
+	var $accountTransferData = {};
+	$accountTransferData.firstName = $firstName;
+	$accountTransferData.lastName = $lastName;
+	$accountTransferData.SSN = $SSN;
+	$accountTransferData.email = $email;
+	$accountTransferData.applicationIdentification = $applicationIdentification;
+	$accountTransferData.externalHouseholdCaseID = $externalHouseholdCaseID;
+	$accountTransferData.randomMedId = $randomMedId;
+	$accountTransferData.randomActivityId = $randomActivityId;
+	$accountTransferData.currentYear = $currentYear;
+	$accountTransferData.eventDate = "null";
+	
+	return $accountTransferData;
+
+}
+
+function getHouseholdInfo($xmlStr, $numOfMembers){
+	var $people = [];
+	var $household = {};
+	
+	_log(" In Household Info method");
+//	var $xmlStr;
+//	$xmlStr=_readFile($filePath);
+	var $x = new XML($xmlStr);
+	
+	for(var $i=0;$i<$numOfMembers;$i++){
+		var $homeAddress = {};
+		var $mailingAddress = {};
+		var $relationshipCode = {};
+
+		default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4	
+		var $email = $x..Person[$i];
+		var $telephoneNumberFullID = $x..Person[$i];
+	
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0";	//ns2	
+		var $firstName  =  $x..PersonGivenName[$i].toString();	
+		var $lastName  =  $x..PersonSurName[$i].toString();
+		var $dob = $x..PersonBirthDate[$i].Date.toString();
+		var $SSN = $x..PersonSSNIdentification[$i].IdentificationID.toString();
+		var $personSex = $x..PersonSexText[$i].toString();
+		var $USCitizenIndicator = $x..PersonUSCitizenIndicator[$i].toString();
+		$email = $email..ContactEmailID.toString();
+		$telephoneNumberFullID = $telephoneNumberFullID..TelephoneNumberFullID.toString();
+		
+		default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4		
+		var $americanIndianIndicator = $x..TribalAugmentation[$i].PersonAmericanIndianOrAlaskaNativeIndicator.toString();
+		var $personMedicaidIdentification = $x..PersonMedicaidIdentification[$i];
+		var $personMarriedIndicator = $x..PersonMarriedIndicator[$i].toString();
+		
+		$relationshipCode[0] = 18;
+		for(var $j=0;$j<$numOfMembers-1;$j++){
+			var $person = $x..Person[$i];
+			$relationshipCode[$j+1] = $person..FamilyRelationshipCode[$j].toString();
+		}
+		
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0";	//ns2
+		$personMedicaidIdentification = $personMedicaidIdentification..IdentificationID.toString();
+		
+		default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4	
+		//get home address
+		var $address = $x..Person[$i].PersonAugmentation.PersonContactInformationAssociation[0];
+		$homeAddress.addressType = $address..ContactInformationCategoryCode.toString();
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0";	//ns2
+		$homeAddress.street = $address..StreetFullText.toString();
+		$homeAddress.city = $address..LocationCityName.toString();
+		$homeAddress.state = $address..LocationStateUSPostalServiceCode.toString();
+		$homeAddress.zipcode = $address..LocationPostalCode.toString();
+		
+		//get mailing address
+		default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4
+		$address = $x..Person[$i].PersonAugmentation.PersonContactInformationAssociation[1];
+		$mailingAddress.addressType = $address..ContactInformationCategoryCode.toString();
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0";	//ns2
+		$mailingAddress.street = $address..StreetFullText.toString();
+		$mailingAddress.city = $address..LocationCityName.toString();
+		$mailingAddress.state = $address..LocationStateUSPostalServiceCode.toString();
+		$mailingAddress.zipcode = $address..LocationPostalCode.toString();
+		
+		default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5		
+		var $maxAPTC = $x..APTCMaximumAmount.toString();
+		var $aptcEligibility = $x..APTCEligibility[$i].EligibilityIndicator.toString();
+		var $aptcEligibilityDate = $x..APTCEligibility[$i];
+		var $csrEligibility = $x..CSREligibility[$i].EligibilityIndicator.toString();
+		var $csrLevel = $x..CSREligibility[$i].CSRAdvancePayment.CSRCategoryAlphaCode.toString();
+		var $csrEligibilityDate = $x..CSREligibility[$i];
+		var $exchangeEligibility = $x..ExchangeEligibility[$i].EligibilityIndicator.toString();
+		var $exchangeEligibilityDate = $x..ExchangeEligibility[$i];
+		var $eligibilityProgramsNum = $x..InsuranceApplicant[$i];
+		$eligibilityProgramsNum = $eligibilityProgramsNum..EligibilityIndicator;
+		$eligibilityProgramsNum = Object.keys($eligibilityProgramsNum).length;
+
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0";	//ns2
+		var $aptcEligibilityStartDate = $aptcEligibilityDate..StartDate.Date.toString();
+		var $aptcEligibilityEndDate = $aptcEligibilityDate..EndDate.Date.toString();
+		var $aptcEligibilityDeterminationDate = $aptcEligibilityDate..ActivityDate.DateTime.toString();
+
+		var $csrEligibilityStartDate = $csrEligibilityDate..StartDate.Date.toString();
+		var $csrEligibilityEndDate = $csrEligibilityDate..EndDate.Date.toString();
+		var $csrEligibilityDeterminationDate = $csrEligibilityDate..ActivityDate.DateTime.toString();
+
+		var $exchangeEligibilityStartDate = $exchangeEligibilityDate..StartDate.Date.toString();
+		var $exchangeEligibilityEndDate = $exchangeEligibilityDate..EndDate.Date.toString();
+		var $exchangeEligibilityDeterminationDate = $exchangeEligibilityDate..ActivityDate.DateTime.toString();
+
+		$people.push({
+			firstName:$firstName,
+			lastName:$lastName,
+			dob:$dob,
+			SSN:$SSN,
+			email:$email,
+			phoneNumber:$telephoneNumberFullID,
+			personSex:$personSex,
+			USCitizenIndicator:$USCitizenIndicator,
+			americanIndianIndicator:$americanIndianIndicator,
+			eligibilityProgramsNum:$eligibilityProgramsNum,
+			coverageStartDate:"",
+			coverageEndDate:"",
+
+			maxAPTC:$maxAPTC,
+			aptcEligibility:$aptcEligibility,
+			aptcEligibilityStartDate:$aptcEligibilityStartDate,
+			aptcEligibilityEndDate:$aptcEligibilityEndDate,
+			aptcEligibilityDeterminationDate:$aptcEligibilityDeterminationDate,
+
+			csrEligibility:$csrEligibility,
+			csrLevel:$csrLevel,
+			csrEligibilityStartDate:$csrEligibilityStartDate,
+			csrEligibilityEndDate:$csrEligibilityEndDate,
+			csrEligibilityDeterminationDate:$csrEligibilityDeterminationDate,
+
+			exchangeEligibility:$exchangeEligibility,
+			exchangeEligibilityStartDate:$exchangeEligibilityStartDate,
+			exchangeEligibilityEndDate:$exchangeEligibilityEndDate,
+			exchangeEligibilityDeterminationDate:$exchangeEligibilityDeterminationDate,
+			
+			relationshipCode:$relationshipCode,
+			homeAddress:$homeAddress,
+			mailingAddress:$mailingAddress,
+			personMedicaidIdentification:$personMedicaidIdentification,
+			personMarriedIndicator:$personMarriedIndicator
+		});	
+	}	
+	$household.people = $people;
+	
+	default xml namespace = "http://hix.cms.gov/0.1/hix-ee";  //ns5	
+	$household.financialAssistanceIndicator = $x..InsuranceApplication[0].InsuranceApplicationRequestingFinancialAssistanceIndicator.toString();
+	$household.coverageYear = $x..InsuranceApplication[0].ApplicationExtension.CoverageYear.toString();
+	var $primaryTaxFiler = $x..PrimaryTaxFiler.toString();
+	$primaryTaxFiler = _extract($primaryTaxFiler, "/RoleOfPersonReference ns1:ref=(.*)/", true).toString();
+	$primaryTaxFiler = $primaryTaxFiler.replace(/\D+/g, "");
+	$household.primaryTaxFiler = parseInt($primaryTaxFiler)-1;
+	_log("household.primaryTaxFiler: "+$household.primaryTaxFiler);
+/*nv
+	for (var $i = 0; $i < 2; $i++) {
+		default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4
+		var $appId = $x..ApplicationIdentification[$i];
+
+		default xml namespace = "http://niem.gov/niem/niem-core/2.0"; //ns2
+		var $categoryText = $appId..IdentificationCategoryText.toString();
+		$appId = $appId..IdentificationID.toString();
+		
+		if($categoryText == "ApplicationID"){
+			_log("$household.ATapplicationID: "+$appId);
+			$household.ATapplicationID = $appId;
+		}
+		if($categoryText == "HouseholdCaseId"){
+			_log("HouseholdCaseId: "+$appId);
+			$household.externalHouseholdCaseId = $appId;
+		}
+		
+	}
+	*/
+	default xml namespace = "http://hix.cms.gov/0.1/hix-core"; // ns4
+//	$household.ATapplicationID = $x..ApplicationIdentification;
+	$household.applicationCreationDate = $x..ApplicationCreation;
+	$household.signatureDate = $x..SignatureDate;
+
+	default xml namespace = "http://niem.gov/niem/niem-core/2.0";	//ns2
+//	$household.ATapplicationID = $household.ATapplicationID..IdentificationID.toString();
+	$household.applicationCreationDate = $household.applicationCreationDate..Date.toString();
+	$household.signatureDate = $household.signatureDate..Date.toString();
+
+
+
+	
+	var $str = JSON.stringify($household);
+	_log("JSON: "+$str);
+	_log("length: "+$people.length);
+	_log("person1 address: "+$household.people[0].homeAddress.street);
+	//_writeFile($str, "JSONfileHousehold.txt", true);
+	return $household;
+}

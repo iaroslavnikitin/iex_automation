@@ -1,0 +1,177 @@
+_includeOnce("ConfirmAddress.sah");
+_includeOnce("MailingAddressForm.sah");
+_includeOnce("Utils.sah");
+
+var $Site = true;
+function Site($sub) {
+	var $nameLabel = _label("siteNamelbl");
+	var $name = _textbox("siteLocationName");
+	var $primaryEmailAddressLabel = _label("Primary Email Address");
+	var $primaryEmailAddress = _textbox("primaryEmailAddress");
+	var $primaryPhoneNumberLabel = _label("Primary Phone Number");
+	var $primaryPhoneNumber = [_textbox("primaryPhone1"), _textbox("primaryPhone2"), _textbox("primaryPhone3")];
+	var $secondaryPhoneNumberLabel = _label("Secondary Phone Number");
+	var $secondaryPhoneNumber = [_textbox("secondaryPhone1"), _textbox("secondaryPhone2"), _textbox("secondaryPhone3")];
+	var $hoursOfOperationHeader = _heading4("/Hours of Operation/");
+	var $mondayLabel = _label("Monday");
+	var $tuesdayLabel = _label("Tuesday");
+	var $wednesdayLabel = _label("Wednesday");
+	var $thursdayLabel = _label("Thursday");
+	var $fridayLabel = _label("Friday");
+	var $saturdayLabel = _label("Saturday");
+	var $sundayLabel = _label("Sunday");
+	var $physicalAddressHeader = _heading4("Physical Address");
+	var $sameAsMailingAddressLabel = _label("Same as Mailing Address");
+	var $sameAsMailingAddress = _checkbox("physicalAddressCheck");
+	var $physicalAddressAddress1Label = _label("Address 1");
+	var $physicalAddressAddress1 = _textbox("physicalLocation_address1");
+	var $physicalAddressAddress2Label = _label("Address 2[1]");
+	var $physicalAddressAddress2 = _textbox("physicalLocation_address2");
+	var $physicalAddressCity = _textbox("physicalLocation_city");
+	var $physicalAddressStateLabel = _label("State");
+	var $physicalAddressState = _select("physicalLocation_state");
+	var $physicalAddressZipCode = _textbox("physicalLocation_zip");
+	var $languagesSupportedHeader = _heading4("Languages Supported");
+	var $spokenLanguagesHeader = _tableHeader("/Choose all spoken languages/");
+	var $spokenLanguagesTable = _table("languageTable");
+	var $writtenLanguagesHeader = _tableHeader("/Choose all written languages/");
+	var $writtenLanguagesTable = _table("margin5-b[1]");
+
+	this.verifyDay = function($dayLabel) {
+		_assertVisible($dayLabel);
+		var $dropdowns = _collect("_select", "/.*/", _in(_parentNode($dayLabel, "DIV")));
+		_assertEqual(2, $dropdowns.length);
+		_assertVisible($dropdowns[0]);
+		_assertVisible($dropdowns[1]);
+	};
+
+	this.verify = function() {
+		if ($sub) {
+			$hoursOfOperationHeader = _fieldset("/Hours of Operation/");
+			$stateLabel = _label("State");
+			$languagesSupportedHeader = _fieldset("Languages Supported");
+			$spokenLanguagesHeader = _tableHeader("Spoken Languages (select all that apply) Required");
+			$writtenLanguagesHeader = _tableHeader("Written Languages (select all that apply)Required");
+			$writtenLanguagesTable = _table(2);
+		}
+
+		_assertVisible($nameLabel);
+		_assertVisible($name);
+		_assertVisible($primaryEmailAddressLabel);
+		_assertVisible($primaryEmailAddress);
+		_assertVisible($primaryPhoneNumberLabel);
+		verifyArray($primaryPhoneNumber);
+		_assertVisible($secondaryPhoneNumberLabel);
+		verifyArray($secondaryPhoneNumber);
+
+		_assertVisible($hoursOfOperationHeader);
+		this.verifyDay($mondayLabel);
+		this.verifyDay($tuesdayLabel);
+		this.verifyDay($wednesdayLabel);
+		this.verifyDay($thursdayLabel);
+		this.verifyDay($fridayLabel);
+		this.verifyDay($saturdayLabel);
+		this.verifyDay($sundayLabel);
+		verifyMailingAddress();
+
+		_assertVisible($physicalAddressHeader);
+		_assertVisible($sameAsMailingAddress);
+		_assertVisible(_label("Address 1", _under(_heading4("Physical Address"))));
+		_assertVisible($physicalAddressAddress1);
+		_assertVisible($physicalAddressAddress2Label);
+		_assertVisible($physicalAddressAddress2);
+		_assertVisible(_label("City", _under(_heading4("Physical Address"))));
+		_assertVisible($physicalAddressCity);
+		_assertVisible($physicalAddressStateLabel);
+		_assertVisible($physicalAddressState);
+		_assertVisible(_label("Zip code", _under(_heading4("Physical Address"))));
+		_assertVisible($physicalAddressZipCode);
+
+		_assertVisible($languagesSupportedHeader);
+		_assertVisible($spokenLanguagesHeader);
+		_assertVisible($spokenLanguagesTable);
+		_assertVisible($writtenLanguagesHeader);
+		_assertVisible($writtenLanguagesTable);
+	};
+
+	this.setName = function($location) {
+		_setValue($name, $location);
+	};
+
+	this.setPrimaryEmailAddress = function($email) {
+		_setValue($primaryEmailAddress, $email);
+	};
+
+	this.setPrimaryPhoneNumber = function() {
+		var $phone = phoneGen();
+		for (var $i = 0; $i < $phone.length; $i++) {
+			_setValue($primaryPhoneNumber[$i], $phone[$i]);
+		}
+	};
+
+	this.setSecondaryPhoneNumber = function() {
+		var $phone = phoneGen();
+		for (var $i = 0; $i < $phone.length; $i++) {
+			_setValue($secondaryPhoneNumber[$i], $phone[$i]);
+		}
+	};
+
+	this.setHours = function($day, $start, $end) {
+		var $label = _label($day);
+		var $parent = _parentNode($label, "DIV");
+		var $dropdowns = _collect("_select", "/.*/", _in($parent));
+		var $from = $dropdowns[0];
+		var $to = $dropdowns[1];
+		_setSelected($from, $start);
+		_setSelected($to, $end);
+	};
+
+	this.setMailingInformation = function($addr1, $addr2, $cityVal, $stateVal, $zipVal) {
+		enterMailingAddressInformation($addr1, $addr2, $cityVal, $stateVal, $zipVal);
+	};
+
+	this.setSameAsMailingAddress = function($bool) {
+		if ($bool) {
+			_check($sameAsMailingAddress);
+		}
+		else {
+			_uncheck($sameAsMailingAddress);
+		}
+	};
+
+	this.setPhysicalInformation = function($addr1, $addr2, $cityVal, $stateVal, $zipVal) {
+		var $oldAddress = _getValue($physicalAddressAddress1);
+		_setValue($physicalAddressAddress1, $addr1);
+		_setValue($physicalAddressAddress2, $addr2);
+		_setValue($physicalAddressCity, $cityVal);
+		_setSelected($physicalAddressState, $stateVal);
+		_setValue($physicalAddressZipCode, $zipVal);
+		_wait(3000);
+		verifyConfirmAddress();
+		clickConfirmAddress();
+	};
+
+	this.addSpokenLanguage = function($language) {
+		var $accessor = _checkbox($language, _in($spokenLanguagesTable));
+		if (_isVisible($accessor)) {
+			_check($accessor);
+		}
+		else {
+			_check(_checkbox("otherSpokenLanguageCheckbox"));
+			$accessor = _listItem($language, _in($spokenLanguagesTable));
+			_click($accessor);
+		}
+	};
+
+	this.addWrittenLanguage = function($language) {
+		var $accessor = _checkbox(new RegExp($language + "(\[1\])?"), _in($writtenLanguagesTable));
+		if (_isVisible($accessor)) {
+			_check($accessor);
+		}
+		else {
+			_check(_checkbox("otherWrittenLanguageCheckbox"));
+			$accessor = _listItem(new RegExp($language + "(\[1\])?"), _in($writtenLanguagesTable));
+			_click($accessor);
+		}
+	};
+}

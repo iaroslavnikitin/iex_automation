@@ -1,0 +1,27 @@
+{
+  "welcomeDashboardHeading": "$('h1')",
+  "lk_goToDashboard":"$('a*=Go To Dashboard')",
+  "cb_member":"$('#MEMBER_ID_REPLACE')",
+  "txt_aptcForGroup":"$('//*[contains(@id,\"aid_uneg_maxaptc_GROUP_ID_REPLACE\")]')",
+  "txt_stateSubsidyForGroup":"$('//*[contains(@id,\"aid_uneg_maxstatesubsidy_GROUP_ID_REPLACE\")]')",
+  "txt_shoppingFor":"$('#aid_uneg_whom_are_you_shopping')",
+  "tabs":{
+      "lk_tab_healthPlans":"$('#tab-0')",
+      "lk_tab_dentalPlans":"$('#tab-1')"
+      },
+  "lk_shopForHealth":"$('#aid_uneg_shop_for_members')",
+  "lk_shopForDental":"$('#aid_dental_shop_btn_dental_')",
+  "switchToDentalBeforeHealthPopup":{
+    "btn_continueWithHealth":"$('#continueWithHealth')",
+    "btn_startDentalShopping":"$('#StartDentalShopping')",
+    "btn_xClose":"$('#shop_popup_close')"
+  },
+  "shopForHealthPlans":{
+    "cb_memberName":"$('label*=MEMBER_NAME_REPLACE')",
+    "cb_allmembers":"$('#aid_uneg_members_0').$$('input')",
+    "btn_shopForHealthPlans": "$('a*=Shop Health Plans ')"
+  },
+  "shopForDentalPlans":{
+    "btn_shopForDentalPlans": "$('#aid_dental_shop_btn_dental_')"
+  }
+}

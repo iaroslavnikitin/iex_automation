@@ -1,0 +1,39 @@
+{
+    
+    "IncorrectAddressAlert":
+    {
+    "label":"Confirm Address",
+    "fieldType":"alertBox",
+     "selectors":
+     {
+        "common":
+        {
+            "box":"$('#address-failure-box')",
+            "okButton":"$('#back_to_input_modal')"
+        },
+        "ID":
+        {
+            "box":"$('#address-failure-box')",
+            "okButton":"$('#back_to_input_modal')"
+        }
+     }
+    },
+"checkYourAddressAlert":
+{
+    "label":"Check Your Address",
+    "fieldType":"alertBox",
+     "selectors":
+     {
+        "common":
+        {
+            "box":"$('#suggestion-box')",
+            "okButton":"$('#submitAddr')"
+        },
+        "ID":
+        {
+            "box":"$('#suggestion-box')",
+            "okButton":"$('#submitAddr')"
+        }
+    }   
+}
+}

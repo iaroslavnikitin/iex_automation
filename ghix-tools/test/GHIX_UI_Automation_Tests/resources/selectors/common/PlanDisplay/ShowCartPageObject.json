@@ -1,0 +1,67 @@
+{
+    "pageHeader": "$('#aid_yourCart')", 
+    "accountPageHeader": "$('h1*=Confirm your Plan Selection')",
+    "txt_pageHeader": "$('h1')",
+    "btn_nextRegister": "$('=Next: Register')",
+    "what_next":"$('//div[@class=\"alert margin20-t\"]')",
+    "healthCart":
+    {
+        "lbl_healthPlan":"$('//tbody[@class=\"health-cart\"]/tr[1]/th/span')",
+        "lk_healthPlanRemove":"$('//tbody[@class=\"health-cart\"]/tr[1]/th/a')",
+
+        "cart_premium": "$('#aid_planPremium').$('.numberToFormat')",
+        "cart_taxCredit": "$('.plan__details').$$('.numberToFormat')[1]",
+        "cart_stateSubsidy": "$('.plan__details').$$('.numberToFormat')[2]",
+        "cart_healthMonthPay":"$('.individual-subtotal').$('.numberToFormat')",
+
+        "cart_healthCompanyImg":"$('//tbody[@class=\"health-cart\"]/tr[2]/td/div/a/img')",
+        "cart_healthCompany": "$('//tbody[@class=\"health-cart\"]/tr[3]/td/a')",
+        "cart_healthCoverageDate": "$('//tbody[@class=\"health-cart\"]/tr[4]/td')",
+
+        "lbl_monthlyPrem":"$('#aid_planPrice')",
+        "lbl_taxCredit":"$('#aid_planAPTC')",
+        "lbl_stateSubsidy":"$$('#aid_planAPTC')[1]",
+        "lbl_healthMonthlyPay":"$('//tr[@class=\"individual-subtotal\"]/td[3]/span')"
+    },
+    
+    "dentalCart":
+    {
+    "lbl_dentalPlan":"$('//tbody[@class=\"dental-cart\"]/tr[1]/th/span')",
+    "lk_dentalPlanRemove":"$('//tbody[@class=\"dental-cart\"]/tr[1]/th/a')",
+
+    "cart_dentalpremium": "$('//tbody[@class=\"dental-cart\"]/tr[2]/td[5]/p[1]')",
+    "cart_dentaltaxCredit": "$('//tbody[@class=\"dental-cart\"]/tr[2]/td[5]/p[2]')",
+    "cart_DentalMonthlyPay":"$('//tbody[@class=\"dental-cart\"]/tr[4]/td[4]')",
+
+    "cart_dentalCompanyImg":"$('//tbody[@class=\"dental-cart\"]/tr[2]/td/div/a/img')",
+    "cart_dentalCompany": "$('//tbody[@class=\"dental-cart\"]/tr[3]/td[1]/a')",
+    "cart_dentalCoverageDate": "$('//tbody[@class=\"dental-cart\"]/tr[4]/td[1]')",
+
+    "lbl_dentalmonthlyPrem":"$('//tbody[@class=\"dental-cart\"]/tr[2]/td[3]/p[1]')",
+    "lbl_dentaltaxCredit":"$('//tbody[@class=\"dental-cart\"]/tr[2]/td[3]/p[2]')",
+    "lbl_dentalMonthlyPay":"$('//tbody[@class=\"dental-cart\"]/tr[4]/td[3]/span')"
+
+    },
+    
+    
+    "cartTotal":
+    {
+        "lbl_cartTotal":"$('th*=Cart Total')",
+        "lbl_healthMonthlyPayment": "$('//tbody[@id=\"summary_table\"]/tr[2]/td[2]')",
+        "lbl_dentalMonthlyPayment": "$('//tbody[@id=\"summary_table\"]/tr[3]/td[2]')",
+        "lbl_totalMonthlyPayment":"$('#emp-pays')",
+        "cart_SumHealthMonthPay":"$('//tbody[@id=\"summary_table\"]/tr[2]/td/span')",
+        "cart_SumDentalMonthPay":"$('//tbody[@id=\"summary_table\"]/tr[3]/td/span')",
+        "cart_TotalAmt":"$('//tbody[@id=\"summary_table\"]/tr[5]/td[3]/span')",
+        "cart_TotalAmtIfNoHealthPlan":"$('//tbody[@id=\"summary_table\"]/tr[4]/td[3]/span')",
+        "cart_totalAmtForOnePlan":"$('//tbody[@id=\"summary_table\"]/tr[4]/td[3]/span')",
+        "cart_planSummaryMonthlyForOnePlan":"$('//tbody[@id=\"summary_table\"]/tr[2]/td[3]/span')"
+    },
+
+
+    "btn_signApplication":"$('#checkout')",
+    "btn_readyToEnroll":"$('button*=I AM READY TO ENROLL')"
+
+
+
+}

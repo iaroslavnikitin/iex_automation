@@ -1,0 +1,74 @@
+"Comments","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/Agents.sah"
+,,"loadSahi","../pagemodels/Agency.sah"
+,,"loadSahi","../pagemodels/Broker.sah"
+,,"loadSahi","../pagemodels/Login.sah"
+,,"loadSahi","../pagemodels/HIX-103052_lib.sah"
+,,"loadSahi","../lib/CommonFunctions.sah"
+,,"loadSahi","""C:/Sahi/CA/agents.sah"""
+,,"loadSahi","""C:/Sahi/CA/agencies.sah"""
+
+,"[Global]","[SetUp]"
+
+,,"maximizeWindow"
+
+"Verify that broker admin is able to see the Agent status view page","Verify agent activity status","[Documentation]","1.Login as brokeradmin@ghix.com/ghix123
+2.You will see list of agent will be shown on the landing page
+3.Click on Agent Name of any agent
+4.From the left navigation panel  select ""Status""
+5.Verify that the status View page is shown
+
+Expected - You should see ""status"" section and under that you will see ""status"" label. Which may be either Active / Inactive.
+Note:  It can't be editable."
+,,"loginAsBrokerAdmin","brokeradmin@ghix.com","ghix123"
+,,"refineAgentsForBroker","$ancABcAyA.firstName","$ancABcAyA.lastName","$ancABcAyA.businessName","$ancABcAyA.licenseNumber"
+,,"clickAgentName","$ancABcAyA.name"
+,,"clickStatus","Active,InActive","N"
+,,"goToManageAgents"
+,,"refineAgentsForBroker","$acAAcAyA.firstName","$acAAcAyA.lastName","$acAAcAyA.businessName","$acAAcAyA.licenseNumber","Certified"
+,,"clickAgentName","$acAAcAyA.name"
+,,"clickStatus","Active,InActive","N"
+,,"logOut"
+
+"Verify that agent is able to see the Activity Status's View page",,"[Documentation]","Prerequisite
+Agent should be CERTIFIED
+
+STR:
+
+1.Login as Agent
+2.Agent Dashboard is shown with ""Quick Links"" in the left navigaion pane
+3.From the Main Menu select Account--> Status
+4.Verify that only View page is shown to agent.
+5.No EDIT button should be present
+
+Expected - Status view page should be shown to agent. Agent should be able to see the Active/Inactive on the status
+page but not be able to edit it."
+,,"loginAsCertifiedAgent","$CertifiedAgent.email","$CertifiedAgent.password"
+,,"goToStatus","Active,InActive","N"
+,,"logOut"
+
+"Verify that agency manager is able to change the Activity status of an Agent",,"[Documentation]","Prerequisite
+Agency should be CERTIFIED
+
+STR:
+
+1.Login as Agency
+2.User is landed at the View Agent list page
+3.Select any Agent by selecting the gear icon
+4.Select EDIT
+5.In the left navigation pane tab ""Status"" should be present
+6.Click on EDIT button
+7.Select 'Active' from the dropdown
+8.Click on 'Submit' button
+9.Status should be changed to 'Active'
+
+Expected - Agency manager should be able to change the status of Agent"
+
+,,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,,"refineAgentsForAgency","$acAAcAyA.firstName","$acAAcAyA.lastName"
+,,"goToEditAgentPageAsAgency","$acAAcAyA.firstName","$acAAcAyA.lastName"
+,,"clickStatus","Active","Y"
+"//",,"editAgentStatus","Active"
+,,"editAgentStatus","InActive"
+,,"editAgentStatus","Active"
+,,"logOut"

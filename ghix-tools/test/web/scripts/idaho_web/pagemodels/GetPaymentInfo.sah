@@ -1,0 +1,153 @@
+_includeOnce("ConfirmAddress.sah");
+_includeOnce("DocumentEntity.sah");
+_includeOnce("Utils.sah");
+
+var $GetPaymentInfo = true;
+
+var $getPaymentInfoHeader = _heading4("Step 7: Payment Information");
+var $getPaymentInfoRecievePaymentsLabel = _fieldset("Receive payments?Required");
+var $getPaymentInfoRecievePayments = [_radio("receivedPayments1"), _radio("receivedPayments2")];
+var $getPaymentInfoPaymentMethodLabel = _fieldset("Payment MethodRequired");
+var $getPaymentInfoPaymentMethod = [_radio("CHECK"),_radio("EFT")];
+var $getPaymentInfoPaymentAddressHeader = _heading4("Payment Address");
+var $getPaymentInfoAddress1Label = _label("Address 1");
+var $getPaymentInfoAddress1 =_textbox("address1_mailing");
+var $getPaymentInfoAddress2Label = _label("Address 2");
+var $getPaymentInfoAddress2 =_textbox("address2_mailing");
+var $getPaymentInfoCityLabel = _label("City");
+var $getPaymentInfoCity = _textbox("city_mailing");
+var $getPaymentInfoStateLabel = _label("State required");
+var $getPaymentInfoState = _select("state_mailing");
+var $getPaymentInfoZipCodeLabel = _label("Zip code");
+var $getPaymentInfoZipCode = _textbox("zip_mailing");
+var $getPaymentInfoAccountInformationHeader = _heading4("Account Information");
+var $getPaymentInfoAccountHolderNameLabel = _label("/Account Holder Name/");
+var $getPaymentInfoAccountHolderName =_textbox("bankAccountName");
+var $getPaymentInfoBankNameLabel = _label("/Bank Name/");
+var $getPaymentInfoBankName = _textbox("bankName");
+var $getPaymentInfoRoutingNumberLabel = _label("/Routing Number/");
+var $getPaymentInfoRoutingNumber = _textbox("bankABARoutingNumber");
+var $getPaymentInfoAccountNumberLabel = _label("/Bank Account Number/");
+var $getPaymentInfoAccountNumber = _textbox("bankAccountNumber");
+var $getPaymentInfoAccountTypeLabel = _fieldset("/Account Type/");
+var $getPaymentInfoAccountType = [_radio("Checking"), _radio("Savings")];
+var $getPaymentInfoBack = _button("back");
+var $getPaymentInfoSubmit = _submit("finish");
+
+function verifyElementsOnPaymentInfoPage() {
+	_assertVisible($getPaymentInfoHeader);
+	_assertVisible($getPaymentInfoRecievePaymentsLabel);
+	verifyArray($getPaymentInfoRecievePayments);
+	_assertVisible($getPaymentInfoBack);
+	_assertVisible($getPaymentInfoSubmit);
+}
+
+function selectRecievePayments($val) {
+	if ($val === undefined) {
+		$val = "Yes";
+	}
+	_click(_radio($val));
+	if ($val === "Yes") {
+		_assertVisible($getPaymentInfoPaymentMethodLabel);
+		verifyArray($getPaymentInfoPaymentMethod);
+	}
+}
+
+function selectPaymentMethod($method) {
+	_click(_radio($method));
+	if ($method === "Check") {
+		_assertVisible($getPaymentInfoPaymentAddressHeader);
+		_assertVisible($getPaymentInfoAddress1Label);
+		_assertVisible($getPaymentInfoAddress1);
+		_assertVisible($getPaymentInfoAddress2Label);
+		_assertVisible($getPaymentInfoAddress2);
+		_assertVisible($getPaymentInfoCityLabel);
+		_assertVisible($getPaymentInfoCity);
+		_assertVisible($getPaymentInfoStateLabel);
+		_assertVisible($getPaymentInfoState);
+		_assertVisible($getPaymentInfoZipCodeLabel);
+		_assertVisible($getPaymentInfoZipCode);
+	}
+	else if ($method === "EFT") {
+		_assertVisible($getPaymentInfoAccountInformationHeader);
+		_assertVisible($getPaymentInfoAccountHolderNameLabel);
+		_assertVisible($getPaymentInfoAccountHolderName);
+		_assertVisible($getPaymentInfoBankNameLabel);
+		_assertVisible($getPaymentInfoBankName);
+		_assertVisible($getPaymentInfoRoutingNumberLabel);
+		_assertVisible($getPaymentInfoRoutingNumber);
+		_assertVisible($getPaymentInfoAccountNumberLabel);
+		_assertVisible($getPaymentInfoAccountNumber);
+		_assertVisible($getPaymentInfoAccountTypeLabel);
+		verifyArray($getPaymentInfoAccountType);
+	}
+}
+
+function enterPaymentAddress($addr1, $addr2, $cityVal, $stateVal, $zipVal) {
+	if ($addr1 === undefined) {
+		$addr1 = "1305 Terra Bella";
+	}
+	if ($cityVal === undefined) {
+		$cityVal = "Mountain View";
+	}
+	if ($stateVal === undefined) {
+		$stateVal = "California";
+	}
+	if ($zipVal === undefined) {
+		$zipVal = "94043";
+	}
+
+	_setValue($getPaymentInfoAddress1, $addr1);
+	_setValue($getPaymentInfoAddress2, $addr2);
+	_setValue($getPaymentInfoCity, $cityVal);
+	_setSelected($getPaymentInfoState, $stateVal);
+	_setValue($getPaymentInfoZipCode, $zipVal);
+
+	_wait(3000);
+	verifyconfirmAddress();
+	clickConfirmAddress();
+}
+
+function enterAccountInformation($holderName, $bankName, $routingNumber, $accountNumber, $accountType) {
+	if ($holderName === undefined) {
+		$holderName = randomString($FIELD_LENGTH) + " " + randomString($FIELD_LENGTH);
+	}
+	if ($bankName === undefined) {
+		$bankName = randomString($FIELD_LENGTH);
+	}
+	if ($routingNumber === undefined) {
+		$routingNumber = randomString(9, true);
+	}
+	if ($accountNumber === undefined) {
+		$accountNumber = randomString(17, true);
+	}
+	if ($accountType === undefined) {
+		var $val = Math.floor(Math.random() * 2);
+		if ($val === 0) {
+			$accountType = "Checking";
+		}
+		else {
+			$accountType = "Savings";
+		}
+	}
+
+	_setValue($getPaymentInfoAccountHolderName, $holderName);
+	_setValue($getPaymentInfoBankName, $bankName);
+	_setValue($getPaymentInfoRoutingNumber, $routingNumber);
+	_setValue($getPaymentInfoAccountNumber, $accountNumber);
+	_click(_radio($accountType));
+}
+
+function clickBackOnPaymentInfo() {
+	_click($getPaymentInfoBack);
+	verifyElementsForDocumentEntity();
+}
+
+function clickSubmitPaymentInfo() {
+	_click($getPaymentInfoSubmit);
+	var $closeButton = _submit("Close");
+	_wait(10000, _isVisible($closeButton));
+	_assertVisible(_heading3("Congratulations!"));
+	_assertVisible(_paragraph("Congratulations! You have applied as an Enrollment Entity. YHI staff will review your application and tell you the next steps."));
+	_click($closeButton);
+}

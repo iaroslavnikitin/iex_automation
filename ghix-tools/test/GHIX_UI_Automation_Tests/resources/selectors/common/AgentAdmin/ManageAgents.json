@@ -1,0 +1,14 @@
+{
+"leftNav":
+{
+  "tb_firstName": "$('//*[@id=\"user.firstName\"]')",
+  "tb_lastName": "$('//*[@id=\"user.lastName\"]')",
+  "tb_businessName": "$('#companyName')",
+  "sb_certificationStatus": "$('#certificationStatus')",
+  "btn_Go": "$('#submit')"
+},
+"actions": {
+  "dd_Action": "$('//i[@class=\"icon-cog\"]')",
+  "lk_Edit": "$('*=Edit')"
+}
+}

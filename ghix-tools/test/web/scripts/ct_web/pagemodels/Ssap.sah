@@ -1,0 +1,2935 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("AgentIcon.sah");
+// Helper object
+//_includeOnce("Apply.sah");
+//_includeOnce("AgentIcon.sah");
+//_includeOnce("Indportal.sah");
+//_includeOnce("Signup.sah");
+//_includeOnce("Utils.sah");
+//_includeOnce("JenkinsAndDBSetUp.sah");
+
+// Constants
+var $SSAP_SSN_REASON_MENU_LENGTH = 5;
+
+var $Ssap = true;
+var $globalSSN;
+var $eventNumber="";
+var $eventName;
+var $eventDate="";
+var $sepDenied=false;
+var $eventReported="";
+var $ssapPeople = [];
+var $addingPerson = false;
+var $editingContactInfo = false;
+var $editingPrimaryContactInfo = false;
+var $editingPerson = false;
+var $ssapPageIndex;
+var $currentPerson;
+var $numberOfAdults;
+var $numberOfChildren;
+var $ssapEmail;
+var $ssapPreferredPhone;
+var $ssapSecondPhone;
+var $ssapExt;
+var $ssapDoB;
+var $ssapHomeAddress1;
+var $ssapHomeAddress2;
+var $ssapHomeCity;
+var $ssapHomeZip;
+var $ssapMailingAddress1;
+var $ssapMailingAddress2;
+var $ssapMailingCity;
+var $ssapMailingZip;
+var $ssapSpoken;
+var $ssapWritten;
+var $ssapCommunication;
+
+// Accessors
+// Universal
+var $ssapVerificationArray = [verifySSAPPage1, verifySSAPPage2, verifySSAPPage3, verifySSAPPage4, verifySSAPPage5, verifySSAPPage6, verifySSAPPage7,
+							  verifySSAPPage8, verifySSAPPage9, verifySSAPPage10, verifySSAPPage11, verifySSAPPage12, verifySSAPPage13, 
+							  verifySSAPPage14, verifySSAPPage15, verifySSAPPage16, verifySSAPPage17, verifySSAPPage18];
+var $ssapBack = _link("prevBtn");
+var $ssapSave = _link("saveBtn");
+var $ssapContinue =_link("contBtn");
+var $ssapContinue1=_submit("Continue[2]");
+
+// Steps menu
+var $ssapStepsHeader = _heading4("Steps");
+var $ssapStepsStartYourApplication = _link("Start Your Application");
+var $ssapStepsFamilyAndHousehold = _link("Family and Household");
+var $ssapStepsReviewAndSign = _link("Review and Sign");
+//var $ssapStepover26DependentAlert=_div("over26DependentAlert");
+var $ssapStepsAccessors = [$ssapStepsHeader, $ssapStepsStartYourApplication, $ssapStepsFamilyAndHousehold, $ssapStepsReviewAndSign];
+
+// Page 1
+var $ssapPage1Header = _span("Before We Begin");
+var $ssapPage1PrivacyHeader = _heading4("Privacy of Your Information");
+/*var $ssapPage1PrivacyCheckbox = _checkbox("I agree to have my information used and retrieved from data sources for this application. " +
+"I have consent from all the people that will be included on the application for their information " +
+"to be retrieved and used from the data sources mentioned above.");*/
+var $ssapPage1PrivacyCheckbox= _checkbox("acceptanceCB");
+var $ssapPage1Accessors = [$ssapPage1Header, $ssapPage1PrivacyHeader, $ssapPage1PrivacyCheckbox];
+
+// Page 2
+var $ssapPage2Header = _span("Get Ready to Start Your Application");
+var $ssapPage2Welcome = _strong("Welcome to Your Health Idaho. Here you'll be able to shop for health insurance for yourself or anyone in your household.");
+var $ssapPage2Gather = _paragraph("Before you start, please take a moment now to gather the information listed below.");
+var $ssapPage2Required = _emphasis("All fields on this application marked with an asterisk (*) are required unless otherwise indicated.");
+var $ssapPage2InfoHeader = _strong("For anyone you want to insure, you will need:");
+var $ssapPage2Info = _list("checklist gutter10");
+var $ssapPage2Accessors = [$ssapPage2Header, $ssapPage2Welcome, $ssapPage2Gather, $ssapPage2Required, $ssapPage2InfoHeader, $ssapPage2Info];
+
+// Page 3
+var $ssapPage3Header = _span("Primary Contact Information");
+var $ssapHomeAddressAddress1;
+var $ssapHomeAddressCity;
+
+// Primary Contact Name
+var $ssapPage3PrimaryContactNameHeader = _heading4("Primary Contact Name");
+//var $ssapPage3PrimaryContactNameFirstName = _textbox("First Name");
+var $ssapPage3PrimaryContactNameFirstName=_textbox("firstName");
+//var $ssapPage3PrimaryContactNameMiddleName = _textbox("Middle Name");
+var $ssapPage3PrimaryContactNameMiddleName =_textbox("middleName");
+//var $ssapPage3PrimaryContactNameLastName = _textbox("Last Name");
+var $ssapPage3PrimaryContactNameLastName =_textbox("lastName");
+var $ssapPage3PrimaryContactNameSuffixLabel = _label("Suffix");
+var $ssapPage3PrimaryContactNameSuffix = _select("appscr53Suffix");
+//var $ssapPage3PrimaryContactNameDoB = _textbox("Date of Birth");
+var $ssapPage3PrimaryContactNameDoB=_textbox("dateOfBirth");
+//var $ssapPage3PrimaryContactNameEmailAddress = _textbox("Email Address");
+var $ssapPage3PrimaryContactNameEmailAddress=_textbox("emailAddress");
+var $ssapPage3PrimaryContactNameAccessors = [$ssapPage3PrimaryContactNameHeader, $ssapPage3PrimaryContactNameFirstName, 
+											 $ssapPage3PrimaryContactNameMiddleName, $ssapPage3PrimaryContactNameLastName, 
+											 $ssapPage3PrimaryContactNameSuffixLabel, $ssapPage3PrimaryContactNameSuffix,
+											 $ssapPage3PrimaryContactNameDoB, $ssapPage3PrimaryContactNameEmailAddress];
+
+// Primary Contact Home Address
+var $ssapPage3PrimaryContactHomeAddressHeader = _heading4("Primary Contact Home Address");
+//var $ssapPage3PrimaryContactHomeAddressAddress1 = _textbox("Address 1");
+var $ssapPage3PrimaryContactHomeAddressAddress1 =_textbox("home_addressLine1");
+//var $ssapPage3PrimaryContactHomeAddressAddress2 = _textbox("Address 2");
+var $ssapPage3PrimaryContactHomeAddressAddress2=_textbox("home_addressLine2");
+//var $ssapPage3PrimaryContactHomeAddressCity = _textbox("City");
+var $ssapPage3PrimaryContactHomeAddressCity =_textbox("home_primary_city");
+//var $ssapPage3PrimaryContactHomeAddressZip = _textbox("Zip");
+var $ssapPage3PrimaryContactHomeAddressZip =_textbox("home_primary_zip");
+var $ssapPage3PrimaryContactHomeAddressState = _select("home_primary_state");
+var $ssapPage3PrimaryContactHomeAddressCounty = _select("home_primary_county");
+var $ssapPage3PrimaryContactHomeAddressAccessors = [$ssapPage3PrimaryContactHomeAddressHeader, $ssapPage3PrimaryContactHomeAddressAddress1,
+													$ssapPage3PrimaryContactHomeAddressAddress2, $ssapPage3PrimaryContactHomeAddressCity,
+													$ssapPage3PrimaryContactHomeAddressZip, $ssapPage3PrimaryContactHomeAddressState,
+													$ssapPage3PrimaryContactHomeAddressCounty];
+
+// Primary Contact Mailing Address
+var $ssapPage3PrimaryContactMailingAddressHeader = _heading4("Primary Contact Mailing Address");
+var $ssapPage3PrimaryContactMailingAddressSame = _checkbox("mailingAddressIndicator");
+//var $ssapPage3PrimaryContactMailingAddressAddress1 = _textbox("Address 1[1]");
+var $ssapPage3PrimaryContactMailingAddressAddress1=_textbox("mailing_addressLine1");
+//var $ssapPage3PrimaryContactMailingAddressAddress2 = _textbox("Address 2[1]");
+var $ssapPage3PrimaryContactMailingAddressAddress2=_textbox("mailing_addressLine2");
+//var $ssapPage3PrimaryContactMailingAddressCity = _textbox("City[1]");
+var $ssapPage3PrimaryContactMailingAddressCity=_textbox("mailing_primary_city");
+//var $ssapPage3PrimaryContactMailingAddressZip = _textbox("Zip[1]");
+var $ssapPage3PrimaryContactMailingAddressZip=_textbox("mailing_primary_zip");
+var $ssapPage3PrimaryContactMailingAddressState = _select("mailing_primary_state");
+var $ssapPage3PrimaryContactMailingAddressAccessors = [$ssapPage3PrimaryContactMailingAddressHeader, $ssapPage3PrimaryContactMailingAddressSame,
+													   $ssapPage3PrimaryContactMailingAddressAddress1, $ssapPage3PrimaryContactMailingAddressAddress2,
+													   $ssapPage3PrimaryContactMailingAddressCity, $ssapPage3PrimaryContactMailingAddressZip,
+													   $ssapPage3PrimaryContactMailingAddressState];
+
+// Primary Contact Phone
+var $ssapPage3PrimaryContactPhoneHeader = _heading4("Primary Contact Phone");
+//var $ssapPage3PrimaryContactPhoneMobilePhoneNumber = _textbox("Mobile Phone Number");
+var $ssapPage3PrimaryContactPhoneMobilePhoneNumber = _textbox("first_phoneNo");
+//var $ssapPage3PrimaryContactPhoneHomePhoneNumber = _textbox("Home Phone Number");
+var $ssapPage3PrimaryContactPhoneHomePhoneNumber= _textbox("first_homePhoneNo");
+//var $ssapPage3PrimaryContactPhoneHomePhoneNumberExtension = _textbox("Home phone extension");
+var $ssapPage3PrimaryContactPhoneHomePhoneNumberExtension=_textbox("first_homeExt");
+var $ssapPage3PrimaryContactPhoneAccessors = [$ssapPage3PrimaryContactPhoneHeader, $ssapPage3PrimaryContactPhoneMobilePhoneNumber,
+											  $ssapPage3PrimaryContactPhoneHomePhoneNumber, $ssapPage3PrimaryContactPhoneHomePhoneNumber,
+											  $ssapPage3PrimaryContactPhoneHomePhoneNumberExtension];
+
+// Primary Contact Preferences
+var $ssapPage3PrimaryContactPreferencesHeader = _heading4("Primary Contact Preferences");
+//var $ssapPage3PrimaryContactPreferencesSpokenLanguage = _select("preffered_spoken_language");
+var $ssapPage3PrimaryContactPreferencesSpokenLanguage=  _select("preffegred_spoken_language");
+var $ssapPage3PrimaryContactPreferencesWrittenLanguage = _select("preffered_written_language");
+//var $ssapPage3PrimaryContactPreferencesEmail = _radio("Email");
+var $ssapPage3PrimaryContactPreferencesEmail= _radio("email");
+//var $ssapPage3PrimaryContactPreferencesPostalMail = _radio("Postal Mail");
+var $ssapPage3PrimaryContactPreferencesPostalMail = _radio("inTheEmail");
+var $ssapPage3PrimaryContactPreferencesAccessors = [$ssapPage3PrimaryContactPreferencesHeader, $ssapPage3PrimaryContactPreferencesSpokenLanguage,
+													$ssapPage3PrimaryContactPreferencesWrittenLanguage, $ssapPage3PrimaryContactPreferencesEmail,
+													$ssapPage3PrimaryContactPreferencesPostalMail];
+
+// Page 4
+var $ssapPage4Header = _span("Application Assistance");
+
+// Who is Helping You?
+var $ssapPage4HelpingHeader = _heading4("Who is Helping you?");
+var $ssapPage4HelpingParagraph = _paragraph("Is anyone helping you with this application?");
+//var $ssapPage4HelpingSomeoneHelping = _radio("Someone is helping me");
+var $ssapPage4HelpingSomeoneHelping = _radio("authorizedRepresentativeHelpYes");
+//var $ssapPage4HelpingMyself = _radio("I am filling out this application for myself and/or my family");
+var $ssapPage4HelpingMyself = _radio("authorizedRepresentativeHelpNo");
+var $ssapPage4HelpingAccessors = [$ssapPage4HelpingHeader, $ssapPage4HelpingParagraph, $ssapPage4HelpingSomeoneHelping, $ssapPage4HelpingMyself];
+
+// Authorized Representative
+var $ssapPage4AuthorizedBullets = [_radio("displayAuthRepresentativeInfo"), _radio("hideAuthRepresentativeInfo")];
+
+// Authorized Representative Contact Information
+var $ssapPage4AuthorizedFirstName = _textbox("authorizedFirstName");
+var $ssapPage4AuthorizedMiddleName = _textbox("authorizedMiddleName");
+var $ssapPage4AuthorizedLastName = _textbox("authorizedLastName");
+var $ssapPage4AuthorizedSuffix = _select("authorizedSuffix");
+var $ssapPage4AuthorizedEmail = _textbox("authorizedEmailAddress");
+var $ssapPage4AuthorizedContactAccessors = [$ssapPage4AuthorizedFirstName, $ssapPage4AuthorizedMiddleName, $ssapPage4AuthorizedLastName, $ssapPage4AuthorizedSuffix, $ssapPage4AuthorizedEmail];
+
+// Authorized Representative Home Address
+var $ssapPage4AuthorizedAddress1 = _textbox("authorizedAddress1");
+var $ssapPage4AuthorizedAddress2 = _textbox("authorizedAddress2");
+var $ssapPage4AuthorizedCity = _textbox("authorizedCity");
+var $ssapPage4AuthorizedZip = _textbox("authorizedZip");
+var $ssapPage4AuthorizedState = _select("authorizedState");
+var $ssapPage4AuthorizedHomeAccessors = [$ssapPage4AuthorizedAddress1, $ssapPage4AuthorizedAddress2, $ssapPage4AuthorizedCity, $ssapPage4AuthorizedZip, $ssapPage4AuthorizedState];
+
+// Authorized Representative Phone
+var $ssapPage4AuthorizedMobile = _textbox("appscr54_phoneNumber");
+var $ssapPage4AuthorizedHome = _textbox("appscr54_homePhoneNumber");
+var $ssapPage4AuthorizedHomeExt = _textbox("appscr54_homeExt");
+var $ssapPage4AuthorizedWork = _textbox("appscr54_workPhoneNumber");
+var $ssapPage4AuthorizedWorkExt = _textbox("appscr54_workExt");
+var $ssapPage4AuthorizedPhoneAccessors = [$ssapPage4AuthorizedMobile, $ssapPage4AuthorizedHome, $ssapPage4AuthorizedHomeExt, $ssapPage4AuthorizedWork, $ssapPage4AuthorizedWorkExt];
+
+// Page 5
+var $ssapPage5Header = _span("Applicants");
+
+// Who needs health insurance?
+var $ssapPage5WhoHeader = _heading4("Who needs health insurance?");
+var $ssapPage5WhoMeOnly = _radio("ApplyingForhouseHoldOnly");
+var $ssapPage5WhoMeAndOthers = _radio("ApplyingForhouseHoldMember");
+var $ssapPage5WhoOthers = _radio("ApplyingForhouseHoldOther");
+var $ssapPage5WhoAccessors = [$ssapPage5WhoHeader, $ssapPage5WhoMeOnly, $ssapPage5WhoMeAndOthers, $ssapPage5WhoOthers];
+
+// Page 6
+var $ssapPage6Header = _span("About Your Household");
+
+// Person Information
+var $ssapPage6InfoFirstName = _textbox("appscr57FirstName1");
+var $ssapPage6InfoMiddleName = _textbox("appscr57MiddleName1");
+var $ssapPage6InfoLastName = _textbox("appscr57LastName1");
+var $ssapPage6InfoSuffix = _select("appscr57Suffix1");
+var $ssapPage6InfoDoB = _textbox("appscr57DOB1");
+var $ssapPage6InfoSeekingCoverage = _checkbox("appscr57checkseekingcoverage1");
+var $ssapPage6InfoAccessors = [$ssapPage6InfoFirstName, $ssapPage6InfoMiddleName, $ssapPage6InfoLastName, $ssapPage6InfoSuffix,
+							   $ssapPage6InfoDoB, $ssapPage6InfoSeekingCoverage];
+
+// Page 7
+var $ssapPage7Header = _span("Household Summary");
+
+// These are the people in your household
+var $ssapPage7PeopleHeader = _heading4("These are the people in your household");
+var $ssapPage7PeopleAdd = _link("Add Another Person");
+var $ssapPage7PeopleAccessors = [$ssapPage7PeopleHeader, $ssapPage7PeopleAdd];
+
+// Page 8
+var $ssapPage8Header = _span("Get Ready for Family and Household");
+var $ssapPage8SaveWarning = _strong("If you step away from this application at any time, please be sure to save your progress. You can save your application at any time by clicking the \"Save\" button.[1]");
+var $ssapPage8Checklist = _list("checklist gutter10[1]");
+var $ssapPage8Accessors = [$ssapPage8Header, $ssapPage8SaveWarning, $ssapPage8Checklist];
+
+// Page 9
+var $ssapPage9Header = _span("Personal Information");
+var $ssapPage9Name;
+var $ssapPage9FamilyHeader = _heading4("Family and Household[1]");
+
+// Gender
+var $ssapPage9GenderHeader = _paragraph("Gender");
+var $ssapPage9GenderBullets = [_radio("appscr61GenderMaleID"), _radio("appscr61GenderFemaleID")];
+var $ssapPage9GenderAccessors = [$ssapPage9GenderHeader];
+$ssapPage9GenderAccessors.push.apply($ssapPage9GenderAccessors, $ssapPage9GenderBullets);
+
+// SSN
+var $ssapPage9SSNHeader;
+var $ssapPage9SSNBullets = [_radio("socialSecurityCardHolderIndicatorYes"), _radio("socialSecurityCardHolderIndicatorNo")];
+var $ssapPage9SSNLink = _link("www.ssa.gov/ssnumber");
+//var $ssapPage9SSN = _textbox("Social Security Number");
+var $ssapPage9SSN = _textbox("ssn");
+var $ssapPage9SSNSameHeader;
+var $ssapPage9SSNSameBullets = [_radio("fnlnsSameIndicatorYes"), _radio("fnlnsSameIndicatorNo")];
+var $ssapPage9SSNNotSameHeader;
+var $ssapPage9SSNNotSameFirstName = _textbox("firstNameOnSSNCard");
+var $ssapPage9SSNNotSameMiddleName = _textbox("middleNameOnSSNCard");
+var $ssapPage9SSNNotSameLastName = _textbox("lastNameOnSSNCard");
+//var $ssapPage9SSNNotSameSuffix = _select("suffix");
+var $ssapPage9SSNNotSameSuffix = _select("suffixOnSSNCard");
+var $ssapPage9NoSSNHeader = _heading4("If no Social Security Number is available please select from the following explanations");
+var $ssapPage9NoSSNReason = _select("reasonableExplanationForNoSSN");
+
+// Page 10
+var $ssapPage10Header = _span("Citizenship/Immigration Status");
+var $ssapPage10Name;
+var $ssapPage10FamilyHeader = _heading4("Family and Household[2]");
+
+// Is ______ ______ a U.S. citizen or U.S. national?
+var $ssapPage10CitizenshipHeader;
+var $ssapPage10CitizenshipBullets = [_radio("UScitizenIndicatorYes"), _radio("UScitizenIndicatorNo")];
+
+// Is _____ ________ a naturalized citizen?
+var $ssapPage10NaturalizedHeader;
+var $ssapPage10NaturalizedBullets = [_radio("naturalizedCitizenshipIndicatorYes"), _radio("naturalizedCitizenshipIndicatorNo")];
+
+// Document Type
+var $ssapPage10DocumentHeader = _strong("Document Type");
+//var $ssapPage10DocumentBullets = [_radio("NaturalizationCertificate"), _radio("CitizenshipCertificate")];
+var $ssapPage10DocumentBullets = [_radio("naturalizedCitizenNaturalizedIndicator"), _radio("naturalizedCitizenNaturalizedIndicator2")];
+var $ssapPage10DocumentAccessors = [$ssapPage10DocumentHeader];
+$ssapPage10DocumentAccessors.push.apply($ssapPage10DocumentAccessors, $ssapPage10DocumentBullets);
+
+// Naturalization Certificate
+var $ssapPage10NaturalizationAlienNumber = _textbox("naturalizationAlignNumber");
+var $ssapPage10NaturalizationNumber = _textbox("naturalizationCertificateNumber");
+var $ssapPage10NaturalizationAccessors = [$ssapPage10NaturalizationAlienNumber, $ssapPage10NaturalizationNumber]
+
+	// Certificate of Citizenship
+	var $ssapPage10CertificateAlienNumber = _textbox("citizenshipAlignNumber");
+var $ssapPage10CertificateNumber = _textbox("appscr62p1citizenshipCertificateNumber");
+var $ssapPage10CertificateAccessors = [$ssapPage10CertificateAlienNumber, $ssapPage10CertificateNumber];
+
+// Immigration
+var $ssapPage10Immigration;
+
+// Document Type
+var $ssapPage10DocTypeHeader = _strong("Document Type[1]");
+var $ssapPage10DocTypeBullets = [_radio("permcarddetails"), _radio("tempcarddetails"), _radio("machinecarddetails"), _radio("empauthcarddetails"),
+								 _radio("arrivaldeparturerecord"), _radio("arrivaldeprecordForeign"), _radio("ForeignppI94"),
+								 _radio("rentrypermit"), _radio("refugeetraveldocI-571"), _radio("certificatenonimmigrantF1-Student-I20"),
+								 _radio("certificatenonimmigrantJ1-Student-DS2019")];
+var $ssapPage10DocTypeAccessors = [$ssapPage10DocTypeHeader];
+$ssapPage10DocTypeAccessors.push.apply($ssapPage10DocTypeAccessors, $ssapPage10DocTypeBullets);
+
+// Perm Res Card
+var $ssapPage10PermResCardAlienNumber = _textbox("permcarddetailsAlignNumber");
+var $ssapPage10PermResCardNumber = _textbox("permcarddetailsppcardno");
+var $ssapPage10PermResCardExpire = _textbox("permcarddetailsdateOfExp");
+var $ssapPage10PermResCardAccessors = [$ssapPage10PermResCardAlienNumber, $ssapPage10PermResCardNumber, $ssapPage10PermResCardExpire];
+
+// Temp Stamp
+var $ssapPage10TempStampAlienNumber = _textbox("tempcarddetailsAlignNumber");
+var $ssapPage10TempStampPassportNumber = _textbox("tempcarddetailsppcardno");
+var $ssapPage10TempStampCountry = _select("tempcarddetailsCounty");
+var $ssapPage10TempStampExpire = _textbox("tempcarddetailsPassportexpdate");
+var $ssapPage10TempStampAccessors = [$ssapPage10TempStampAlienNumber, $ssapPage10TempStampPassportNumber, $ssapPage10TempStampCountry,
+									 $ssapPage10TempStampExpire];
+
+// Visa
+var $ssapPage10VisaAlienNumber = _textbox("machinecarddetailsAlignNumber");
+var $ssapPage10VisaPassportNumber = _textbox("machinecarddetailsppcardno");
+var $ssapPage10VisaCountry = _select("machinecarddetailsCounty");
+var $ssapPage10VisaExpire = _textbox("machinecarddetailsdateOfExp");
+var $ssapPage10VisaNumber = _textbox("machinecarddetailsppvisano");
+var $ssapPage10VisaAccessors = [$ssapPage10VisaAlienNumber, $ssapPage10VisaPassportNumber, $ssapPage10VisaCountry, $ssapPage10VisaExpire,
+								$ssapPage10VisaNumber];
+
+// Employment Card
+var $ssapPage10EmploymentCardAlienNumber = _textbox("empauthcarddetailsAlignNumber");
+var $ssapPage10EmploymentCardNumber = _textbox("empauthcarddetailsppcardno");
+var $ssapPage10EmploymentCardExpire = _textbox("empauthcarddetailsdateOfExp");
+var $ssapPage10EmploymentCardAccessors = [$ssapPage10EmploymentCardAlienNumber, $ssapPage10EmploymentCardNumber, $ssapPage10EmploymentCardExpire];
+
+// Arrival
+var $ssapPage10ArrivalI94Number = _textbox("arrivaldeparturerecordI94no");
+var $ssapPage10ArrivalIDNumber = _textbox("arrivaldeparturerecordSevisID");
+var $ssapPage10ArrivalExpire = _textbox("arrivaldeparturerecordPassportexpdate");
+var $ssapPage10ArrivalAccessors = [$ssapPage10ArrivalI94Number, $ssapPage10ArrivalIDNumber, $ssapPage10ArrivalExpire];
+
+// Arrival Foreign
+var $ssapPage10ArrivalForeignI94Number = _textbox("arrivaldeprecordForeignI94no");
+var $ssapPage10ArrivalForeignPassportNumber = _textbox("arrivaldeprecordForeignppcardno");
+var $ssapPage10ArrivalForeignCountry = _select("arrivaldeprecordForeignCounty");
+var $ssapPage10ArrivalForeignExpire = _textbox("arrivaldeprecordForeigndateOfExp");
+var $ssapPage10ArrivalForeignVisaNumber = _textbox("arrivaldeprecordForeignppvisano");
+var $ssapPage10ArrivalForeignIDNumber = _textbox("arrivaldeprecordForeignSevisID");
+var $ssapPage10ArrivalForeignAccessors = [$ssapPage10ArrivalForeignI94Number, $ssapPage10ArrivalForeignPassportNumber, $ssapPage10ArrivalForeignCountry,
+										  $ssapPage10ArrivalForeignExpire, $ssapPage10ArrivalForeignVisaNumber, $ssapPage10ArrivalForeignIDNumber];
+
+// Notice
+//var $ssapPage10NoticeAlienNumber = _textbox("NoticeOfActionAlignNumber");
+//var $ssapPage10NoticeI94Number = _textbox("NoticeOfActionI94");
+//var $ssapPage10NoticeAccessors = [$ssapPage10NoticeAlienNumber, $ssapPage10NoticeI94Number];
+
+// Foreign Pass
+//var $ssapPage10ForeignPassI94Number = _textbox("ForeignppI94");
+var $ssapPage10ForeignPassI94Number = _textbox("ForeignppI94AlignNumber");
+var $ssapPage10ForeignPassNumber = _textbox("ForeignppI94ppcardno");
+var $ssapPage10ForeignPassCountry = _select("ForeignppI94County");
+var $ssapPage10ForeignPassExpire = _textbox("ForeignppI94dateOfExp");
+var $ssapPage10ForeignPassIDNumber = _textbox("ForeignppI94SevisID");
+var $ssapPage10ForeignPassAccessors = [$ssapPage10ForeignPassI94Number, $ssapPage10ForeignPassNumber, $ssapPage10ForeignPassCountry,
+									   $ssapPage10ForeignPassExpire, $ssapPage10ForeignPassIDNumber];
+
+// Reentry
+var $ssapPage10ReentryAlienNumber = _textbox("rentrypermitAlignNumber");
+var $ssapPage10ReentryExpire = _textbox("rentrypermitdateOfExp");
+var $ssapPage10ReentryAccessors = [$ssapPage10ReentryAlienNumber, $ssapPage10ReentryExpire];
+
+// Refugee
+var $ssapPage10RefugeeAlienNumber = _textbox("refugeetraveldocI-571AlignNumber");
+var $ssapPage10RefugeeExpire = _textbox("refugeetraveldocI-571dateOfExp");
+var $ssapPage10RefugeeAccessors = [$ssapPage10RefugeeAlienNumber, $ssapPage10RefugeeExpire];
+
+// Nonimmigrant
+var $ssapPage10NonimmigrantIDNumber = _textbox("certificatenonimmigrantF1-Student-I20SevisID");
+var $ssapPage10NonimmigrantI94Number = _textbox("certificatenonimmigrantF1-Student-I20I94no");
+var $ssapPage10NonimmigrantPassportNumber = _textbox("certificatenonimmigrantF1-Student-I20ppcardno");
+var $ssapPage10NonimmigrantCountry = _select("certificatenonimmigrantF1-Student-I20County");
+var $ssapPage10NonimmigrantExpire = _textbox("certificatenonimmigrantF1-Student-I20dateOfExp");
+var $ssapPage10NonimmigrantAccessors = [$ssapPage10NonimmigrantIDNumber, $ssapPage10NonimmigrantI94Number, $ssapPage10NonimmigrantPassportNumber,
+										$ssapPage10NonimmigrantCountry, $ssapPage10NonimmigrantExpire];
+
+// Exchange
+var $ssapPage10ExchangeIDNumber = _textbox("certificatenonimmigrantJ1-Student-DS2019SevisID");
+var $ssapPage10ExchangeI94Number =  _textbox("certificatenonimmigrantJ1-Student-DS2019I94no");
+var $ssapPage10ExchangePassportNumber = _textbox("certificatenonimmigrantJ1-Student-DS2019ppcardno");
+var $ssapPage10ExchangeExpire = _textbox("certificatenonimmigrantJ1-Student-DS2019dateOfExp");
+var $ssapPage10ExchangeAccessors = [$ssapPage10ExchangeIDNumber, $ssapPage10ExchangeI94Number, $ssapPage10ExchangePassportNumber,
+									$ssapPage10ExchangeExpire];
+
+// Same name
+var $ssapPage10SameNameHeader;
+var $ssapPage10SameNameBullets = [_radio("62Part2_UScitizenYes"), _radio("62Part2_UScitizen")];
+var $ssapPage10SameNameFirstName = _textbox("documentFirstName");
+var $ssapPage10SameNameMiddleName = _textbox("documentMiddleName");
+var $ssapPage10SameNameLastName = _textbox("documentLastName");
+var $ssapPage10SameNameSuffix = _select("documentSuffix");
+
+// Documents
+var $ssapPage10DocumentsHeader;
+var $ssapPage10DocumentsList = [_checkbox("otherDocORR"), _checkbox("otherDocORR-under18"), _checkbox("Cuban-or-HaitianEntrant"), _checkbox("docRemoval"),
+								_checkbox("americanSamaoresident"), _checkbox("adminOrderbyDeptofHomelanSecurity")];
+
+// Primary Residence
+var $ssapPage10ResidenceHeader;
+var $ssapPage10ResidenceBullets = [_radio("62Part_livesInUS"), _radio("62Part_livesInUSNo")];
+
+// Military
+var $ssapPage10MilitaryHeader;
+var $ssapPage10MilitaryBullets = [_radio("62Part_honourably-veteran"), _radio("62Part_honourably-veteranNo")];
+
+// Page 11
+var $ssapPage11Header = _span("Ethnicity and Race");
+var $ssapPage11Name;
+
+// Is ____ hispanic
+var $ssapPage11HispanicHeader;
+var $ssapPage11HispanicBullets = [_radio("checkPersonNameLanguageYes"), _radio("checkPersonNameLanguageNo")];
+
+// Ethnicity
+var $ssapPage11EthnicityHeader = _fieldset("Ethnicity (check all that apply)");
+var $ssapPage11EthnicityOptions;
+var $ssapPage11EthnicityOther = _textbox("otherEthnicity");
+
+// Race
+var $ssapPage11RaceHeader = _fieldset("Race (check all that apply)");
+var $ssapPage11RaceOptions;
+var $ssapPage11RaceOther = _textbox("otherRace");
+
+// Page 12
+var $ssapPage12Header = _span("Other Addresses");
+
+// Where Household Members Live
+var $ssapPage12LivingHeader = _heading4("Where Household Members Live");
+var $ssapPage12LivingInstructions;
+var $ssapPage12LivingOptions;
+var $ssapPage12LivingAccessors;
+
+// Page 13
+// Constants
+var $SSAP_PAGE_13_STATE_LENGTH = 34;
+
+// Accessors
+var $ssapPage13Header = _span("Additional Information");
+
+// Family and Household
+var $ssapPage13FamilyHeader = _heading4("Family and Household[5]");
+var $ssapPage13FamilyInstructions = _paragraph("Are any of the people below American Indian/Alaska Native?");
+var $ssapPage13FamilyOptions;
+var $ssapPage13FamilyAccessors;
+
+// Page 14
+var $ssapPage14Header = _span("Relationships");
+
+// Household Relationship Details
+var $ssapPage14HouseholdHeader = _heading4("Household Relationship Details");
+var $ssapPage14HouseholdInstructions;
+var $ssapPage14HouseholdAccessors;
+
+// Page 15
+var $ssapPage15Header = _span("Family and Household Summary");
+
+// Household Information Review and Confirmation
+var $ssapPage15InfoHeader = _heading4("Household Information Review and Confirmation");
+var $ssapPage15InfoInstructions = _paragraph("Here is the information you provided about everyone who is part of your household. Please take a moment to review and double-check the information. If you see any mistakes, please edit them now.");
+var $ssapPage15InfoAccessors = [$ssapPage15InfoHeader, $ssapPage15InfoInstructions];
+
+// Page 16
+var $ssapPage16Header = _span("Review and Sign");
+var $ssapPage16Instructions = _strong("Now it's time to review and sign your health insurance application.");
+var $ssapPage16Accessors = [$ssapPage16Header, $ssapPage16Instructions];
+
+// Page 17
+var $ssapPage17Header = _span("Final Application Review");
+var $ssapPage17ReviewHeader = _heading4("Final Application Review and Confirmation");
+var $ssapPage17ReviewDownload = _link("Download[1]");
+var $ssapPage17ReviewPrint = _link("Print[1]");
+var $ssapPage17ReviewAccessors = [$ssapPage17ReviewHeader, $ssapPage17ReviewDownload, $ssapPage17ReviewPrint];
+
+// Page 18
+var $ssapPage18Header = _span("Sign and Submit");
+var $ssapPage18NobodyIncarcerated = _checkbox("ononeIncarceratedStatus");
+var $ssapPage18IncarceratedOptions;
+var $ssapPage18UseIncomeBullets = [_radio("useIncomeDataIndicatorYes"), _radio("useIncomeDataIndicatorNo")];
+var $ssapPage18SixtyDays = _checkbox("agree_stat4");
+var $ssapPage18Perjury = _checkbox("agree_stat5");
+var $ssapPage18SignatureHeader;
+//var $ssapPage18Signature = _textbox("Household_sign");
+var $ssapPage18Signature = _textbox("appscr85ESignature");
+var $ssapPage18SubmitApp = _link("contBtn");
+var $ssapPage18Accessors;
+
+// Qualifying Event Details popup
+var $ssapQualifyingEventDetailsHeader = _heading3("Qualifying Event Details");
+var $ssapQualifyingEventDetailsEvent = _select("sepEvent");
+var $ssapQualifyingEventDetailsDate = _textbox("sepEventDate[1]");
+var $ssapQualifyingEventDetailsSubmit = _link("Submit Application[1]");
+var $ssapQualifyingEventDetailsAccessors = [$ssapQualifyingEventDetailsHeader, $ssapQualifyingEventDetailsEvent, $ssapQualifyingEventDetailsDate, $ssapQualifyingEventDetailsSubmit];
+
+// Page 19
+var $ssapPage19Header = _span("Application Complete");
+var $ssapPage19Qualify = _heading4("You qualify for Special Enrollment Period");
+var $ssapPage19DoNotQualify = _heading4("Special Enrollment Period Not Granted");
+var $ssapPage19Back = _link("Go to Dashboard");
+var $ssapPage19Accessors;
+if(!$sepDenied){
+	var $ssapPage19Accessors = [$ssapPage19Header, $ssapPage19Qualify, $ssapPage19Back];
+}
+
+function SsapPerson($num, $firstName, $middleName, $lastName, $suffix, $doB) {
+	this.$num = $num;
+	this.$firstName = $firstName;
+	this.$middleName = $middleName;
+	this.$lastName = $lastName;
+	this.$suffix = $suffix;
+	this.$doB = $doB;
+
+	// Information
+	this.$applying;
+	this.$gender;
+	this.$SSN;
+	this.$SSNName;
+	this.$citizen;
+	this.$homeAddress1;
+	this.$homeAddress2;
+	this.$homeCity;
+	this.$homeZip;
+	this.$mailingAddress1;
+	this.$mailingAddress2;
+	this.$mailingCity;
+	this.$mailingZip;
+	this.$native;
+
+	// Functions
+	this.fullName = function($bool) {
+		var $fullName;
+		if ($bool && this.$suffix) {
+			$fullName = this.$suffix + " " + this.$firstName;
+		}
+		else {
+			$fullName = this.$firstName;
+		}
+		if (this.$middleName && this.$middleName !== "") {
+			$fullName += " " + this.$middleName;
+		}
+		$fullName += " " + this.$lastName;
+		return $fullName;
+	};
+
+	this.verify = function() {
+		// Set accessors
+		var $fullName = this.fullName();
+		if (this.$num == 0) {
+			this.$header = _heading5($fullName + " (Primary Contact)");
+		}
+		else {
+			this.$header = _heading5($fullName);
+		}
+		this.$edit = _button("Edit[" + this.$num + "]");
+		if (this.$num > 0) {
+			this.$delete = _button("Delete[" + (this.$num - 1) + "]");
+		}
+		this.$doBAccessor = _paragraph("Date of Birth " + this.$doB);
+		// Verify accessors
+		_assertVisible(this.$header);
+		_assertVisible(this.$edit);
+		if (this.$num > 0) {
+			_assertVisible(this.$delete);
+		}
+		_assertVisible(this.$doBAccessor);
+	};
+}
+
+// Universal
+function verifySSAPPage() {
+	// Default state
+	if ($ssapPageIndex === undefined) {
+		$ssapPageIndex = 0;
+	}
+	if ($currentPerson === undefined) {
+		$currentPerson = 0;
+	}
+
+	// Verify agent icon
+	verifyAgentIcon();
+
+	// Verify side menu
+	verifyArray($ssapStepsAccessors);
+
+	// Verify correct page
+	if ($editingPrimaryContactInfo) {
+		$ssapVerificationArray[2]();
+	}
+	else if ($ssapPageIndex >= 8 && $ssapPageIndex <= 10) {
+		$ssapVerificationArray[$ssapPageIndex]($currentPerson);
+	}
+	else {
+		$ssapVerificationArray[$ssapPageIndex]();
+	}
+
+	// Verify correct buttons
+	if ($ssapPageIndex > 0 && !$addingPerson && !$editingPrimaryContactInfo) {
+		_assertVisible($ssapBack);
+	}
+
+	if ($ssapPageIndex == 6 && $addingPerson) {
+		_assertVisible(_link("Cancel[2]"));
+	}
+
+	if ($ssapPageIndex >= 2 && $ssapPageIndex != 7 && $ssapPageIndex != 15 && $ssapPageIndex != 17) {
+		_assertVisible($ssapSave);
+	}
+
+	if (!$editingContactInfo && !$editingPrimaryContactInfo) {
+		_assertVisible($ssapContinue);
+	}
+}
+
+function ssapAlertEmail() {
+	_alert($ssapEmail);
+}
+
+function clickBackButton() {
+	// Click button
+	_click($ssapBack);
+
+	// Update state
+	if ($ssapPageIndex === 8 && $currentPerson > 0) {
+		$ssapPageIndex = 10;
+		$currentPerson--;
+	}
+	else if ($ssapPageIndex === 14 && $ssapPeople.length === 1) {
+		$ssapPageIndex -= 2;
+	}
+	else {
+		$ssapPageIndex--;
+	}
+
+	// Verify correct page
+	verifySSAPPage();
+}
+
+function clickSaveButton() {
+	// Click button
+	_click($ssapSave);
+
+	// Update state and verify correct page if necessary
+	if ($editingPrimaryContactInfo) {
+		$editingPrimaryContactInfo = false;
+		verifySSAPPage();
+	}
+	else if ($addingPerson || $editingContactInfo) {
+		$addingPerson = false;
+		$editingContactInfo = false;
+		$ssapPageIndex++;
+		verifySSAPPage();
+	}
+}
+function clickContinueForNonSeekingMember(){
+	_assertVisible(_paragraph("This household member(s) will need to apply separately and will be marked as \"not seeking coverage\" in this application:"));
+	_click($ssapContinue1);
+	// Verify page 15 
+	verifySSAPPage15();
+}
+
+function clickContinueButton() {
+	_call(_link("Continue").click());
+	_wait(5000, _isVisible($ssapContinue));
+	// Update state
+	if ($ssapPageIndex === 10 && $currentPerson < $ssapPeople.length - 1 && !$editingPerson) {
+		$ssapPageIndex = 8;
+		$currentPerson++;
+	}
+	else if ($ssapPageIndex === 12 && $ssapPeople.length === 1) {
+		$ssapPageindex += 2;
+	}
+	else {
+		$ssapPageIndex++;
+	}
+
+	// Verify correct page
+	verifySSAPPage();
+}
+
+// Steps menu
+function verifySSAPMenu() {
+	// Verify accessors
+	verifyArray($ssapStepsAccessors);
+}
+
+// Page 1
+function verifySSAPPage1() {
+	// Verify page 1 accessors
+	verifyArray($ssapPage1Accessors);
+}
+
+function selectPrivacyCheckboxForSSAP($bool) {
+	// Parse params
+	if ($bool === undefined) {
+		$bool = true;
+	}
+
+	// Set field
+	if ($bool) {
+		_check($ssapPage1PrivacyCheckbox);
+	}
+	else {
+		_uncheck($ssapPage1PrivacyCheckbox);
+	}
+}
+
+// Page 2
+function verifySSAPPage2() {
+	// Verify page 2 accessors
+	verifyArray($ssapPage2Accessors);
+}
+
+// Page 3
+function verifySSAPPage3() {
+	// Uncheck same checkbox
+	var $bool;
+	if ($ssapPage3PrimaryContactMailingAddressSame.checked) {
+		$bool = true;
+		_uncheck($ssapPage3PrimaryContactMailingAddressSame);
+	}
+
+	// Verify page 3 accessors
+	_assertVisible($ssapPage3Header);
+	verifyArray($ssapPage3PrimaryContactNameAccessors);
+	verifyArray($ssapPage3PrimaryContactHomeAddressAccessors);
+	verifyArray($ssapPage3PrimaryContactMailingAddressAccessors);
+	verifyArray($ssapPage3PrimaryContactPhoneAccessors);
+	verifyArray($ssapPage3PrimaryContactPreferencesAccessors);
+
+	// Recheck checkbox if necessary
+	if ($bool) {
+		_check($ssapPage3PrimaryContactMailingAddressSame);
+	}
+}
+
+function enterContactNameForPrimary($firstName, $middleName, $lastName, $suffix, $doB, $email) {
+	// Parse params
+	if (!$email) {
+		$email = $signupEmail;
+	}
+
+	// Put primary info in array of people
+	var $person = new SsapPerson(0, $firstName, $middleName, $lastName, $suffix, $doB);
+	if ($ssapPeople.length == 0) {
+		$ssapPeople.push($person);
+	}
+	else {
+		$ssapPeople[0].$firstName = $firstName;
+		$ssapPeople[0].$middleName = $middleName;
+		$ssapPeople[0].$lastName = $lastName;
+		$ssapPeople[0].$suffix = $suffix;
+		$ssapPeople[0].$doB = $doB;
+		$ssapPeople[0].$email = $email;
+
+	}
+
+	// Set fields
+	_setValue($ssapPage3PrimaryContactNameFirstName, $firstName);
+	_setValue($ssapPage3PrimaryContactNameMiddleName, $middleName);
+	_setValue($ssapPage3PrimaryContactNameLastName, $lastName);
+	if ($suffix) {
+		_setSelected($ssapPage3PrimaryContactNameSuffix, $suffix);
+	}
+	_setValue($ssapPage3PrimaryContactNameDoB, $doB);
+	_setValue($ssapPage3PrimaryContactNameEmailAddress, $email);
+
+	// Update state
+	$ssapEmail = $email;
+	$ssapDoB = $doB;
+}
+
+var $primaryOutsideIdaho;
+function enterContactHomeAddress($address1, $address2, $city, $zip, $state, $county) {
+	// Parse params
+	if ($county === undefined) {
+		$county = 1;
+	}
+
+	// Update state
+	if ($ssapPeople.length === 0) {
+		$ssapPeople.push(new SsapPerson());
+	}
+
+	////@Firefox Issue
+	if(_isFF()){
+		_lockWindow(20000);
+		_focusWindow();
+		_focus($ssapPage3PrimaryContactHomeAddressAddress1);
+		_typeNative($address1);
+		//_blur($ssapPage3PrimaryContactHomeAddressAddress1)
+		_typeKeyCodeNative(java.awt.event.KeyEvent.VK_TAB);
+		//_call($ssapPage3PrimaryContactHomeAddressAddress1.value=$address1);
+
+		_focusWindow();
+		_focus($ssapPage3PrimaryContactHomeAddressAddress2);
+		_typeNative($address2);
+		//_blur($ssapPage3PrimaryContactHomeAddressAddress2)
+		_typeKeyCodeNative(java.awt.event.KeyEvent.VK_TAB);
+		//_call($ssapPage3PrimaryContactHomeAddressAddress2.value=$address2);
+
+		_focusWindow();
+		_focus($ssapPage3PrimaryContactHomeAddressCity);
+		_typeNative($city);
+		_typeKeyCodeNative(java.awt.event.KeyEvent.VK_TAB);
+		//_blur($ssapPage3PrimaryContactHomeAddressCity)
+		//_call($ssapPage3PrimaryContactHomeAddressCity.value=$city);
+		_unlockWindow();
+	}
+	else {
+		// Set fields
+		_setValue($ssapPage3PrimaryContactHomeAddressAddress1, $address1);
+		_setValue($ssapPage3PrimaryContactHomeAddressAddress2, $address2);
+		_setValue($ssapPage3PrimaryContactHomeAddressCity, $city);
+	}
+	if(_isVisible(_div("Report a Change"))){
+		_setSelected($ssapPage3PrimaryContactHomeAddressState, $state);
+		if(($state!="Idaho" ) || ($state !="ID")){
+			$primaryOutsideIdaho="Yes";
+			$ssapMailingAddress1 = $ssapPeople[0].$homeAddress1;
+			$ssapMailingAddress2 = $ssapPeople[0].$homeAddress2;
+			$ssapMailingCity = $ssapPeople[0].$homeCity;
+			$ssapMailingZip = $ssapPeople[0].$homeZip;
+			$ssapPeople[0].$mailingAddress1 = $ssapPeople[0].$homeAddress1;
+			$ssapPeople[0].$mailingAddress2 = $ssapPeople[0].$homeAddress2;
+			$ssapPeople[0].$mailingCity = $ssapPeople[0].$homeCity;
+			$ssapPeople[0].$mailingZip = $ssapPeople[0].$homeZip;
+		}
+	}
+	else {
+		_setValue($ssapPage3PrimaryContactHomeAddressState, $state);
+	}
+	///@Firefox Issue
+	if(_isFF()){
+		_lockWindow(20000);
+		_focusWindow();
+		_focus($ssapPage3PrimaryContactHomeAddressZip);
+		_typeNative($zip);
+		//_blur($ssapPage3PrimaryContactHomeAddressZip)
+		_typeKeyCodeNative(java.awt.event.KeyEvent.VK_TAB);
+		//_call($ssapPage3PrimaryContactHomeAddressZip.value=$zip);
+		_unlockWindow();
+	}
+	else {
+		_setValue($ssapPage3PrimaryContactHomeAddressZip, $zip);
+	}
+
+	_setSelected($ssapPage3PrimaryContactHomeAddressCounty, $county);
+	if(_isVisible(_div("Report a Change"))){
+		$date=calculateEventDate();
+		_setValue(_textbox("changeinaddressdate"), $date);
+		_click(_radio("updateOtrMem[1]"));
+		_click(_link("OK"));
+	}
+	if($editingPrimaryContactInfo == true){
+		$ssapPageIndex = 6;
+	}
+	$ssapHomeAddress1 = $address1;
+	$ssapHomeAddress2 = $address2;
+	$ssapHomeCity = $city;
+	$ssapHomeZip = $zip;
+	$ssapPeople[0].$homeAddress1 = $address1;
+	$ssapPeople[0].$homeAddress2 = $address2;
+	$ssapPeople[0].$homeCity = $city;
+	$ssapPeople[0].$homeZip = $zip;
+}
+
+function enterContactMailingAddress($bool, $address1, $address2, $city, $zip, $state,$county) {
+	// Parse params
+	if ($bool === undefined) {
+		$bool = false;
+	}
+
+	// Update state
+	$ssapHomeAddressAddress1 = $address1;
+	$ssapHomeAddressCity = $city;
+	$ssapMailingAddress1 = $address1;
+	$ssapMailingAddress2 = $address2;
+	$ssapMailingCity = $city;
+	$ssapMailingZip = $zip;
+	// Set fields
+	if ($bool) {
+		$ssapPeople[0].$mailingAddress1 = "Same as home address";
+		$ssapMailingAddress1 = "Same as home address";
+		_check($ssapPage3PrimaryContactMailingAddressSame);
+	}
+	else {
+		$ssapPeople[0].$mailingAddress1 = $address1;
+		$ssapPeople[0].$mailingAddress2 = $address2;
+		$ssapPeople[0].$mailingCity = $city;
+		$ssapPeople[0].$mailingZip = $zip;
+		_uncheck($ssapPage3PrimaryContactMailingAddressSame);
+	}
+	_setValue($ssapPage3PrimaryContactMailingAddressAddress1, $address1);
+	_setValue($ssapPage3PrimaryContactMailingAddressAddress2, $address2);
+	_setValue($ssapPage3PrimaryContactMailingAddressCity, $city);
+	_setValue($ssapPage3PrimaryContactMailingAddressZip, $zip);
+	_setSelected(_select("mailing_primary_county"), $county);
+	_setSelected($ssapPage3PrimaryContactMailingAddressState, $state);
+}
+
+function enterContactPhone($mobile, $home, $ext) {
+	// Set fields
+	_setValue($ssapPage3PrimaryContactPhoneMobilePhoneNumber, $mobile);
+	_setValue($ssapPage3PrimaryContactPhoneHomePhoneNumber, $home);
+	_setValue($ssapPage3PrimaryContactPhoneHomePhoneNumberExtension, $ext);
+
+	// Update state
+	if ($mobile) {
+		$ssapPreferredPhone = $mobile;
+	}
+	if ($home) {
+		$ssapSecondPhone = $home;
+	}
+	if ($ext) {
+		$ssapExt = $ext;
+	}
+}
+
+function enterContactPreferences($spoken, $written, $communication) {
+	// Set fields
+	_setSelected($ssapPage3PrimaryContactPreferencesSpokenLanguage, $spoken);
+	_setSelected($ssapPage3PrimaryContactPreferencesWrittenLanguage, $written);
+	//  _click(_radio($communication));
+
+	// Update state
+	$ssapSpoken = $spoken;
+	$ssapWritten = $written;
+	if($communication == "Email"){
+		_click($ssapPage3PrimaryContactPreferencesEmail);
+	}
+	else  if($communication == "Mail"){
+		_click($ssapPage3PrimaryContactPreferencesPostalMail);
+	}
+	$ssapCommunication = $communication;
+	_wait(5000);
+}
+
+// Page 4
+function verifySSAPPage4() {
+	// Verify page 4 accessors
+	_assertVisible($ssapPage4Header);
+	verifyArray($ssapPage4HelpingAccessors);
+}
+
+function selectSomeoneHelping() {
+	// Click button
+	_click($ssapPage4HelpingSomeoneHelping);
+
+	// Verify form
+	_assertVisible(_heading4("Authorized Representative"));
+	_assertVisible(_strong("Do you want to name someone as your authorized representative?"));
+}
+
+function selectAuthorizedRepresentative($bool) {
+	// Click the correct radio button
+	if ($bool.toUpperCase() === "YES") {
+		_click($ssapPage4AuthorizedBullets[0]);
+	}
+	else if ($bool.toUpperCase() === "NO") {
+		_click($ssapPage4AuthorizedBullets[1]);
+	}
+}
+
+function verifyElementsForAuthorizedRepresentative() {
+	// Verify each form
+	verifyArray($ssapPage4AuthorizedContactAccessors);
+	verifyArray($ssapPage4AuthorizedHomeAccessors);
+	verifyArray($ssapPage4AuthorizedPhoneAccessors);
+}
+
+function enterAuthorizedRepresentativeContactInfo($first, $middle, $last, $suffix, $email) {
+	// Generate random if necessary
+	if (!$first) {
+		$first = randomString($FIELD_LENGTH);
+	}
+	if (!$last) {
+		$last = randomString($FIELD_LENGTH);
+	}
+	if (!$email) {
+		$email = randomString($FIELD_LENGTH) + "@example.com";
+	}
+
+	// Set fields
+	_setValue($ssapPage4AuthorizedFirstName, $first);
+	_setValue($ssapPage4AuthorizedMiddleName, $middle);
+	_setValue($ssapPage4AuthorizedLastName, $last);
+	_setSelected($ssapPage4AuthorizedSuffix, $suffix);
+	_setValue($ssapPage4AuthorizedEmail, $email);
+}
+
+function enterAuthorizedRepresentativeHomeAddressInfo($addr1, $addr2, $city, $zip, $state) {
+	// Set fields
+	_setValue($ssapPage4AuthorizedAddress1, $addr1);
+	_setValue($ssapPage4AuthorizedAddress2, $addr2);
+	_setValue($ssapPage4AuthorizedCity, $city);
+	_setValue($ssapPage4AuthorizedZip, $zip);
+	_setSelected($ssapPage4AuthorizedState, $state);
+}
+
+function enterAuthorizedRepresentativePhone($mobile, $home, $homeExt, $work, $workExt) {
+	// Generate random if necessary
+	if (!$mobile) {
+		$mobile = phoneGen().join("");
+	}
+	if (!$home) {
+		$home = phoneGen().join("");
+	}
+	if (!$homeExt) {
+		$homeExt = randomString(4, true);
+	}
+	if (!$work) {
+		$work = phoneGen().join("");
+	}
+	if (!$workExt) {
+		$workExt = randomString(4, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage4AuthorizedMobile, $mobile);
+	_setValue($ssapPage4AuthorizedHome, $home);
+	_setValue($ssapPage4AuthorizedHomeExt, $homeExt);
+	_setValue($ssapPage4AuthorizedWork, $work);
+	_setValue($ssapPage4AuthorizedWorkExt, $workExt);
+}
+
+function enterAuthorizedRepresentativeOrganization($org, $id) {
+	// Generate random if necessary
+	if (!$org) {
+		$org = randomString($FIELD_LENGTH) + " " + randomString($FIELD_LENGTH);
+	}
+	if (!$id) {
+		$id = randomString($FIELD_LENGTH, true);
+	}
+
+	// Set fields
+	_check(_radio("cmpnyNameAndOrgRadio54_1"));
+	_setValue(_textbox("authorizeCompanyName"), $org);
+	_setValue(_textbox("authorizeOrganizationId"), $id);
+}
+
+function enterAuthorizedRepresentativeSign() {
+	// Variables
+	var $fullName = $ssapPeople[0].fullName();
+
+	// Set fields
+	_click(_radio("makeOtherizedRepresentativeSignature"));
+	_setValue(_textbox("authorizeSignature"), $fullName);
+}
+
+function selectUnableToSign() {
+	// Set field
+	_click(_radio("makeOtherizedRepresentativeLater"));
+}
+
+function clickHelpingMyself() {
+	// Click button
+	_click($ssapPage4HelpingMyself);
+}
+
+// Page 5
+function verifySSAPPage5() {
+	// Verify page 5 accessors
+	_assertVisible($ssapPage5Header);
+	verifyArray($ssapPage5WhoAccessors);
+}
+
+function selectMeOnly() {
+	// Click button
+	_click($ssapPage5WhoMeOnly);
+}
+
+function selectMeAndOthers() {
+	// Click button
+	_click($ssapPage5WhoMeAndOthers);
+}
+
+function selectOthersOnly() {
+	// Click button
+	_click($ssapPage5WhoOthers);
+}
+
+// Page 6
+function verifySSAPPage6() {
+	// Verify page 6 accessors
+	_assertVisible($ssapPage6Header);
+
+	// Verify accessors for each person
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		verifyPersonOnSSAPPage6($i);
+	}
+}
+
+function verifyPersonOnSSAPPage6($num) {
+	// Set accessors
+	var $ssapPage6InfoHeader = _strong("applicantTitle57" + ($num + 1));
+	var $ssapPage6InfoFirstName = _textbox("appscr57FirstName" + ($num + 1));
+	var $ssapPage6InfoMiddleName = _textbox("appscr57MiddleName" + ($num + 1));
+	var $ssapPage6InfoLastName = _textbox("appscr57LastName" + ($num + 1));
+	var $ssapPage6InfoSuffix = _select("appscr57Suffix" + ($num + 1));
+	var $ssapPage6InfoDoB = _textbox("appscr57DOB" + ($num + 1));
+	var $ssapPage6InfoSeekingCoverage = _checkbox("appscr57checkseekingcoverage" + ($num + 1));
+
+	// Verify acessors
+	var $ssapPage6InfoAccessors = [$ssapPage6InfoHeader, $ssapPage6InfoFirstName, $ssapPage6InfoMiddleName, $ssapPage6InfoLastName, 
+								   $ssapPage6InfoSuffix, $ssapPage6InfoDoB, $ssapPage6InfoSeekingCoverage];
+	verifyArray($ssapPage6InfoAccessors);
+}
+
+function enterInformation($num, $firstName, $middleName, $lastName, $suffix, $doB, $seeking) {
+	// Put primary info in array of people
+	while ($ssapPeople[$num] === undefined) {
+		$ssapPeople.push(new SsapPerson());
+	}
+	$ssapPeople[$num].$homeAddress1 = $ssapHomeAddress1;
+	$ssapPeople[$num].$homeAddress2 = $ssapHomeAddress2;
+	$ssapPeople[$num].$homeCity = $ssapHomeCity;
+	$ssapPeople[$num].$homeZip = $ssapHomeZip;
+	$ssapPeople[$num].$mailingAddress1 = $ssapMailingAddress1;
+	$ssapPeople[$num].$mailingAddress2 = $ssapMailingAddress2;
+	$ssapPeople[$num].$mailingCity = $ssapMailingCity;
+	$ssapPeople[$num].$mailingZip = $ssapMailingZip;
+	$ssapPeople[$num].$num = $num;
+	$ssapPeople[$num].$firstName = $firstName;
+	$ssapPeople[$num].$middleName = $middleName;
+	$ssapPeople[$num].$lastName = $lastName;
+	$ssapPeople[$num].$suffix = $suffix;
+	$ssapPeople[$num].$doB = $doB;
+	if ($seeking) {
+		$ssapPeople[$num].$applying = "Yes";
+	}
+	else {
+		$ssapPeople[$num].$applying = "No";
+	}
+
+	// Set accessors
+	var $ssapPage6InfoHeader = _strong("applicantTitle57" + ($num + 1));
+	var $ssapPage6InfoFirstName = _textbox("appscr57FirstName" + ($num + 1));
+	var $ssapPage6InfoMiddleName = _textbox("appscr57MiddleName" + ($num + 1));
+	var $ssapPage6InfoLastName = _textbox("appscr57LastName" + ($num + 1));
+	var $ssapPage6InfoSuffix = _select("appscr57Suffix" + ($num + 1));
+	var $ssapPage6InfoDoB = _textbox("appscr57DOB" + ($num + 1));
+	var $ssapPage6InfoSeekingCoverage = _checkbox("appscr57checkseekingcoverage" + ($num + 1));
+
+	// Parse params
+	if ($suffix === undefined || $suffix === "") {
+		$suffix = "Suffix";
+	}
+
+	// Set fields
+	_setValue($ssapPage6InfoFirstName, $firstName);
+	_setValue($ssapPage6InfoMiddleName, $middleName);
+	_setValue($ssapPage6InfoLastName, $lastName);
+	_setSelected($ssapPage6InfoSuffix, $suffix);
+	_setValue($ssapPage6InfoDoB, $doB);
+	if ($seeking) {
+		_check($ssapPage6InfoSeekingCoverage);
+	}
+	else {
+		_uncheck($ssapPage6InfoSeekingCoverage);
+	}
+
+	// Verify information
+	verifySSAPPage6();
+}
+
+function verifySSAPPage7() {
+	// Update state
+	$addingPerson = false;
+	$editingContactInfo = false;
+	$editingPrimaryContactInfo = false;
+
+	// Verify page 7 accessors
+	_assertVisible($ssapPage7Header);
+	verifyArray($ssapPage7PeopleAccessors);
+
+	// Verify each person on the page
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		$ssapPeople[$i].verify();
+	}
+}
+
+function clickEditPrimary() {
+	// Update state
+	$editingPrimaryContactInfo = true;
+	// Click the button
+	_click(_button("Edit"));
+
+	// Verify page
+	verifySSAPPage();
+}
+
+function clickEdit($index) {
+	// Click the button
+	_click(_button("Edit[" + $index + "]"));
+
+	// Update state
+	$editingContactInfo = true;
+	$ssapPageIndex = 5;
+
+	// Verify page
+	verifySSAPPage();
+}
+
+function clickRemoveApplicant($index) {
+	// Click button and proceed through popup
+	_click($ssapPeople[$index].$delete);
+	_click(_link("btnDeleteApplicantYes"));
+
+	// Remove the person from our array
+	$ssapPeople.splice($index, 1);
+
+	// Update numbers of the people in the array
+	for (var $i = $index; $i < $ssapPeople.length; $i++) {
+		$ssapPeople[$i].$num = $i;
+	}
+
+	// Verify page
+	verifySSAPPage();
+}
+
+function clickAddPerson() {
+	// Click button
+	_click($ssapPage7PeopleAdd);
+
+	// Update state
+	$addingPerson = true;
+	$ssapPageIndex = 5;
+
+	// Verify page
+	verifySSAPPage();
+}
+
+// Page 8
+function verifySSAPPage8() {
+	// Verify accessors
+	verifyArray($ssapPage8Accessors);
+}
+
+// Page 9
+function verifySSAPPage9($num) {
+	// Variables
+	var $fullName = $ssapPeople[$num].fullName();
+
+	// Set accessors
+	$ssapPage9Name = _span($fullName);
+	var $ssapPage9Accessors = [$ssapPage9Header, $ssapPage9Name, $ssapPage9FamilyHeader];
+
+	// SSN
+	$ssapPage9SSNHeader = _paragraph("Does " + $fullName + " have a Social Security Number?");
+	var $ssapPage9SSNAccessors = [$ssapPage9SSNHeader];
+	$ssapPage9SSNAccessors.push.apply($ssapPage9SSNAccessors, $ssapPage9SSNBullets);
+	$ssapPage9SSNAccessors.push($ssapPage9SSNLink);
+
+	$ssapPage9SSNSameHeader = _paragraph("Is " + $fullName + " the same name that appears on her Social Security card?");
+	var $ssapPage9SSNSameAccessors = [$ssapPage9SSNSameHeader];
+	$ssapPage9SSNSameAccessors.push.apply($ssapPage9SSNSameAccessors, $ssapPage9SSNSameBullets);
+
+	$ssapPage9SSNNotSameHeader = _heading4("Enter the same name as shown on " + $fullName + " 's Social Security Card");
+	var $ssapPage9SSNNotSameAccessors = [$ssapPage9SSNNotSameHeader, $ssapPage9SSNNotSameFirstName, $ssapPage9SSNNotSameMiddleName,
+										 $ssapPage9SSNNotSameLastName, $ssapPage9SSNNotSameSuffix];
+
+	// Verify accessors
+	verifyArray($ssapPage9Accessors);
+
+	// Gender accessors
+	verifyArray($ssapPage9GenderAccessors);
+
+	// SSN choice accessors
+	verifyArray($ssapPage9SSNAccessors);
+
+	// Has SSN
+	_click($ssapPage9SSNBullets[0]);
+	_assertVisible($ssapPage9SSN);
+
+	// SSN name same
+	_click($ssapPage9SSNSameBullets[0]);
+	verifyArray($ssapPage9SSNSameAccessors);
+
+	// SSN name different
+	_click($ssapPage9SSNSameBullets[1]);
+	verifyArray($ssapPage9SSNNotSameAccessors);
+
+	// No SSN
+	_click($ssapPage9SSNBullets[1]);
+	_assertVisible($ssapPage9NoSSNHeader);
+	_assertVisible($ssapPage9NoSSNReason);
+}
+
+function selectGender($gender) {
+	// Generate random if necessary
+	if ($gender === undefined) {
+		var $index = Math.floor(Math.random() * 2);
+		if ($index === 0) {
+			$gender = "male";
+		}
+		else {
+			$gender = "female";
+		}
+	}
+
+	// Update state
+	$ssapPeople[$currentPerson].$gender = $gender.toLowerCase();
+
+	// Click the correct radio button
+	if ($gender.toUpperCase() === "MALE") {
+		_click($ssapPage9GenderBullets[0]);
+	}
+	else if ($gender.toUpperCase() === "FEMALE") {
+		_click($ssapPage9GenderBullets[1]);
+	}
+}
+
+function selectHasSSN($bool) {
+
+	// Click the correct radio button
+	if ($bool === true || $bool.toUpperCase() === "YES") {
+		if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+			_check(_radio("snn4spouseT"));
+		}
+		else    {
+			_click($ssapPage9SSNBullets[0]);
+		}
+	}
+	else if ($bool === false || $bool.toUpperCase() === "NO") {
+		if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+			_check(_radio("snn4spouseF"));
+		}
+		else {
+			_click($ssapPage9SSNBullets[1]);
+		}
+	}
+
+	// Update state
+	if((!_isVisible(_heading4("Life Change Event: Change in Dependents")))&& (!_isVisible(_span("Selected Events")))){
+		$ssapPeople[$currentPerson].$SSN = _getValue($ssapPage9SSN);
+	}
+	else {
+		$ssapPeople[$currentPerson].$SSN =   _getText(_textbox("ssn1")) + _getText(_textbox("ssn2"))+ _getText(_textbox("ssn3"));
+	}
+	$ssapPeople[$currentPerson].$SSNName = $ssapPeople[$currentPerson].fullName(true);
+}
+
+function enterSSN($SSN) {
+	// Generate random if necessary
+	if ($SSN === undefined) {
+		// Keep generating until a valid SSN is generated
+		do {
+			$SSN = randomString(3, true) + "-" + randomString(2, true) + "-" + randomString(4, true);
+			// Conform to SSN requirements  
+		}
+		while(($SSN.charAt(0) === '0' && $SSN.charAt(1) === '0' && $SSN.charAt(2) === '0')
+			  || ($SSN.charAt(0) === '6' && $SSN.charAt(1) === '6' && $SSN.charAt(2) === '6')
+			  || $SSN.charAt(0) === '9'
+			  || ($SSN.charAt(4) === '0' && $SSN.charAt(5) === '0')
+			  || ($SSN.charAt(7) === '0' && $SSN.charAt(8) === '0' && $SSN.charAt(9) === '0' && $SSN.charAt(10) === '0'));
+	}
+
+	// Update state
+	$ssapPeople[$currentPerson].$SSN = $SSN;
+
+	// Set field
+	if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+		$s=$SSN.split("-");
+		_setValue(_textbox("ssn1"), $s[0]);
+		_setValue(_textbox("ssn2"), $s[1]);
+		_setValue(_textbox("ssn3"), $s[2]);
+	}
+	else {
+		_setValue($ssapPage9SSN, $SSN);
+	}
+}
+
+function enterSameSSNName($bool) {
+	$globalSSN="Yes";
+	// Update state
+	if ($bool === true || $bool.toUpperCase() === "YES") {
+		$SSNName = $ssapPeople[$currentPerson].fullName();
+	}
+
+	// Click the correct radio button
+	if ($bool === true || $bool.toUpperCase() === "YES") {
+		if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+			_check(_radio("samenameT"));
+		}
+		else {
+			_click($ssapPage9SSNSameBullets[0]);
+		}
+	}
+	else if ($bool === false || $bool.toUpperCase() === "NO") {
+		if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+			_check(_radio("samenameF"));
+		}
+		else {
+			_click($ssapPage9SSNSameBullets[1]);
+		}
+	}
+}
+
+function enterDifferentSSNName($firstName, $middleName, $lastName, $suffix) {
+	// Generate random if necessary
+	if ($firstName === undefined) {
+		$firstName = randomString($FIELD_LENGTH);
+	}
+	if ($lastName === undefined) {
+		$lastName = randomString($FIELD_LENGTH);
+	}
+
+	// Update state
+	var $name;
+	if ($suffix) {
+		$name = $suffix + " " + $firstName;
+	}
+	else {
+		$name = $firstName;
+	}
+	if ($middleName) {
+		$name += " " + $middleName;
+	}
+	$name += " " + $lastName;
+
+	$ssapPeople[$currentPerson].$SSNName = $name;
+
+	// Set fields
+	_setValue($ssapPage9SSNNotSameFirstName, $firstName);
+	_setValue($ssapPage9SSNNotSameMiddleName, $middleName);
+	_setValue($ssapPage9SSNNotSameLastName, $lastName);
+	_setSelected($ssapPage9SSNNotSameSuffix, $suffix);
+}
+
+function enterNoSSNReason($reason) {
+	// Generate random index if necessary
+	if ($reason === undefined) {
+		$reason = Math.floor((Math.random() * ($SSAP_SSN_REASON_MENU_LENGTH - 1))) + 1;
+	}
+
+	// Set field
+	_setSelected($ssapPage9NoSSNReason, $reason);
+
+	// Update state
+	$ssapPeople[$currentPerson].$SSN = "--NA--";
+	$ssapPeople[$currentPerson].$SSNName = "--NA--";
+}
+
+// Page 10
+function verifySSAPPage10($num) {
+	// Temporary default param; remove later
+	if ($num === undefined) {
+		$num = 0;
+	}
+
+	// Variables
+	var $fullName = $ssapPeople[$num].fullName(true);
+
+	// Set accessors
+	$ssapPage10Name = _span($fullName);
+	var $ssapPage10Accessors = [$ssapPage10Header, $ssapPage10Name, $ssapPage10FamilyHeader];
+
+	$ssapPage10CitizenshipHeader = _paragraph("Is " + $fullName + " a U.S. citizen or U.S. national?");
+	var $ssapPage10CitizenshipAccessors = [$ssapPage10CitizenshipHeader];
+	$ssapPage10CitizenshipAccessors.push.apply($ssapPage10CitizenshipAccessors, $ssapPage10CitizenshipBullets);
+
+	$ssapPage10NaturalizedHeader = _paragraph("Is " + $fullName + " a naturalized citizen?");
+	var $ssapPage10NaturalizedAccessors = [$ssapPage10NaturalizedHeader];
+	$ssapPage10NaturalizedAccessors.push.apply($ssapPage10NaturalizedAccessors, $ssapPage10NaturalizedBullets);
+
+	$ssapPage10Immigration = _checkbox("Check if " + $fullName + " has eligible immigration status");
+
+	$ssapPage10SameNameHeader = _strong($fullName + "[23]");
+	var $ssapPage10SameNameAccessors = [$ssapPage10SameNameHeader, $ssapPage10SameNameFirstName, $ssapPage10SameNameMiddleName,
+										$ssapPage10SameNameLastName, $ssapPage10SameNameSuffix];
+	$ssapPage10SameNameAccessors.push.apply($ssapPage10SameNameAccessors, $ssapPage10SameNameBullets);
+
+	$ssapPage10DocumentsHeader = _paragraph("Does " + $fullName + " also have any of these documents? (Select all that apply)");
+	var $ssapPage10DocumentsAccessors = [$ssapPage10DocumentsHeader];
+	$ssapPage10DocumentsAccessors.push.apply($ssapPage10DocumentsAccessors, $ssapPage10DocumentsList);
+
+	$ssapPage10ResidenceHeader = _paragraph("Has " + $fullName + " 's primary residence been in the U.S. since 1996?");
+	var $ssapPage10ResidenceAccessors = [$ssapPage10ResidenceHeader];
+	$ssapPage10ResidenceAccessors.push.apply($ssapPage10ResidenceAccessors, $ssapPage10ResidenceBullets);
+
+	$ssapPage10MilitaryHeader = _paragraph("Is " + $fullName + " an honorably discharged veteran or active-duty member of the military?");
+	var $ssapPage10MilitaryAccessors = [$ssapPage10MilitaryHeader];
+	$ssapPage10MilitaryAccessors.push.apply($ssapPage10MilitaryAccessors, $ssapPage10MilitaryBullets);
+
+	// Verify accessors
+	verifyArray($ssapPage10Accessors);
+
+	verifyArray($ssapPage10CitizenshipAccessors);
+
+	_click($ssapPage10CitizenshipBullets[1]);
+	verifyArray($ssapPage10NaturalizedAccessors);
+
+	_click($ssapPage10NaturalizedBullets[0]);
+	verifyArray($ssapPage10DocumentAccessors);
+
+	_click($ssapPage10DocumentBullets[0]);
+	verifyArray($ssapPage10NaturalizationAccessors);
+
+	_click($ssapPage10DocumentBullets[1]);
+	verifyArray($ssapPage10CertificateAccessors);
+
+	_click($ssapPage10NaturalizedBullets[1]);
+	_check($ssapPage10Immigration);
+	verifyArray($ssapPage10DocTypeAccessors);
+
+	_click($ssapPage10DocTypeBullets[0]);
+	verifyArray($ssapPage10PermResCardAccessors);
+
+	_click($ssapPage10DocTypeBullets[1]);
+	verifyArray($ssapPage10TempStampAccessors);
+
+	_click($ssapPage10DocTypeBullets[2]);
+	verifyArray($ssapPage10VisaAccessors);
+
+	_click($ssapPage10DocTypeBullets[3]);
+	verifyArray($ssapPage10EmploymentCardAccessors);
+
+	_click($ssapPage10DocTypeBullets[4]);
+	verifyArray($ssapPage10ArrivalAccessors);
+
+	_click($ssapPage10DocTypeBullets[5]);
+	verifyArray($ssapPage10ArrivalForeignAccessors);
+
+	_click($ssapPage10DocTypeBullets[6]);
+	verifyArray($ssapPage10ForeignPassAccessors);
+
+	_click($ssapPage10DocTypeBullets[7]);
+	verifyArray($ssapPage10ReentryAccessors);
+
+	_click($ssapPage10DocTypeBullets[8]);
+	verifyArray($ssapPage10RefugeeAccessors);
+
+	_click($ssapPage10DocTypeBullets[9]);
+	verifyArray($ssapPage10NonimmigrantAccessors);
+
+	_click($ssapPage10DocTypeBullets[10]);
+	verifyArray($ssapPage10ExchangeAccessors);
+
+	_click($ssapPage10SameNameBullets[1]);
+	verifyArray($ssapPage10SameNameAccessors);
+
+	verifyArray($ssapPage10DocumentsAccessors);
+	verifyArray($ssapPage10ResidenceAccessors);
+	verifyArray($ssapPage10MilitaryAccessors);
+}
+
+function selectCitizen($bool) {
+	// Update state
+	$ssapPeople[$currentPerson].$citizen = $bool;
+
+	// Click the right radio button
+	if ($bool === true || $bool.toUpperCase() === "YES") {
+		if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+			_click(_radio("citizenshipYes"));
+		}
+		else {
+			_click($ssapPage10CitizenshipBullets[0]);
+		}
+	}
+	else if ($bool === false || $bool.toUpperCase() === "NO") {
+		if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+			_click(_radio("citizenshipNo"));
+		}
+		else {
+			_click($ssapPage10CitizenshipBullets[1]);
+		}
+	}
+}
+
+function selectNaturalized($bool) {
+	// Click the right radio button
+	if ($bool === true || $bool.toUpperCase() === "YES") {
+		_click($ssapPage10NaturalizedBullets[0]);
+	}
+	else if ($bool === false || $bool.toUpperCase() === "NO") {
+		_click($ssapPage10NaturalizedBullets[1]);
+	}
+}
+
+function selectCitizenshipDocument($index) {
+	_click(_radio("documentType[" + $index + "]"));
+}
+
+function enterNaturalizationInfo($alienNum, $natNum) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+	if (!$natNum) {
+		$natNum = randomString($FIELD_LENGTH, true);
+	}
+
+	// Set fields	
+	_setValue($ssapPage10NaturalizationAlienNumber, $alienNum);
+	_setValue($ssapPage10NaturalizationNumber, $natNum);
+}
+
+function enterCitizenshipCertificateInfo($alienNum, $certNum) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+	if (!$certNum) {
+		$certNum = randomString($FIELD_LENGTH, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10CertificateAlienNumber, $alienNum);
+	_setValue($ssapPage10CertificateNumber, $certNum);
+}
+
+function selectImmigrationStatus($bool) {
+	// Parse params
+	if (!$bool) {
+		$bool = true;
+	}
+
+	// Set field
+	if ($bool) {
+		_check($ssapPage10Immigration);
+	}
+	else {
+		_uncheck($ssapPage10Immigration);
+	}
+}
+
+function selectImmigrationDocument($index) {
+	_click(_radio("docType[" + $index + "]"));
+}
+
+function enterPermResCardInfo($alienNum, $cardNum, $expire) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+	if (!$cardNum) {
+		$cardNum = randomString(3) + randomString(10, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10PermResCardAlienNumber, $alienNum);
+	_setValue($ssapPage10PermResCardNumber, $cardNum);
+	_setValue($ssapPage10PermResCardExpire, $expire);
+}
+
+function enterTempStampInfo($alienNum, $passNum, $country, $expire) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+	if (!$passNum) {
+		$passNum = randomString($FIELD_LENGTH, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10TempStampAlienNumber, $alienNum);
+	_setValue($ssapPage10TempStampPassportNumber, $passNum);
+	_setSelected($ssapPage10TempStampCountry, $country);
+	_setValue($ssapPage10TempStampExpire, $expire);
+}
+
+function enterVisaInfo($alienNum, $passNum, $country, $expire, $visaNum) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+	if (!$passNum) {
+		$passNum = randomString($FIELD_LENGTH, true);
+	}
+	if (!$visaNum) {
+		$visaNum = randomString(8, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10VisaAlienNumber, $alienNum);
+	_setValue($ssapPage10VisaPassportNumber, $passNum);
+	_setSelected($ssapPage10VisaCountry, $country);
+	_setValue($ssapPage10VisaExpire, $expire);
+	_setValue($ssapPage10VisaNumber, $visaNum);
+}
+
+function enterEmploymentCardInfo($alienNum, $cardNum, $expire) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+	if (!$cardNum) {
+		$cardNum = randomString(3) + randomString(10, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10EmploymentCardAlienNumber, $alienNum);
+	_setValue($ssapPage10EmploymentCardNumber, $cardNum);
+	_setValue($ssapPage10EmploymentCardExpire, $expire);
+}
+
+function enterArrivalInfo($i94Num, $idNum, $expire) {
+	// Generate random if necessary
+	if (!$i94Num) {
+		$i94Num = randomString(11, true);
+	}
+	if (!$idNum) {
+		$idNum = "N" + randomString(10, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10ArrivalI94Number, $i94Num);
+	_setValue($ssapPage10ArrivalIDNumber, $idNum);
+	_setValue($ssapPage10ArrivalExpire, $expire);
+}
+
+function enterArrivalForeignInfo($i94Num, $passNum, $country, $expire, $visaNum, $idNum) {
+	// Generate random if necessary
+	if (!$i94Num) {
+		$i94Num = randomString(11, true);
+	}
+	if (!$passNum) {
+		$passNum = randomString($FIELD_LENGTH, true);
+	}
+	if (!$visaNum) {
+		$visaNum = randomString(8, true);
+	}
+	if (!$idNum) {
+		$idNum = "N" + randomString(10, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10ArrivalForeignI94Number, $i94Num);
+	_setValue($ssapPage10ArrivalForeignPassportNumber, $passNum);
+	_setValue($ssapPage10ArrivalForeignCountry, $country);
+	_setValue($ssapPage10ArrivalForeignExpire, $expire);
+	_setValue($ssapPage10ArrivalForeignVisaNumber, $visaNum);
+	_setValue($ssapPage10ArrivalForeignIDNumber, $idNum);
+}
+
+function enterNoticeInfo($alienNum, $i94Num) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+	if (!$i94Num) {
+		$i94Num = randomString(11, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10NoticeAlienNumber, $alienNum);
+	_setValue($ssapPage10NoticeI94Number, $i94Num);
+}
+
+function enterForeignPassInfo($i94Num, $passNum, $country, $expire, $idNum) {
+	// Generate random if necessary
+	if (!$i94Num) {
+		$i94Num = randomString(11, true);
+	}
+	if (!$passNum) {
+		$passNum = randomString($FIELD_LENGTH, true);
+	}
+	if (!$idNum) {
+		$idNum = "N" + randomString(10, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10ForeignPassI94Number, $i94Num);
+	_setValue($ssapPage10ForeignPassNumber, $passNum);
+	_setSelected($ssapPage10ForeignPassCountry, $country);
+	_setValue($ssapPage10ForeignPassExpire, $expire);
+	_setValue($ssapPage10ForeignPassIDNumber, $idNum);
+}
+
+function enterReentryInfo($alienNum, $expire) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10ReentryAlienNumber, $alienNum);
+	_setValue($ssapPage10ReentryExpire, $expire);
+}
+
+function enterRefugeeInfo($alienNum, $expire) {
+	// Generate random if necessary
+	if (!$alienNum) {
+		$alienNum = randomString(9, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10RefugeeAlienNumber, $alienNum);
+	_setValue($ssapPage10RefugeeExpire, $expire);
+}
+
+function enterNonimmigrantInfo($idNum, $i94Num, $passNum, $country, $expire) {
+	// Generate random if necessary
+	if (!$idNum) {
+		$idNum = "N" + randomString(10, true);
+	}
+	if (!$i94Num) {
+		$i94Num = randomString(11, true);
+	}
+	if (!$passNum) {
+		$passNum = randomString($FIELD_LENGTH, true);
+	}
+
+	// Set fields
+	_setValue($ssapPage10NonimmigrantIDNumber, $idNum);
+	_setValue($ssapPage10NonimmigrantI94Number, $i94Num);
+	_setValue($ssapPage10NonimmigrantPassportNumber, $passNum);
+	_setValue($ssapPage10NonimmigrantCountry, $country);
+	_setValue($ssapPage10NonimmigrantExpire, $expire);
+}
+
+function enterExchangeInfo($idNum, $i94Num, $passNum, $expire) {
+	// Generate random if necessary
+	if (!$idNum) {
+		$idNum = "N" + randomString(10, true);
+	}
+	if (!$i94Num) {
+		$i94Num = randomString(11, true);
+	}
+	if (!$passNum) {
+		$passNum = randomString($FIELD_LENGTH, true);
+	}
+}
+
+function selectIfSameNameOnDocuments($bool) {
+	// Click the correct radio button
+	if ($bool.toUpperCase() === "YES") {
+		_click($ssapPage10SameNameBullets[0]);
+	}
+	else if ($bool.toUpperCase() === "NO") {
+		_click($ssapPage10SameNameBullets[1]);
+	}
+}
+
+function enterDocumentNameInfo($firstName, $middleName, $lastName, $suffix) {
+	// Generate random if necessary
+	if (!$firstName) {
+		$firstName = randomString($FIELD_LENGTH);
+	}
+	if (!$middleName) {
+		$middleName = randomString($FIELD_LENGTH);
+	}
+	if (!$lastName) {
+		$lastName = randomString($FIELD_LENGTH);
+	}
+
+	// Set fields
+	_setValue($ssapPage10SameNameFirstName, $firstName);
+	_setValue($ssapPage10SameNameMiddleName, $middleName);
+	_setValue($ssapPage10SameNameLastName, $lastName);
+	_setSelected($ssapPage10SameNameSuffix, $suffix);
+}
+
+function selectIfUSPermanentResident($bool) {
+	// Click the correct radio button
+	if ($bool.toUpperCase() === "YES") {
+		_click($ssapPage10ResidenceBullets[0]);
+	}
+	else if ($bool.toUpperCase() === "NO") {
+		_click($ssapPage10ResidenceBullets[1]);
+	}
+}
+
+function selectIfServicedMilitary($bool) {
+	// Click the correct radio button
+	if ($bool.toUpperCase() === "YES") {
+		_click($ssapPage10MilitaryBullets[0]);
+	}
+	else if ($bool.toUpperCase() === "NO") {
+		_click($ssapPage10MilitaryBullets[1]);
+	}
+}
+
+function verifySSAPPage11($num) {
+	// Variables
+	var $fullName = $ssapPeople[$num].fullName(true);
+
+	// Set accessors
+	$ssapPage11Name = _span($fullName);
+	var $ssapPage11Accessors = [$ssapPage11Header, $ssapPage11Name];
+
+	$ssapPage11HispanicHeader = _fieldset("Is " + $fullName + " of Hispanic, Latino, or Spanish origin?");
+	var $ssapPage11HispanicAccessors = [$ssapPage11HispanicHeader];
+	$ssapPage11HispanicAccessors.push.apply($ssapPage11HispanicAccessors, $ssapPage11HispanicBullets);
+
+	$ssapPage11EthnicityOptions = [];
+	for (var $i = 0; $i <=  3; $i++) {
+		$ssapPage11EthnicityOptions.push(_checkbox("ethnicity[" + $i + "]"));
+	}
+	var $ssapPage11EthnicityAccessors = [$ssapPage11EthnicityHeader];
+	$ssapPage11EthnicityAccessors.push.apply($ssapPage11EthnicityAccessors, $ssapPage11EthnicityOptions);
+
+	$ssapPage11RaceOptions = [];
+	for (var $i = 0; $i <= 14; $i++) {
+		$ssapPage11RaceOptions.push(_checkbox("race[" + $i + "]"));
+	}
+	var $ssapPage11RaceAccessors = [$ssapPage11RaceHeader];
+	$ssapPage11RaceAccessors.push.apply($ssapPage11RaceAccessors, $ssapPage11RaceOptions);
+
+	// Verify accessors
+	verifyArray($ssapPage11Accessors);
+	verifyArray($ssapPage11HispanicAccessors);
+
+	_click($ssapPage11HispanicBullets[0]);
+	verifyArray($ssapPage11EthnicityAccessors);
+	var $length = $ssapPage11EthnicityOptions.length;
+	var $accessor = $ssapPage11EthnicityOptions[$length - 1];
+	_click($accessor);
+	_assertVisible($ssapPage11EthnicityOther);
+	_click($accessor);
+
+	verifyArray($ssapPage11RaceAccessors);
+	$length = $ssapPage11RaceOptions.length;
+	$accessor = $ssapPage11RaceOptions[$length - 1];
+	_click($accessor);
+	_assertVisible($ssapPage11RaceOther);
+	_click($accessor);
+
+	_click($ssapPage11HispanicBullets[1]);
+}
+
+function selectHispanic($bool) {
+	// Click the correct radio button
+	if ($bool.toUpperCase() === "YES") {
+		_click($ssapPage11HispanicBullets[0]);
+	}
+	else if ($bool.toUpperCase() === "NO") {
+		_click($ssapPage11HispanicBullets[1]);
+	}
+}
+
+function selectEthnicity($index, $val) {
+	// Generate random if necessary
+	if ($index === undefined) {
+		$index = Math.floor(Math.random() * ($ssapPage11EthnicityOptions.length - 1));
+	}
+	if (!$val) {
+		$val = randomString($FIELD_LENGTH);
+	}
+
+	// Set other if necessary
+	if ((typeof $index === 'string' || $index instanceof String) && $index.toUpperCase() === "OTHER") {
+		var $accessor = $ssapPage11EthnicityOptions[$ssapPage11EthnicityOptions.length - 1];
+		_check($accessor);
+		_setValue($ssapPage11EthnicityOther, $val);
+	}
+	else {
+		// Set field
+		var $accessor = $ssapPage11EthnicityOptions[$index];
+		_check($accessor);
+	}
+}
+
+function selectRace($index, $val) {
+	// Generate random if necessary
+	if ($index === undefined) {
+		$index = Math.floor(Math.random() * ( $ssapPage11RaceOptions.length - 1));
+	}
+	if (!$val) {
+		$val = randomString($FIELD_LENGTH);
+	}
+
+	// Set other if necessary
+	if ((typeof $index === 'string' || $index instanceof String) && $index.toUpperCase() === "OTHER") {
+		var $accessor = $ssapPage11RaceOptions[$ssapPage11RaceOptions.length - 1];
+		_check($accessor);
+		_setValue($ssapPage11RaceOther, $val);
+	}
+	else {
+		// Set field
+		var $accessor = $ssapPage11RaceOptions[$index];
+		_check($accessor);
+	}
+}
+
+function verifySSAPPage12() {
+	if($ssapPeople.length >1){
+		// Set accessors
+		$ssapPage12LivingInstructions = _paragraph("Do any of the people below live at an address other than " + $ssapHomeAddressAddress1 + " " + $ssapHomeAddressCity + " ID? (check all that apply)");
+
+		$ssapPage12LivingOptions = [];
+		for (var $i = 0; $i < $ssapPeople.length + 1; $i++) {
+			$ssapPage12LivingOptions.push(_checkbox("householdContactAddress[" + $i + "]"));
+		}
+
+		$ssapPage12LivingAccessors = [$ssapPage12LivingHeader, $ssapPage12LivingInstructions];
+		$ssapPage12LivingAccessors = $ssapPage12LivingAccessors.push.apply($ssapPage12LivingAccessors, $ssapPage12LivingOptions);
+
+		// Verify accessors
+		_assertVisible($ssapPage12Header);
+
+		verifyArray($ssapPage12LivingAccessors);
+
+		for (var $i = 1; $i < $ssapPeople.length; $i++) {
+			var $accessor = $ssapPage12LivingOptions[$i - 1];
+			_check($accessor);
+			verifyAddressOfApplicant($i);
+		}
+		var $accessor = $ssapPage12LivingOptions[$ssapPeople.length - 1];
+		_check($accessor);
+	}
+	else {
+		_log("This Page Is not available for single user");
+		verifySSAPPage13();
+		$ssapPageIndex=13;
+	}
+}
+
+function verifyAddressOfApplicant($num) {
+	// Variables
+	var $fullName = $ssapPeople[$num].fullName();
+	$num++;
+
+	// Verify accessors
+	_assertVisible(_paragraph("Where does " + $fullName + " live?"));
+	_assertVisible(_textbox("applicant_or_non-applican_address_1" + $num));
+	_assertVisible(_textbox("applicant_or_non-applican_address_2" + $num));
+	_assertVisible(_textbox("city" + $num));
+	_assertVisible(_textbox("zip" + $num));
+	_assertVisible(_select("applicant_or_non-applican_state" + $num));
+	_assertVisible(_select("applicant_or_non-applican_county" + $num));
+}
+
+function enterDifferentAoplicantAddress($num, $addr1, $addr2, $city, $zip, $state, $county)  {
+	// Variables
+	$num++;
+	var $index = $num - 2;
+
+	// Default county to first option
+	if (!$county) {
+		$county = 1;
+	}
+
+	// Open the form
+	var $accessor = $ssapPage12LivingOptions[$index];
+	_check($accessor);
+
+	// Set the fields
+	_setValue(_textbox("applicant_or_non-applican_address_1" + $num), $addr1);
+	_setValue(_textbox("applicant_or_non-applican_address_2" + $num), $addr2);
+	_setValue(_textbox("city" + $num), $city);
+	_setValue(_textbox("zip" + $num), $zip);
+	_setSelected(_select("applicant_or_non-applican_state" + $num), $state);
+	$accessor = _select("home_primary_county[" + ($num - 1) + "]");
+	_setSelected($accessor, $county);
+}
+
+function selectOutsideIdaho($num, $bool, $city, $zip, $state) {
+	// Variables
+	$num++;
+	var $index = $num - 2;
+
+	// Open the form
+	var $accessor = $ssapPage12LivingOptions[$index];
+	_check($accessor);
+
+	// Click the correct radio button
+	if ($bool.toUpperCase() === "YES") {
+		_click(_radio("TemporarilyLivingOutsideIndicatorYes" + $num));
+	}
+	else if ($bool.toUpperCase() === "NO") {
+		$index++;
+		_click(_radio("TemporarilyLivingOutsideIndicatorNo[" + $index + "]"));
+	}
+
+	// Set fields if necessary
+	if ($bool.toUpperCase() === "YES") {
+		_setValue(_textbox("applicant2city" + $num), $city);
+		_setValue(_textbox("applicant-2-zip" + $num), $zip);
+		_setSelected(_select("applicant_or_non-applican_stateTemp" + $num), $state);
+	}
+}
+
+function ssapPage12SetNobody() {
+	// Set field
+	var $accessor = $ssapPage12LivingOptions[$ssapPeople.length - 1];
+	_check($accessor);
+}
+
+function verifySSAPPage13() {
+	// Update state
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		$ssapPeople[$i].$native = "No";
+	}
+
+	// Set accessors
+	$ssapPage13FamilyOptions = [];
+	for (var $i = 0; $i <= $ssapPeople.length; $i++) {
+		$ssapPage13FamilyOptions.push(_checkbox("peopleBelowTo[" + $i + "]"));
+	}
+	$ssapPage13FamilyAccessors = [$ssapPage13FamilyHeader, $ssapPage13FamilyInstructions];
+	$ssapPage13FamilyAccessors.push.apply($ssapPage13FamilyAccessors, $ssapPage13FamilyOptions);
+
+	// Verify accessors
+	_assertVisible($ssapPage13Header);
+	verifyArray($ssapPage13FamilyAccessors);
+
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		_check($ssapPage13FamilyOptions[$i]);
+		verifyTribe($i);
+	}
+	var $accessor = $ssapPage13FamilyOptions[$ssapPage13FamilyOptions.length - 1];
+	_check($accessor);
+}
+
+function verifyTribe($num) {
+	// Variables
+	var $fullName = $ssapPeople[$num].fullName(true);
+
+	// Verify accessors
+	_assertVisible(_paragraph("Is " + $fullName + " a member of a federally recognized tribe?"));
+	_assertVisible(_radio("AmericonIndianQuestionRadioYes" + ($num + 1)));
+	_assertVisible(_radio("AmericonIndianQuestionRadioNo" + ($num + 1)));
+
+	_click(_radio("AmericonIndianQuestionRadioYes" + ($num + 1)));
+	_assertVisible(_select("americonIndianQuestionSelect" + ($num + 1)));
+	_assertVisible(_select("tribeName" + ($num + 1)));
+}
+
+function selectAndEnterNativeInfo($num, $bool, $state, $tribe) {
+	// Generate random if necessary
+	if ($bool.toUpperCase() === "YES" && $state === undefined) {
+		$state = Math.floor(Math.random() * ($SSAP_PAGE_13_STATE_LENGTH - 1)) + 1;
+	}
+	if ($bool.toUpperCase() === "YES" && $tribe === undefined) {
+		$tribe = 1;
+	}
+
+	// Update state
+	$ssapPeople[$num].$native = "Yes";
+
+	// Set fields
+	var $accessor = $ssapPage13FamilyOptions[$num];
+	_check($accessor);
+
+	if ($bool.toUpperCase() === "YES") {
+		_click(_radio("AmericonIndianQuestionRadioYes" + ($num + 1)));
+		_setSelected(_select("americonIndianQuestionSelect" + ($num + 1)), $state);
+		_setSelected(_select("tribeName" + ($num + 1)), $tribe);
+	}
+	else if ($bool.toUpperCase() === "NO") {
+		_click(_radio("AmericonIndianQuestionRadioNo" + ($num + 1)));
+	}
+}
+
+function ssapPage13SetNobody() {
+	// Update state
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		$ssapPeople[$i].$native = "No";
+	}
+
+	// Set field
+	var $accessor = $ssapPage13FamilyOptions[$ssapPage13FamilyOptions.length - 1];
+	_check($accessor);
+}
+
+function verifySSAPPage14() {
+	// Set accessors
+	$ssapPage14HouseholdInstructions = _span("Here are the " + $ssapPeople.length + " members in your household. Please answer the following questions to help us establish everyone's relationship to each other.");
+	$ssapPage14HouseholdAccessors = [$ssapPage14HouseholdHeader, $ssapPage14HouseholdInstructions];
+
+	// Verify accessors
+	_assertVisible($ssapPage14Header);
+	verifyArray($ssapPage14HouseholdAccessors);
+
+	// Verify relationship accessors
+	for (var $i = 0; $i < $ssapPeople.length - 1; $i++) {
+		verifyPersonOnSSAPPage14($i);
+	}
+}
+
+function verifyPersonOnSSAPPage14($num) {
+	// Variables
+	var $fullName = $ssapPeople[$num].fullName(false);
+
+	// Set accessors
+	var $header = _listItem("relationshipSelection" + ($num + 1));
+
+	// Verify accessors
+	_assertVisible($header);
+	_assertTrue(new RegExp("How is " + $fullName + " related to").test(_getText($header)));
+
+	// Verify relationship to other people accessors
+	for (var $i = $num + 1; $i < $ssapPeople.length; $i++) {
+		var $otherFullName = $ssapPeople[$i].fullName(false);
+		_assertVisible(_label($fullName + " is " + $otherFullName + "'s"));
+		var $menu = _select($i - $num - 1, _in($header));
+		_assertVisible($menu);
+		_setSelected($menu, 1);
+	}
+	for (var $i = $num + 1; $i < $ssapPeople.length; $i++) {
+		var $otherFullName = $ssapPeople[$i].fullName(false);
+		var $menu = _select($i - $num - 1, _in($header));
+		_setSelected($menu, 0);
+	}
+}
+
+function selectRelationship($first, $second, $relationship) {
+	// Set accessors
+	var $header;
+	var     $menu;
+	if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+		$header = _listItem("ng-scope["+ ($first +$second +1)+"]");
+		$menu =  _select("ddlRelationship"+($first + $second));
+		if($first > $second){
+
+			$menu = _select($first - $second - 1, _in($header));
+		}
+		else {
+			$menu = _select($second - $first - 1, _in($header));
+		}
+		var $str =_collect("_div","/ng-scope/","sahiText",_in($header));
+		var $el=$str.length;
+		if(!_getAttribute(_select("ddlRelationship"+$el),"disabled")){
+
+			var $disabledOptions=[];
+			var $options = _collect("_option","/.*/",_in(_select("ddlRelationship"+$el)));
+			// here $element is the select element which contains all the options.
+			// collect the HTML elements of options in the select element
+			_getText($options[2])
+				_assertEqual(true,_getAttribute($options[2],"disabled"));
+		}
+	}
+	else {
+		$header = _listItem("relationshipSelection" + ($first + 1));
+		$menu = _select(($first + 1) + "to" + ($second + 1));
+		$menu = _select($second - $first - 1, _in($header));
+	}
+
+	// Set field
+	_setSelected($menu, $relationship);
+}
+
+function clickContinueToClosePopUpForChildGreaterThan26(){
+	_assertVisible(_paragraph("This household member(s) will need to apply separately and will be marked as \"not seeking coverage\" in this application:"));
+	_click($ssapContinue1);
+	verifySSAPPage15();
+}
+
+function verifySSAPPage15() {
+	// Verify accessors
+	if(_exists(_paragraph("This household member(s) will need to apply separately and will be marked as \"not seeking coverage\" in this application:")))
+	{
+		return;
+	}
+	_assertVisible($ssapPage15Header);
+	verifyArray($ssapPage15InfoAccessors);
+
+	// Verify information on each person
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		verifyPersonOnSSAPPage15($i);
+		verifyNativeOnSSAPPage15($i);
+	}
+}
+
+function verifyPersonOnSSAPPage15($num, $fromPage17, $isEligibleForCoverage) {
+	// Variables
+	var $fullName = $ssapPeople[$num].fullName(true);
+	var $accessors;
+	// Set accessors
+	var $div;
+	var $table;
+	if(_isVisible(_heading3("Final Review and Confirmation Print Download"))){
+		$table = _table("table table-striped ng-scope[" + $num + "]");
+		var $header = _heading5(0, _in($table));
+		var $coverage = _cell(3, _in($table));
+		var $gender = _cell(5, _in($table));
+		var $SSN = _cell(7, _in($table));
+		var $SSNName = _cell(9, _in($table));
+		var $citizen = _cell(11, _in($table));
+		var $homeAddress = _cell(13, _in($table));
+		if ($num === 0) {
+			var $mailingAddress = _cell(15, _in($table));
+			$accessors = [$table, $header, $coverage, $gender, $SSN, $SSNName, $citizen, $homeAddress, $mailingAddress];
+		}
+		else {
+			$accessors = [$table, $header, $coverage, $gender, $SSN, $SSNName, $citizen, $homeAddress];
+		}
+		// Verify accessors
+		verifyArray($accessors);
+	}
+	else {
+		if ($fromPage17) {
+			$div = _div("hixApplicantInfo[" + ($num + $ssapPeople.length + 2) + "]");
+		}
+		else {
+			$div = _div("hixApplicantInfo[" + $num + "]");
+		}
+		var $header = _heading5(0, _in($div));
+		var $edit = _button("Edit", _in($div));
+		var $coverage = _cell(1, _in($div));
+		var $gender = _cell("camelCaseName", _in($div));
+		var $SSN = _cell(5, _in($div));
+		var $SSNName = _cell(7, _in($div));
+		var $citizen = _cell(9, _in($div));
+		var $homeAddress = _cell(11, _in($div));
+		if ($num === 0) {
+			var $mailingAddress = _cell(13, _in($div));
+			$accessors = [$div, $header, $edit, $coverage, $gender, $SSN, $SSNName, $citizen, $homeAddress, $mailingAddress];
+		}
+		else {
+			$accessors = [$div, $header, $edit, $coverage, $gender, $SSN, $SSNName, $citizen, $homeAddress];
+		}
+		// Verify accessors
+		verifyArray($accessors);
+	}
+
+	// Verify content
+	if ($num === 0) {
+		if(_isVisible(_heading3("Final Review and Confirmation Print Download")))
+		{
+			if($removePrimary=="false"){
+				_assertEqual($fullName, _getText($header));
+			}
+		}
+		else {
+			_assertEqual($fullName + " (Primary Contact)", _getText($header));
+		}
+	}
+	else {
+		_assertEqual($fullName, _getText($header));
+	}
+
+	if($isEligibleForCoverage === undefined || $isEligibleForCoverage){
+		_assertEqual($ssapPeople[$num].$applying, _getText($coverage));
+	}
+	else{
+		_assertEqual("No", _getText($coverage));
+	}
+
+	_assertEqual("/"+$ssapPeople[$num].$gender+"/i", _getText($gender));
+
+	var $ind = $ssapPeople[$num].$SSN.length - 4;
+	var $SSNval = $ssapPeople[$num].$SSN.substring($ind);
+	var $expSSN=_getText($SSN);
+	if($expSSN=="N/A"){
+		$expSSN="NA--";
+	}
+	_assertTrue(new RegExp($SSNval).test($expSSN));
+	var $expected= _getText($SSNName);
+	if($expected=="N/A"){
+		$expected="--NA--";
+	}
+	_assertEqual($ssapPeople[$num].$SSNName, $expected);
+	_assertEqual($ssapPeople[$num].$citizen, _getText($citizen));
+	_assertTrue(new RegExp($ssapPeople[$num].$homeAddress1).test(_getText($homeAddress)));
+	if ($ssapPeople[$num].$homeAddress2) {
+		_assertTrue(new RegExp($ssapPeople[$num].$homeAddress2).test(_getText($homeAddress)));
+	}
+	_assertTrue(new RegExp($ssapPeople[$num].$homeCity).test(_getText($homeAddress)));
+	_assertTrue(new RegExp($ssapPeople[$num].$homeZip).test(_getText($homeAddress)));
+
+	if ($num === 0) {
+		if ($ssapPeople[$num].$mailingAddress1 === "Same as home address") {
+			if(_isVisible(_heading3("Final Review and Confirmation Print Download"))) {
+				_assertTrue(new RegExp($ssapPeople[$num].$homeAddress1).test(_getText($homeAddress)));
+				if ($ssapPeople[$num].$homeAddress2) {
+					_assertTrue(new RegExp($ssapPeople[$num].$homeAddress2).test(_getText($homeAddress)));
+				}
+				_assertTrue(new RegExp($ssapPeople[$num].$homeCity).test(_getText($homeAddress)));
+				_assertTrue(new RegExp($ssapPeople[$num].$homeZip).test(_getText($homeAddress)));
+			}
+			else{
+				_assertEqual($ssapPeople[$num].$mailingAddress1, _getText($mailingAddress));
+			}
+		}
+		else {
+			_assertTrue(new RegExp($ssapPeople[$num].$mailingAddress1).test(_getText($mailingAddress)));
+			if ($ssapPeople[$num].$mailingAddress2) {
+				_assertTrue(new RegExp($ssapPeople[$num].$mailingAddress2).test(_getText($mailingAddress)));
+			}
+			_assertTrue(new RegExp($ssapPeople[$num].$mailingCity).test(_getText($mailingAddress)));
+			_assertTrue(new RegExp($ssapPeople[$num].$mailingZip).test(_getText($mailingAddress)));
+		}
+	}
+}
+
+function verifyNativeOnSSAPPage15($num, $fromPage17) {
+	var $table;
+	var $number;
+	if ($fromPage17) {
+		$table = _table("summary-table margin40-b camelCaseName[1]");
+	}
+	else if(_isVisible(_heading4("Life Change Event: Final Review and Confirmation"))){
+		$table =_table("table table-striped ng-scope", _near(_heading4("More about this household")));
+	}
+	else {
+		$table = _table("summary-table margin40-b camelCaseName");
+	}
+	var $name;
+	var $native;
+	if(_isVisible(_heading4("Life Change Event: Final Review and Confirmation")))
+	{
+		$number=$num+1;
+		$name = _cell($number * 2, _in($table));
+		$native = _cell($number * 2 + 1, _in($table));
+	}
+	else {
+		$name = _cell($num * 2, _in($table));
+		$native = _cell($num * 2 + 1, _in($table));
+	}
+	var $accessors = [$table, $name, $native];
+
+	// Verify accessors
+	verifyArray($accessors);
+
+	// Verify content
+	_assertEqual($ssapPeople[$num].fullName(true), _getText($name));
+	_assertEqual($ssapPeople[$num].$native, _getText($native));
+}
+
+function clickEditOnSSAPPage15($num) {
+	// Click button
+	_click(_button("Edit[" + $num + "]"));
+
+	// Update state
+	$ssapPageIndex = 8;
+	$currentPerson = $num;
+	$editingPerson = true;
+}
+
+function verifySSAPPage16() {
+	// Verify accessors
+	verifyArray($ssapPage16Accessors);
+}
+
+function verifySSAPPage17() {
+	// Verify accessors
+	_assertVisible($ssapPage17Header);
+	verifyArray($ssapPage17ReviewAccessors);
+
+	// Verify primary contact information
+	verifyPrimaryContactInfoOnSSAPPage17();
+
+	// Verifying applying for health coverage table
+	verifyApplyingOnSSAPPage17();
+
+	var $table = _table("table table-condensed");
+
+	// Verify each person's information
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		var $row = _row($i + 1, _in($table));
+		var $convertedDate = convertDate($ssapPeople[$i].$doB);
+		var $age = calculateAge($ssapPeople[$i].$doB);
+		var $relationship = _cell(1, _in($row));
+		var $relation =  _getText($relationship);
+		if(($relation != "Self" && $relation != "Ward of court-appointed guardian" && $relation != "Spouse") && $age > 25){
+			verifyPersonOnSSAPPage15($i, true,false);
+		}
+		else{
+			verifyPersonOnSSAPPage15($i, true,true);
+		}
+	}
+
+	// Verify each person's Native American status
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		verifyNativeOnSSAPPage15($i, true);
+	}
+}
+
+function verifyPrimaryContactInfoOnSSAPPage17() {
+	// Set accessors
+	var $fullName = $ssapPeople[0].fullName(true);
+	var $header = _heading5($fullName);
+	var $table = _table(0, _in(_parentNode($header, "DIV")));
+	var $email = _cell(1, _in($table));
+	var $phone = _cell(3, _in($table));
+	var $doB = _cell(5, _in($table));
+	var $homeAddress = _cell(7, _in($table));
+	var $mailingAddress = _cell(9, _in($table));
+	var $preferredPhone = _cell(11, _in($table));
+	var $secondPhone = _cell(13, _in($table));
+	var $spoken = _cell(15, _in($table));
+	var $written = _cell(17, _in($table));
+	var $communication = _cell(19, _in($table));
+	var $accessors = [$header, $table, $email, $phone, $doB, $homeAddress, $mailingAddress, $preferredPhone, $secondPhone, $spoken, $written, $communication];
+
+	// Verify accessors
+	verifyArray($accessors);
+
+	// Verify Information
+	_assertEqual($ssapEmail, _getText($email));
+
+	var $phoneVal;
+	if ($ssapPreferredPhone) {
+		$phoneVal = $ssapPreferredPhone;
+		if ($ssapSecondPhone) {
+			$phoneVal += " / " + $ssapSecondPhone;
+		}
+	}
+	else if ($ssapSecondPhone) {
+		$phoneVal = $ssapSecondPhone;
+	}
+	if ($ssapExt) {
+		$phoneVal += " Ext.: " + $ssapExt;
+	}
+	$phoneVal = $phoneVal.replace(/\-/g, " ");
+	var $phonePageVal = _getText($phone).replace(/\-/g, " ");
+	_assertEqual($phoneVal, $phonePageVal);
+
+	var $convertedDate = convertDate($ssapDoB);
+	_assertEqual($convertedDate, _getText($doB));
+
+	var $homeAddressVal = _getText($homeAddress);
+	_assertTrue(new RegExp($ssapHomeAddress1 + ", " + $ssapHomeCity).test($homeAddressVal));
+	_assertTrue(new RegExp($ssapHomeZip).test($homeAddressVal));
+
+	var $mailingAddressVal = _getText($mailingAddress);
+	if ($ssapMailingAddress1 === "Same as home address") {
+		_assertTrue(new RegExp($ssapHomeAddress1 + ", " + $ssapHomeCity).test($mailingAddressVal));
+		_assertTrue(new RegExp($ssapHomeZip).test($mailingAddressVal));
+	}
+	else {
+		_assertTrue(new RegExp($ssapMailingAddress1 + ", " + $ssapMailingCity).test($mailingAddressVal));
+		_assertTrue(new RegExp($ssapMailingZip).test($mailingAddressVal));
+	}
+
+	$phoneVal = $ssapPreferredPhone.replace(/\-/g, " ");
+	$phoneVal = escapeRegExp($phoneVal);
+	$phonePageVal = _getText($preferredPhone).replace(/\-/g, " ");
+	_assertTrue(new RegExp($phoneVal).test($phonePageVal));
+
+	$phoneVal = $ssapSecondPhone.replace(/\-/g, " ");
+	$phoneVal = escapeRegExp($phoneVal);
+	$phonePageVal = _getText($secondPhone).replace(/\-/g, " ");
+	_assertTrue(new RegExp($phoneVal).test($phonePageVal));
+	_assertEqual($ssapSpoken, _getText($spoken));
+	_assertEqual($ssapWritten, _getText($written));
+	_assertTrue(new RegExp($ssapCommunication, "i").test(_getText($communication)));
+}
+
+function verifyApplyingOnSSAPPage17() {
+	// Set accessors
+	var $table = _table("table table-condensed");
+	var $header = _row("NameRelationshipDate of BirthSeeking Coverage", _in($table));
+	var $accessors = [$table, $header];
+
+	// Verify accessors
+	verifyArray($accessors);
+
+	// Verify information for each person
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		// Set accessors
+		var $row = _row($i + 1, _in($table));
+		var $name = _cell(0, _in($row));
+		var $relationship = _cell(1, _in($row));
+		var $doB = _cell(2, _in($row));
+		var $seekingCoverage = _cell(3, _in($row));
+		var $acc = [$row, $name, $relationship, $doB, $seekingCoverage];
+
+		// Verify accessors
+		verifyArray($acc);
+
+		// Verify information
+		_assertEqual($ssapPeople[$i].fullName(true), _getText($name));
+
+		if ($i === 0) {
+			_assertEqual("Self", _getText($relationship));
+		}
+
+		var $convertedDate = convertDate($ssapPeople[$i].$doB);
+		_assertEqual($convertedDate, _getText($doB));
+
+		var $age = calculateAge($ssapPeople[$i].$doB);
+		var $relation =  _getText($relationship);
+		if(($relation != "Self" && $relation != "Ward of court-appointed guardian" && $relation != "Spouse") && $age > 25){
+			_assertEqual("No", _getText($seekingCoverage));
+		}
+		else{
+			_assertEqual($ssapPeople[$i].$applying, _getText($seekingCoverage));
+		}
+	}
+}
+
+function verifySSAPPage18() {
+	// Variables
+	var $fullName = $ssapPeople[0].fullName();
+
+	// Set accessors
+	$ssapPage18IncarceratedOptions = [];
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		$ssapPage18IncarceratedOptions.push(_checkbox("FNLNS[" + $i + "]"));
+	}
+	$ssapPage18SignatureHeader = _paragraph($fullName + "'s Electronic Signature");
+	$ssapPage18Accessors = [$ssapPage18Header, $ssapPage18NobodyIncarcerated];
+	$ssapPage18Accessors.push.apply($ssapPage18Accessors, $ssapPage18IncarceratedOptions);
+	$ssapPage18Accessors.push.apply($ssapPage18Accessors, $ssapPage18UseIncomeBullets);
+	$ssapPage18Accessors.push.apply($ssapPage18Accessors, [$ssapPage18SixtyDays, $ssapPage18Perjury, $ssapPage18SignatureHeader,
+														   $ssapPage18Signature, $ssapPage18SubmitApp]);
+
+	// Verify accessors
+	verifyArray($ssapPage18Accessors);
+}
+
+function selectNobodyIncarcerated() {
+	// Set field
+	if((_isVisible(_heading4("Life Change Event: Change in Dependents")))|| (_isVisible(_span("Selected Events")))){
+
+		_click(_radio("isIncarcerated[1]"));
+	}
+	else {
+		_check($ssapPage18NobodyIncarcerated);
+	}
+}
+
+function selectIncarcerated($num, $pendingDisposition) {
+	// Generate random if necessary
+	if (!$num) {
+		$num = Math.floor(Math.random() * $ssapPeople.length);
+	}
+	if (!$pendingDisposition) {
+		var $val = Math.floor(Math.random() * 2);
+		if ($val === 0) {
+			$pendingDisposition = "Yes";
+		}
+		else {
+			$pendingDisposition = "No";
+		}
+	}
+
+	// Set who is incarcerated
+	_check($ssapPage18IncarceratedOptions[$num]);
+
+	// Make sure new fields are visible
+	var $yes = _radio("disposition" + ($num + 1));
+	var $no = _radio("disposition" + ($num + 1) + "[1]");
+
+	// Set whether pending disposition
+	if ($pendingDisposition === "Yes") {
+		_click($yes);
+	}
+	else {
+		_click($no);
+	}
+}
+
+function selectFutureApplications($bool, $years) {
+	// Generate random if necessary
+	if (!$bool) {
+		var $val = Math.floor(Math.random() * 2);
+		if ($val === 0) {
+			$bool = true;
+		}
+		else {
+			$bool = false;
+		}
+	}
+	if (!$years) {
+		$years = Math.floor(Math.random() * 5) + 1;
+	}
+
+	// Set fields
+	if ($bool) {
+		_click($ssapPage18UseIncomeBullets[0]);
+	}
+	else {
+		_click($ssapPage18UseIncomeBullets[1]);
+		_click(_radio("taxReturnPeriod" + $years));
+	}
+}
+
+function selectSixtyDays($bool) {
+	// Set field
+	if ($bool) {
+		_check($ssapPage18SixtyDays);
+	}
+	else {
+		_uncheck($ssapPage18SixtyDays);
+	}
+}
+
+function selectPerjury($bool) {
+	// Set field
+	if ($bool) {
+		_check($ssapPage18Perjury);
+	}
+	else {
+		_uncheck($ssapPage18Perjury);
+	}
+}
+
+function enterSignOnSSAPPage18() {
+	// Variables
+	var $fullName = $ssapPeople[0].fullName();
+
+	// Set field
+	_setValue($ssapPage18Signature, $fullName);
+}
+
+function clickSubmitSSAP($event,$days) {
+	// Click button
+	_click($ssapPage18SubmitApp);
+	_wait(1500);
+	if($coverageYear=="2017"){
+		// Verify Qualifying Event Details popup
+		verifySSAPQualifyingEventDetails();
+
+		if($frmQEP){
+			enterSSAPQualifyingEventDetailsInfo($event,$days);
+			clickSubmitSSAPQualifyingEventDetails();
+		}
+	}
+}
+
+function verifySSAPQualifyingEventDetails() {
+	// Verify accessors
+	verifyArray($ssapQualifyingEventDetailsAccessors);
+}
+
+
+function enterSSAPQualifyingEventDetailsInfo($event, $days) {
+	if($days < -70){
+		$sepDenied =true;
+	}
+	_log($sepDenied+ "SEPDeniedValue");
+
+	if($sepDenied){
+		$ssapPage19Accessors = [$ssapPage19Header, $ssapPage19DoNotQualify, $ssapPage19Back];
+	}
+
+	// Generate random if necessary
+	if (!$event) {
+		$event = Math.floor(Math.random() * 10) + 1;
+		$eventNumber = $event;
+	}
+	else {
+		$eventName = $event;
+	}
+
+	$date =calculateEventDate($days);
+	var $now=_call(window.moment());
+	var $currentYear =parseInt(_fetch(window.moment($now).get('year')));
+	var $eventYear = parseInt(_fetch(window.moment($eventDate).get('year')));
+
+	if($currentYear== $eventYear){
+		_setValue($ssapQualifyingEventDetailsDate, $date);
+	}
+	else {
+		$date ="01/01/"+$currentYear;
+		_setValue($ssapQualifyingEventDetailsDate, $date);
+	}
+	// Set fields
+	_setSelected($ssapQualifyingEventDetailsEvent, $event);
+	$eventName= _getValue(_select("sepEvent")).toUpperCase();
+
+	$eventDate = _getValue(_textbox("sepEventDate[1]"));
+	if (!isProductionEnvironment()){
+		$eventReported = getEventType($eventName);
+	} else {
+		// Hardcoded $eventReported value for Production Environment
+		// This is based on the Event Type being 'Death'
+		$eventReported = "1";
+	}
+	takePageScreenShot();
+}
+
+function clickSubmitSSAPQualifyingEventDetails() {
+	_click($ssapQualifyingEventDetailsSubmit);
+
+	// HACK for making the AnonymousFlow test cases to run due to a known bug in the application.
+	_wait(5000, _isVisible(_div("Change in Mailing Address")));
+	if (_isVisible(_div("Change in Mailing Address"))) {
+		_log("Change in Mailing Address", "CUSTOM4");
+		_click(_link("OK"));
+	}
+
+	// Verify confirmation page
+	verifySSAPPage19();
+}
+
+function verifySSAPPage19() {
+
+	if($sepDenied){
+		// Verify accessors
+		verifyArray($ssapPage19Accessors);
+	}
+}
+
+function clickBackToDashboardFromSSAPPage19() {
+	if(_isVisible(_heading1("Confirmation")) || ($sepDenied)){
+		_click($ssapPage19Back);
+	}
+	// Verify dashboard
+	verifyElementsOfIndividualDashboard();
+	verifyUpdatePlanAndEnrollButton();
+}
+
+function countssapPeople() {
+	// Compute the number of adults and children
+	$numberOfAdults = 0;
+	$numberOfChildren = 0;
+	for (var $i = 0; $i < $ssapPeople.length; $i++) {
+		$ssapPeople[$i].$age= calculateAge($ssapPeople[$i].$doB);
+		if ($ssapPeople[$i].$age > 18 && $ssapPeople[$i].$applying=="Yes") {
+			$numberOfAdults++;
+		}
+		else if ($ssapPeople[$i].$age <= 18 && $ssapPeople[$i].$applying=="Yes") {
+			$numberOfChildren++;
+		}
+	}
+}
+
+function viewApplication($num, $isEligibleForCoverage){
+	var $fullName = $ssapPeople[$num].fullName(true);
+	var $accessors;
+	var $div;
+	var $number = $num+1;
+	$div = _div("hixApplicantInfo[" + $number + "]");
+
+	var $header = _heading5(0, _in($div));
+	var $coverage = _cell(1, _in($div));
+	var $gender = _cell("camelCaseName", _in($div));
+	var $SSN = _cell(5, _in($div));
+	var $SSNName = _cell(7, _in($div));
+	var $citizen = _cell(9, _in($div));
+	var $homeAddress = _cell(11, _in($div));
+	if ($num === 0) {
+		var $mailingAddress = _cell(13, _in($div));
+		$accessors = [$div, $header, $coverage, $gender, $SSN, $SSNName, $citizen, $homeAddress, $mailingAddress];
+	}
+	else {
+		$accessors = [$div, $header, $coverage, $gender, $SSN, $SSNName, $citizen, $homeAddress];
+	}
+	// Verify accessors
+	verifyArray($accessors);
+
+	if($num === 0){
+		_assertEqual($fullName + " (Primary Contact)", _getText($header));
+	}
+	else {
+		_assertEqual($fullName, _getText($header));
+	}
+
+	if($isEligibleForCoverage === undefined || $isEligibleForCoverage){
+		_assertEqual($ssapPeople[$num].$applying, _getText($coverage));
+	}
+	else{
+		_assertEqual("No", _getText($coverage));
+	}
+
+	_assertEqual("/"+$ssapPeople[$num].$gender+"/i", _getText($gender));
+
+	var $ind = $ssapPeople[$num].$SSN.length - 4;
+	var $SSNval = $ssapPeople[$num].$SSN.substring($ind);
+	var $expSSN=_getText($SSN);
+	if($expSSN=="N/A"){
+		$expSSN="NA--";
+	}
+	_assertTrue(new RegExp($SSNval).test($expSSN));
+	var $expected= _getText($SSNName);
+	if($expected=="N/A"){
+		$expected="--NA--";
+	}
+	_assertEqual($ssapPeople[$num].$SSNName, $expected);
+	_assertEqual($ssapPeople[$num].$citizen, _getText($citizen));
+	_assertTrue(new RegExp($ssapPeople[$num].$homeAddress1).test(_getText($homeAddress)));
+	if ($ssapPeople[$num].$homeAddress2) {
+		_assertTrue(new RegExp($ssapPeople[$num].$homeAddress2).test(_getText($homeAddress)));
+	}
+	_assertTrue(new RegExp($ssapPeople[$num].$homeCity).test(_getText($homeAddress)));
+	_assertTrue(new RegExp($ssapPeople[$num].$homeZip).test(_getText($homeAddress)));
+
+	if ($num === 0) {
+		if ($ssapPeople[$num].$mailingAddress1 === "Same as home address") {
+			if(_isVisible(_heading3("Final Review and Confirmation Print Download"))) {
+				_assertTrue(new RegExp($ssapPeople[$num].$homeAddress1).test(_getText($homeAddress)));
+				if ($ssapPeople[$num].$homeAddress2) {
+					_assertTrue(new RegExp($ssapPeople[$num].$homeAddress2).test(_getText($homeAddress)));
+				}
+				_assertTrue(new RegExp($ssapPeople[$num].$homeCity).test(_getText($homeAddress)));
+				_assertTrue(new RegExp($ssapPeople[$num].$homeZip).test(_getText($homeAddress)));
+			}
+			else{
+				_assertEqual($ssapPeople[$num].$mailingAddress1, _getText($mailingAddress));
+			}
+		}
+		else {
+			_assertTrue(new RegExp($ssapPeople[$num].$mailingAddress1).test(_getText($mailingAddress)));
+			if ($ssapPeople[$num].$mailingAddress2) {
+				_assertTrue(new RegExp($ssapPeople[$num].$mailingAddress2).test(_getText($mailingAddress)));
+			}
+			_assertTrue(new RegExp($ssapPeople[$num].$mailingCity).test(_getText($mailingAddress)));
+			_assertTrue(new RegExp($ssapPeople[$num].$mailingZip).test(_getText($mailingAddress)));
+		}
+	}
+}
+
+function clickResumeSSAPApplication(){
+	_click(_submit("Resume Your Application"));
+	_assertVisible(_link("Back"));
+}
+
+function ssapSubmissionByCSR($event,$days)
+{
+	_click($ssapPage18SubmitApp);
+	_wait(1500);
+	_assertVisible(_div("modalCSRApplicationType"));
+	_assertVisible(_radio("optCSRApplicationTypeMail"));
+	_assertVisible(_radio("optCSRApplicationTypePhone"));
+	_click(_radio("optCSRApplicationTypeMail"));
+
+	if($coverageYear=="2017"){
+		if($frmQEP){
+			if (!$event) {
+				$event = Math.floor(Math.random() * 10) + 1;
+				$eventNumber = $event;
+			}
+			else {
+				$eventName = $event;
+			}
+			_setSelected(_select("sepEventCSR"), $event);
+			$eventName= _getValue(_select("sepEventCSR")).toUpperCase();
+			$date =calculateEventDate($days);
+			_setValue(_textbox("sepEventDateCSR"), $date);
+			$eventDate = _getValue(_textbox("sepEventDateCSR"));
+			$eventReported = getEventType($eventName);
+		}
+	}
+	_click(_link("btnSubmitCSRApplicationType"));
+	_assertVisible(_div("modalMailingAddressNotSameAsHousehold"));
+	_click(_link("OK"));
+}

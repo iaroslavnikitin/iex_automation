@@ -1,0 +1,204 @@
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $contactInformationElements = {
+	"header_hd":{
+		"elements": _heading4("Step 4: Contact Information"),
+		"label": null
+	},
+	"aboutText_lb":{
+		"element": _paragraph("Tell us about the contact people in your organization."),
+		"label": null
+	},
+	"primaryContact":{
+		"primaryContactHeader_hd":{
+			"element": _heading4("Primary Contact"),
+			"label": null
+		},
+		"name_tb":{
+			"element": _textbox("priContactName"),
+			"label": _label("NameRequired")
+		},
+		"email_tb":{
+			"element": _emailbox("priContactEmailAddress"),
+			"label": _label("EmailRequired")
+		},
+		"primaryPhoneOne_tb":{
+			"element": _textbox("priContactPrimaryPhoneNumber1"),
+			"label": _label("/Primary Phone Number/")
+		},
+		"primaryPhoneTwo_tb":{
+			"element": _textbox("priContactPrimaryPhoneNumber2"),
+			"label": null
+		},
+		"primaryPhoneThree_tb":{
+			"element": _textbox("priContactPrimaryPhoneNumber3"),
+			"label": null
+		},
+		"secondaryPhoneOne_tb":{
+			"element": _textbox("priContactSecondaryPhoneNumber1"),
+			"label": _label("/Secondary Phone Number/")
+		},
+		"secondaryPhoneTwo_tb":{
+			"element": _textbox("priContactSecondaryPhoneNumber2"),
+			"label": null
+		},
+		"secondaryPhoneThree_tb":{
+			"element": _textbox("priContactSecondaryPhoneNumber3"),
+			"label": null
+		},
+		"wayToContact_lb":{
+			"element": _fieldset("How would you like this person to be contacted?"),
+			"label": null
+		},
+		"wayToContactEmail_cb":{
+			"element": _radio("email"),
+			"label": _label("Email")
+		},
+		"wayToContactPhone_cb":{
+			"element": _radio("primaryphone"),
+			"label": _label("Primary Phone")
+		},
+		"wayToContactSecondary_cb":{
+			"element": _radio("secondaryphone"),
+			"label": _label("Secondary Phone")
+		},
+		"wayToContactMail_cb":{
+			"element": _radio("mail"),
+			"label": _label("Mail")
+		}
+	},
+	"financialContact":{
+		"financialContactHeader_hd":{
+			"element": _heading4("Financial Contact"),
+			"label": null
+		},
+		"name_tb":{
+			"element": _textbox("finContactName"),
+			"label": _label("NameRequired", _near(_textbox("finContactName")))
+		},
+		"email_tb":{
+			"element": _emailbox("finEmailAddress"),
+			"label": _label("EmailRequired", _near(_textbox("finEmailAddress")))
+		},
+		"primaryPhoneOne_tb":{
+			"element": _textbox("finPrimaryPhoneNumber1"),
+			"label": _label("/Primary Phone Number/", _near(_textbox("finPrimaryPhoneNumber1")))
+		},
+		"primaryPhoneTwo_tb":{
+			"element": _textbox("finPrimaryPhoneNumber2"),
+			"label": null
+		},
+		"primaryPhoneThree_tb":{
+			"element": _textbox("finPrimaryPhoneNumber3"),
+			"label": null
+		},
+		"secondaryPhoneOne_tb":{
+			"element": _textbox("finFaxNumber1"),
+			"label": _label("/Secondary Phone Number/", _near(_textbox("finFaxNumber1")))
+		},
+		"secondaryPhoneTwo_tb":{
+			"element": _textbox("finFaxNumber2"),
+			"label": null
+		},
+		"secondaryPhoneThree_tb":{
+			"element": _textbox("finFaxNumber3"),
+			"label": null
+		},
+		"wayToContact_lb":{
+			"element": _fieldset("How would you like this person to be contacted?", _near(_radio("finemail"))),
+			"label": null
+		},
+		"wayToContactEmail_cb":{
+			"element": _radio("finemail"),
+			"label": _label("Email", _near(_radio("finemail")))
+		},
+		"wayToContactPhone_cb":{
+			"element": _radio("finprimaryphone"),
+			"label": _label("Primary Phone", _near(_radio("finprimaryphone")))
+		},
+		"wayToContactSecondary_cb":{
+			"element": _radio("finsecondaryphone"),
+			"label": _label("Secondary Phone", _near(_radio("finsecondaryphone")))
+		},
+		"wayToContactMail_cb":{
+			"element": _radio("finmail"),
+			"label": _label("Mail", _near(_radio("finmail")))
+		}
+	},
+	"next_btn":{
+		"element": _submit("SaveEntityInfo"),
+		"label": _submit("Next")
+	}
+};
+
+function getWayToContact($num){
+	var $wayToContact = ["Email","Primary Phone","Secondary Phone","Mail"];
+
+	if ($num) {
+		return $wayToContact[$num]
+	}else{
+		return $wayToContact[0]
+	}
+}
+
+function inputPrimaryAndFinacialContactInfo($entity){
+	$entity.contactInformation.primaryContact = inputPrimaryContactInfo($entity.contactInformation.primaryContact);
+	$entity.contactInformation.financialContact = inputFinancialContactInfo($entity.contactInformation.financialContact)
+	
+	clickNextOnContactInformation()
+	//_log("$entity: "+JSON.stringify($entity));
+
+	return $entity
+}
+
+function inputPrimaryContactInfo($primaryContact){
+	var $prFirstName = randomFirstName();
+	if (!$primaryContact.name) $primaryContact.name = $prFirstName+" "+randomLastName();
+	if (!$primaryContact.email) $primaryContact.email = getRandomEmail($prFirstName);
+	if (!$primaryContact.primaryPhoneNumber) $primaryContact.primaryPhoneNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$primaryContact.secondaryPhomeNumber) $primaryContact.secondaryPhomeNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$primaryContact.wayToContact) $primaryContact.wayToContact = getWayToContact(0);
+
+	setValue($contactInformationElements.primaryContact.name_tb.element, $primaryContact.name);
+	setValue($contactInformationElements.primaryContact.email_tb.element, $primaryContact.email);
+
+	setValue($contactInformationElements.primaryContact.primaryPhoneOne_tb.element, $primaryContact.primaryPhoneNumber[0]);
+	setValue($contactInformationElements.primaryContact.primaryPhoneTwo_tb.element, $primaryContact.primaryPhoneNumber[1]);
+	setValue($contactInformationElements.primaryContact.primaryPhoneThree_tb.element, $primaryContact.primaryPhoneNumber[2]);
+
+	setValue($contactInformationElements.primaryContact.secondaryPhoneOne_tb.element, $primaryContact.secondaryPhomeNumber[0]);
+	setValue($contactInformationElements.primaryContact.secondaryPhoneTwo_tb.element, $primaryContact.secondaryPhomeNumber[1]);
+	setValue($contactInformationElements.primaryContact.secondaryPhoneThree_tb.element, $primaryContact.secondaryPhomeNumber[2]);
+
+	click(_radio($primaryContact.wayToContact));
+
+	return $primaryContact;
+}
+
+function inputFinancialContactInfo($financialContact){
+	var $prFirstName = randomFirstName();
+	if (!$financialContact.name) $financialContact.name = $prFirstName+" "+randomLastName();
+	if (!$financialContact.email) $financialContact.email = getRandomEmail($prFirstName);
+	if (!$financialContact.primaryPhoneNumber) $financialContact.primaryPhoneNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$financialContact.secondaryPhomeNumber) $financialContact.secondaryPhomeNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$financialContact.wayToContact) $financialContact.wayToContact = getWayToContact(1);
+
+	setValue($contactInformationElements.financialContact.name_tb.element, $financialContact.name);
+	setValue($contactInformationElements.financialContact.email_tb.element, $financialContact.email);
+
+	setValue($contactInformationElements.financialContact.primaryPhoneOne_tb.element, $financialContact.primaryPhoneNumber[0]);
+	setValue($contactInformationElements.financialContact.primaryPhoneTwo_tb.element, $financialContact.primaryPhoneNumber[1]);
+	setValue($contactInformationElements.financialContact.primaryPhoneThree_tb.element, $financialContact.primaryPhoneNumber[2]);
+
+	setValue($contactInformationElements.financialContact.secondaryPhoneOne_tb.element, $financialContact.secondaryPhomeNumber[0]);
+	setValue($contactInformationElements.financialContact.secondaryPhoneTwo_tb.element, $financialContact.secondaryPhomeNumber[1]);
+	setValue($contactInformationElements.financialContact.secondaryPhoneThree_tb.element, $financialContact.secondaryPhomeNumber[2]);
+
+	click(_radio($financialContact.wayToContact+"[1]"));
+
+	return $financialContact;
+}
+
+function clickNextOnContactInformation(){
+	click($contactInformationElements.next_btn.element);
+}

@@ -1,0 +1,72 @@
+"Comments","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/BrokerSearch.sah"
+,,"loadSahi","""C:/Sahi/CA/agents.sah"""
+,,"loadSahi","""C:/Sahi/CA/agencies.sah"""
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+
+"Verify that when agent's Activity status is INACTIVE then he/she will not be searchable in get help experience","Verify that agent not searchable when inactive and pending. And searchable when status is null.","[Documentation]","Prerequisite
+Agent Sharad Kumar has an user account
+Agent Sharad Kumar certitification status is CERTIFIED but Activity status is INACTIVE
+
+STR:
+1.Go to the link https://camainqa.ghixqa.com/hix/broker/search?anonymousFlag=Y?lang=es
+2.""Find Local Help"" text should be present at this page with buttons 
+ --FIND AN AGENT
+ --FIND CERTIFIED ENROLLMENT COUNSELOR
+ --FIND COUNTY OFFICE
+3.Click on FIND AN AGENT button
+4.Text ""Search for a Certified Insurance Agent in California"" should be present
+5.Now enter the First Name as ""Sharad"" and Last Name as ""Kumar""
+6.Click on SEARCH button
+7.Verify that the agent Sharad should not be shown in the search results
+
+Expected - Agent Sharad should not be found with the status as INACTIVE and ceritfication status is CERTIFIED"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchInActiveAgentByName","$acADcAyA.firstName","$acADcAyA.lastName"
+
+"Verify that when agents certification status is PENDING and Activity status as ACTIVE  then 
+he will not be searchable in get help experience",,"[Documentation]","Prerequisite
+Agent Sharad Kumar has an user account
+Agent Sharad Kumar certitification status is PENDING but status is ACTIVE
+
+STR:
+1.Go to the link https://camainqa.ghixqa.com/hix/broker/search?anonymousFlag=Y?lang=es
+2.""Find Local Help"" text should be present at this page with buttons 
+ --FIND AN AGENT
+ --FIND CERTIFIED ENROLLMENT COUNSELOR
+ --FIND COUNTY OFFICE
+3.Click on FIND AN AGENT button
+4.Text ""Search for a Certified Insurance Agent in California"" should be present
+5.Now enter the First Name as ""Sharad"" and Last Name as ""Kumar""
+6.Click on SEARCH button
+7.Verify that the agent Sharad should not be shown in the search results
+
+Expected - Agent Sharad should not be found with the status as ACTIVE and ceritification status as CERTIFIED"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchNonCertifiedAgentByName","$ancABcAyA.firstName","$ancABcAyA.lastName"
+
+"Verify that when agent's status is NULL then he/she will be searchable in get help experience",,"[Documentation]","Prerequisite
+Agent Sharad Kumar has an user account
+Agent Sharad Kumar certitification status is CERTIFIED but status is NULL
+
+STR:
+1.Go to the link https://camainqa.ghixqa.com/hix/broker/search?anonymousFlag=Y?lang=es
+2.'Find Local Help' text should be present at this page with buttons 
+ --FIND AN AGENT
+ --FIND CERTIFIED ENROLLMENT COUNSELOR
+ --FIND COUNTY OFFICE
+3.Click on FIND AN AGENT button
+4.Text 'Search for a Certified Insurance Agent in California' should be present
+5.Now enter the First Name as 'Sharad' and Last Name as 'Kumar'
+6.Click on SEARCH button
+7.Verify that the agent Sharad should not be shown in the search results
+
+
+Expected - Agent Sharad should be found even though activity status is set as NULL and certification status is CERTIFIED"
+,,"navigateToBrokerSearch"
+,,"clickFindAnAgent"
+,,"searchCertifiedAgentByName","$CertifiedAgent.firstName","$CertifiedAgent.lastName"

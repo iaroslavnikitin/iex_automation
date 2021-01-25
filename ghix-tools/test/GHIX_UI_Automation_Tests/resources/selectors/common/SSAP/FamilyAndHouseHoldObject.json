@@ -1,0 +1,104 @@
+
+{
+    "getReady":{
+        "getReadyHeading":"$('h1')", 
+        "btn_continue":"$('=Continue')",
+        "btn_back":"$('=Back')"
+    },
+    "personalInformation":{
+        "personalInformationHeader":"$('h1')", 
+        "rb_male":"$('//label[.='Male']')",
+        "rb_female":"$('//label[.='Female']')",
+        "rb_male_id":"$('[id*=gender_label0]')",
+        "rb_female_id" : "$('[id*=gender_label1]')",  
+        "rb_yesForSocialSecurity_id": "$('[id*=socialSecurityCard_nameSameOnSSNCardIndicator_label0]')",          
+        "rb_yesForSocialSecurity_xpath": "$('//fieldset[@class='usa-fieldset']/ul//label[.='Yes']')",
+        "rb_yesForSameNameOnSSN":"$('[id*=socialSecurityCardHolderIndicator]')",
+        "tb_socialSecurityNumber": "$('[id*=socialSecurityCard_socialSecurityNumber]')",
+        "rb_noForSameNameOnSSN":"$('[id*=socialSecurityCard_nameSameOnSSNCardIndicator_label1]')"  
+    },
+    "citizenshipImmigrationStatus":{
+        "citizenshipHeading":"$('h1')", 
+        "rb_citizenYes":"$('[id*=citizenshipImmigrationStatus_citizenshipStatusIndicator_label0]')",
+        "rb_citizenNo":"$('[id*=citizenshipImmigrationStatus_citizenshipStatusIndicator_label1]')",
+        "rb_natualCitizenYes":"$('[id*=citizenshipImmigrationStatus_naturalizedCitizenshipIndicator_label0]')",
+        "rb_natualCitizenNo":"$('[id*=citizenshipImmigrationStatus_naturalizedCitizenshipIndicator_label1]')"
+    },
+    "ethnicityAndRace":{
+        "ethnicityAndRaceHeading":"$('h1')",
+        "rb_hispanicOriginYes":"$('[id*=ethnicityAndRace_hispanicLatinoSpanishOriginIndicator_label0]')",
+        "rb_hispanicOriginNo":"$('[id*=ethnicityAndRace_hispanicLatinoSpanishOriginIndicator_label1]')",
+        "cb_race":"$('//label[contains(text(),\"race\")]')"  
+       
+    },
+    "parentCaretaker":{
+        "parentCaretakerHeading":"$('h1')",
+        "rb_yes":"$('[id*=parentCaretaker_label0')",
+        "rb_no":"$('[id*=parentCaretaker_label1')"
+
+    },
+    "maritalStatus":{
+        "maritalStatusHeading":"$('h1')",
+        "rb_marriedNo":"$('[id*=isMarried_label1]')",
+        "rb_marriedMemberYes":"$('[id*=isMarried_label0]')"
+    },
+    "militaryService":{
+        "militaryServiceHeading":"$('h1')",
+        "cb_member":"$('[label*=memberName]')",
+        "cb_noneOfAbove":"$('[id*=noneOfTheAbove_label]')"
+
+    },
+    "householdInformation":{
+        "householdInformationHeading":"$('h1')",
+        "rb_makeChangesNo":"$('[id*=anyChanges_label1]')",
+        "rb_makeChangesYes":"$('[id*=anyChanges_label0]')",
+        "cb_memberTaxFiler":"$('[id*=hhm0_isTaxFiler_label]')",
+        "cb_noneOfAboveTaxFiler":"$('[id*=noneOfAbove_label]')",
+        "rb_TaxFilingTogetherYes":"$('[id*=hhm_0_1_spousesChoice_label0]')",
+        "rb_TaxFilingTogetherNo":"$('[id*=hhm_0_1_spousesChoice_label1]')",
+        "cb_isPrimaryTaxFiler":"$('[id*=hhm0_isPrimaryTaxFiler_label]')",
+        "cb_isDependent":"$('[id*=hhm_2__1_2_isDependent_label]')"
+    
+
+    },
+    "americanAlaskanNative":{
+        "americanAlaskanNativeHeading":"$('h1')",
+        "cb_noneOfAboveNative":"$('[id*=noneOfTheAbove_label]')",
+        "cb_member":"$('//label[contains(text(),\"memberName\")]')" , 
+        "cb_member2":"$('[label*=memberName]')",
+        "sb_state":"$('[id*=americanIndianAlaskaNative_state]')",
+        "sb_tribe":"$('[id*=americanIndianAlaskaNative_tribeName]')"
+    },
+    "medicaidChipDenial":{
+        "medicaidChipDenialHeading":"$('h1')",
+        "cb_noneOfAboveMedicaidDenied":"$('[id*=noneOfTheAbove_label]')",
+        "cb_member":"$('[label*=memberName]')"
+        
+    },
+    "pregnancy":{
+        "pregnancyHeading":"$('h1')",
+        "cb_noneOfAbovePregnant":"$('[id*=noneOfTheAbove_label]')",
+        "cb_member":"$('[label*=memberName]')"
+    },
+    "disability":{
+        "disabilityHeading":"$('h1')",
+        "cb_noneOfAboveDisabled":"$('[id*=noneOfTheAboveblindOrDisabled_label]')",
+        "cb_noneOfAboveAssistedLiving":"$('[id*=noneOfTheAbovelongTermCare_label]')",
+        "cb_member":"$('[label*=memberName]')"
+    },
+    "fosterCare":{
+        "fosterCareHeading":"$('h1')",
+        "cb_noneOfAboveFosterCare":"$('[id*=noneOfTheAbove_label]')",
+        "cb_member":"$('[label*=memberName]')"
+    },
+    "fullTimeStudent":{
+        "fullTimeStudentHeading":"$('h1')",
+        "cb_noneOfAboveFullTime":"$('[id*=noneOfTheAbove_label]')",
+        "cb_member":"$('[label*=memberName]')"
+    },
+    "summary":{
+        "summaryHeading":"$('h1')"
+    }
+}
+
+

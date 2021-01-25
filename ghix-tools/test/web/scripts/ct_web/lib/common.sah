@@ -1,0 +1,31 @@
+function agreeDisclaimerforCT(){
+	if ($isConnecticut){
+		if (_isVisible(_heading4("Disclaimer"))) {
+			_click(_link("I Agree"));
+		}
+		else {
+			_assert(false, "Did not see Disclaimer header. Hence, did not click on 'I Agree' button.");
+		}
+	}
+}
+
+function verifyTooltip($el, $message){
+//	_lockWindow();
+//	_focusWindow();
+//	_mouseOver($el);
+//	_wait(5000, _isVisible(_div("tooltip-inner")));
+//	_assertEqual($message, _getText(_div("tooltip-inner")));
+//	_blur($el);
+//	_unlockWindow();
+}
+
+function clickElement($el){
+	_assertVisible($el);
+	_assertFalse(_getAttribute($el, "disabled"));
+	_click($el);
+}
+
+function waitForLoad(){
+	_wait(5000, _isVisible(_div("ball1")));
+	_wait(5000, !_isVisible(_div("ball1")));
+}

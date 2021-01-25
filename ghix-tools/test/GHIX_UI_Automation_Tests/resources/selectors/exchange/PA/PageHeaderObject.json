@@ -1,0 +1,5 @@
+{
+    "lk_helpsupport":"$('//button[@data-automation-id=\"get-assistance\"]')",
+    "lk_findLocalAssistance":"$('//a[@data-automation-id=\"find-assistance\"]')",
+    "findLocalAssistancePopupiframe":"$('#brokersearchBox')"
+} 

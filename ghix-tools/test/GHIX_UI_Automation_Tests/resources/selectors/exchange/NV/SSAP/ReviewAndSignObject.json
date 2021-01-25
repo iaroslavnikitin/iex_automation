@@ -1,0 +1,10 @@
+{ 
+    "signAndSubmit":{
+        "sb_sepEvent": "$('//select[@id=\"qualifyEvent\"]')",
+        "tb_sepEventDate": "$('//input[@id=\"qualifyEventDate\"]')",
+        "btn_submitApplicationFinal":"$('#continueBtn')",
+        "cb_terms":"$('#terms')",
+        "btn_confirmEvent":"$('#changeEventDateSubmit')"
+}
+
+}

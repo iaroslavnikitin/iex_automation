@@ -1,0 +1,18 @@
+_includeOnce("../pagemodels/ViewHistory.sah");
+_includeOnce("../pagemodels/AgentAccountSetUp.sah");
+
+function verifyCAPHistoryNotificationPreferenceForAgents($admin, $password, $preference, $agent, $user) {
+	login($agent, $password);
+	selectActiveIndividual($user);
+	goToMyPreferences();
+	verifyNotificationPreferences();
+	var $oldPreference = selectNotificationPreference($preference);
+	logOut();
+	login($admin, $password);
+	clickManageMember();
+	searchMemberByEmail($email);
+	selectTestMember();
+	goToHistoryPage();
+	expandPreferencesData($oldPreference, $preference);
+	logOut();
+}

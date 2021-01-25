@@ -1,0 +1,436 @@
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $entityPopServedElements = {
+	"header_hd": {
+		"element": _heading4('Step 2: Populations Served'),
+		"label": null
+	},
+	"languagesLink_ln": {
+		"element": _heading5("Languages"),
+		"label": null	
+	},
+	"ethnicitiesLink_ln": {
+		"element": _heading5("Ethnicities"),
+		"label": null	
+	},
+	"industriesLink_ln": {
+		"element": _heading5("Industries"),
+		"label": null	
+	},
+	"languagesContainer_div": {
+		"element": _div("languages"),
+		"label": null	
+	},
+	"ethnicityContainer_div": {
+		"element": _div("ethnicity"),
+		"label": null	
+	},
+	"industriesContainer_div": {
+		"element": _div("industries"),
+		"label": null	
+	},
+	"next_btn": {
+		"element": _submit("populationServedSubmit"),
+		"label": _submit("Next")
+	},
+	"back_btn": {
+		"element": _button("back"),
+		"label": _button("Back")
+	}
+}
+
+var $popServedLanguages = [
+	{
+		"label": "Arabic",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Armenian",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Cantonese",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "English",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Farsi",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Hmong",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Japanese",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Khmer/Cambodian",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Korean",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Lao",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Mandarin",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Russian",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Spanish",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Tagalog",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Vietnamese",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Other (please specify)",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Other (please specify)",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Other (please specify)",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	},
+	{
+		"label": "Other (please specify)",
+		"isSelected": false,
+		"percentOfAssistence": null,
+		"numberOfStaff": null
+	}
+
+];
+
+var $ethnicities = [
+	{
+		"label": "African",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "African American",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "American Indian",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Armenian",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Cambodian",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Caucasian",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Chinese",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Filipino",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Hmong",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Japanese",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Korean",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Laotian",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Latino",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Middle Eastern",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Russian",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Ukrainian",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Vietnamese",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Other (please specify):",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Other (please specify):",
+		"isSelected": false,
+		"percentToServe": null
+	},
+];
+
+var $industries = [
+	{
+		"label": "Agriculture",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Automotive",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Construction",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Consumer Goods and Services",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Energy",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Financial Services",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Food and Beverage",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Health Care",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Housing and Real Estate",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Manufacturing",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Printing and Publishing",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Sales",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Telecommunications and Technology",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Transportation",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Other (please specify)",
+		"isSelected": false,
+		"percentToServe": null
+	},
+	{
+		"label": "Other (please specify)",
+		"isSelected": false,
+		"percentToServe": null
+	},
+]
+
+function inputLanguages($entity){
+
+	if ($entity.populationServed.languages.length < 1) {
+		$entity.populationServed.languages.push($popServedLanguages[0],$popServedLanguages[1]);
+		$entity.populationServed.languages.map(function addLanguage($language){
+			$language.isSelected = true;
+			$language.percentOfAssistence = 50;
+			$language.numberOfStaff = 5;
+		});
+	}
+
+	click($entityPopServedElements.languagesLink_ln.element);
+
+	$entity.populationServed.languages.map(function languageToSelect($languageToSelect){
+		var $rowCount = 1;
+		for (var $i = 0; $i < $popServedLanguages.length; $i++) {
+			if ($popServedLanguages[$i].label == $languageToSelect.label) {
+				_log("$popServedLanguages[$i].label: "+$popServedLanguages[$i].label);
+				_log("$languageToSelect.label: "+$languageToSelect.label);
+				click(_checkbox(0, _in(_row($rowCount, _in($entityPopServedElements.languagesContainer_div.element)))));
+				setValue(_textbox(0, _in(_row($rowCount, _in($entityPopServedElements.languagesContainer_div.element)))),$languageToSelect.percentOfAssistence);
+				setValue(_textbox(1, _in(_row($rowCount, _in($entityPopServedElements.languagesContainer_div.element)))),$languageToSelect.numberOfStaff);
+				break;
+			}
+			$rowCount++;
+		}
+	});
+
+	return $entity;
+}
+
+function inputEthnicities($entity){
+
+	if ($entity.populationServed.ethnicities.length < 1) {
+		$entity.populationServed.ethnicities.push($ethnicities[0],$ethnicities[1]);
+		$entity.populationServed.ethnicities.map(function addEthnicity($ethnicity){
+			$ethnicity.isSelected = true;
+			$ethnicity.percentToServe = 50;
+			
+		});
+	}
+
+	_click($entityPopServedElements.ethnicitiesLink_ln.element);
+
+	$entity.populationServed.ethnicities.map(function ethnicityToSelect($ethnicityToSelect){
+		var $rowCount = 1;
+		for (var $i = 0; $i < $ethnicities.length; $i++) {
+			if ($ethnicities[$i].label == $ethnicityToSelect.label) {
+				_log("$ethnicities[$i].label: "+$ethnicities[$i].label);
+				_log("$ethnicityToSelect.label: "+$ethnicityToSelect.label);
+				click(_checkbox(0, _in(_row($rowCount, _in($entityPopServedElements.ethnicityContainer_div.element)))));
+				setValue(_textbox(0, _in(_row($rowCount, _in($entityPopServedElements.ethnicityContainer_div.element)))),$ethnicityToSelect.percentToServe);
+				break;
+			}
+			$rowCount++;
+		}
+	});
+
+	return $entity;
+}
+
+function inputIndustries($entity){
+
+	if ($entity.populationServed.industries.length < 1) {
+		$entity.populationServed.industries.push($industries[0],$industries[1]);
+		$entity.populationServed.industries.map(function addIndustry($industry){
+			$industry.isSelected = true;
+			$industry.percentToServe = 50;
+			
+		});
+	}
+
+	_click($entityPopServedElements.industriesLink_ln.element);
+
+	$entity.populationServed.industries.map(function industryToSelect($industryToSelect){
+		var $rowCount = 1;
+		for (var $i = 0; $i < $industries.length; $i++) {
+			if ($industries[$i].label == $industryToSelect.label) {
+				_log("$industries[$i].label: "+$industries[$i].label);
+				_log("$industryToSelect.label: "+$industryToSelect.label);
+				click(_checkbox(0, _in(_row($rowCount, _in($entityPopServedElements.industriesContainer_div.element)))));
+				setValue(_textbox(0, _in(_row($rowCount, _in($entityPopServedElements.industriesContainer_div.element)))),$industryToSelect.percentToServe);
+				break;
+			}
+			$rowCount++;
+		}
+	});
+
+  	// _log("$entity: "+JSON.stringify($entity));
+
+	return $entity;
+}
+
+function clickNextOnPopulationServed(){
+	click($entityPopServedElements.next_btn.element);
+}

@@ -1,0 +1,216 @@
+_includeOnce("../lib/Utils.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("../lib/CommonFunctions.sah");
+
+function clickLinkAgency(){
+	_click(_link("Agency"));
+}
+
+function clickSubmit(){
+	_click(_button("Submit"));
+}
+
+function createAgencyManagerProfile($AmanagerPassword){
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_setValue(_emailbox("email"), $AmanagerEmail);
+	_setValue(_emailbox("confirmEmail"), $AmanagerEmail);
+	_setValue(_textbox("phone1"), $phone1);
+	_setValue(_textbox("phone2"), $phone2);
+	_setValue(_textbox("phone3"), $phone3);
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	_setValue(_textbox("Security Answer"), "1");
+	_setValue(_password("password"), $AmanagerPassword);
+	_setValue(_password("confirmPassword"), $AmanagerPassword);
+	//_click(_button("Submit"));
+}
+
+function createAgencyManagerProfileCheckErrors(){
+	//_click(_button("Submit"));
+	_assertVisible(_label("firstName_error_label"), "Error message should be present if first name has not been entered");
+	_assertVisible(_label("lastName_error_label"), "Error message should be present if last name has not been entered");
+	_assertVisible(_label("email_error_label"), "Error message should be present if email address has not been entered");
+	_assertVisible(_label("confirmEmail_error_label"), "Error message should be present if confirm email address has not been entered");
+	_assertVisible(_label("phone3_error_label"), "Error message should be present if phone number has not been entered");
+	_assertVisible(_label("securityQuestion1_error_label"), "Error message should be present if security question has not been entered");
+	_assertVisible(_label("securityAnswer1_error_label"), "Error message should be present if security answer has not been entered");
+	_assertVisible(_label("password_error_label"), "Error message should be present if password has not been entered");
+	_assertVisible(_label("confirmPassword_error_label"), "Error message should be present if confirm password has not been entered");
+}
+
+function clickLinkIndividual(){
+	// _click(_link("Individual"));
+	
+	// _assertVisible(_heading4("Basic Information"));
+	// _assertVisible(_textbox("firstName"));
+	// _assertVisible(_textbox("lastName"));
+	// _assertVisible(_emailbox("email"));
+	// _assertVisible(_emailbox("confirmEmail"));
+	// _assertVisible(_textbox("phone1"));
+	// _assertVisible(_textbox("phone2"));
+	// _assertVisible(_textbox("phone3"));
+	
+	// _assertVisible(_textbox("birthDate"));
+	
+	// _assertVisible(_select("securityQuestion1"));
+	// _assertVisible(_textbox("Security Answer"));
+	
+	// _assertVisible(_password("password"));
+	// _assertVisible(_password("confirmPassword"));
+	// _assertVisible(_button("Submit"));
+	// _assertVisible(_button("Cancel"));
+	
+	
+}
+
+
+// status = "In Progress"
+function createIndividual($household, $status, $groups,$actionButton,$eventDate,$isFromToday,$verificationFlag){
+
+	var $accountActivationData = getAccountActivationDataDB($household.externalHouseholdCaseId);
+	var $urlToGo = "https://"+getBaseDomain()+"/hix/accessCode";
+	_navigateTo($urlToGo,true);
+	setValue(_textbox("accessCode"), $accountActivationData[0].TOKEN);
+	click(_submit("submit"));
+
+	setValue(_textbox("firstName"), $household.people[0].firstName);
+	setValue(_textbox("lastName"), $household.people[0].lastName);
+	
+	var $date =_call(window.moment($household.people[0].dob).format('MMDDYYYY'));
+	setValue(_textbox("birthDate"), $date);
+
+	if(_isVisible(_textbox("zipCode"))) setValue(_textbox("zipCode"), $household.people[0].homeAddress.zipcode);
+	if(_isVisible(_emailbox("emailAddress"))) setValue(_emailbox("emailAddress"), $household.people[0].email);
+	if(_isVisible(_radio("male"))) click(_radio("male"));
+	if(_isVisible(_textbox("householdTotal"))) setValue(_textbox("householdTotal"), $household.people.length);
+	if(_isVisible(_textbox("county"))) {
+		var $zipcodesData = getZipcodesDataDB($household.people[0].homeAddress.zipcode);
+		setValue(_textbox("county"), $zipcodesData[0].COUNTY);
+	}
+
+	if(_isVisible(_textbox("phoneNumber"))) {
+		var $phone1 = $household.people[0].phoneNumber.substring(0,3);
+		var $phone2 = $household.people[0].phoneNumber.substring(3,6);
+		var $phone3 = $household.people[0].phoneNumber.substring(6,10);
+		var $phoneNumber = "("+$phone1+") "+$phone2+"-"+$phone3;
+		_setValue(_textbox("phoneNumber"), $phoneNumber);
+	} 
+
+	click(_submit("submit"));
+
+	if(!$household){
+		var $firstName = randomFirstName();
+		var $lastName = randomLastName()
+		var $email = $firstName+"_"+$currentTime+"@yopmail.com";
+		var $SSN = getRandomSSN();
+		$dob = "12121990";
+	}
+	var $SSN = getRandomSSN();
+	
+	//_setValue(_textbox("firstName"), $household.people[0].firstName);
+	//_setValue(_textbox("lastName"), $household.people[0].lastName);
+	//_setValue(_emailbox("email"), $household.people[0].email);
+	_setValue(_emailbox("confirmEmail"), $household.people[0].email);
+	var $phoneNumber = $household.people[0].phoneNumber;
+	_setValue(_textbox("phone1"), $phoneNumber.substring(0,3));
+	_setValue(_textbox("phone2"), $phoneNumber.substring(3,6));
+	_setValue(_textbox("phone3"), $phoneNumber.substring(6,10));
+	//_setValue(_textbox("phone1"), "408");
+	//_setValue(_textbox("phone2"), "666");
+	//_setValue(_textbox("phone3"), "0098");
+	
+	// _setValue(_password("ssn1"), $SSN.substring(0,3))
+	// _setValue(_password("ssn2"), $SSN.substring(3,5))	
+	// _setValue(_textbox("ssn3"), $SSN.substring(5,9))
+	
+	// _setValue(_password("confirmSsn1"), $SSN.substring(0,3));
+	// _setValue(_password("confirmSsn2"), $SSN.substring(3,5));
+	// _setValue(_textbox("confirmSsn3"), $SSN.substring(5,9));
+	
+	//var $date =_call(window.moment($household.people[0].dob).format('MMDDYYYY'));
+	//_setValue(_textbox("birthDate"), $date);
+	
+	var $allOptions = _getText(_select("securityQuestion1"))
+	var $noOfOptions = JSON.stringify($allOptions).split(",").length;
+	var $option = _random($noOfOptions-1);
+	
+	if($option == 0){
+		$option++;
+	}
+	
+	_setSelected(_select("securityQuestion1"), $option);
+	_wait(500);
+	_setValue(_textbox("Security Answer"), "abc");
+	
+	_setValue(_password("password"), "ghix123#");
+	_setValue(_password("confirmPassword"), "ghix123#");
+	_click(_button("Submit"));
+
+	waitForDelayPopup();
+	
+	var $isHealthEnrollmentComplete = "N";
+	if ($verificationFlag != "N") {
+		verifyIndividualDashboard($status, $household,$actionButton,$eventDate, $groups,$isHealthEnrollmentComplete,$isFromToday);
+	}else{
+		_setStrictVisibilityCheck(true);
+		var $applicationYear =  $household.coverageYear;
+		var $yearTabOnDashboard = yearTabOnDashboardElement($applicationYear);
+		waitUntilElementVisible($yearTabOnDashboard,20);
+		_click($yearTabOnDashboard);
+
+		_assertVisible(_heading1("Welcome, "+$household.people[0].firstName+" "+$household.people[0].lastName));
+		_assertVisible(_button($actionButton));
+		_setStrictVisibilityCheck(false);
+	}
+}
+
+function createIndividualAndLogin($email){
+	_click(_link("Individual"));
+	
+	var $firstName = "Bill";
+	var $lastName = "Jhonson";
+	var $email = $email;
+	var $SSN = getRandomSSN();
+	$dob = "12121990";
+	
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_setValue(_emailbox("email"), $email);
+	_setValue(_emailbox("confirmEmail"), $email);
+	var $phoneNumber = "4129444556"
+	_setValue(_textbox("phone1"), $phoneNumber.substring(0,3));
+	_setValue(_textbox("phone2"), $phoneNumber.substring(3,6));
+	_setValue(_textbox("phone3"), $phoneNumber.substring(6,10));
+	//_setValue(_textbox("phone1"), "408");
+	//_setValue(_textbox("phone2"), "666");
+	//_setValue(_textbox("phone3"), "0098");
+	
+	_setValue(_password("ssn1"), $SSN.substring(0,3))
+	_setValue(_password("ssn2"), $SSN.substring(3,5))	
+	_setValue(_textbox("ssn3"), $SSN.substring(5,9))
+	
+	_setValue(_password("confirmSsn1"), $SSN.substring(0,3));
+	_setValue(_password("confirmSsn2"), $SSN.substring(3,5));
+	_setValue(_textbox("confirmSsn3"), $SSN.substring(5,9));
+	
+	//var $date =_call(window.moment($household.people[0].dob).format('MMDDYYYY'));
+	_setValue(_textbox("birthDate"), $dob);
+	
+	var $allOptions = _getText(_select("securityQuestion1"))
+	var $noOfOptions = JSON.stringify($allOptions).split(",").length;
+	var $option = _random($noOfOptions-1);
+	
+	if($option == 0){
+		$option++;
+	}
+	
+	_setSelected(_select("securityQuestion1"), $option);
+	_wait(500);
+	_setValue(_textbox("Security Answer"), "abc");
+	
+	_setValue(_password("password"), "ghix123#");
+	_setValue(_password("confirmPassword"), "ghix123#");
+	_click(_button("Submit"));
+	_wait(6000)
+}
+

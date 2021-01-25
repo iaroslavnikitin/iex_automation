@@ -1,0 +1,70 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,,"loadSahi","../pagemodels/global_include.sah"
+,,,"loadSahi","../pagemodels/AgentDashboard.sah"
+,,,"_resource","../scenariofiles/*.txt"
+,,,"_resource","../resources/data.csv"
+,,,"_resource","../opt/sahi/useraccounts.xls"
+,,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+
+"Verify Dashboard of RF Application","smoke,Financial,AgentBookOfBusiness","Verify Dashboard, My Applications,My Enrollments Of RF Application.","[Documentation]"
+,,,"closeBrowser"
+,,,"openBrowser"
+,,,"AdminSearchForReferalApplication"
+
+"HIX-73734,HIX-72744 - Verify Agent Book Of Business","smoke,CAP,HIX-73734,HIX-72744,AgentBookOfBusiness","HIX-73734,HIX-72744 - Verify Agent Book Of Business","[Documentation]","1) HIX-73734-Verify that agent is able to search active individuals with ""due date""
+2) HIX-72744-Verify that agent is able to search active individual by First Name, Last Name, Application Type"
+,,,"closeBrowser"
+,,,"openBrowser"
+,,,"agentExportingBookOfBusinessExcel"
+
+"HIX-89003 - Verify Enrollment Edit Tool Is Displayed for CSR Supervisor but not for L1/ L2","smoke,security,HIX-89003,AgentBookOfBusiness","HIX-89003 - Verify Enrollment Edit Tool Is Displayed for CSR Supervisor but not for L1/ L2","[Documentation]","Permission applicable for Enrollment Edit tool for authorized users"
+,,,"closeBrowser"
+,,,"openBrowser"
+,,,"[Keyword]","EnrollmentEditToolPermissionForDifferentUsers"
+,,,"[Data]","[userdata:EnrollmentEditToolPermission:role]","[userdata:EnrollmentEditToolPermission:user]","[userdata:EnrollmentEditToolPermission:password]","[userdata:EnrollmentEditToolPermission:editToolPermission]"
+
+"//",,"[Global]","[SetUp]"
+
+"Claim And Archive Ticket If Any From Previous Run","smoke,CAP,TicketManagement","Claim And Archive Ticket If Any From Previous Run","[Documentation]","This is a SetUp step.
+Claim And Archive Ticket If Any From Previous Run"
+,,,"closeBrowser"
+,,,"openBrowser"
+,,,"claimAndArchiveTicket"
+"//",,,"closeBrowser"
+"HIX-56409 - Create Ticket For Individual","smoke,CAP,HIX-56409,TicketManagement","56409","[Documentation]","HIX-56409 Verify Ticket creation as Supervisor/L1/L2"
+,,,"closeBrowser"
+,,,"openBrowser"
+,,,"CSRCreatingTicketForIndividual","ptest123@yopmail.com"
+
+"HIX-80120 -  Search Ticket","smoke,CAP,HIX-80120,TicketManagement","80120","[Documentation]","HIX-80120 CAP:Add Ticket-Verify Ticket Creation & search created Ticket."
+,,,"CSRSearchForIndividualTicket"
+
+"HIX-80123 - Claim Ticket","smoke,CAP,HIX-80123,TicketManagement","80123","[Documentation]","HIX-80123 CAP:Resolve Ticket-Verify Resolve Ticket."
+,,,"CSRClaimingIndiviudalTicket"
+
+"HIX-71790 - ReAssign  Ticket","smoke,CAP,HIX-71790,TicketManagement","71790","[Documentation]","HIX-71790 CAP:Verify Reclassify/Reassign Ticket and perform ticket related tasks"
+,,,"CSRReassignTicket"
+
+"HIX-71790 - ReClassify Ticket","smoke,CAP,HIX-71790,TicketManagement","HIX-71790 - Reclassify Ticket.","[Documentation]","HIX-71790 CAP:Verify Reclassify/Reassign Ticket and perform ticket related tasks"
+,,,"CSRReClassifyTicket"
+
+"HIX-56409 - Mark Ticket Complete","smoke,CAP,HIX-56409,TicketManagement","HIX-56409 - Mark Ticket As Complete.","[Documentation]","HIX-56409 CAP:Verify Ticket creation as Supervisor/L1/L2"
+,,,"CSRSearchAndMarkTicketAsComplete"
+
+"HIX-80135 - Cancel Ticket","smoke,CAP,HIX-80135,TicketManagement","HIX-80135 - Cancel Ticket","[Documentation]","HIX-80135 CAP: Cancel Ticket -Verify Cancel Ticket."
+,,,"CSRSearchAndCancelTicket"
+
+"HIX-80124 - ReOpen Ticket","smoke,CAP,HIX-80124,TicketManagement","HIX-80124 - Reopen Ticket","[Documentation]","HIX-80124 CAP: ReopenTicket -Verify Reopen Ticket."
+,,,"CSRReOpenTicket"
+
+"HIX-71644 - Ticket History","smoke,CAP,HIX-71644,TicketManagement","HIX-71644 - Ticket History","[Documentation]","HIX-71644 CAP:Verify Ticket search filter functionality."
+,,,"CSRVerifyTicketHistory"
+
+"Add Attachment","smoke,CAP,TicketManagement","Add Attachment","[Documentation]","Add Attachment to a ticket."
+,,,"CSRAddingAttachment"
+
+"Add Commnet","smoke,CAP,TicketManagement","Add Commnet","[Documentation]","Add comment to ticket."
+,,,"CSRAddingComment"
+
+"HIX-71648 - Archive Ticket","smoke,CAP,HIX-71648,TicketManagement","HIX-71648 - Archive Ticket","[Documentation]","HIX-71648 CAP:Verify the Archive Option"
+,,,"AdminArchiveTicket"

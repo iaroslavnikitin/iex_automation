@@ -1,0 +1,5 @@
+updateRolesMFA("Entity", "N");
+
+function onScriptEnd(){
+  updateRolesMFA("MFA", "Y");
+}

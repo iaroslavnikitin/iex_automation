@@ -1,0 +1,225 @@
+_includeOnce("User.sah");
+_includeOnce("BuildProfile.sah");
+_includeOnce("ConfirmAddress.sah");
+_includeOnce("Utils.sah");
+
+var $CertificationApplication = true;
+
+// Constants
+$PREFERRED_COMMUNICATION_MENU_LENGTH = 4;
+
+// Accessors
+var $headerOnAgentRegistration = _heading1("New Agent Registration");
+var $agentInformationHeader = _heading4("Agent Information");
+var $agentInformationParagraph = _paragraph("Provide the following information so we can certify you to make your services available on Idaho.After a quick review, we'll send you an email letting you know when your application has been approved.");
+var $agentFirstNameLabel = _label("First Name");
+var $agentFirstName =_textbox("firstName");
+var $agentLastNameLabel = _label("Last Name");
+var $agentLastName = _textbox("lastName");
+var $agentLicenseLabel = _label("Idaho Agent License Number");
+var $agentLicense =_textbox("licenseNumber");
+var $agentLicenseToolTip = _div("(Not your NPN)");
+var $agentLicenseRenewalLabel = _label("License Renewal Date");
+var $agentLicenseRenewal = _textbox("licrenewaldate");
+var $agentPrimaryNumberLabel = _label("Primary contact number");
+var $agentPrimaryNumber = [_textbox("phone1"), _textbox("phone2"), _textbox("phone3")];
+var $agentBusinessNumberLabel = _label("Business Contact Phone Number");
+var $agentBusinessNumber = [_textbox("businessContactPhone1"), _textbox("businessContactPhone2"), _textbox("businessContactPhone3")];
+var $agentAlternateNumberLabel = _label("Alternate Phone Number");
+var $agentAlternateNumber = [_textbox("alternatePhone1"), _textbox("alternatePhone2"), _textbox("alternatePhone3")];
+var $agentFaxNumberLabel = _label("Fax Number");
+var $agentFaxNumber = [_textbox("Fax Number"), _textbox("Fax Number[1]"), _textbox("Fax Number[2]")];
+var $agentPreferredCommunicationLabel = _label("Preferred Method of Communication");
+var $agentPreferredCommunication = _select("communicationPreference");
+var $agentBusinessNameLabel = _label("Business Name");
+var $agentBusinessName = _textbox("companyName");
+var $agentEINLabel = _label("Federal Employer Identification Number (EIN)");
+var $agentEIN = _textbox("federalEIN");
+var $agentEINLink = _link("What if i don't have an EIN?");
+
+// Business Address
+var $agentBusinessAddressHeader = _heading4("Business Address");
+var $agentBusinessAddress1Label = _label("Address line 1");
+var $agentBusinessAddress1 = _textbox("address1_business");
+var $agentBusinessAddress2Label = _label("Address line 2");
+var $agentBusinessAddress2 = _textbox("address2_business");
+var $agentBusinessCityLabel = _label("City");
+var $agentBusinessCity = _textbox("city_business");
+var $agentBusinessStateLabel = _label("State");
+var $agentBusinessState = _select("state_business");
+var $agentBusinessZipCodeLabel = _label("Zip code");
+var $agentBusinessZipCode = _textbox("zip_business");
+
+// Correspondence Address
+var $agentCorrespondenceAddressHeader = _heading4("Correspondence Address");
+var $agentCorrespondenceSameLabel = _label("Same as business address");
+var $agentCorrespondenceSame = _checkbox("mailingAddressCheck");
+var $agentCorrespondenceAddress1Label = _label("Address line 1[1]");
+var $agentCorrespondenceAddress1 = _textbox("address1_mailing");
+var $agentCorrespondenceAddress2Label = _label("Address line 2[1]");
+var $agentCorrespondenceAddress2 = _textbox("address2_mailing");
+var $agentCorrespondenceCityLabel = _label("City[1]");
+var $agentCorrespondenceCity = _textbox("city_mailing");
+var $agentCorrespondenceStateLabel = _label("State[1]");
+var $agentCorrespondenceState = _select("state_mailing");
+var $agentCorrespondenceZipCodeLabel = _label("Zip code[1]");
+var $agentCorrespondenceZipCode = _textbox("zip_mailing");
+
+// Rest of page
+var $agentNext = _button("SaveBrkCerti");
+
+function verifyElementsOnAgentRegistration() {
+	_assertVisible($headerOnAgentRegistration);
+	_assertVisible($agentInformationHeader);
+	_assertVisible($agentInformationParagraph);
+	_assertVisible($agentFirstNameLabel);
+	_assertVisible($agentFirstName);
+	_assertVisible($agentLastNameLabel);
+	_assertVisible($agentLastName);
+	_assertVisible($agentLicenseLabel);
+	_assertVisible($agentLicense);
+	_assertVisible($agentLicenseToolTip);
+	_assertVisible($agentLicenseRenewalLabel);
+	_assertVisible($agentLicenseRenewal);
+	_assertVisible($agentPrimaryNumberLabel);
+	for (var $i = 0; $i < $agentPrimaryNumber.length; $i++) {
+		_assertVisible($agentPrimaryNumber[$i]);
+	}
+	_assertVisible($agentBusinessNumberLabel);
+	for (var $i = 0; $i < $agentBusinessNumber.length; $i++) {
+		_assertVisible($agentBusinessNumber[$i]);
+	}
+	_assertVisible($agentAlternateNumberLabel);
+	for (var $i = 0; $i < $agentAlternateNumber.length; $i++) {
+		_assertVisible($agentAlternateNumber[$i]);
+	}
+
+	_assertVisible($agentFaxNumberLabel);
+	for (var $i =0; $i < $agentFaxNumber.length; $i++) {
+		_assertVisible($agentFaxNumber[$i]);
+	}
+
+	_assertVisible($agentPreferredCommunicationLabel);
+	_assertVisible($agentPreferredCommunication);
+	_assertVisible($agentBusinessNameLabel);
+	_assertVisible($agentBusinessName);
+	_assertVisible($agentEINLabel);
+	_assertVisible($agentEIN);
+	_assertVisible($agentEINLink);
+
+	_assertVisible($agentBusinessAddressHeader);
+	_assertVisible($agentBusinessAddress1Label);
+	_assertVisible($agentBusinessAddress1);
+	_assertVisible($agentBusinessAddress2Label);
+	_assertVisible($agentBusinessAddress2);
+	_assertVisible($agentBusinessCityLabel);
+	_assertVisible($agentBusinessCity);
+	_assertVisible($agentBusinessStateLabel);
+	_assertVisible($agentBusinessState);
+	_assertVisible($agentBusinessZipCodeLabel);
+	_assertVisible($agentBusinessZipCode);
+
+	_assertVisible($agentCorrespondenceAddressHeader);
+	_assertVisible($agentCorrespondenceSameLabel);
+	_assertVisible($agentCorrespondenceSame);
+	_assertVisible($agentCorrespondenceAddress1Label);
+	_assertVisible($agentCorrespondenceAddress1);
+	_assertVisible($agentCorrespondenceAddress2Label);
+	_assertVisible($agentCorrespondenceAddress2);
+	_assertVisible($agentCorrespondenceCityLabel);
+	_assertVisible($agentCorrespondenceCity);
+	_assertVisible($agentCorrespondenceStateLabel);
+	_assertVisible($agentCorrespondenceState);
+	_assertVisible($agentCorrespondenceZipCodeLabel);
+	_assertVisible($agentCorrespondenceZipCode);
+
+	_assertVisible($agentNext);
+}
+
+function enterAgentInformation($address, $city, $state, $zip) {
+	if ($address === undefined || $city === undefined || $state === undefined || $zip === undefined) {
+		$address = "1305 Terra Bella";
+		$city = "Mountain View";
+		$state = "California";
+		$zip = "94043";
+	}
+
+	var $val;
+
+	$val = randomString(10, true);
+	_setValue($agentLicense, $val);
+	var $now=_call(window.moment());
+	var $licenseRenewalDate = _call(window.moment($now)).add(1,'years').format("MM-DD-YYYY");
+	_setValue($agentLicenseRenewal, $now);
+	_setValue($agentLicenseRenewal, $licenseRenewalDate);
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($agentPrimaryNumber[$i], $val[$i]);
+	}
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($agentBusinessNumber[$i], $val[$i]);
+	}
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($agentAlternateNumber[$i], $val[$i]);
+	}
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($agentFaxNumber[$i], $val[$i]);
+	}
+
+	$val = Math.floor(Math.random() * ($PREFERRED_COMMUNICATION_MENU_LENGTH - 1)) + 1;
+	_setSelected($agentPreferredCommunication, $val);
+
+	var $businessName = randomString($FIELD_LENGTH);
+	_setValue($agentBusinessName, $businessName);
+
+	$val = randomString(9, true);
+	_setValue($agentEIN, $val);
+
+	var $oldAddress = _getValue($agentBusinessAddress1);
+	_setValue($agentBusinessAddress1, $address);
+
+	_setValue($agentBusinessCity, $city);
+	_setSelected($agentBusinessState, $state);
+	_setValue($agentBusinessZipCode, $zip);
+
+	if ($oldAddress !== $address && $oldAddress != "") {
+		_wait(3000);
+		verifyConfirmAddress();
+		clickConfirmAddress();
+	}
+
+	_check($agentCorrespondenceSame);
+	_click($agentNext);
+	verifyElementsOnAgentProfile();
+	
+	return $businessName;
+}
+
+function searchAgentByBusinessName($businessName){
+	_click(_link("Agents Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Manage Agents End of dropdown"));
+	_setValue(_textbox("Business Name"), $businessName);
+	_click(_submit("Go"));
+}
+
+function changeCertificationStatusTo($certificationStatus){
+	_click(_link("Certification Status"));
+		_click(_link("Edit"));
+		_setSelected(_select("certificationStatus"), $certificationStatus);
+		_click(_submit("Submit"));
+		_assertVisible(_strong($certificationStatus, _near(_cell("Certification Status"))));
+}
+
+function certifyAgent($admin, $agent, $fullname){
+	login($admin, "ghix123#");
+	searchAgentByBusinessName($agent);
+	_click(_link($fullname));
+	changeCertificationStatusTo("Certified");
+	logOut();
+}

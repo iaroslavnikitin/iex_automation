@@ -1,0 +1,1073 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("ManageMember.sah");
+_includeOnce("Utils.sah");
+_includeOnce("HomePage.sah");
+_includeOnce("SoapRequest.sah");
+_includeOnce("Login.sah");
+_includeOnce("Preferences.sah");
+_includeOnce("capHistory.sah");
+_includeOnce("CustomGrouping.sah");
+_includeOnce("capEnrollmentsAdditionalInfo.sah");
+
+
+var $houseHold = [];
+// Accessors
+
+var $ticketsMenuLink = _link("Tickets");
+var $membersMenuLink = _link("Members Dropdown Menu. Press enter to open it and tab through its options");
+var $createTicketsSubMenuLink =_link("Create Tickets");
+var $manageTicketsSubMenuLink =_link("Manage Tickets");
+var $manageWorkgroupSubMenuLink = _link("Manage Workgroup");
+var $createNewIndividualSubMenuLink = _link("Create New Individual");
+var $manageMembersSubMenuLink = _link("Manage Members");
+var $manageApplicantsSubMenuLink = _link("Manage Applicants");
+
+var $usersMenuLink = _link("Users");
+var $addUserSubMenuLink = _link("Add User");
+var $manageUserSubMenuLink = _link("Manage User");
+
+var $issuersMenuLink = _link("Issuers");
+var $manageIssuerAccountsSubMenuLink = _link("Manage Issuer Accounts");
+var $newIssuerAccountSubMenuLink = _link("New Issuer Account");
+var $manageQualityRatingSubMenuLink = _link("/Manage Quality Rating/");
+var $manageDrugsSubMenuLink = _link("Manage Drugs");
+
+var $plansMenuLink = _link("Plans");
+var $manageQhpSubMenuLink = _link("Manage QHPs");
+var $manageSadpSubMenuLink = _link("Manage SADPs");
+var $ratingAreaMappingSubMenuLink = _link("Rating Area Mapping");
+var $serffTranferStatusSubMenuLink = _link("SERFF Transfer Status");
+var $loadPlansSubMenuLink = _link("Load Plans");
+var $loadDrugListSubMenuLink = _link("Load Drug List");
+var $fileUploadStatusSubMenuLink = _link("File Upload Status");
+
+var $reportsMenuLink = _link("Reports");
+var $countOfTicketPrioritySubMenuLink = _link("Count of Ticket vs Priority");
+var $countOfTicketTypeSubMenuLink = _link("Count of Ticket vs Type");
+var $agingReportSubMenuLink = _link("Aging Report");
+var $pendingReportSubMenuLink = _link("Pending Report");
+var $cmsXmlStatusReportSubMenuLink = _link("CMS XML Status Report");
+var $cmsXmlErrorReportSubMenuLink = _link("CMS XML Error Report");
+var $cmsFileTransmissionsLogsSubMenuLink = _link("CMS File Transmission Logs");
+var $monhtlyIrsErrorReportSubMenuLink = _link("Monthly IRS Error Report");
+
+var $enrollmentMenuLink = _link("Enrollment");
+var $reconciliationWorkbenchSubMenuLink = _link("Reconciliation Workbench");
+
+var $agentsMenuLink = _link("Agents");
+var $manageAgentsSubMenuLink = _link("Manage Agents");
+
+var $enrollmentCounselorsMenuLink = _link("Enrollment Counselors");
+var $manageEnrollmentCounselorsSubMenuLink = _link("Manage Enrollment Counselors End of dropdown");
+
+var $entitiesMenuLink = _link("Entities");
+var $manageEntitiesSubMenuLink = _link("Manage Entities End of dropdown");
+
+var $memberNameSearchResultTableLink =_link(0,_in(_cell(2, _in(_table("table table-striped jsMemberSearchResultTable")))));
+var $searchApplicantsAccessCode = _textbox("accessCode");
+var $viewMemberAccountDialog = _div("markCompleteDialog");
+var $preferencesPageHeader = _div("Tell us about your healthcare needs");
+var $capMenuBar = _list("nav navPhixbar");
+
+var $aboutConsumerHeader = _heading4("About Consumer");
+var $basicInformationLink = _link("Basic Information");
+var $enrollmentsLink = _link("Enrollments");
+var $commentsLink = _link("Comments");
+var $historyLink = _link("History");
+var $ticketHistoryLink =_link("Ticket History");
+var $resetPasswordLink = _link("Reset Password");
+var $applicationsLink = _link("Applications");
+var $actionsHeader = _heading4("Actions");
+var $viewMemberAccountLink = _link("View Member Account", _in(_list("nav nav-list[1]")));
+var $createTicketLink = _link("Create Ticket", _under(_heading4("Actions")));
+
+var $enrollmentHeader =_heading4("/Enrollment/");
+//var $enrollmentTile = _div("well-step enrollment-history");
+var $enrollmentTile = _div("enrollment-history-panel");
+var $coverageYear=_select(0, _near(_span("Coverage Year")));
+var $enrollmentStatus = _cell(0, _near(_tableHeader("Enrollment Status:")));
+var $enrollmentId = _cell(0, _rightOf(_tableHeader("Exchange Assigned Policy ID")));
+var $cmsPlanIdCell =_cell(0, _rightOf(_tableHeader("CMS Plan ID")));
+var $enrollmentConfirmationDate = _cell(0, _rightOf(_tableHeader("Confirmation Date:")));
+var $enrollmentEffectiveDate = _cell(0, _rightOf(_tableHeader("Effective Date:")));
+var $enrollmentPremiumAmount = _cell(0, _rightOf(_tableHeader("Premium Amount")));
+var $enrollmentAPTCAmount = _cell(0, _rightOf(_tableHeader("Elected Federal APTC Amount")));
+var $enrollmentCSRAmount = _cell(0, _rightOf(_tableHeader("CSR Amount")));
+var $enrollmentNetPremium = _cell(0, _rightOf(_tableHeader("Net Premium")));
+var $enrollmentTransactionId = _cell(0, _rightOf(_tableHeader("Transaction ID")));
+var $enrollmentSubmittedDate = _cell(0, _rightOf(_tableHeader("Submitted Date:")));
+var $enrollmentLastUpdateDate = _cell(0, _rightOf(_tableHeader("Last Update Date:")));
+var $enrollmentSubmittedBy = _cell(0, _rightOf(_tableHeader("Submitted by:")));
+var $enrollmentLastUpdateBy = _cell(0, _rightOf(_tableHeader("Last Update By:")));
+
+
+
+var $showPremiumHistoryLink =_link("SHOW PREMIUM HISTORY");
+var $enrollmentPremiumHistoryDiv = _div("Enrollment - Premium History Back");
+var $additionalInfoLink = _link("Additional Information");
+var $resend834HistoryLink = _link("RESEND 834 HISTORY");
+var $resend834HistoryReasonTxtbox = _textarea(0, _near(_span("Resend 834 History")))
+var $resend834HistoryContinueLink = _link("CONTINUE", _near(_span("Resend 834 History")));
+var $resend834HistoryOkLink = _link("OK", _near(_span("Resend 834 History")));
+var $resend834HistorySuccessMsg = _heading3("Submission Successful!", _near(_span("Resend 834 History")));
+
+
+
+var $resendLatest834TransactionLink = _link("RESEND LATEST 834 TRANSACTION");
+var $resendLatest834TransactionHeader = _span("Resend latest 834 transaction");
+var $resendLatest834TransactionTxtbox = _textarea(0, _near(_span("Resend latest 834 transaction")));
+var $continueLinkResendLatest834 = _link("CONTINUE", _near(_heading3("Resend latest 834 transaction")));
+var $successMsgResendLatest834 = _heading3("Submission Successful!", _under(_heading3("Resend latest 834 transaction")));
+var $okLinkResendLatest834 = _link("OK", _near(_span("Resend latest 834 transaction")));
+
+var $tobaccoTableHeader = _tableHeader("Tobacco", _in(_div("enrollee0")));
+var $eventTableHeader =_tableHeader("Event", _under(_heading5("Enrollment History")));
+//var $actionsEnrollmentTile = _span("Actions");
+var $actionsEnrollmentTile = _link("Actions");
+var $overrideEnrollmentStatusLink = _link("Override Enrollment Status");
+
+var $overrideEnrollmentStatusHeader = _span("Override Enrollment Status");
+var $overrideEnrollmentReasonTextbox = _textarea("overrideText ng-pristine ng-valid[1]", _in(_div("overrideEnrollmentModal")));
+var $overrideEnrollmentSubmitButton = _submit("Override Status to Confirmed");
+var $overrideEnrollmentSuccessHeader = _span("Override Enrollment Status");
+var $overrideEnrollmentSuccessMsg = _heading3("Submission Successful!", _near(_heading3("Override Enrollment Status")));
+var $overrideEnrollmentSuccessOkButton = _link("OK", _near(_heading3("Override Enrollment Status")));
+
+
+var $reinstateEnrollmentLink = _link("REINSTATE ENROLLMENT");
+var $reinstateEnrollmentHeader = _heading3("Reinstate Enrollment");
+var $overrideReasonTextbox = _textarea("overrideText ng-pristine ng-valid", _in(_div("overrideEnrollmentModal")));
+var $continueReinstateButton = _link("Continue", _in(_div("overrideEnrollmentModal")));
+var $cancelHeader = _heading3("Cancel");
+var $cancelReasonTextbox = _textarea("overrideTextarea margin10-t ng-pristine ng-invalid ng-invalid-required", _near(_select("vm.cancelEnrollmentReason")));
+var $cancelEnrollmentSubmitButton = _submit("Submit");
+var $cancelEnrollmentCancelButton = _submit("Cancel", _under(_heading3("Cancel")));
+var $selectCancelReasonDropdown = _select("vm.cancelEnrollmentReason");
+
+var $enrollmentPremiumHistoryHeader = _heading4("/Enrollment - Premium History/");
+var $actionsEnrollmentPremiumHistory = _span("Actions", _in(_div("enrollment-history")));
+var $cancelEnrollmentPremiumHistory = _submit("Cancel", _in(_div("editToolButtonDiv")));
+var $changeEnrollmentPremiumHistory =_submit("Change", _in(_div("editToolButtonDiv")));
+var $enrollmentBenefitEffectiveStartDate = _textbox("enrollmentBenefitEffectiveStartDateUI", _rightOf(_tableHeader("Enrollment Start Date")));
+var $enrollmentBenefitEffectiveEndDate = _textbox("enrollmentBenefitEffectiveEndDateUI", _rightOf(_tableHeader("Enrollment End Date")))
+var $enrollmentTranscationType = _select("enrollmentLevelTxnType", _rightOf(_tableHeader("Enrollment Transaction Type")));
+var $enrollmentChangeLastPremiumPaid = _textbox("enrollmentLastPremPaidThroughDateUI", _near(_tableHeader("Enter the last premium paid through date :")));
+var $comments = _textarea(0);
+var $submitUpdatedEnrollment = _submit("Submit");
+var $successMsg = _div("Your change has been successfully updated.", _near(_heading3("Success")));
+var $closeModalDialog = _submit("Close");
+var $firstNameTextBox = _textbox("firstName");
+var $lastNameTextBox = _textbox("lastName");
+var $birthDateTextBox = _textbox("birthDate");
+var $emailAddressTextBox = _emailbox("emailAddress");
+var $countyTextBox = _textbox("county");
+var $phoneNumberTextBox = _textbox("phoneNumber");
+var $zipcodeTextBox = _textbox("zipCode");
+var $genderRadioButton = _radio("gender");
+var $genderMaleLabel = _label("Male");
+var $genderFemaleLabel = _label("Female");
+var $householdTotalTextBox = _textbox("householdTotal");
+var $submitAuthInfo = _submit("Submit");
+var $continueAfterLinking = _button("Continue");
+var $viewMemberAccountHeader = _heading4("View Member Account", _in(_div("View Member Account x")));
+var $myDashboardLink = _link("My Dashboard");
+var $fnAppLifeChangeReportingHeader = _heading1("Financial Application - Life Change Reporting");
+
+var $memberViewButton = _submit("Member View");
+var $viewingIndividualAccountParagraph = _heading4("/Viewing Individual Account (.*)/");
+var $confirmEventAndShopButton = _button("CONFIRM EVENT AND SHOP");
+var $qualifyEventSelectedDropdown = _select("qualifyEventSelected");
+var $eventDateTextBox = _textbox("Event Date");
+var $continueQleButton =_submit("Continue");
+var $changeEventDateConfirmLink = _link("Confirm", _rightOf(_link("Change Event Date")));
+var $shopForPlansButton = _button("SHOP FOR PLANS");
+var $shopHealthPlansLink = _link("Shop Health Plans");
+var $shopHealthPlansButton = _link("aid_uneg_shop_for_members");
+var $skipToViewPlansButton = _submit("Skip to View Plans");
+var $addPlan = _link("ADD");
+var $continueToCartLink = _link("Continue To Cart");
+var $continueToCartButton = _button("/Continue To Cart/", _in(_div("shoppingPop-modal")));
+
+var $signAppButton = _button("Sign Application");
+var $enrollButton = _submit("I AM READY TO ENROLL");
+var $termsCheckbox = _checkbox("terms");
+var $taxFilerEsignCheckbox = _checkbox("taxFiler_esign");
+var $applicantSignTextbox = _textbox("applicant_esig");
+var $signEnrollButton = _button("Sign and Enroll");
+var $myAccountLink = _link("My Account");
+var $editEnrollmentContinue = _submit("Continue");
+var $enrollmentChangeHeader = _span("Enrollment - Change");
+
+//Application accessors
+var $myApplicationsHeader = _heading4("/My Applications/");
+var $changeCovStartDateLink = _link("CHANGE COVERAGE START DATE", _near(_span("Actions")));
+var $changeCovStartDateHeader = _span("Change coverage start date");
+var $specifyReasonText = _span("/Specify the reason for override/");
+var $specifyReasonTextBox = _textarea(0, _in(_div("/Specify the reason for override/")));
+var $cancelButton = _link("Cancel", _under(_heading3("Change coverage start date")));
+var $continueButton = _link("Continue", _under(_heading3("Change coverage start date")));
+
+//Verify accessors
+
+var $enrollmentPremiumHistoryAccessors = [$enrollmentPremiumHistoryHeader,$actionsEnrollmentPremiumHistory];
+var $editToolAccessors = [$cancelEnrollmentPremiumHistory,$changeEnrollmentPremiumHistory];
+var $enrollmentBenefitEffectiveDates = [$enrollmentBenefitEffectiveStartDate,$enrollmentBenefitEffectiveEndDate];
+var $reinstateEnrollmentAccessors = [$reinstateEnrollmentHeader,$overrideReasonTextbox];
+var $cancelAccessors = [$cancelHeader,$selectCancelReasonDropdown, $cancelReasonTextbox,$cancelEnrollmentSubmitButton,$cancelEnrollmentCancelButton];
+var $overrideEnrollmentStatusAccessors = [$overrideEnrollmentStatusHeader,$overrideEnrollmentReasonTextbox,$overrideEnrollmentSubmitButton];
+var $overrideEnrollmentStatusSuccessAccessors = [$overrideEnrollmentSuccessHeader,$overrideEnrollmentSuccessMsg,$overrideEnrollmentSuccessOkButton];
+var $changeCovStartDateModalAccessors = [$changeCovStartDateHeader,$specifyReasonText,$specifyReasonTextBox,$continueButton,$cancelButton]
+
+function capLogin($priveldgedUserEmail,$password){
+	clickLogin();
+	loginEnterEmailAddress($priveldgedUserEmail);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+}
+function membersMenuAndSubMenuOptions($membersMenu,$createNewIndividualSubMenu,$manageMembersSubMenu,$manageApplicantsSubMenu){
+	if($membersMenu =="Y"){
+		_assertVisible($membersMenuLink, "Verify that Members menu is displayed");
+		_click($membersMenuLink);
+		if($createNewIndividualSubMenu =="Y"){
+			_assertVisible($createNewIndividualSubMenuLink, "Verify that Create New Individual sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($createNewIndividualSubMenuLink, "Verify that Create New Individual sub menu is not displayed");
+		}
+		if($manageMembersSubMenu =="Y"){
+			_assertVisible($manageMembersSubMenuLink, "Verify that Manage Members sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageMembersSubMenuLink, "Verify that Manage Members sub menu is not displayed");
+		}
+		if($manageApplicantsSubMenu =="Y"){
+			_assertVisible($manageApplicantsSubMenuLink, "Verify that Manage Applicants sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageApplicantsSubMenuLink, "Verify that Manage Applicants sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($membersMenuLink, "Verify that Members menu is not displayed");
+	}
+}
+
+function ticketsMenuAndSubMenuOptions($ticketsMenu,$createTicketsSubMenu,$manageTicketsSubMenu,$manageWorkgroupSubMenu){
+	if($ticketsMenu =="Y"){
+		_assertVisible($ticketsMenuLink, "Verify that Tickets menu is displayed");
+		_click($ticketsMenuLink);
+		if($createTicketsSubMenu == "Y"){
+			_assertVisible($createTicketsSubMenuLink, "Verify that Create Tickets sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($createTicketsSubMenuLink, "Verify that Create Tickets sub menu is not displayed");
+		}
+		if($manageTicketsSubMenu == "Y"){
+			_assertVisible($manageTicketsSubMenuLink, "Verify that Manage Tickets sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageTicketsSubMenuLink, "Verify that Manage Tickets sub menu is not displayed");
+		}
+		if($manageWorkgroupSubMenu == "Y"){
+			_assertVisible($manageWorkgroupSubMenuLink, "Verify that Manage Workgroup sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageWorkgroupSubMenuLink, "Verify that Manage Workgroup sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($ticketsMenuLink, "Verify that Tickets menu is not displayed");
+	}
+}
+
+function usersMenuAndSubMenuOptions($usersMenu,$addUserSubMenu,$manageUserSubMenu){
+	if($usersMenu =="Y"){
+		_assertVisible($usersMenuLink, "Verify that Users menu is displayed");
+		_click($usersMenuLink);
+		if($addUserSubMenu =="Y"){
+			_assertVisible($addUserSubMenuLink, "Verify that Add User sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($addUserSubMenuLink, "Verify that Add User sub menu is not displayed");
+		}
+		if($manageUserSubMenu =="Y"){
+			_assertVisible($manageUserSubMenuLink, "Verify that Manage User sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageUserSubMenuLink, "Verify that Manage User sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($usersMenuLink, "Verify that Users menu is not displayed");
+	}
+}
+
+function issuersMenuAndSubMenuOptions($issuersMenu,$manageIssuerAccountsSubMenu,$newIssuerAccountSubMenu,$manageQualityRatingSubMenu,$manageDrugsSubMenu){
+	if($issuersMenu =="Y"){
+		_assertVisible($issuersMenuLink, "Verify that Issuers menu is displayed");
+		_click($issuersMenuLink);
+		if($manageIssuerAccountsSubMenu =="Y"){
+			_assertVisible($manageIssuerAccountsSubMenuLink, "Verify that Manage Issuer Accounts sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageIssuerAccountsSubMenuLink, "Verify that Manage Issuer Accounts sub menu is not displayed");
+		}
+		if($newIssuerAccountSubMenu =="Y"){
+			_assertVisible($newIssuerAccountSubMenuLink, "Verify that New Issuer Account sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($newIssuerAccountSubMenuLink, "Verify that New Issuer Account sub menu is not displayed");
+		}
+		if($manageQualityRatingSubMenu =="Y"){
+			_assertVisible($manageQualityRatingSubMenuLink, "Verify that Manage Quality Rating sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageQualityRatingSubMenuLink, "Verify that Manage Quality Rating sub menu is not displayed");
+		}
+		if($manageDrugsSubMenu =="Y"){
+			_assertVisible($manageDrugsSubMenuLink, "Verify that Manage Drugs sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageDrugsSubMenuLink, "Verify that Manage Drugs sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($issuersMenuLink, "Verify that Issuers menu is displayed");
+	}
+}
+
+function plansMenuAndSubMenuOptions($plansMenu,$manageQhpSubMenu,$manageSadpSubMenu,$ratingAreaMappingSubMenu,$serffTranferStatusSubMenu,$loadPlansSubMenu,$loadDrugListSubMenu,$fileUploadStatusSubMenu){
+	if($plansMenu =="Y"){
+		_assertVisible($plansMenuLink, "Verify that Plans menu is displayed");
+		_click($plansMenuLink);
+		if($manageQhpSubMenu =="Y"){
+			_assertVisible($manageQhpSubMenuLink, "Verify that Manage QHP sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageQhpSubMenuLink, "Verify that Manage QHP sub menu is not displayed");
+		}
+		if($manageSadpSubMenu =="Y"){
+			_assertVisible($manageSadpSubMenuLink, "Verify that Manage SADP sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageSadpSubMenuLink, "Verify that Manage SADP sub menu is not displayed");
+		}
+		if($ratingAreaMappingSubMenu =="Y"){
+			_assertVisible($ratingAreaMappingSubMenuLink, "Verify that Rating Area Mapping sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($ratingAreaMappingSubMenuLink, "Verify that Rating Area Mapping sub menu is not displayed");
+		}
+		if($serffTranferStatusSubMenu =="Y"){
+			_assertVisible($serffTranferStatusSubMenuLink, "Verify that SERFF Tranfer Status sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($serffTranferStatusSubMenuLink, "Verify that SERFF Tranfer Status sub menu is not displayed");
+		}
+		if($loadPlansSubMenu =="Y"){
+			_assertVisible($loadPlansSubMenuLink, "Verify that Load Plans sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($loadPlansSubMenuLink, "Verify that Load Plans sub menu is not displayed");
+		}
+		if($loadDrugListSubMenu =="Y"){
+			_assertVisible($loadDrugListSubMenuLink, "Verify that Load Drug List sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($loadDrugListSubMenuLink, "Verify that Load Drug List sub menu is not displayed");
+		}
+		if($fileUploadStatusSubMenu =="Y"){
+			_assertVisible($fileUploadStatusSubMenuLink, "Verify that File Upload Status sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($fileUploadStatusSubMenuLink, "Verify that File Upload Status sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($plansMenuLink, "Verify that Plans menu is not displayed");
+	}
+}
+
+
+function reportsMenuAndSubMenuOptions($reportsMenu,$countOfTicketPrioritySubMenu,$countOfTicketTypeSubMenu,$agingReportSubMenu,$pendingReportSubMenu,
+$cmsXmlStatusReportSubMenu,$cmsXmlErrorReportSubMenu,$cmsFileTransmissionsLogsSubMenu,$monhtlyIrsErrorReportSubMenu){
+	if($reportsMenu =="Y"){
+		_assertVisible($reportsMenuLink, "Verify that Reports menu is displayed");
+		_click($reportsMenuLink);
+		if($countOfTicketPrioritySubMenu =="Y"){
+			_assertVisible($countOfTicketPrioritySubMenuLink, "Verify that Count Of Ticket Priority sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($countOfTicketPrioritySubMenuLink, "Verify that Count Of Ticket Priority sub menu is not displayed");
+		}
+		if($countOfTicketTypeSubMenu =="Y"){
+			_assertVisible($countOfTicketTypeSubMenuLink, "Verify that Count Of Ticket Type sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($countOfTicketTypeSubMenuLink, "Verify that Count Of Ticket Type sub menu is not displayed");
+		}
+		if($agingReportSubMenu =="Y"){
+			_assertVisible($agingReportSubMenuLink, "Verify that Aging Report sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($agingReportSubMenuLink, "Verify that Aging Report sub menu is not displayed");
+		}
+		if($pendingReportSubMenu =="Y"){
+			_assertVisible($pendingReportSubMenuLink, "Verify that Pending Report sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($pendingReportSubMenuLink, "Verify that Pending Report sub menu is not displayed");
+		}
+		if($cmsXmlStatusReportSubMenu =="Y"){
+			_assertVisible($cmsXmlStatusReportSubMenuLink, "Verify that CMS XML Status Report sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($cmsXmlStatusReportSubMenuLink, "Verify that CMS XML Status Report sub menu is not displayed");
+		}
+		if($cmsXmlErrorReportSubMenu =="Y"){
+			_assertVisible($cmsXmlErrorReportSubMenuLink, "Verify that CMS XML Error Report sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($cmsXmlErrorReportSubMenuLink, "Verify that CMS XML Error Report sub menu is not displayed");
+		}
+		if($cmsFileTransmissionsLogsSubMenu =="Y"){
+			_assertVisible($cmsFileTransmissionsLogsSubMenuLink, "Verify that CMS File Transmissions Logs sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($cmsFileTransmissionsLogsSubMenuLink, "Verify that CMS File Transmissions Logs sub menu is not displayed");
+		}
+		if($monhtlyIrsErrorReportSubMenu =="Y"){
+			_assertVisible($monhtlyIrsErrorReportSubMenuLink, "Verify that Monhtly IRS Error Report sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($monhtlyIrsErrorReportSubMenuLink, "Verify that Monhtly IRS Error Report sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($reportsMenuLink, "Verify that Reports menu is displayed");
+	}
+}
+
+function enrollmentMenuAndSubMenuOptions($enrollmentMenu,$reconciliationWorkbenchSubMenu){
+	if($enrollmentMenu =="Y"){
+		_assertVisible($enrollmentMenuLink, "Verify that Enrollment menu is displayed");
+		_click($enrollmentMenuLink);
+		if($reconciliationWorkbenchSubMenu =="Y"){
+			_assertVisible($reconciliationWorkbenchSubMenuLink, "Verify that Reconciliation Workbench sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($reconciliationWorkbenchSubMenuLink, "Verify that Reconciliation Workbench sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($enrollmentMenuLink, "Verify that Enrollment menu is displayed");
+	}
+}
+
+function agentsMenuAndSubMenuOptions($agentsMenu,$manageAgentsSubMenu){
+	if($agentsMenu =="Y"){
+		_assertVisible($agentsMenuLink, "Verify that Agents menu is displayed");
+		_click($agentsMenuLink);
+		if($manageAgentsSubMenu =="Y"){
+			_assertVisible($manageAgentsSubMenuLink, "Verify that Manage Agents sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageAgentsSubMenuLink, "Verify that Manage Agents sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($agentsMenuLink, "Verify that Agents menu is displayed");
+	}
+}
+
+
+function enrollmentCounselorsMenuAndSubMenuOptions($enrollmentCounselorsMenu,$manageEnrollmentCounselorsSubMenu){
+	if($enrollmentCounselorsMenu =="Y"){
+		_assertVisible($enrollmentCounselorsMenuLink, "Verify that Enrollment Counselors menu is displayed");
+		_click($enrollmentCounselorsMenuLink);
+		if($manageEnrollmentCounselorsSubMenu =="Y"){
+			_assertVisible($manageEnrollmentCounselorsSubMenuLink, "Verify that Manage Enrollment Counselors sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageEnrollmentCounselorsSubMenuLink, "Verify that Manage Enrollment Counselors sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($enrollmentCounselorsMenuLink, "Verify that Enrollment Counselors menu is displayed");
+	}
+}
+
+function entitiesMenuAndSubMenuOptions($entitiesMenu,$manageEntitiesSubMenu){
+	if($entitiesMenu =="Y"){
+		_assertVisible($entitiesMenuLink, "Verify that Entities menu is displayed");
+		_click($entitiesMenuLink);
+		if($manageEntitiesSubMenu =="Y"){
+			_assertVisible($manageEntitiesSubMenuLink, "Verify that Manage Entities sub menu is displayed");
+		}
+		else{
+			_assertNotVisible($manageEntitiesSubMenuLink, "Verify that Manage Entities sub menu is not displayed");
+		}
+	}
+	else{
+		_assertNotVisible($entitiesMenuLink, "Verify that Entities menu is displayed");
+	}
+}
+
+
+function manageMembers($memberEmail){
+	loginClickMembersManageApplicant();
+	clickManageMember();
+	searchMemberByEmail($memberEmail);
+	clickMemberNameSearchResultTable();
+	
+}
+
+function membersLeftNav($basicInformation,$enrollments,$comments,$history,$ticketHistory,$resetPassword,$applications,$viewMemberAccount,$createTicket){
+	if($basicInformation =="Y"){
+			_assertVisible($basicInformationLink, "Verify that Basic Information tab is displayed");
+		}
+	else{
+			_assertNotVisible($basicInformationLink, "Verify that Basic Information tab is not displayed");
+		}
+	if($enrollments =="Y"){
+			_assertVisible($enrollmentsLink, "Verify that Enrollments tab is displayed");
+		}
+	else{
+			_assertNotVisible($enrollmentsLink, "Verify that Enrollments tab is not displayed");
+		}
+	if($comments =="Y"){
+			_assertVisible($commentsLink, "Verify that Comments tab is displayed");
+		}
+	else{
+			_assertNotVisible($commentsLink, "Verify that Comments tab is not displayed");
+		}	
+	if($history =="Y"){
+			_assertVisible($historyLink, "Verify that History tab is displayed");
+		}
+	else{
+			_assertNotVisible($historyLink, "Verify that History tab is not displayed");
+		}	
+	if($ticketHistory =="Y"){
+			_assertVisible($ticketHistoryLink, "Verify that Ticket History tab is displayed");
+		}
+	else{
+			_assertNotVisible($ticketHistoryLink, "Verify that Ticket History tab is not displayed");
+		}
+	if($resetPassword =="Y"){
+			_assertVisible($resetPasswordLink, "Verify that Reset Password tab is displayed");
+		}
+	else{
+			_assertNotVisible($resetPasswordLink, "Verify that Reset Password tab is not displayed");
+		}
+	if($applications =="Y"){
+			_assertVisible($applicationsLink, "Verify that Applications tab is displayed");
+		}
+	else{
+			_assertNotVisible($applicationsLink, "Verify that Applications tab is not displayed");
+		}
+	if($viewMemberAccount =="Y"){
+			_assertVisible($viewMemberAccountLink, "Verify that View Member Account tab is displayed");
+		}
+	else{
+			_assertNotVisible($viewMemberAccountLink, "Verify that View Member Account tab is not displayed");
+		}
+	if($createTicket =="Y"){
+			_assertVisible($createTicketLink, "Verify that Create Ticket tab is displayed");
+		}
+	else{
+			_assertNotVisible($createTicketLink, "Verify that Create Ticket tab is not displayed");
+		}
+}
+
+function enrollmentsTab($resend834History,$resendLatest834Transaction,$showPremiumHistory,$additionalInfo,$tobacco,$event,$actionsEnrollment,$overrideEnrollmentStatus){
+	
+	if($resend834History =="Y"){
+			_assertVisible($resend834HistoryLink, "Verify that Resend 834 History is displayed");
+		}
+	else{
+			_assertNotVisible($resend834HistoryLink, "Verify that Resend 834 History is not displayed");
+		}
+	if($resendLatest834Transaction =="Y"){
+			_assertVisible($resendLatest834TransactionLink, "Verify that Additional Info is displayed");
+		}
+	else{
+			_assertNotVisible($resendLatest834TransactionLink, "Verify that Additional Info is not displayed");
+		}	
+	if($showPremiumHistory =="Y"){
+			_assertVisible($showPremiumHistoryLink, "Verify that Show Premium History is displayed");
+		}
+	else{
+			_assertNotVisible($showPremiumHistoryLink, "Verify that Show Premium History is not displayed");
+		}
+	if($additionalInfo =="Y"){
+			_assertVisible($additionalInfoLink, "Verify that Additional Info is displayed");
+			_click($additionalInfoLink);
+		}
+	else{
+			_assertNotVisible($additionalInfoLink, "Verify that Additional Info is not displayed");
+		}
+	if($tobacco =="Y"){
+			_assertVisible($tobaccoTableHeader, "Verify that Additional Info is displayed");
+		}
+	else{
+			_assertNotVisible($tobaccoTableHeader, "Verify that Additional Info is not displayed");
+		}
+	if($event =="Y"){
+			_assertVisible($eventTableHeader, "Verify that Additional Info is displayed");
+		}
+	else{
+			_assertNotVisible($eventTableHeader, "Verify that Additional Info is not displayed");
+		}
+	if($actionsEnrollment =="Y"){
+			_assertVisible($actionsEnrollmentTile, "Verify that Additional Info is displayed");
+			_click($actionsEnrollmentTile);
+		}
+	else{
+			_assertNotVisible($actionsEnrollmentTile, "Verify that Additional Info is not displayed");
+		}
+	if($overrideEnrollmentStatus =="Y"){
+			_assertVisible($overrideEnrollmentStatusLink, "Verify that Additional Info is displayed");
+		}
+	else{
+			_assertNotVisible($overrideEnrollmentStatusLink, "Verify that Additional Info is not displayed");
+		}	
+}
+
+
+function accountTransferAndLinkApp($caseNumber,$numOfMembers){	
+	var $houseHold ={};
+	$houseHold = accountTransfer($caseNumber,$numOfMembers);
+	_wait(20000);
+	_log("Email: " +$houseHold.people[0].email);
+	var $memberEmail = $houseHold.people[0].email;
+	var $jsonString = getAccessCode($memberEmail);
+	$jsonString = JSON.parse($jsonString[0][0]);
+	var $accessCode = $jsonString.createdObject.customeFields.accessCode;
+	_log("Access Code: " +$accessCode);
+	var $county = JSON.parse($jsonString.createdObject.customeFields.location).county;
+	var $firstName =  $houseHold.people[0].firstName;
+	var $lastName  = $houseHold.people[0].lastName;
+	var $dob = $houseHold.people[0].dob;
+	$dob = _fetch(window.moment($dob).format('MM/DD/YYYY'));
+	var $phoneNumber = $houseHold.people[0].phoneNumber; 
+	var $gender = $houseHold.people[0].personSex;
+	var $zipCode = $houseHold.people[0].homeAddress.zipcode;
+	var $numOfApplicants = $houseHold.people.length;
+	linkApp($accessCode,$firstName,$lastName,$dob,$memberEmail,$county,$phoneNumber,$zipCode,$gender,$numOfApplicants);
+	return $houseHold;
+}
+
+function linkApp($accessCode,$firstName,$lastName,$dob,$memberEmail,$county,$phoneNumber,$zipCode,$gender,$numOfApplicants){
+	loginClickMembersManageApplicant();
+	_setValue($searchApplicantsAccessCode, $accessCode);
+	_click($loginSearchApplicantGoButton);
+	_click(_link("Link", _rightOf(_cell($accessCode))));
+	if (_isVisible($firstNameTextBox)){
+		_setValue($firstNameTextBox,$firstName);
+	}
+	if (_isVisible($lastNameTextBox)){
+		_setValue($lastNameTextBox,$lastName);
+	}
+	if (_isVisible($birthDateTextBox)){
+		_setValue($birthDateTextBox,$dob);
+	}
+	if (_isVisible($emailAddressTextBox)){
+		_setValue($emailAddressTextBox,$memberEmail);
+	}
+	if (_isVisible($countyTextBox)){
+		_setValue($countyTextBox,$county);
+	}
+	if (_isVisible($phoneNumberTextBox)){
+		_setValue($phoneNumberTextBox,$phoneNumber);
+	}
+	if (_isVisible($zipcodeTextBox)){
+		_setValue($zipcodeTextBox,$zipCode);
+	}
+	if (_isVisible($genderRadioButton)){
+		if ($gender == "Male"){
+			_click($genderMaleLabel);
+		}
+		else {
+			_click($genderFemaleLabel);
+		}
+	}
+	if (_isVisible($householdTotalTextBox)){
+		_setValue($householdTotalTextBox,$numOfApplicants);
+	}
+	_click($submitAuthInfo);
+	_click($continueAfterLinking);
+	_assertVisible($viewMemberAccountDialog,"Verify if View Member Account dialog is displayed");
+		
+}
+function selectEventClickShopForPlans($eventName,$eventDate){
+
+	if (_isVisible($viewMemberAccountLink)){
+		_click($viewMemberAccountLink);
+		_assertVisible($viewMemberAccountHeader,"Verify View Member Account header is displayed");
+	}
+	_click($loginMemberViewButton);
+	_assertVisible($myDashboardLink,"Verify My Dashboard is displayed");
+	_click($confirmEventAndShopButton);
+	/* Bug - hence commenting out*/
+	_assertVisible($fnAppLifeChangeReportingHeader,"Verify Financial Application - Life Change Reporting header is displayed");
+	
+	_setSelected($qualifyEventSelectedDropdown, $eventName);
+	if(!$eventDate){
+		var $eventDate = getMidOfLastMonth();
+	}
+	_setValue($eventDateTextBox, $eventDate);
+	var $eventSelected = _getSelectedText(_select("qualifyEventSelected"));
+	_click($continueQleButton);
+	_click($changeEventDateConfirmLink);
+	//var $eventType = getEventType($eventName,"QUALIFYING_EVENT","Y");
+	//_log(" Event Type  "+$eventType);
+	//$houseHold.coverageStartDate=getCoverageStartDate($eventType, $eventDate);
+	//_log(" Coverage Start Date is  "+$coverageDate);
+	//$houseHold.coverageEndDate ="12/31/"+$houseHold.coverageYear;
+	//_log("Coverage End Date "+ $familyCoverageEndDate);
+	clickShopForPlans();
+	return $eventSelected;
+}
+
+function addCoverageDatestoHousehold($eventName,$eventDate,$event,$inOEP, $memInfo){
+	
+	$houseHold.coverageStartDate=getCoverageStartDate($eventName,$eventDate,$event,$inOEP);
+	_log("Coverage Start Date = "+$houseHold.coverageStartDate);
+	
+	$houseHold.coverageYear = getCoverageYear()[0];
+	_log("Coverage Year = "+$houseHold.coverageYear);
+	
+	$houseHold.coverageEndDate ="12/31/"+$houseHold.coverageYear;
+	_log("Coverage Year = "+$houseHold.coverageEndDate);
+	$houseHold.people = $memInfo;
+	return $houseHold;
+}
+
+function signAndEnroll($isFinancialApp,$isViewMemberAccount){	
+	if(_isVisible($continueToCartButton)){
+		_click($continueToCartButton);
+	}
+	else{
+	 _click($continueToCartLink);
+	}
+	_click($signAppButton);
+	_click($enrollButton);
+	clickAgreeESignEnrollmentForCap();
+	if($isViewMemberAccount !="NO"){
+		_click($myAccountLink);
+		_assertVisible($capMenuBar,"Verify if menu bar in CAP is displayed");
+	}
+	
+}
+
+function clickAgreeESignEnrollmentForCap(){
+	_click($termsCheckbox);
+	if(_isVisible($taxFilerEsignCheckbox)){
+		_click($taxFilerEsignCheckbox);
+	}
+	_setValue($applicantSignTextbox, "test enroll");
+	_click($signEnrollButton);
+}
+
+function clickMemberNameSearchResultTable(){
+	_click($memberNameSearchResultTableLink);
+	_assertVisible($aboutConsumerHeader,"Verify if About Consumer heading is displayed");
+}
+
+function clickEnrollmentsInCap($permissions,$currentEnrollStatus,$previousEnrollStatus,$event,$txnIdentifier,$maintenanceReason){
+	_click($enrollmentsLink);
+	var $enrollmentId = getEnrollmentIdFromCapEnrollments();
+	if($permissions=="N"){
+		_assertNotVisible($actionsEnrollmentTile,"Verify Actions button is not displayed");
+	}
+	else if($permissions=="Y"){
+	
+		if($currentEnrollStatus=="PENDING"){
+			_assertVisible($actionsEnrollmentTile, "Verify that Actions button is displayed");
+			_click($actionsEnrollmentTile);
+			_assertVisible($overrideEnrollmentStatusLink,"Verify Overrride Enrollment Status button is displayed");
+			_assertNotVisible($reinstateEnrollmentLink,"Verify Reinstate Enrollment button is not displayed");
+		}
+		else if ($currentEnrollStatus=="CONFIRM"){
+			_assertNotVisible($actionsEnrollmentTile,"Verify Actions button is not displayed");
+			_assertNotVisible($overrideEnrollmentStatusLink,"Verify Overrride Enrollment Status button is not displayed");
+			_assertNotVisible($reinstateEnrollmentLink,"Verify Reinstate Enrollment button is not displayed");
+			verifyEnrollConfirmatioDateInCap($enrollmentId);
+			
+		}
+		else if ($currentEnrollStatus=="TERM"){
+			_assertVisible($actionsEnrollmentTile, "Verify that Actions button is displayed");
+			_click($actionsEnrollmentTile);
+			_assertVisible($reinstateEnrollmentLink,"Verify Reinstate Enrollment button is displayed");
+			if($event=="Override Enrollment Status"){
+				_assertNotVisible($overrideEnrollmentStatusLink,"Verify Overrride Enrollment Status button is not displayed");
+				verifyEnrollConfirmatioDateInCap($enrollmentId);
+			}
+				
+			if($previousEnrollStatus=="PENDING"){
+				_assertVisible($overrideEnrollmentStatusLink,"Verify Overrride Enrollment Status button is displayed");
+				_assertVisible($reinstateEnrollmentLink,"Verify Reinstate Enrollment button is displayed");
+			}
+			else if($previousEnrollStatus=="CONFIRM"){
+				_assertNotVisible($overrideEnrollmentStatusLink,"Verify Overrride Enrollment Status button is displayed");
+				_assertVisible($reinstateEnrollmentLink,"Verify Reinstate Enrollment button is displayed");
+			}
+		}
+		else if ($currentEnrollStatus=="CANCEL"){
+			_assertVisible($actionsEnrollmentTile, "Verify that Actions button is displayed");
+			_click($actionsEnrollmentTile);
+			if($previousEnrollStatus=="PENDING" || $previousEnrollStatus=="CONFIRM"){
+				_assertNotVisible($overrideEnrollmentStatusLink,"Verify Overrride Enrollment Status button is displayed");
+				_assertVisible($reinstateEnrollmentLink,"Verify Reinstate Enrollment button is displayed");
+			}
+		}
+		verifyEnrollmentStatusInCap($currentEnrollStatus,$enrollmentId);
+		verifyDbEnrollmentDetailsForCap($enrollmentId);
+		verifyDbEnrollmentEvent($enrollmentId,$txnIdentifier,$maintenanceReason);	
+	}
+	
+	
+		
+}
+
+function verifyEnrollmentStatusInCap($currentEnrollStatus,$enrollmentId){
+	
+	var $enrollmentStatus = getEnrollmentDetailsFromEnrollment($enrollmentId);	
+	if($currentEnrollStatus == "PENDING"){
+		_assertEqual("PENDING", _getText(_cell(0, _near(_tableHeader("Enrollment Status:")))), "Verify if enrollment status id Pending");
+		_assertEqual(128,$enrollmentStatus[0][1],"Verify if enrollment status in UI is same as in DB");
+	}
+	else if($currentEnrollStatus == "TERM"){
+		_assertEqual("TERM", _getText(_cell(0, _near(_tableHeader("Enrollment Status:")))), "Verify if enrollment status id Pending");
+		_assertEqual(124,$enrollmentStatus[0][1],"Verify if enrollment status in UI is same as in DB");
+	}
+	else if($currentEnrollStatus == "CANCEL"){
+		_assertEqual("CANCEL", _getText(_cell(0, _near(_tableHeader("Enrollment Status:")))), "Verify if enrollment status id Pending");
+		_assertEqual(123,$enrollmentStatus[0][1],"Verify if enrollment status in UI is same as in DB");
+	}
+	else if($currentEnrollStatus == "CONFIRM"){
+		_assertEqual("CONFIRM", _getText(_cell(0, _near(_tableHeader("Enrollment Status:")))), "Verify if enrollment status id Pending");
+		_assertEqual(125,$enrollmentStatus[0][1],"Verify if enrollment status in UI is same as in DB");
+	}
+}
+
+
+function showPremiumHistory($permissions){
+	_click($showPremiumHistoryLink);
+	if($permissions=="N"){
+		_assertVisible($enrollmentPremiumHistoryHeader,"Verify Enrollment - Premium History is displayed for "+$permissions);
+		_assertNotVisible($actionsEnrollmentPremiumHistory,"Verify Actions button in Enrollment - Premium History is not displayed for "+$permissions);
+	}
+	else if ($permissions=="Y"){
+		verifyArray($enrollmentPremiumHistoryAccessors);
+		_click($actionsEnrollmentPremiumHistory);
+		verifyArray($editToolAccessors);
+	}
+	
+}
+
+function overrideEnrollment($permissions){
+	
+	if($permissions=="Y"){
+		_click($overrideEnrollmentStatusLink);
+		verifyArray($overrideEnrollmentStatusAccessors);
+		_setValue($overrideEnrollmentReasonTextbox,"Overriding Enrollment");
+		_click($overrideEnrollmentSubmitButton);
+		verifyArray($overrideEnrollmentStatusSuccessAccessors);
+		_click($overrideEnrollmentSuccessOkButton);
+		_assertVisible($enrollmentTile,"Verify if on CAP Enrollment page");
+	}
+}
+
+
+function terminateEnrollment($permissions){
+if($inOEP != "ON"){	
+	if($permissions=="Y"){
+		_click($changeEnrollmentPremiumHistory);
+		verifyArray($enrollmentBenefitEffectiveDates);
+		var $endDateOfCurrentMonth=getEndDateOfCurrentMonth();
+//		var $endDateOfCurrentMonth=getMidOfNextMonth();
+		
+		_setValue($enrollmentBenefitEffectiveEndDate,$endDateOfCurrentMonth);
+		$houseHold.coverageEndDate = $endDateOfCurrentMonth;
+		_click($editEnrollmentContinue);
+		_assertVisible($enrollmentChangeHeader,"Verify Enrollment - Change header is displayed");
+		_setSelected($enrollmentTranscationType, "Term");
+		_setSelected(_select("enrollee.txnReason"), "Non Payment");
+//		var $endDateOfCurrentMonth=getEndDateOfCurrentMonth();
+//		var $endDateOfLastMonth = getEndDateOfLastMonth();
+//		var $endDateOfLastMonth = getMidOfNextMonth();
+//		_setValue($enrollmentChangeLastPremiumPaid, $endDateOfLastMonth);
+		_setValue($enrollmentChangeLastPremiumPaid, $endDateOfCurrentMonth);
+		_setValue($comments, "Terminating Enrollment");
+		_click($submitUpdatedEnrollment);
+		_assertVisible($successMsg,"Verify successfully updated message");
+		_click($closeModalDialog);
+		_assertVisible($enrollmentPremiumHistoryDiv,"Verify Enrollment - Premium History is displayed");
+	}
+}
+else
+	_stop();
+}
+
+function reinstateEnrollment($permissions){
+	if($permissions=="Y"){
+		_click($reinstateEnrollmentLink);
+		verifyArray($reinstateEnrollmentAccessors);
+		_setValue($overrideReasonTextbox,"Reinstating enrollment");
+		_click($continueReinstateButton);
+		$houseHold.coverageEndDate ="12/31/"+$houseHold.coverageYear;
+		_assertVisible($enrollmentTile,"Verify if on CAP Enrollment page");
+	}
+}
+
+function cancelEnrollment($permissions){
+if($inOEP != "ON"){
+	if($permissions=="Y"){
+		_click($cancelEnrollmentPremiumHistory);
+		verifyArray($cancelAccessors);
+		_setSelected($selectCancelReasonDropdown, "Voluntary Withdrawal");
+		_setValue($cancelReasonTextbox,"Cancelling enrollment");	
+		_click($cancelEnrollmentSubmitButton);
+		$houseHold.coverageEndDate = $houseHold.coverageStartDate;
+		_assertVisible($enrollmentPremiumHistoryDiv,"Verify Enrollment - Premium History is displayed");
+	}
+}
+else
+	_stop();
+}
+
+function verifyEnrollConfirmatioDateInCap($enrollmentId){
+	var $todaysDate = _fetch(window.moment().format('MM/DD/YYYY'));
+	var $enrollConfirmateDateDb = getEnrollmentDetailsFromEnrollment($enrollmentId);
+	$enrollConfirmateDateDb = $enrollConfirmateDateDb[0][2];
+	$enrollConfirmateDateDb = $enrollConfirmateDateDb.split(" ");
+	$enrollConfirmateDateDb = _fetch(window.moment($enrollConfirmateDateDb[0]).format('MM/DD/YYYY'));
+	_assertEqual($todaysDate, _getText($enrollmentConfirmationDate), "Verify that Confirmation Date is displayed correctly");
+	_assertEqual($todaysDate,$enrollConfirmateDateDb,"Verify Confirmation Date in DB");
+}
+
+function terminateEnrolleeEnrollment($permissions,$numOfEnrolleeTerminated){
+	var $currentMonth = parseInt(_fetch(window.moment().get('Month')))+1;
+	
+	if($inOEP=="OFF" && ($currentMonth != '12' && $currentMonth != '01')){
+		if($permissions=="Y"){
+			var $enrolleeDependentNum = $houseHold.people.length -1;
+			_click($changeEnrollmentPremiumHistory);
+			verifyArray($enrollmentBenefitEffectiveDates);
+			var $endDateOfCurrentMonth=getEndDateOfCurrentMonth();
+//			var $endDateOfCurrentMonth=getMidOfNextMonth();
+			_setValue(_textbox("enrolleeEffectiveEndDateUI["+$enrolleeDependentNum+"]"),$endDateOfCurrentMonth);
+			_click($editEnrollmentContinue);
+			_assertVisible($enrollmentChangeHeader,"Verify Enrollment - Change header is displayed");
+			_setSelected($enrollmentTranscationType, "Term");
+			_setValue($comments, "Terminating Enrollee Enrollment");
+			_click($submitUpdatedEnrollment);
+			_assertVisible($successMsg,"Verify successfully updated message");
+			_click($closeModalDialog);
+			$houseHold.people[$enrolleeDependentNum].coverageEndDate = $endDateOfCurrentMonth;
+			_assertEqual($houseHold.coverageStartDate+" - "+$houseHold.people[$enrolleeDependentNum].coverageEndDate, _getText(_cell($enrolleeDependentNum, _under(_tableHeader("Benefit effective Date")))),"Verify benefit effective dates for enrollee after terminating enrollee");
+			_assertVisible($enrollmentPremiumHistoryDiv,"Verify Enrollment - Premium History is displayed");
+		}
+	}
+	else{
+		_stop();
+	}
+}
+
+function clickResendLatest834Transaction(){
+	
+	var $enrollmentId = getEnrollmentIdFromCapEnrollments();
+	_click($resendLatest834TransactionLink);
+	_setValue($resendLatest834TransactionTxtbox, "Resending latest 834 transaction");
+	_click($continueLinkResendLatest834);
+	_assertVisible($successMsgResendLatest834, "Verify if modal with Submission Successful is displayed");
+	_click($okLinkResendLatest834);
+	 verifyExtractionStatusInEnrollmentEvent($enrollmentId,"N");
+	_assertVisible($enrollmentTile,"Verify if on CAP Enrollment page");
+	
+}
+
+function clickResend834History(){
+
+	var $enrollmentId = getEnrollmentIdFromCapEnrollments();
+	_click($resend834HistoryLink);
+	_setValue($resend834HistoryReasonTxtbox, "Resending 834 history");
+	_click($resend834HistoryContinueLink);
+	_assertVisible($resend834HistorySuccessMsg, "Verify if modal with Submission Successful is displayed");
+	_click($resend834HistoryOkLink);
+	verifyExtractionStatusInEnrollmentEvent($enrollmentId,"Y");
+	_assertVisible($enrollmentTile,"Verify if on CAP Enrollment page");
+}
+
+function verifyExtractionStatusInEnrollmentEvent($enrollmentId,$isResend834History){
+	var $dbExnStatus = getEnrollDetailsFromEnrollmentEvent($enrollmentId);
+	var $dbEnrollmentEventCount = getEnrollmentEventCountFromEnrollmentEvent($enrollmentId);
+		if($isResend834History == "Y"){
+			for (var $i=0; $i< $dbEnrollmentEventCount[0][0]; $i++){
+				if (($dbExnStatus[$i][2] != "ENROLLMENT_EFFECTUATION") && ($dbExnStatus[$i][1] != 68)){
+					_assertEqual("RESEND",$dbExnStatus[$i][3],"Verify the extraction status in DB after resending latest 834 transaction");
+				}
+			}
+		} 
+		else{
+			if (($dbExnStatus[0][2] != "ENROLLMENT_EFFECTUATION") && ($dbExnStatus[0][1] != 68)){
+				_assertEqual("RESEND",$dbExnStatus[0][3],"Verify the extraction status in DB after resending latest 834 transaction");
+			}
+		}
+}
+	
+function verifyDbEnrollmentDetailsForCap($enrollmentId){
+	var $enrollmentDbDetails = getEnrollmentDetailsFromEnrollment($enrollmentId);	
+	var $enrollEffectiveStartDateDb = $enrollmentDbDetails[0][3];
+	_log("$enrollEffectiveStartDateDb : "+$enrollEffectiveStartDateDb);
+	$enrollEffectiveStartDateDb = getDateInMmDdYyyyFormat($enrollEffectiveStartDateDb);
+	_log("$enrollEffectiveStartDateDb after formattting: "+$enrollEffectiveStartDateDb);
+	var $enrollEffectiveEndDateDb = $enrollmentDbDetails[0][4];
+	_log("$enrollEffectiveEndDateDb : "+$enrollEffectiveEndDateDb);
+	$enrollEffectiveEndDateDb = getDateInMmDdYyyyFormat($enrollEffectiveEndDateDb);
+	_log("$enrollEffectiveEndDateDb after formattting: "+$enrollEffectiveEndDateDb);
+	_assertEqual($enrollEffectiveStartDateDb+" - "+$enrollEffectiveEndDateDb,_getText($enrollmentEffectiveDate),"Verify if Effective Date in UI is same as in DB");
+	parseFloat().toFixed(2);
+	_assertEqual("$"+parseFloat($enrollmentDbDetails [0][5]).toFixed(2),_getText($enrollmentPremiumAmount),"Verify if Premium Amount in UI is same as in DB");	
+    //_assertEqual("$"+parseFloat($enrollmentDbDetails [0][6]).toFixed(2),_getText($enrollmentAPTCAmount),"Verify if Elected APTC Amount in UI is same as in DB");
+	_log("$enrollmentDbDetails [0][7]: "+$enrollmentDbDetails [0][7]);
+	if(!$enrollmentDbDetails [0][7]){
+		_assertEqual(parseFloat($enrollmentDbDetails [0][7]).toFixed(2),_getText($enrollmentCSRAmount),"Verify if CSR Amount in UI is same as in DB");	
+	}
+	_assertEqual("$"+parseFloat($enrollmentDbDetails [0][8]).toFixed(2),_getText($enrollmentNetPremium),"Verify if Net Premium in UI is same as in DB");	
+	_assertEqual($enrollmentDbDetails [0][9],_getText($cmsPlanIdCell),"Verify if CMS Plan ID in UI is same as in DB");	
+}	
+
+
+
+function verifyEnrollSubmittedLastUpdateInCap($currentEnrollStatus,$userFirstName,$userLastName,$role){
+	var $todaysDate = _fetch(window.moment().format('MM/DD/YYYY'));
+	_assertEqual($todaysDate, _getText($enrollmentSubmittedDate), "Verify that Submitted Date is displayed correctly");
+	_assertEqual($todaysDate,_getText($enrollmentLastUpdateDate),"Verify Last Update Date is displayed correctly");
+	if ($currentEnrollStatus=="PENDING") {
+		_assertEqual("/"+$userFirstName.toLowerCase() + " " + $userLastName.toLowerCase()+"/", _getText($enrollmentSubmittedBy).toLowerCase(), "Verify Submitted by in Enrollments tile"  )
+		_assertEqual("/"+$role.toLowerCase()+"/", _getText($enrollmentSubmittedBy).toLowerCase(),"Verify Submitted by role in Enrollments tile");
+	}
+
+	_assertEqual("/"+$userFirstName.toLowerCase() + " " + $userLastName.toLowerCase()+"/", _getText($enrollmentLastUpdateBy).toLowerCase(), "Verify Submitted by in Enrollments tile"  )
+	_assertEqual("/"+$role.toLowerCase()+"/", _getText($enrollmentLastUpdateBy).toLowerCase(),"Verify Submitted by role in Enrollments tile");
+}
+
+function getEnrollmentIdFromCapEnrollments(){
+	var $enrollmentId = _getText(_cell(0, _rightOf(_tableHeader("Exchange Assigned Policy ID"))));
+	_log("Enrollment Id:" +$enrollmentId);
+	return $enrollmentId;
+}
+
+function clickShopForPlans(){
+	_assertVisible($shopForPlansButton,"Verify Shop for plans button is displayed");
+	//_click(_link("2019"));////remove after bug is fixed
+	_click($shopForPlansButton);
+	clickSaveAndContinue();
+	_assertVisible($shopHealthPlansLink,"Verify Shop health plans link is displayed");
+	
+	_click($shopHealthPlansButton);
+	_assertVisible($preferencesPageHeader,"Verify if on preferences page");
+}
+

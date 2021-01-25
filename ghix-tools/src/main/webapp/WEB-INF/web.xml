@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="2.3" xmlns="http://java.sun.com/xml/ns/javaee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+		http://java.sun.com/xml/ns/javaee 
+		http://java.sun.com/xml/ns/javaee/web-app_2_3.xsd">
+	<display-name>ghix-tools</display-name>
+<context-param>
+<param-name>endpoints.health.sensitive</param-name>
+<param-value>false</param-value>
+</context-param>
+	<description><![CDATA[Various tools common to all modules. It includes CDN management utility.]]></description>
+	
+	<welcome-file-list>
+		<welcome-file><![CDATA[index.jsp]]></welcome-file>
+		<welcome-file><![CDATA[index.html]]></welcome-file>
+	</welcome-file-list>
+	
+</web-app>

@@ -1,0 +1,11 @@
+{
+    "pageHeader":"$$('h1')[1]",
+    "planCompareTiles":
+    {
+        "img_company":"$$('.cp-tile__img')[index]",
+        "premium":"$$('.cp-tile__premium-amount')[index]",
+        "planName":"$$('a[id*=detail_]')[index]"
+     },
+     "comparePageHeaders":"$$('//div[@class=\"accordion benefits\"]/div/div/a')[index]"
+ 
+}

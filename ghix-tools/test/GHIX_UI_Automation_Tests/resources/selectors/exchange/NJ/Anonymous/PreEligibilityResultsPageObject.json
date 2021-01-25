@@ -1,0 +1,5 @@
+{  "lbl_requiredNotice":" $('//li[contains(text(),\"receive an estimate of the financial help you may receive for health plan costs\")]')",
+    "lbl_requiredNotice2":" $('//li[contains(text(),\"able to shop for medical and dental plans\")]')",
+    "lbl_reultEstimateAlertText": "$('//div[contains(text(),\" estimated eligibility for families and individuals seeking coverage\")]')",
+    "lbl_medcaidQualifyContent":  "eval($('//*[@id=\"container_resultDivs\"]')).$('//p[contains(text(),\"coverage with NJ FamilyCare\")]')"
+}

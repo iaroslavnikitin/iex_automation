@@ -1,0 +1,26 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <script>
+        var myFunc = {
+            lastMsg : '',
+            say: function(msg){
+                console.log('Last msg: '+this.lastMsg)
+                console.log('You said: '+msg)
+                this.lastMsg = msg;
+            },
+            getLastMsg : function(){
+                return this.lastMsg
+            }
+        }
+
+    </script>
+</head>
+<body>
+foo bar
+</body>
+</html>

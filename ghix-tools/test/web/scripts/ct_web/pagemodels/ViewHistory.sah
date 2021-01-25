@@ -1,0 +1,19 @@
+function expandPreferencesData($oldPref, $newPref){
+	if ($oldPref == "Both (E-mail and Postal Mail)") {
+		$oldPref = "Both (E-mail and Postal)";
+	}
+	if ($newPref == "Both (E-mail and Postal Mail)") {
+		$newPref = "Both (E-mail and Postal)";
+	}
+
+	_click(_submit("btn", _near(_span("Communication Preferences - Updated Preferences Data"))));
+  	
+	_assertEqual($newPref, _getText(_div(0, _rightOf(_div("New Notification Preference")))));
+	if (_isVisible(_div("Previous Notification Preference"))) {
+		_assertEqual($oldPref, _getText(_div(0, _rightOf(_div("Previous Notification Preference")))));
+	}
+}
+
+function goToHistoryPage() {
+	_click(_link("History"));
+}

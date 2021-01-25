@@ -1,0 +1,8 @@
+{
+    "btn_back": "$('[id*=leftButton]')",
+    "btn_saveAndExit": "$('[id*=middleButton]')",
+    "btn_saveAndContinue": "$('[id*=rightButton]')",
+    "btn_continue": "$('[id*=rightButton]')",
+    "header":"$('h1')"
+    
+}

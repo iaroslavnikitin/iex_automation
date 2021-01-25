@@ -1,0 +1,48 @@
+/*
+_resource("../lib/iex_resources_es.properties");
+_resource("../lib/iex_resources.properties");
+_resource("../lib/Plan_display_es.properties");
+_resource("../lib/Plan_display.properties");
+
+_include("../lib/util.sah");
+
+if (getApplicationLanguage() == "spanish") {
+	// English to Spanish
+	_setLanguage("../lib/iex_resources_es.properties", "../lib/iex_resources.properties", true);
+	_setLanguage("../lib/Plan_display_es.properties", "../lib/Plan_display.properties", true);
+}
+else if (getApplicationLanguage() == "english") {
+	// English
+	_setLanguage("../lib/iex_resources.properties", "../lib/iex_resources_es.properties", true);
+	_setLanguage("../lib/Plan_display.properties", "../lib/Plan_display_es.properties", true);
+}
+
+if (getBaseDomain() == "ctqa.ghixqa.com") {
+	$database = "POSTGRESQL";
+	$server = "sfo-pgqa1.ghixqa.com";
+	$port = "5444";
+	$username = "ctqa";
+	$password = "MTA1NzBjYmFlZjkz";
+} 
+else if (getBaseDomain() == "ctuat.ghixqa.com") {
+	$database = "POSTGRESQL";
+	$server = "sfo-pg1.ghixqa.com";
+	$port = "5444";
+	$username = "ctuat";
+	$password = "NmE0MTE1YzNjMTc0";
+} 
+else if (getBaseDomain() == "ct1dev.ghixqa.com") {
+	$database = "POSTGRESQL";
+	$server = "sfo-pgdev1.ghixqa.com";
+	$port = "5444";
+	$username = "ct1dev";
+	$password = "MjYzNWZlYWVlZTA5";
+}
+
+if (!isCTProductionEnvironment()) {
+	if($database =="POSTGRESQL"){
+		$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+	}
+}
+
+*/

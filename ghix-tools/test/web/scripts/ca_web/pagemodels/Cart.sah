@@ -1,0 +1,431 @@
+_includeOnce("Esignature.sah");
+
+function verifyElementsOnCartPage($healthPlanDetails, $dentalPlanDetails, $coverageStartDate, $group, $customGroupMem,$cartPageCase){
+	if($group){
+		if($cartPageCase == "Renewals"){
+			_assertVisible(_heading1("Renew Your Plans"));
+		}else{
+			_assertVisible(_heading1("Confirm Your Plan Selection"));
+		}
+		
+		_assertVisible(_button("Next"));
+	}
+	else{
+		_assertVisible(_heading1("Your Cart"));
+		_assertVisible(_button("Apply")|| _link("Apply"));
+	}
+	if(($healthPlanDetails == null || $healthPlanDetails == "")&& ($dentalPlanDetails == null|| $dentalPlanDetails == "")){
+		_assertVisible(_paragraph("Your cart is empty."));
+		_assertNotVisible(_tableHeader("Dental"),"Verify Dental header is not displayed if dental plan is not selected");
+		_assertNotVisible(_tableHeader("Health Plan"),"Verify Health Plan Header is not displayed");
+	}else if((($dentalPlanDetails == null) || ($dentalPlanDetails == "")) && $cartPageCase != "Add to plan" && $cartPageCase != "Renewals"){
+			_log("dentalPlanDetails is null and $cartPageCase != Add to plan");
+			verifyWhatsNextText($group,$cartPageCase);
+			
+			
+			verifyTotalMonthlyPremiumOnCart($dentalPlanDetails, $healthPlanDetails);
+			_assertVisible(_tableHeader("/Health Plan/"));
+			if(!$customGroupMem){
+				_assertVisible(_button("/SHOP FOR DENTAL PLANS/i"),"Verify Shop for dental Plan button is displayed if dental plan is not selected");
+			}
+			_assertNotVisible(_tableHeader("/DENTAL PLAN/"),"Verify Dental header is not displayed if dental plan is not selected");
+			_assertNotVisible(_link("SHOP FOR HEALTH PLANS"),"Verify Shop for health plan is not displayed");
+			verifyHealthPlanDetailsOnCart($healthPlanDetails,$coverageStartDate,$group,$customGroupMem,$cartPageCase);
+		}else if($healthPlanDetails == null ||($healthPlanDetails == "")){
+			_log("healthPlanDetails is null");
+			verifyWhatsNextText($group,$cartPageCase);
+			verifyTotalMonthlyPremiumOnCart($dentalPlanDetails, $healthPlanDetails);
+			if(!$customGroupMem){
+				_assertVisible(_link("SHOP FOR HEALTH PLANS"),"Verify Shop for health plan is displayed");
+			}else{
+				_assertNotVisible(_link("SHOP FOR HEALTH PLANS"),"Verify Shop for health plan is displayed");
+			}
+			_assertNotVisible(_button("SHOP FOR DENTAL PLANS"),"Verify Shop for dental Plan button is not displayed if dental plan is added to cart");
+			_assertVisible(_tableHeader("/Dental Plan/"),"Verify Dental header displayed if dental plan is selected");
+			_assertNotVisible(_tableHeader("/Health Plan/"));
+			verifyDentalPlanDetailsOnCart($dentalPlanDetails, $coverageStartDate,$group);
+		}else{
+			if($cartPageCase == "Add to plan" || $cartPageCase == "Renewals"){
+				_log("$cartPageCase == Add to plan");
+				_setStrictVisibilityCheck(true);
+
+				if($cartPageCase == "Renewals"){
+					_assertContainsText("Your existing plan(s) displayed below is available for renewal. Helpful Hint: Plan details and costs may change from year to year. You are encouraged to carefully review your plan options to make sure you have the plan that best fits your needs and is the best value for you. To shop and compare plans click BACK TO SHOPPING. The monthly premium for your selected health plan", _div("alert margin20-t"));
+				}else{
+					_assertContainsText("We have updated your plan(s) based on the changes you reported. Please note the following:", _div("alert margin20-t"));
+				}
+
+				if($cartPageCase != "Renewals"){
+					_setStrictVisibilityCheck(true);
+					$healthPremium = _getText(_listItem("/The monthly premium for your selected health plan increased from/"))
+					$healthPremium = $healthPremium.split(" to ")[1];
+					$healthPremium = $healthPremium.substring(0,$healthPremium.length-1);
+					//$group.healthPlan.premium = $healthPremium;
+					
+					$premium = $healthPremium.replace("$","")
+					$premium = $premium.replace(",","");
+					$premium = parseFloat($premium).toFixed(2);
+					$group.healthPlan.totalPayment = $premium;
+					if($group.aptc){
+						var $aptc = $group.aptc.replace("$","");
+						$aptc = parseFloat($aptc).toFixed(2);
+						$group.healthPlan.premium = "$" + parseFloat(($premium - $aptc)).toFixed(2);
+						$group.healthPlan.numPremium = parseFloat($premium - $aptc).toFixed(2);
+					}else{
+						$group.healthPlan.premium = "$" + $premium;
+						$group.healthPlan.numPremium = $premium;
+					}
+					
+					$group.healthPlan.totalPayment = parseFloat($group.healthPlan.totalPayment).toFixed(2);
+				}	
+
+				if($dentalPlanDetails){
+					$dentalPremium = _getText(_listItem("/The monthly premium for your selected dental plan increased from/"))
+					$dentalPremium = $dentalPremium.split(" to ")[1];
+					$dentalPremium = $dentalPremium.substring(0,$dentalPremium.length-1);
+					$group.dentalPlan.premium = $dentalPremium;
+				}
+				
+			}else{
+				verifyWhatsNextText($group);
+			}
+			verifyTotalMonthlyPremiumOnCart($dentalPlanDetails, $healthPlanDetails);
+			_assertNotVisible(_link("SHOP FOR HEALTH PLANS"),"Verify Shop for health plan is displayed");
+			_assertNotVisible(_button("SHOP FOR DENTAL PLANS"),"Verify Shop for dental Plan button is not displayed if dental plan is added to cart");
+			
+			_assertVisible(_tableHeader("/Health Plan/"));
+			verifyHealthPlanDetailsOnCart($healthPlanDetails,$coverageStartDate,$group,$customGroupMem,$cartPageCase);
+			if($dentalPlanDetails){
+				_assertVisible(_tableHeader("/Dental Plan/"),"Verify Dental header displayed if dental plan is selected");
+				verifyDentalPlanDetailsOnCart($dentalPlanDetails, $coverageStartDate,$group,$customGroupMem,$cartPageCase);
+			}
+		}
+		
+	if($cartPageCase != "Address change"){
+		_assertVisible(_button("Back to Shopping") || _link("Back to Shopping") || _link("Back To Shopping"));
+	}
+	
+//	else{
+//		_assertNotVisible(_button("Back to Shopping") || _link("Back to Shopping") || _link("Back To Shopping"));
+//	}
+	return $group;
+}
+
+function verifyWhatsNextText($group,$cartPageCase){
+	if(!$group){
+		_assertVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");
+		_assertEqual("What's next? In order to enroll in the plan(s) you have selected, you must complete an application. "+
+			 "To begin this process, click APPLY at the bottom of the screen. Your current plan selections will remain in your cart during the application process. "+
+			 //"IMPORTANT: Your Federal tax credit (APTC) or CA Premium Subsidy as shown here is only an estimate."+
+			 "IMPORTANT: Your monthly saving shown here is only an estimate."+
+			 " Additional information you provide during the application process will determine your actual monthly saving. "+
+			 "The monthly payments and coverage options you see may be different after you have completed the application.", _getText(_div("alert margin20-t")));
+	}else if($cartPageCase == "Finalize plan" && $group.aptc){
+		_assertVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");
+	}else if($cartPageCase == "Change plan" && $group.isChangePlanEnabled){
+		_log("$cartPageCase == Change plan && $group.isChangePlanEnabled");
+		_assertNotVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");
+	}else if($cartPageCase == "Change plan" && !$group.isChangePlanEnabled){
+		_log("$cartPageCase == Change plan && !$group.isChangePlanEnabled");
+		_assertVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");
+	}else if($cartPageCase == "Address change"){
+		var $insuranceType = ($group.healthPlan != "null") ? "1832":"1831";
+		var $oldMonthlyPremium = getGrossPremiumFromEnrollment($group.member[0].personMedicaidIdentification,$insuranceType);
+		$oldMonthlyPremium = parseFloat($oldMonthlyPremium).toFixed(2);
+		_log("cart page case = Address change");
+		if($oldMonthlyPremium != parseFloat($group.healthPlan.totalPayment).toFixed(2)){
+			_log("cart page case = Address change and premium is different");
+			_assertVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");
+		}else{
+			_log("cart page case = Address change and premium is same");
+			_assertNotVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");	
+		}
+	}else if($cartPageCase == "Renewals"){
+		var $insuranceType = ($group.healthPlan != "null") ? "1832":"1831";
+		var $oldMonthlyPremium = getGrossPremiumFromEnrollment($group.member[0].personMedicaidIdentification,$insuranceType);
+		$oldMonthlyPremium = parseFloat($oldMonthlyPremium).toFixed(2);
+		_log("cart page case = Renewals");
+
+		var $currentPremium;
+		if ($group.healthPlan != "null") {
+			$currentPremium = $group.healthPlan.totalPayment;
+		}else{
+			$currentPremium = $group.dentalPlan.totalPayment;
+		}
+
+		if($oldMonthlyPremium != parseFloat($currentPremium).toFixed(2)){
+			_log("cart page case = Renewals and premium is different");
+			_assertVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");
+		}else{
+			_log("cart page case = Renewals and premium is same");
+			_assertNotVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");	
+		}
+	}else{
+		_assertNotVisible(_div("alert margin20-t"),"Verify what's next Text is displayed under Your Cart heading");
+	}	
+}
+
+function verifyHealthPlanDetailsOnCart($healthPlanDetails, $coverageStartDate,$group,$customGroupMem,$cartPageCase){
+	if($group){
+		verifyNamesOfFamilyMemberOnCart($group,"Health Plan",$customGroupMem);
+	}
+	var $totalPayment;
+	var $issuerName = $healthPlanDetails.issuerName.replace("...","");
+	var $planName = $healthPlanDetails.name.replace("...","");
+	_assertVisible(_image("/"+$issuerName+"/", _near(_tableHeader("/Health Plan/")))," Verify Image of Health plan is displayed");
+	_assertVisible(_link("/"+$planName+"/", _near(_tableHeader("/Health Plan/"))),"Verify Health Plan name is displayed on the cart page");
+	if($cartPageCase == "Add to plan" || $cartPageCase == "Finalize plan" || $cartPageCase == "Change plan" || $cartPageCase == "Address change"){
+		_assertVisible(_cell("Change Effective Date: "+$coverageStartDate));
+		_assertNotVisible(_link("Remove", _near(_tableHeader("/Health Plan/"))),"Verify Remove link is displayed next to the plan selected");
+	}
+	else{
+		_assertVisible(_link("Remove", _in(_tableHeader("/Health Plan/"))),"Verify Remove link is displayed next to the plan selected");
+		_assertVisible(_cell("Coverage Start Date: "+$coverageStartDate));
+	}
+	var $fomatedPremium =$healthPlanDetails.premium.replace("$","").replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+	_assertVisible(_span($fomatedPremium, _rightOf(_span("HEALTH MONTHLY PAYMENT"))));
+	$totalPayment = parseFloat($healthPlanDetails.premium.replace("$",""));
+	
+	if($healthPlanDetails.taxCredit != "No Tax Credit"){
+		var $expectedTaxCredit = $healthPlanDetails.taxCredit.split(" ")[1];
+		$expectedTaxCredit = parseFloat($expectedTaxCredit.replace("$",""));
+		$expectedTaxCredit = $expectedTaxCredit.toFixed(2);
+		if($healthPlanDetails.aptc != "0.00"){
+			var $fomatedAptc = $healthPlanDetails.aptc.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+			_assertVisible(_paragraph("-$"+$fomatedAptc, _rightOf(_paragraph("Monthly Federal Tax Credit")), _near(_tableHeader("/Health Plan/"))), "Verify Aptc value");
+		}else{
+			_assertNotVisible(_paragraph("-$"+$healthPlanDetails.aptc, _rightOf(_paragraph("Monthly Federal Tax Credit")), _near(_tableHeader("/Health Plan/"))), "Verify Aptc value");
+		}
+		
+		if($healthPlanDetails.stateSubsidy){
+			var $fomatedStateSubsidy = $healthPlanDetails.stateSubsidy.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+			_assertVisible(_paragraph("-$"+$fomatedStateSubsidy, _rightOf(_paragraph("Monthly CA Premium Subsidy")), _near(_tableHeader("/Health Plan/"))), "Verify state subsidy value");
+		}else{
+			_assertNotVisible(_paragraph("-$"+$healthPlanDetails.stateSubsidy, _rightOf(_paragraph("Monthly CA Premium Subsidy")), _near(_tableHeader("/Health Plan/"))), "Verify state subsidy value");
+		}
+		$totalPayment = $totalPayment + parseFloat($expectedTaxCredit);
+	}
+	else if (!_isVisible(_submit("Log Out"))){
+		_assertVisible(_paragraph("-"+"$0.00", _rightOf(_paragraph("Monthly Federal Tax Credit")), _near(_tableHeader("/Health Plan/"))), "Verify Aptc value");	
+	}
+
+	$fomatedPremium = $totalPayment.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+	_assertVisible(_paragraph("$"+$fomatedPremium, _rightOf(_paragraph("Monthly Premium")), _near(_tableHeader("/Health Plan/"))),"Verify health Plan premium");
+}
+
+function verifyDentalPlanDetailsOnCart($dentalPlanDetails, $coverageStartDate,$group,$customGroupMem,$cartPageCase){
+	if($group){
+		verifyNamesOfFamilyMemberOnCart($group,"Dental Plan",$customGroupMem); 
+	}
+	var $planName = $dentalPlanDetails.name.replace("...","");
+	var $imageText = $dentalPlanDetails.imageText.replace("...","");
+	_assertVisible(_image("/"+$imageText+"/", _near(_tableHeader("/Dental Plan/")))," Verify Image of Dental plan is displayed");
+	if($cartPageCase == "Add to plan" || $cartPageCase == "Finalize plan"){
+		_assertVisible(_cell("Change Effective Date: "+$coverageStartDate, _near(_tableHeader("/Dental Plan/"))));
+		_assertNotVisible(_link("Remove", _in(_tableHeader("/Dental Plan/"))),"Verify Remove link is displayed next to the plan selected");
+	}
+	else{
+		_assertVisible(_cell("Coverage Start Date: "+$coverageStartDate, _near(_tableHeader("/Dental Plan/"))));
+		_assertVisible(_link("Remove", _in(_tableHeader("/Dental Plan/"))),"Verify Remove link is displayed next to the plan selected");
+	}
+	var $dentalPremium = $dentalPlanDetails.premium.replace("$","");
+	_log("$dentalPremium: "+$dentalPremium);
+	var $formatPremDental = $dentalPremium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+	_assertVisible(_cell("$"+$formatPremDental+"[1]"),_rightOf(_span("Your Payment", _near(_tableHeader("/Dental Plan/")))),"Verify Your payment amount in dental section");
+}
+
+function verifyTotalMonthlyPremiumOnCart($dentalPlanDetails, $healthPlanDetails){
+	var $totalPremium =0;
+	var $aptc = "0.00";
+	var $healthPremium = 0;
+	var $dentalPremium = 0;
+	_setStrictVisibilityCheck(true);
+	
+
+	if($healthPlanDetails){
+		$healthPremium = $healthPlanDetails.premium.replace("$","");
+		_log("$healthPremium: "+$healthPremium);
+		var $formatPrem = $healthPremium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+		_assertVisible(_cell("$"+$formatPrem, _rightOf(_cell("Health Monthly Payment"))));
+		$healthPremium = $healthPremium.replace(/[^0-9-.]/g, '');
+	}
+
+	if($dentalPlanDetails){
+		$dentalPremium = $dentalPlanDetails.premium.replace("$","");
+		_log("$dentalPremium: "+$dentalPremium);
+		var $formatPremDental = $dentalPremium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+		_assertVisible(_cell("$"+$formatPremDental, _rightOf(_cell("Dental Monthly Payment"))));
+		$dentalPremium = $dentalPremium.replace(/[^0-9-.]/g, '');
+	}
+	
+	$totalPremium = parseFloat($healthPremium) + parseFloat($dentalPremium);
+
+
+	$totalPremium = $totalPremium.toFixed(2);
+	_log("$totalPremium: "+$totalPremium)
+	$totalPremium = $totalPremium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+	_log("$totalPremium: "+$totalPremium)
+
+	
+	if(_isVisible(_paragraph("Monthly Federal Tax Credit"))){
+		_setStrictVisibilityCheck(true);
+		$aptc = $healthPlanDetails.aptc;//_getText(_span("/numberToFormat/", _rightOf(_paragraph("Monthly Federal Tax Credit"))));
+		_setStrictVisibilityCheck(false);
+	}
+	if((_isVisible(_submit("Log Out")))&& ($aptc =="0.00")){
+		_assertNotVisible(_span($aptc,_near(_paragraph("Monthly Federal Tax Credit"), _in(_row("plan__details")))));
+	}else{
+		if(_isVisible(_submit("Log Out"))){
+			_assertVisible(_submit("Adjust APTC", _near(_paragraph("aid_planAPTC"))));
+		}else{
+			if($healthPlanDetails){
+				_assertVisible(_span($aptc,_near(_paragraph("Monthly Federal Tax Credit"), _in(_row("plan__details")))));	
+			}
+		}	
+	}
+	//$totalPremium = parseFloat(_getText(_span("numberToFormat", _rightOf(_paragraph("Monthly Premium")))).replace(/[^0-9-.]/g, ''));//Currency to Number converter
+	$totalPremium = parseFloat($totalPremium.replace(/[^0-9-.]/g, ''));
+	
+	 $totalPremium = $totalPremium.toFixed(2);
+	 $totalPremium = $totalPremium.replace(/\d(?=(\d{3})+\.)/g, '$&,')///currency formatting
+	_assertVisible(_tableHeader("Cart Total"));
+	_assertVisible(_span("TOTAL MONTHLY PAYMENT", _under(_tableHeader("Cart Total"))));
+	_assertVisible(_span($totalPremium, _rightOf(_span("TOTAL MONTHLY PAYMENT"))));
+	_setStrictVisibilityCheck(false);
+}
+
+function clickShopForDentalPlans($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles){
+	_click(_button("/SHOP FOR DENTAL PLANS/i"));
+	verifyElementsOnPlanPage("", "",$zip,$coverageStartDate, $noOfAdults, $noOfChildren);
+
+}
+
+function clickShopForHealthPlans($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles){
+	_click(_link("SHOP FOR HEALTH PLANS"));
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles);
+
+}
+
+//function clickBackToShopping($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles){
+function clickBackToShopping($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping, $customGroupMem){
+	if(_isVisible(_link("Back to Shopping"))){
+		_click(_link("Back to Shopping"));
+	}else if(_isVisible(_link("Back To Shopping"))){
+		_click(_link("Back To Shopping"));
+	}
+	else{
+		_click(_button("Back to Shopping"));
+	}
+	//verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles);
+	
+	if ($customGrouping) {
+		verifyRemoveExistingPlansAndGoShoppingPopup($customGroupMem);
+
+		var $group = JSON.parse(JSON.stringify($customGroupMem));
+		
+		$group.coverageStartDate = getCoverageStartDate("3","","", "");
+		$group.coverageChangeEffectiveDate = $group.coverageStartDate;
+
+		for (var $i = 0; $i < $group.member.length; $i++) {
+			$group.member[$i].coverageStartDate = $group.coverageStartDate;
+		}
+		return $group;
+	} else {
+		verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping, $customGroupMem);
+	}
+
+	return null;
+}
+
+function verifyRemoveExistingPlansAndGoShoppingPopup($group){
+	_setStrictVisibilityCheck(true);
+	_lockWindow();
+	_focusWindow();
+	_assertVisible(_div("modal-body"));
+	_assertEqual("Please Note: If you decide to shop for a new plan, prices will be calculated based on the coverage date of "+$group.coverageStartDate+". This means that your premium for a new plan could be higher, compared to keeping your old plan.", _getText(_div("modal-body")));
+	_assertVisible(_link("Remove Existing Plans & Go Shopping"));
+	_assertVisible(_button("Return to Cart", _near(_div("modal-body"))));
+	_unlockWindow();
+	_setStrictVisibilityCheck(false);
+}
+
+function clickRemoveExistingPlansAndGoShopping($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping, $customGroupMem,$household){
+	_click(_link("Remove Existing Plans & Go Shopping"));
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping, $customGroupMem);
+
+	$updatedGroups = updateGroupAndPlanInfoAfterAutoCSChange($household,$customGroupMem,$customGroupMem.csr,"IncomeChange");
+	$customGroupMem = $updatedGroups.terminatedGroup;
+
+	return $customGroupMem;
+}
+
+function clickRemoveFromCart($planToRemove,$healthPlan, $dentalPlan, $coverageStartDate ){
+	_click(_link("Remove", _near(_tableHeader("/"+$planToRemove+"/"))));
+	_assertNotVisible(_tableHeader("/"+$planToRemove+"/"));
+	
+	if($planToRemove == "Health"){
+		verifyElementsOnCartPage("",$dentalPlan, $coverageStartDate);
+		
+	}
+	else if($planToRemove =="Dental"){
+		verifyElementsOnCartPage($healthPlan,"", $coverageStartDate);
+	}
+
+}
+
+function verifyNamesOfFamilyMemberOnCart($group, $plan, $customGroupMem){
+//	if($customGroupMem){
+//		for(var $i = 0; $i< $customGroupMem.length ;$i++){
+//			var $name =$group[$i]
+//			_assertVisible(_span("/"+$name+"/i", _near(_tableHeader($plan))));
+//		}
+//	}else{
+		for(var $i = 0; $i< $group.member.length ;$i++){
+			var $name =$group.member[$i].firstName
+			_assertVisible(_span("/"+$name.toLowerCase()+"/i", _in(_tableHeader("/"+$plan+"/"))));
+		}
+//	}
+}
+
+function clickNextButtonOnCart($verificationFlag){
+	_click(_button("Next"));
+	if ($verificationFlag != "N") {
+		verifyEsignaturePage();
+	}
+}
+
+function removePlanAndGetIndex($plan){
+	_click(_link("Remove"));
+	_assertVisible(_link("Back to Shopping"));
+	_click(_link("Back to Shopping"));
+
+	_assertVisible(_div("cp-tile__body"));
+
+	var $plansArr = _collect("_div", "cp-tile__body", _in(_div("mainSummary")));
+	var $index = 0;
+
+	for(var $i=0; $i<$plansArr.length;$i++){
+		if(_isVisible(_div("Your Current Plan",_in($plansArr[$i])))){
+			$index = $i;
+		}
+	}
+
+	if($index == 0){
+		$index = "0";
+	}
+
+	return $index;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

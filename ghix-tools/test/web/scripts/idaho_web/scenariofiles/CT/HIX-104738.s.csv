@@ -1,0 +1,57 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/global_include_ct.sah"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify plan display page","[Documentation]","1.Verify ""Back to Preferences"" link present on Browse Health Plan page 
+2.Verify clicking on Browse to Preferences link user is navigated back on preference page 
+3.Verify ""Edit Family Info"" link present on Browse Health Plan page 
+4.Verify clicking on ""Edit Family Info"" link user is navigated back on prescreener page and edit and update family info 
+5.Verify Plan type HMO, PPO and POS are displayed with checkbox under Filter By 
+6.Verify metal tier Platinum, Gold, Silver and Bronze are displayed with checkbox under Filter By 
+7.Verify yearly deductibles are displayed on Health Plan tile page along with checkbox and user can select one by checking it 
+8.Verify issuer type Anthem and ConnectiCare under company on Health Plan tile page along with check box 
+9.Verify specific issuer type is only displayed on Health Plan tile page when user clicks on checkbox beside it 
+10.Verify pagination is displayed and user is able to navigate back and forth on Browse Health Plan page 
+11. Verify Sort By drop-down is displayed with default value as ""Total Expense Estimate"" 
+12. Verify Sort By drop-down is displayed with below values and plans are sorted as per the value selected. 
+a. Total Expense Estimate 
+b. Monthly Price 
+c. Yearly Deductible 
+d. Out of Pocket (OOP) Max"
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""10/25/1990""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""25000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","1"
+,"validateSavingDetails","Y","Y","N","N"
+,"clickNextOnCheckSavingResults"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"selectDoctor","Mofei Liu","""06001"""
+"//","selectHospital","""Scott W. Lindsay, Dpm""","""06001"""
+,"selectDoctor","Patricia Brady-Lux","""06001"""
+,"clickNextPreferences"
+,"selectPrescription","Lipitor","""Lipitor 80 Mg Tab (Oral Tablet)"""
+,"selectPrescription","Truvada","""Truvada 200"""
+,"clickViewPlans","Y"
+,"goBackToPreferences"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"clickViewPlans","Y"
+,"clickEditFamilyInfo"
+,"verifyElementsOnPreeligibility"
+,"clickCheckForSavings"
+,"validateResultsTitle","1"
+,"validateSavingDetails","Y","Y","N","N"
+,"clickNextOnCheckSavingResults"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"clickNextPreferences"
+,"clickViewPlans","Y"
+,"verifySortByDropdownOnPlanPage","""Total Expense Estimate"""
+,"verifySortingPageNavigation"

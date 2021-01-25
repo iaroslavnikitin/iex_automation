@@ -1,0 +1,88 @@
+_includeOnce("../../lib/Utils.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $ENTITY_REGISTRATION_STATUSES = ["Select",
+	"Pending",
+	"Withdrawn-Entity Request",
+	"Denied-Other",
+	"Denied-Eligibility",
+	"Denied-Questionable Business Practices",
+	"Denied-Conflict of Interest",
+	"Denied-Unable to Satisfy Program Requirements",
+	"Registered",
+	"Active",
+	"Denied-Failed Training",
+	"Deregistered",
+	"Deregistered-Failed to renew",
+	"Deregistered-Misconduct"];
+
+var $entityRegStatusElements = {
+	"header_hd":{
+		"element": _heading4("Registration Status"),
+		"label": null
+	},
+	"viewMode":{
+		"edit_btn":{
+			"element": _link("Edit"),
+			"label": null
+		},
+		"entityNumber_lb":{
+			"element": _cell("Entity Number"),
+			"label": null,
+			"value": _cell(1, _in(_row("/Entity Number/")))
+		},
+	},
+	"editMode":{
+		"submit_btn":{
+			"element": _submit("update"),
+			"label": null
+		},
+		"registrationStatus_dd":{
+			"element": _select("registrationStatus"),
+			"label": _label("New StatusRequired")
+		}
+	}
+}
+
+function editEntityRegistrationStatus($entity,$newStatus){
+	if (!$newStatus) $newStatus = $ENTITY_REGISTRATION_STATUSES[9];
+	_setSelected($entityRegStatusElements.editMode.registrationStatus_dd.element, $newStatus);
+	click($entityRegStatusElements.editMode.submit_btn.element);
+
+	$entity.registrationStatus.status = $newStatus;
+	$entity.registrationStatus.regRenewalDate = _fetch(window.moment(getCurrentDate("MM/DD/YYYY")).add(1, 'Y').format("MM/DD/YYYY"));
+
+	var $allHistoryRecords = JSON.parse(JSON.stringify($entity.registrationStatus.registrationHistory));
+	var $newRecord = $allHistoryRecords[$allHistoryRecords.length-1];
+	$newRecord.date = getCurrentDate("MM/DD/YYYY");
+	$newRecord.previousStatus = $allHistoryRecords[$allHistoryRecords.length-1].newStatus;
+	$newRecord.newStatus = $newStatus;
+	$entity.registrationStatus.registrationHistory.push($newRecord);
+
+	return $entity;
+}
+
+function activateEntity($entity){
+	searchByEntityNumber($entity);
+	clickUpdateStatusUnderActions();
+	$entity = editEntityRegistrationStatus($entity,$ENTITY_REGISTRATION_STATUSES[9]);
+
+	return $entity;
+}
+
+function getEntityNumberFromUI($entity){
+	$entity.entityInformation.entityNumber = _getText($entityRegStatusElements.viewMode.entityNumber_lb.value)
+	return $entity;
+}
+
+function updateEntityRegistrationInfoAfterCreation($entity){
+
+	$entity = getEntityNumberFromUI($entity);
+
+	$entity.registrationStatus.status = $ENTITY_REGISTRATION_STATUSES[1];
+	$entity.registrationStatus.registrationHistory[0].date = getCurrentDate("MM/DD/YYYY")
+	$entity.registrationStatus.registrationHistory[0].previousStatus = "Incomplete";
+	$entity.registrationStatus.registrationHistory[0].newStatus = $ENTITY_REGISTRATION_STATUSES[1];
+
+	return $entity;
+}

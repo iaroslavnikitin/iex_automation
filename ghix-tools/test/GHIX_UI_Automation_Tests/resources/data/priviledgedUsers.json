@@ -1,0 +1,84 @@
+{
+    "supervisor": 
+        {
+            "CAPFlowThroughApplicationLink": {
+                    "email": "auto_wdio.supervisor@yopmail.com",
+                    "password": "ghix123#"
+            },
+
+            "CAPFlowThroughEnrollmentLink": {
+                "email": "auto_wdio.supervisor2@yopmail.com",
+                "password": "ghix123#"
+        },
+
+            "AdminLogin": {
+                    "email": "auto_supervisor6@yopmail.com",
+                    "password": "ghix123#"
+
+            },
+
+            "CAPFlowSupervisorCancelEnrollment": {
+                "email": "auto_wdio.supervisor3@yopmail.com",
+                "password": "ghix123#"
+            }
+        },
+
+    "admin":
+        {
+            "EntityFlow" : {
+                "email":"auto_entityadmin@yopmail.com",
+                "password":"ghix123#"
+            },
+            
+            "AgentFlow" : {
+                "email":"brokeradmin1@yopmail.com",
+                "password":"ghix123#"
+            },
+            "CreateAgency" : {
+                "email" : "agentadmin_createagency@yopmail.com",
+                "password":"ghix123#"
+            },
+            "AddAdminStaff":
+            {
+                "email" : "auto_wdio.addadminstaff@yopmail.com",
+                "password":"ghix123#"
+            },
+            "AddAgentToAgency":
+            {
+                "email" : "auto_wdio.agentadmin1@yopmail.com",
+                "password":"ghix123#"
+            }
+
+        },
+
+    "CSR":
+        {
+            "RIDPFlow" : {
+                "email" : "auto_wdio.l1csr1@yopmail.com",
+                "password" : "ghix123#"
+            }           
+        },
+
+    "L1CSR":
+    {
+        "MNCSREnrollsIndividual" : {
+            "email" : "auto_wdio.l1csr1@yopmail.com",
+            "password" : "Ghix123#"
+        }      
+
+    },
+    "opsadmin":
+    {
+        "opsadmin" : {
+            "email" : "auto_opsadmin@getinsured.com",
+            "password" : "Ghix123#"
+        }				   
+    },
+	"exadmin":
+    {
+        "exadmin" : {
+            "email" : "auto_wdio.admin1@yopmail.com",
+            "password" : "ghix123#"
+        }
+    }
+}

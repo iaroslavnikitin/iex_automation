@@ -1,0 +1,12 @@
+{
+    "planHighlights":
+    {
+    "planHighlight_officeVisit":"$$('.cp-tile__value')[2]",
+    "planHighlight_drug":"$$('.cp-tile__value')[3]",
+    "planHighlight_name":"$$('.cp-tile__value')[1]",
+    "planHighlight_deductible":"$$('.cp-tile__value')[4]",
+    "planHighlight_totalExpEst":"$('//table/tbody/tr[1]/td/a')",
+    "planHighlight_qualityRating":"$$('.cp-tile__value')[6]"    
+    }
+    
+}

@@ -1,0 +1,242 @@
+_includeOnce("CertificationApplication.sah");
+_includeOnce("CertificationStatus.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("BuildProfile.sah");
+
+var $BuildProfile = true;
+
+// Constants
+var $AGENT_PROFILE_EDUCATION_MENU_LENGTH = 10;
+var $AGENT_PROFILE_PIC_NAME = "pic.jpg";
+var $AGENT_PROFILE_PIC_PATH = "scripts\\idaho\\pic.jpg";
+
+// Accessors
+var $agentProfileHeader = _heading4("Step 2: Profile");
+var $agentProfileInstructions = _div("span10");
+var $agentProfileClientsServedLabel = _label("control-label required");
+var $agentProfileClientsServed = _checkbox("clientsServed");
+var $agentProfileLanguagesLabel = _label("Languages");
+var $agentProfileLanguages = _textbox(0);
+var $agentProfileProductExpertiseLabel =_label("/Product Expertise/");
+var $agentProfileHealth = _checkbox("Health");
+var $agentProfileDental = _checkbox("Dental");
+var $agentProfileVision = _checkbox("Vision");
+var $agentProfileLife = _checkbox("Life");
+var $agentProfileMedicare = _checkbox("Medicare");
+var $agentProfileMedicaid = _checkbox("Medicaid");
+var $agentProfileCHIP = _checkbox("CHIP");
+var $agentProfileWorkersComp = _checkbox("Workers Compensation");
+var $agentProfileProperty = _checkbox("Property/Casualty");
+var $agentProfileWebsiteLabel = _label("control-label required[2]");
+var $agentProfileWebsite = _textbox("yourWebSite");
+var $agentProfileEmailLabel = _label("required control-label");
+var $agentProfileEmail = _textbox("yourPublicEmail");
+var $agentProfileEducationLabel = _label("Education");
+var $agentProfileEducation = _select("education");
+var $agentProfileAboutYouLabel = _label("About Yourself");
+var $agentProfileAboutYou = _textarea("aboutMe");
+var $agentProfilePhotoLabel = _label("Upload Photo");
+var $agentProfilePhoto = _file("fileInputPhoto");
+var $agentProfileUpload = _button("btn_UploadPhoto");
+var $agentProfileBack = _button("back");
+var $agentProfileFinish = _submit("submit_finish_next");
+var $businessAddressLine1 = _textbox("address1");
+var $businessAddressLine2 = _textbox("address2");
+var $businessCity = _textbox("city");
+var $businessState = _select("state");
+var $businessZip = _textbox("zip");
+
+function verifyElementsOnAgentProfile() {
+	_assertVisible($agentProfileHeader);
+	_assertVisible($agentProfileInstructions);
+	_assertVisible($agentProfileClientsServedLabel);
+	_assertVisible($agentProfileClientsServed);
+	_assertVisible($agentProfileLanguagesLabel);
+	_assertVisible($agentProfileLanguages);
+	_assertVisible($agentProfileProductExpertiseLabel);
+	_assertVisible($agentProfileHealth);
+	_assertVisible($agentProfileDental);
+	_assertVisible($agentProfileVision);
+	_assertVisible($agentProfileLife);
+	_assertVisible($agentProfileMedicare);
+	_assertVisible($agentProfileMedicaid);
+	_assertVisible($agentProfileCHIP);
+	_assertVisible($agentProfileWorkersComp);
+	_assertVisible($agentProfileProperty);
+	_assertVisible($agentProfileWebsiteLabel);
+	_assertVisible($agentProfileWebsite);
+	_assertVisible($agentProfileEmailLabel);
+	_assertVisible($agentProfileEmail);
+	_assertVisible($agentProfileEducationLabel);
+	_assertVisible($agentProfileEducation);
+	_assertVisible($agentProfileAboutYouLabel);
+	_assertVisible($agentProfileAboutYou);
+	_assertVisible($agentProfilePhotoLabel);
+	_assertVisible($agentProfilePhoto);
+	_assertVisible($agentProfileUpload);
+	_assertVisible($agentProfileBack);
+	_assertVisible($agentProfileFinish);
+}
+
+function checkClientsServed($bool) {
+	if ($bool) {
+		_check($agentProfileClientsServed);
+	}
+	else {
+		_uncheck($agentProfileClientsServed);
+	}
+}
+
+function enterProfileLanguage($language, $agent) {
+	_click(_listItem($language));
+	_assertEqual("/"+$language+"/",_getText(_list("chzn-choices")));
+	$agent.profileLanguage = $language;
+	return $agent;
+}
+
+function checkExpertise($type, $bool,$num,agent) {
+	var $accessor = _checkbox($type);
+	if ($bool) {
+		_check($accessor);
+	}
+	else {
+		_uncheck($accessor);
+	}
+	$agent.expertise = $type
+	return $agent;
+}
+
+function enterAgentWebsite($address, $agent) {
+	_setValue($agentProfileWebsite, $address);
+	$agent.website = $address;
+	return $agent;
+}
+
+function enterAgentPublicEmail($email) {
+//	var $publicEmail = "public"+$email;
+	var $email = $email.toLowerCase();		
+	_setValue($agentProfileEmail, $email);
+	$agent.publicEmail = $email;
+	return $agent;
+}
+
+function selectAgentEducation($edu) {
+	_setSelected($agentProfileEducation, $edu);
+	var $edu = _getSelectedText($agentProfileEducation);
+	_log("Agent Education"+ $edu);
+	return $edu
+}
+
+function enterAgentEducation($agent) {
+	var $index = Math.floor(Math.random() * 9) + 1;
+	var $edu = selectAgentEducation($index);
+	$agent.edu = $edu;
+	return $agent;
+}
+
+function enterAboutYourself($text, $agent) {
+	if ($text === undefined) {
+		$text = "";
+	}
+	_setValue($agentProfileAboutYou, $text);
+	$agent.aboutYourself = $text;
+	return $agent;
+}
+
+function uploadAgentPhoto() {
+	_setFile($agentProfilePhoto, $AGENT_PROFILE_PIC_PATH);
+	var $text = _getValue($agentProfilePhoto);
+	_assertTrue(new RegExp($BUILD_PROFILE_PIC_NAME).test($text));
+	_click($agentProfileUpload);
+	_wait(10000, _isVisible(_heading4("File uploaded Successfully.")));
+	_assertVisible(_heading4("File uploaded Successfully."));
+	_click(_submit("Ok"));
+}
+
+function clickBackButtonOnAgentProfile() {
+	_click($agentProfileBack);
+	verifyElementsOnAgentRegistration();
+}
+
+function clickFinsihToCreateAgentAccount($agent, $agentInfo) {
+	_log("Agent details: "+JSON.stringify($agent));
+	_log("Agent details: "+JSON.stringify($agentInfo));
+	_click($agentProfileFinish);
+	certificationStatusVerify();
+	_click(_submit("Close"));
+	verifyEditButtonOnAgentProfile("Pending");
+	verifyEditButtonOnAgentInformation("Pending");
+	verifyAgentAccountInDb($agent, $agentInfo);
+}
+//certification_status-0, company_name-1, contactnumber-2, education-3, languages_spoken-4, license_number-5, product_expertise-6,about_me-7,federal_ein-8, business_contact_phone_number-9,alternate_phone_number-10, fax_number-11, your_web_site -12 from brokers where your_public_email = 'mason_1555958007605@yopmail.com';
+function verifyAgentAccountInDb($agent, $agentInfo){
+	var $resultfromDb = getAgentInfoFromdb($agent.publicEmail);
+	_assertEqual("Pending", $resultfromDb[0][0],"Verify Certification status is pending");
+	_assertEqual($agent.businessName,$resultfromDb[0][1],"Verify Business name is same as that in db");
+	_assertEqual($agent.agentPrimaryNumber,$resultfromDb[0][2].replace(/\-/g, ""),"Verify Agents primary number is same in db");
+	_assertEqual($agent.edu,$resultfromDb[0][3],"Verify Agents education in db");
+	_assertEqual($agent.profileLanguage,$resultfromDb[0][4],"Verify Agents language spoken is same in db");
+	_assertEqual($agent.licenseNumber,$resultfromDb[0][5],"Verify licenseNumber is same in db");
+	_assertEqual("/"+$agent.expertise+"/",$resultfromDb[0][6],"Verify Agents Product expertise in db"); 
+	_assertEqual($agent.aboutYourself,$resultfromDb[0][7],"Verify Agents about text in db"); 
+	_assertEqual($agent.agentEIN,$resultfromDb[0][8],"Verify Agents EIN is same in db");
+	_assertEqual($agent.agentBusinessNumber,$resultfromDb[0][9].replace(/\-/g, ""),"Verify Business number is same in db");
+	_assertEqual($agent.agentAlternateNumber,$resultfromDb[0][10].replace(/\-/g, ""),"Verify Agents Alternate number is same in db");
+	
+	_assertEqual($agent.agentFaxNumber,$resultfromDb[0][11].replace(/\-/g, ""),"Verify Agents Fax number is same in db");
+	_assertEqual($agent.website,$resultfromDb[0][12],"Verify Agents web site is same in db");
+	
+}
+
+var $agentBusinessAddress="";
+function updateAgentBusinessAddress($address1,$address2,$city,$state,$zip){
+	_assertVisible($businessAddressLine1);
+	_assertVisible($businessCity);
+	_assertVisible($businessState);
+	_assertVisible($businessZip);
+	_setValue($businessAddressLine1, $address1);
+	_setValue($businessAddressLine2, $address2);
+	_setValue($businessCity, $city);
+	_setSelected($businessState, $state);
+	_setValue($businessZip, $zip);
+
+	if($state == "Idaho"){
+		$state = "ID";
+	}
+	else if($state == "California"){
+		$city ="CA";
+	}
+	$agentBusinessAddress = "Business Address " +$address1 + " " +$address2 + " " +$city + ", " +$state + " " +$zip;
+	_log($agentBusinessAddress);
+}
+
+function verifyAgentBusinessAddress(){
+	_click(_link("Agent Information[1]"));
+	_assertVisible(_heading4("Agent Information"));
+	_assertVisible(_list("nav nav-list"));
+	_assertEqual($agentBusinessAddress,_getText(_table("table table-border-none table-condensed[1]")));
+	_click($homeIcon);
+}
+
+function verifyEditButtonOnAgentProfile($Status){
+	_click(_link("Profile"));
+	if($Status == "Pending"){
+		_assertNotVisible(_div("Profile Edit"));	
+	}
+	else{
+		_assertVisible(_div("Profile Edit"));
+	}
+}
+
+
+function verifyEditButtonOnAgentInformation($Status){
+	_click(_link("Profile"));
+	if($Status == "Pending"){
+		_assertNotVisible(_button("Edit"));	
+	}
+	else{
+		_assertVisible(_button("Edit"));
+	}
+}
+
+

@@ -1,0 +1,1086 @@
+_resource("../resources/pic.jpg");
+_resource("../resources/data.csv");
+_resource("../resources/createTicketData.csv");
+
+_includeOnce("Utils.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("AccountSettings.sah");
+_includeOnce("Login.sah");
+_includeOnce("HeaderFooter.sah");
+
+var $Role="";
+var $individualEmail;
+var $filteredTickets="";
+var $subjectDetail="";
+var $ticketType="";
+var $ticketSubType="";
+var $priority="";
+var $role="";
+var $user="";
+var $description="";
+var $size="";
+var $ticketId = "";
+
+///accessors
+var $AddNewTicketButton = _link("addNewTicket");
+var $SearchFilter = _div("searchFilterParentDiv");
+var $SearchButton= _submit("Search");
+var $AddNewTicketHeader = _heading4("Create Ticket");
+var $AddNewTicketCancelButton = _link("cancelEditBtn");
+var $AddNewTicketSaveButton =  _link("saveTicketBtn");
+var $AddNewTicketSaveFooterButton  = _link("saveTicketFooterBtn");
+var $AddNewTicketCancelFooterButton = _link("cancelFooterBtn");
+var $AddNewTicketSubject = _textarea("subject");
+var $now=_call(window.moment());
+var $ticketCreationDate =parseInt(_fetch(window.moment($now).get('date')));
+var $ticketCreationYear = parseInt(_fetch(window.moment($now).get('year')));
+var $ticketCreationMonth = parseInt(_fetch(window.moment($now).get('month')))+1;
+
+function manageTicketVerify(){
+	_check(_link("Manage Tickets", _near(_link("Tickets Dropdown Menu. Press enter to open it and tab through its options"))));
+	_assertVisible($AddNewTicketButton);
+	_assertVisible($SearchFilter);
+	_assertVisible($SearchButton);
+}
+
+function clickMangeTickets($permission){
+	if($permission !="N"){
+		manageTicketVerify();
+	}
+	else {
+		_assertNotVisible(_link("Manage Tickets", _near(_link("Tickets Dropdown Menu. Press enter to open it and tab through its options"))));
+	}
+}
+
+function clickAddNewTicket(){
+	_click($AddNewTicketButton);
+	VerifyElementsOfCreateTicketPage();
+}
+
+function VerifyElementsOfCreateTicketPage(){
+	_assertVisible($AddNewTicketHeader);
+	_assertVisible($AddNewTicketCancelButton);
+	_assertVisible($AddNewTicketSaveButton);
+	_assertVisible($AddNewTicketSaveFooterButton);
+	_assertVisible($AddNewTicketCancelFooterButton);
+	_setSelected(_select("ticketType"), "Issues");
+	verifyToolTipOnCreateTicketPage();
+	_setSelected(_select("ticketType"), "");
+	_assertEqual("Select,Administrator,Counselor,Entity,Entity Administrator,Agent,Agent Administrator,Individual,Issuer Administrator,Issuer Representative,L1 Customer Support,L2 Customer Support,Operations,Supervisor Customer Support,System",_getText(_select("userRole")));
+	_assertEqual("Critical,High,Medium,Low",_getText(_select("priority")));
+	_setSelected(_select("ticketType"), "Feedback");
+	_setSelected(_select("ticketType"), "Request");
+	_setSelected(_select("ticketType"), "Complaint");
+}
+
+function verifyToolTipOnCreateTicketPage(){
+	var $x = _collect("_link", "/Help text/");
+	var $y = ["This is a short sentence describing the subject or the main topic of the ticket.", 
+			  "This specifies the type of ticket (e.g.) Issue and will determine the scope of the tasks to be completed.", 
+			  "Based on the type of ticket, the sub-type needs to selected (e.g.) Issue > Technical Issue or Issue > Billing Issue. This will determine the exact list of tasks to be completed.",
+			  "This specifies the role of the person requesting this ticket", "Based on the requestor role chosen, this field will list names of all persons having that role. Just type a few characters of the person’s name and choose from the suggestions that appear.", 
+			  "This field helps specify the priority for the ticket." , 
+			  "This is a multi-line description of the details of the ticket. You can type up to 2000 characters."];
+	_lockWindow();
+	_focusWindow();
+	for (var $i = 0; $i < $x.length; $i++) {
+		_mouseOver($x[$i]);
+		_wait(5000, _isVisible(_div("tooltip-inner")));
+		_log(_getText(_div("tooltip-inner")), "custom3");
+		var $expec = (_getText(_div("tooltip-inner")));
+		_assertEqual($y[$i], $expec );
+		_wait(3000);
+		_blur($x[$i]);
+		_wait(5000, !_isVisible(_div("tooltip-inner")));
+	}
+	_unlockWindow();
+}
+
+function enterSubject($subject){
+	if($subject!=null && $subject!=""){
+		$subjectDetail =$subject;
+	}
+	else {
+		$subjectDetail = "Ticket Created To Assist User. Created On " + $ticketCreationDate+ "/"+$ticketCreationMonth+"/"+$ticketCreationYear + +" "+randomString(7, true);
+	}
+	_setValue($AddNewTicketSubject, $subjectDetail);
+}
+
+function enterTicketType($str){
+	_assertVisible(_select("ticketType"));
+	_setSelected(_select("ticketType"), $str);
+	$ticketType = $str;
+}
+
+function enterTicketSubType($str){
+	_assertVisible(_select("ticketSubType"));
+	_click(_select("ticketSubType"));
+	_setSelected(_select("ticketSubType"), $str);
+	$ticketSubType = $str;
+}
+
+function enterCreatedForRole($str){
+	_assertVisible(_select("userRole"));
+	_setSelected(_select("userRole"), $str);
+	$role = $str;
+}
+
+function enterCreatedFor($str,$expected){
+	_assertVisible(_textbox("requester"));
+	_setValue(_textbox("requester"), $str);
+	_assertEqual("/"+$expected+"/",_getText(_list("ui-id-1")));
+	_click(_link($expected));
+	$user = $expected;
+}
+
+function enterPriority($str){
+	_assertVisible(_select("priority"));
+	_setSelected(_select("priority"), $str);
+	$priority=$str;
+}
+
+function enterDescription($str){
+	_assertVisible(_textarea("description"));
+	if(($str!=null) && ($str!="")){
+		$description = $str;
+	}
+	else {
+		$description  = "Detailed Description of ticket";
+	}
+	_setValue(_textarea("description"), $description);
+}
+
+function clickSaveTicket(){
+	_click($AddNewTicketSaveFooterButton);
+	_assertNotVisible(_label("subject_error_label"));
+	_assertNotVisible(_label("ticketType_error_label"));
+	_assertNotVisible(_label("userRole_error_label"));
+	_assertNotVisible(_label("description_error_label"));
+	if(_isVisible(_label("subject_error_label")) || _isVisible(_label("ticketType_error_label")) || _isVisible(_label("userRole_error_label"))|| _isVisible(_label("description_error_label"))){
+		_log("Stopping test case as ticket was not created")
+			_stop();
+	}
+	manageTicketVerify();
+}
+
+function clickCancelTicket(){
+	_click($AddNewTicketCancelFooterButton);
+}
+
+function searchTicketByTicketNumber($localTicketId){
+	_assertVisible(_textbox("ticketNumber"));
+	if (!$localTicketId) {
+		$localTicketId = getTicketId($subjectDetail);
+	}
+	_setValue(_textbox("ticketNumber"), $localTicketId);
+	_click(_submit("Search"));
+
+	_assertVisible(_link("/"+$localTicketId+"/"));
+}
+
+function clickSearchTicket(){
+	_wait(1000);
+	_click(_submit("Search"));
+	$filteredTickets = _getText(_span("tktCountHeader"));
+	_log("Tickets Count On UI"+$filteredTickets);
+}
+
+function searchTicketBySubject($str){
+	var $flag=false;
+	_click(_link("Ticket"));
+	_click(_link("Ticket"));
+	if(($str==null) || ($str=="")){
+		$str = $subjectDetail;
+	}
+	_setValue(_textbox("ticketSubject"), $str);
+	//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		if($str == "" || $str == null){
+			_log("Stopping test case here as subject is Empty");
+			_stop();
+		}
+	}
+}
+
+function clickViewTicketDetails(){
+	_click(_link(0, _in(_cell(0))));
+	_assertVisible(_heading4("Ticket Summary"));
+	_assertVisible(_table("table table-striped"));
+}
+
+function clickGearButton($ticketId){
+	if (isProductionEnvironment()) {
+		if ($ticketId) {
+			_click(_link("dLabel", _rightOf(_cell("/"+$ticketId+"/"))));
+		}
+		else {
+			_click(_link("dLabel", _rightOf(_cell("/Ticket Created To Assist ptest123@yopmail.com/"))));
+		}
+	}
+	else {
+		_click(_link("dLabel", _in(_cell(8))));
+		_wait(2000, _isVisible(_link("dLabel")));
+	}
+	_assertVisible(_list("dropdown-menu pull-right"));
+}
+
+function verifyGearDropdownOptions(){
+	var $options = _collectAttributes("_listItem", "/.*/", "sahiText", _in(_list("dropdown-menu pull-right")));
+	for (var $i = 0; $i < arguments.length; $i++ ) {
+		_assert($options.indexOf(arguments[$i]) != -1, "Option " + arguments[$i] + " is missing.");
+	}
+}
+
+function clickDropdownOptionFromGearMenu($option){
+	_click(_link($option, _in(_list("dropdown-menu pull-right"))));
+}
+
+function verifyTicketSummaryPage($status, $requestedBy){
+	_assertVisible(_heading1($subjectDetail));
+	_assertVisible(_cell("Ticket Status: " + $status, _rightOf(_bold("Ticket Status:"))));
+	_assertVisible(_button("Claim"));
+	_log("TODO: Assignee?");
+	_assertVisible(_strong($ticketId, _rightOf(_label("Ticket Number"))));
+	_assertVisible(_div($subjectDetail, _rightOf(_label("Subject"))));
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_strong($ticketType, _rightOf(_label("Ticket Type"))));
+	_setStrictVisibilityCheck(false);
+	_assertVisible(_link($firstName + $lastName, _rightOf(_label("Created For"))));
+	_assertVisible(_strong($requestedBy, _rightOf(_label("Requested By"))));
+	_assertVisible(_strong($priority, _rightOf(_label("Priority"))));
+	_assertVisible(_strong($ticketType + " Workgroup", _near(_label("Workgroup Assigned"))));
+	_assertVisible(_strong($status, _rightOf(_label("Status"))));
+	_assertVisible(_textarea("description"));
+	_assertEqual($description, _getValue(_textarea("description")));
+}
+
+function verifyEditTicketPage(){
+	_assertVisible(_textarea("subject"));
+	_assertFalse(_getAttribute(_textarea("subject"), "disabled"));
+	_assertVisible(_select("priority"));
+	_assertFalse(_getAttribute(_select("priority"), "disabled"));
+	_assertVisible(_textarea("description"));
+	_assertFalse(_getAttribute(_textarea("description"), "disabled"));
+}
+
+function goBackToTickets(){
+	_assertNotVisible(_heading4("Search Filters"));
+	_click(_link("icon-backward"));
+	_assertVisible(_heading4("Search Filters"));
+}
+
+function clickEditSummaryFromGearButton(){
+	_click(_link("Edit Summary", _in(_cell(8))));
+	_assertVisible(_heading4("Edit Ticket"));
+}
+
+function ClaimTicket($assignPermission, $ticketId){
+	if(_isVisible(_span("Unclaimed"))||_isVisible(_span("Reopened"))){
+		if($assignPermission=="Y" && $signedEmail != "autocsr_l1cs1@yopmail.com"){
+			_assertVisible(_link("Assign Ticket", _in(_cell(8))));
+		}
+		else {
+			_assertNotVisible(_link("Assign Ticket", _in(_cell(8))));
+		}
+		_click(_link("Claim", _in(_list("dropdown-menu pull-right"))));
+		clickGearButton($ticketId);
+		_assertVisible(_listItem("Mark As Complete"));
+		_assertVisible(_span("Open", _near(_tableHeader("Ticket Status"))));
+	}
+	else
+		_log("Ticket was already claimed");
+}
+
+
+function clickAndClaimTicket($ticketId){
+	_click(_link("/"+$ticketId+"/"));
+	_assertVisible(_heading4("Ticket Summary"));
+	_assertVisible(_div("Ticket Type RIDP"));
+	_click(_button("Claim"));
+	_assertVisible(_button("btn1")," Verify Mark as Complete is displayed ");
+	_assertVisible(_div("Status Open"));
+}
+//@param "Accepted", "Rejected"
+
+function clickMarkAsComplete($markTicketAs){
+	_click(_button("/Mark As Complete/"));
+	_assertVisible(_heading3("Mark Task As Complete", _in(_div("markVerifyCompleteDialogAction"))));
+	_setSelected(_select("selectField"), $markTicketAs);
+	_setValue(_textarea("commentVerifyBoxAction"), "Marking Ticket as "+ $markTicketAs);
+	if( $markTicketAs == "Rejected"){
+		_setSelected(_select("rejectionReasonField"), "Invalid document - Doesn't match application");
+	}
+	_click(_submit("ticketListtaskCompleteBtnVerify"));
+
+	_assertVisible(_div("Status Resolved"));
+
+
+
+}
+
+function MarkAsComplete($comment,$archivePermission, $subject){
+	_click(_link("Mark As Complete", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading3("Mark Task As Complete"));
+	_assertVisible(_submit("ticketListtaskCompleteBtn"));
+	_setValue(_textarea("commentBox"), $comment);
+	_click(_submit("ticketListtaskCompleteBtn"));
+	_wait(1000);
+	_assertEqual("Search", _getValue(_submit("Search")));
+	manageTicketVerify();
+	if (!$subject) {
+		$subject = "";
+	}
+	searchTicketBySubject($subject);
+	_click(_submit("Search"));
+	_assertVisible(_span("Resolved", _near(_tableHeader("Ticket Status"))));
+	//		_click(_link("dLabel", _in(_cell(8))));
+	//	_wait(_isVisible(_link("dLabel")));
+	clickGearButton($subject);
+	if($archivePermission=="Y"){
+		_assertVisible(_link("Archive Ticket"));
+	}
+	else {
+		_assertNotVisible(_link("Archive Ticket"));
+	}
+	_assertVisible(_link("Reopen[1]"));
+	_assertVisible(_link("Restart[1]"));
+}
+
+function ArchiveTicket($archivePermission){
+	if($archivePermission == "Y"){
+		if (isProductionEnvironment()) {
+			$ticketId = _extract(_getText(_cell("/Ticket Created To Assist ptest123@yopmail.com/")), "(.*) Ticket Created To Assist ptest123@yopmail.com", true)[0]
+				}
+		_click(_link("Archive Ticket", _in(_list("dropdown-menu pull-right"))));
+		_wait(1000, _isVisible(_heading4("Archive ticket")));
+		_assertEqual("Are you sure you want to archive this ticket? Archiving the ticket will remove it from your ticket queue", _getText(_div("modal-body")));
+		_click(_submit("archiveSubmit"));
+		clickAccountSettingsGotoDashboard();
+		searchTicketBySubject("");
+		//		searchTicketByTicketNumber($ticketId);
+		_uncheck(_checkbox("archiveFlagValue"));
+		_click(_submit("Search"));
+		_assertVisible(_heading4("Records not found."));
+		_check(_checkbox("archiveFlagValue"));
+		clickSearchTicket();
+		_assertNotVisible(_heading4("Records not found."));
+		if (isProductionEnvironment()) {
+			_assertVisible(_cell($ticketId + " Ticket Created To Assist ptest123@yopmail.com"));
+		}
+	}
+	else {
+		_log("User does not have permission to archive ticket");
+	}
+}
+
+function ReopenTicket($assignPermission){
+	//	_click(_link("dLabel", _in(_cell(8))));
+	//	_wait(1000);
+	//	clickGearButton();
+	_click(_link("Reopen", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading3("Are you sure you want to Reopen this ticket?"));
+	_assertVisible(_button("cancelReopenBtn"));
+	_assertVisible(_link("submitReopenBtn"));
+	_click(_link("submitReopenBtn"));
+	_assertEqual("Ticket Summary", _getText(_heading4("Ticket Summary")));
+	_assertEqual("Reopened", _getText(_strong("Reopened", _near(_label("Status")))));
+	if($assignPermission=="Y"){
+		_assertVisible(_link("Assign Ticket", _near(_heading4("Actions"))));
+	}
+	else{
+		_assertNotVisible(_link("Assign Ticket", _near(_heading4("Actions"))));
+	}
+}
+
+function clickSearchByWorkGroup($workgroup){
+	$totalTickets = _getText(_span("tktCountHeader"));
+	if(_isVisible(_div("ui-multiselect-menu ui-widget ui-widget-content ui-corner-all"))){
+	}
+	else {
+		_click(_span("ui-icon ui-icon-triangle-1-s", _in(_button("Select options", _near(_label("Workgroup"))))));
+	}
+	_click(_checkbox($workgroup, _in(_div("ui-multiselect-menu ui-widget ui-widget-content ui-corner-all"))));
+	_wait(1000);
+}
+
+function clickSearchByPriority($priority){
+	if(_isVisible(_div("ui-multiselect-menu ui-widget ui-widget-content ui-corner-all[1]"))){
+	}
+	else {
+		_click(_span("ui-icon ui-icon-triangle-1-s", _in(_button("Select options", _near(_label("Priority"))))));
+	}
+	_click(_checkbox($priority, _in(_div("ui-multiselect-menu ui-widget ui-widget-content ui-corner-all[1]"))));
+	_wait(1000);
+
+}
+
+function CreateTicketForUser($localEmail, $localPassword,$localRole, $localTicketType, $localTicketSubtype, $localCreatedForRole, $localUser, $localExpUser, $localPriority, $localPermission){
+	if ($localUser == "") {
+		$localUser = $firstName;
+		$localExpUser = $firstName + "  " + $lastName;
+	}
+	setDB();
+	clickLogin();
+	loginEnterEmailAddress($localEmail);
+	loginEnterPassword($localPassword);
+	loginClickLoginButton();
+	clickMangeTickets($localPermission);
+	if($localPermission != "N"){
+		clickAddNewTicket();
+		$subjectDetail = "Ticket created for user "+$localEmail + " on "+ $ticketCreationDate+ "/"+$ticketCreationMonth+"/"+$ticketCreationYear + " "+randomString(7, true);
+		enterSubject($subjectDetail);
+		enterTicketType($localTicketType);
+		enterCreatedForRole($localCreatedForRole);
+		enterCreatedFor($localUser,$localExpUser);
+		enterPriority($localPriority);
+		enterDescription();
+		clickSaveTicket();
+		searchTicketBySubject("");
+		searchTicketByTicketNumber();
+		clickSearchTicket();
+		logOut();
+	}
+	$Role=$localRole;
+	$ticketType=$localTicketType;
+	$ticketSubType=$localTicketSubtype;
+	$priority=$localPriority;
+	$role=$localRole;
+	$user=$localUser;
+	$createdFor = $localCreatedForRole;
+}
+
+function verifySearchedTicketInformation($status){
+	_assertVisible(_link($ticketId, _near(_tableHeader("Ticket"))));
+	_assertVisible(_link($subjectDetail, _near(_tableHeader("Ticket"))));
+	_assertVisible(_span($ticketType + " Workgroup", _under(_tableHeader("Workgroup"))));
+	_assertVisible(_span($status, _under(_tableHeader("Ticket Status"))));
+	_assertVisible(_span($priority, _under(_tableHeader("Priority"))));
+}
+
+function reOpenUserTicket($email,$password,$role,$assignPermission,$archivePermission,$ticketType,$ticketSubtype,$createdForRole,$user,$expUser,$priority){
+	setDB();
+	clickLogin();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	clickMangeTickets();
+	clickAddNewTicket();
+	enterSubject("Ticket created for user "+$email + " on "+ $ticketCreationDate+ "/"+$ticketCreationMonth+"/"+$ticketCreationYear  +" "+randomString(7, true));
+	enterTicketType($ticketType);
+	enterCreatedForRole($createdForRole);
+	enterCreatedFor($user,$expUser);
+	enterPriority($priority);
+	enterDescription();
+	clickSaveTicket();
+	_wait(2000);
+	searchTicketBySubject("");
+	searchTicketByTicketNumber();
+	clickSearchTicket();
+	clickGearButton();
+	ClaimTicket($assignPermission);
+	MarkAsComplete("Complete",$archivePermission);
+	ReopenTicket($assignPermission);
+	logOut();
+}
+
+function archiveUserTicket($email,$password,$role,$archivePermission,$ticketType,$ticketSubtype,$createdForRole,$user,$expUser,$priority){
+	setDB();
+	clickLogin();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	clickMangeTickets();
+	clickAddNewTicket();
+	enterSubject("Ticket created for user "+$email + + " on "+ $ticketCreationDate+ "/"+$ticketCreationMonth+"/"+$ticketCreationYear  +" "+randomString(7, true));
+	enterTicketType($ticketType);
+	enterCreatedForRole($createdForRole);
+	enterCreatedFor($user,$expUser);
+	enterPriority($priority);
+	enterDescription();
+	clickSaveTicket();
+	_wait(2000);
+	searchTicketBySubject("");
+	searchTicketByTicketNumber();
+	clickSearchTicket();
+	clickGearButton();
+	ClaimTicket($archivePermission);
+	MarkAsComplete("Complete",$archivePermission);
+	ArchiveTicket($archivePermission);
+	logOut();
+}
+
+function ExportTickets(){
+	_assertVisible(_submit("btn btn-small"));
+	_click(_submit("btn btn-small"));
+	_assertVisible(_button("btnExportData"));
+	_assertVisible(_heading4("(Only the first 1000 rows will be exported)"));
+	_click(_button("btnExportData"));
+	_wait(90000, _lastDownloadedFileName() != null);
+	_assertEqual("/ExportTicketData.*/", _lastDownloadedFileName());
+	var $userDataPath = _userDataDir();
+	var $csvPath = $userDataPath+"/scripts/idaho_web/resources/ExportTicketData.csv";
+	_saveDownloadedAs($csvPath);
+	_clearLastDownloadedFileName();
+	// clear the variable
+	_assertNull(_lastDownloadedFileName());
+	// check to see if cleared.
+	var $data = _readCSVFile($csvPath);
+	var $header1=[];
+
+	$header1 = ["Ticket Number","Ticket Type","Ticket Subtype","Ticket Workgroup","Subject","Ticket Details","Ticket Status","Requested By","Created For","Priority","Date of Request","Due Date"];
+	_log("First Row "+$data[0][0]);
+	_log("Second Row "+$data[0][1]);
+	for($i=0;$i<$header1.length;$i++){
+		_assertEqual($header1[$i],$data[0][$i]);
+	}
+	$size = $data.length-1;
+	_log("Count "+ $size);
+	_log("filter Tickets "+$filteredTickets);
+	$filtered = $filteredTickets.split(" ")[1];
+	if($filtered > 1000){
+		_assertEqual("1000",$size);
+	}
+	else {
+		var $expResult="Tickets "+$size+" Total Tickets";
+		_assertEqual($filteredTickets,$expResult);
+	}
+}
+
+function clickManageWorkgroups($workgroup){
+	_click(_link("Manage Workgroup", _near(_link("Tickets Dropdown Menu. Press enter to open it and tab through its options"))));
+	_assertVisible(_heading4("View or Edit Workgroup"));
+	_assertVisible(_link("updateQueueBtn"));
+	_setSelected(_select("queueType"), $workgroup);
+	_assertEqual("Add users to workgroup...", _getValue(_textbox("Type names of members to add to the workgroup:")));
+}
+
+function RemoveFromWorkgroup($user,$role){
+	var $data = _getTableContents(_table("table table-hover extUserList"),[1,2]);
+	var $count = 	_collectAttributes("_cell","/"+$user+"/","sahiText",_in(_div("row-fluid margin10-t"))).length;
+	for(var $i=0;$i<$count;$i++){
+		_check(_checkbox("/usersToDelete/", _near(_cell($user+"["+$i+"]"))));
+	}
+	clickUpdateWorkgroup();
+}
+
+function clickUpdateWorkgroup(){
+	_click(_link("updateQueueBtn"));
+	_assertEqual("Add New Ticket", _getText(_link("Add New Ticket")));
+}
+
+function VerifyRemovedWorkgroup($workgroup){
+	_assertNotVisible(_listItem($workgroup));
+}
+
+function AddToWorkgroup($user,$expUser){
+	_lockWindow(6000);
+	_focusWindow();
+	_focus(_textbox("default"));
+	//_typeNative($user);
+	//_typeNative("autoCSRL2");
+	_setValue(_textbox("Counties Served"), "autoCSRL2");
+	_wait(6000,_isVisible(_listItem($expUser)));
+	if (_isVisible(_listItem($expUser))) {
+		_click(_listItem($expUser));
+	}
+	_unlockWindow();
+	clickUpdateWorkgroup();
+}
+
+function VerifyAddedWorkgroup($workgroup){
+	_assertVisible(_listItem($workgroup));
+}
+
+function exportTicketForSelectedWorkgroups($email,$password,$wrkgrp1,$wrkgrp2,$p1,$p2,$role,$multiWrkgrp,$multiP){
+	setDB();
+	$Role = $role;
+	verifyHeaderAndFooter();
+	clickLogin();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	clickSearchByWorkGroup($wrkgrp1);
+	clickSearchByWorkGroup($wrkgrp2);
+	clickSearchByPriority($p1);
+	clickSearchByPriority($p2);
+	clickSearchTicket($role);
+	ExportTickets();
+	getTicketCount($multiWrkgrp,$multiP);
+	logOut();
+}
+
+function manageWrkgrp($email,$csrlogin,$password,$wrkgrp1,$wrkgrp2,$user,$role,$searchUser){
+	setDB();
+	$Role = $role;
+	verifyHeaderAndFooter();
+	clickLogin();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	clickManageWorkgroups($wrkgrp1);
+	_wait(5000,_isVisible(_table("table table-hover extUserList")));
+	if(! (_checkbox("/usersToDelete/", _near(_cell($user, _near(_cell("/L2_CSR/", _in(_table("table table-hover extUserList"))))))))){
+		AddToWorkgroup($searchUser,$user);
+	}
+
+	RemoveFromWorkgroup($user,$role);
+	clickManageWorkgroups($wrkgrp2);
+	RemoveFromWorkgroup($user,$role);
+	clickAddNewTicket();
+	enterSubject();
+	enterTicketType("Triage");
+	enterCreatedForRole("Supervisor Customer Support");
+	enterCreatedFor("autoSuper","autoSupervisor Martyn");
+	enterPriority("Low");
+	enterDescription();
+	clickSaveTicket();
+	_wait(2000);
+	searchTicketBySubject("");
+	searchTicketByTicketNumber();
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("Assign Ticket", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading4("Assign"));
+	_setSelected(_select("activitiTaskQueues"), $wrkgrp1);
+	_focus(_select("activitiTaskUser"));
+	_click(_select("activitiTaskUser"));
+	var $userList = _getText((_select("activitiTaskUser")));
+	_assertNotTrue(new RegExp($user,"i").test($userList));
+	_setSelected(_select("activitiTaskQueues"), $wrkgrp2);
+	_focus(_select("activitiTaskUser"));
+	_click(_select("activitiTaskUser"));
+	var $userList = _getText((_select("activitiTaskUser")));
+	_assertNotTrue(new RegExp($user,"i").test($userList));
+	_click(_submit("reassignCancelBtn"));
+
+	clickManageWorkgroups($wrkgrp1);
+	AddToWorkgroup($searchUser,$user);
+	searchTicketBySubject("");
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("Assign Ticket", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading4("Assign"));
+	_setSelected(_select("activitiTaskQueues"), $wrkgrp1);
+	_focus(_select("activitiTaskUser"));
+	_click(_select("activitiTaskUser"));
+	var $userList = _getText((_select("activitiTaskUser")));
+	_assertTrue(new RegExp($user,"i").test($userList));
+	_setSelected(_select("activitiTaskQueues"), $wrkgrp1);
+	_focus(_select("activitiTaskUser"));
+	_click(_select("activitiTaskUser"));
+	var $userList = _getText((_select("activitiTaskUser")));
+	_assertTrue(new RegExp($user,"i").test($userList));
+	_click(_submit("reassignCancelBtn"));
+	logOut();
+}
+
+function EditTicket($email,$password,$ticketPermission,$editPermission,$str,$assignPermission){
+	setDB();
+	verifyHeaderAndFooter();
+	clickLogin();
+	loginEnterEmailAddress("auto_admin@yopmail.com");
+	loginEnterPassword("ghix123#");
+	loginClickLoginButton();
+	clickMangeTickets();
+	clickAddNewTicket();
+	enterSubject();
+	enterTicketType("Issues");
+	enterTicketSubType("Billing Issues");
+	enterCreatedForRole("L1 Customer Support");
+	enterCreatedFor("autoCSRL1","autoCSRL1CS1 Martyn");
+	enterPriority("Low");
+	enterDescription();
+	clickSaveTicket();
+	logOut();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	clickMangeTickets($ticketPermission);
+	if($ticketPermission == "Y"){
+		searchTicketBySubject();
+		searchTicketByTicketNumber();
+		clickSearchTicket();
+		clickGearButton();
+		ClaimTicket($assignPermission);
+		if($editPermission == "Y"){
+			clickEditSummaryFromGearButton();
+			enterDescription($str);
+			clickSaveTicket();
+		}
+		else {
+			_assertNotVisible(_link("Edit Summary", _in(_cell(8))));
+		}
+	}
+	else {
+		_log("User cannot Edit Ticket");
+	}
+	logOut();
+}
+
+function CSRActsOnDocumentVerification($status){
+	_setValue(_textbox("ticketSubject"), "SSAP_DOCUMENT_VERIFICATION");
+	clickSearchByWorkGroup("Document Verification Workgroup");
+	_setValue(_textbox("requestedByName"), $firstName);
+	var $requestedBy =  $firstName + " " +$lastName;
+	_wait(3000);
+	_click(_link($requestedBy));
+	_setSelected(_select("ticketStatus"), $status);
+	_click(_submit("Search"));
+	_assertVisible(_span("Tickets 1 Total Tickets"));
+	clickGearButton();
+	ClaimTicket("Y");
+	_click(_link("Mark As Complete", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading3("Mark Task As Complete"));
+	_assertVisible(_submit("ticketListtaskCompleteBtn"));
+	_setValue(_textarea("commentBox"), "Complete");
+	_click(_submit("ticketListtaskCompleteBtn"));
+	_wait(1000);
+}
+
+function CSRSearchForIndividualTicket(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+}
+
+function CSRClaimingIndiviudalTicket(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	ClaimTicket("Y");
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	_assertVisible(_span("Open", _near(_tableHeader("Ticket Status"))));
+}
+
+function CSRReassignTicket(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("Reassign Ticket"));
+	_assertVisible(_heading4("Reassign"));
+	_assertVisible(_span("/Workgroup Name:/"));
+	_assertVisible(_span("/Assignee:/"));
+	_setSelected(_select("activitiTaskQueues"), "Feedback Workgroup");
+	_setSelected(_select("activitiTaskUser"), _getText(_select("activitiTaskUser"))[1]);
+	_click(_submit("reassignBtn"));
+	_assertEqual("Feedback Workgroup", _getText(_strong("Feedback Workgroup", _near(_label("Workgroup Assigned")))));
+}
+
+function  CSRReClassifyTicket(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("View Details", _in(_list("dropdown-menu pull-right"))));
+	_click(_link("Re-Classify Ticket", _in(_list("nav nav-list[1]"))));
+	_setSelected(_select("ticketType"), _getText(_select("ticketType"))[1]);
+	_setSelected(_select("ticketSubType"), _getText(_select("ticketSubType"))[1]);
+	_click(_submit("reclassifyBtn"));
+	_assertVisible(_strong("Provide Feedback", _near(_label("/Ticket Type/"))));
+}
+
+function CSRSearchAndMarkTicketAsComplete(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	MarkAsComplete("Complete","N");
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	_assertVisible(_span("Resolved", _near(_tableHeader("Ticket Status"))));
+}
+
+function CSRSearchAndCancelTicket(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("Restart", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading3("Are you sure you want to Restart this ticket?"));
+	_click(_link("submitRestartBtn"));
+	_assertVisible(_strong("Restarted", _near(_label("Status"))));
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("Cancel Ticket", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading4("Confirm Ticket Cancel"));
+	_click(_submit("Yes"));
+	_setValue(_textarea("comment_text"), "Cancel Ticket");
+	_click(_submit("Submit"));
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	_assertVisible(_span("Canceled", _near(_tableHeader("Ticket Status"))));
+}
+
+function CSRReOpenTicket(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("Reopen", _in(_list("dropdown-menu pull-right"))));
+	_assertVisible(_heading3("Are you sure you want to Reopen this ticket?"));
+	_click(_link("submitReopenBtn"));
+	_assertVisible(_strong("Reopened", _near(_label("Status"))));
+}
+
+function CSRVerifyTicketHistory(){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("View Details", _in(_list("dropdown-menu pull-right"))));
+	_click(_link("Ticket History", _in(_list("nav nav-list"))));
+	//	_assertVisible(_table("ticketHistoryList"));
+	_assertVisible(_table("userlistTbl"),"Table is not visible in Ticket History");
+	_assertVisible(_link("Action Dropdown Menu. Press enter to open it and tab through its options"),"Action Dropdown Menu is not visible in Ticket History table");
+	_click(_link("Action Dropdown Menu. Press enter to open it and tab through its options"));
+	_assertVisible(_checkbox("detailedViewChkBox"),"Show Detailed View checkbox is not visible");
+	_click(_checkbox("detailedViewChkBox"));
+	//	_assertVisible(_paragraph("Show Detailed View"));
+	_assertEqual($individualTktSubject ,_getText(_cell(_table("userlistTbl"), 1, 1)));
+	var $tableCount =_collect("_row", "/.*/", _in(_table("userlistTbl")));
+	_assertNotEqual(0, $tableCount .length);
+}
+
+function AdminArchiveTicket(){
+	clickLogin();
+	$url = getUpdatedBaseURL("").split("/");
+	var $userDataPath = _userDataDir();
+	//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+		//Function returns username and password based on the Role
+		//		$data= getAccountDetails($ExcelPath,"L2_CS2") ;
+		//$data= getAccountDetails("L2_CS2") ;
+		$data= getAccountDetails("L1_CS1") ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_l1csr@getinsured.com");
+		//	_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		//	_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	ClaimTicket("N");
+	MarkAsComplete("Complete","N");
+	ArchiveTicket("N");
+	logOut();
+	if (isProductionEnvironment()) {
+		//Function returns username and password based on the Role
+		//		$data= getAccountDetails($ExcelPath,"Admin") ;
+		$data= getAccountDetails("Admin") ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_admin@getinsured.com");
+		//	_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		//	  _unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	ArchiveTicket("Y");
+	logOut();
+}
+
+function CSRAddingAttachment(){
+	var $filePath = _resolvePath("../resources/pic.jpg", "\\");
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("View Details", _in(_list("dropdown-menu pull-right"))));
+	_click(_link("Attachments"));
+	_assertVisible(_link("displayuploadDialog[1]"));
+	_click(_link("displayuploadDialog[1]"));
+	//setFileUpload(_file("fileuploadaction"), $filePath);
+	_setFile2(_file("/fileuploadaction/"), ($filePath));
+	_click(_submit("btn btn-primary upload-submit-btn"));
+	_assertEqual("/pic.jpg/", _getText(_table("attachedDocument")));
+	var $fileSize=parseInt((_getText(_cell(4))).match(/[0-9]+/)[0], 10);
+	_log("file size is not equal to zero");
+	_assertNotEqual(0, $fileSize);
+}
+
+function CSRAddingComment($individualEmail){
+	clickMangeTickets();
+	searchTicketBySubject($individualTktSubject);
+	clickSearchTicket();
+	clickGearButton();
+	_click(_link("View Details", _in(_list("dropdown-menu pull-right"))));
+	_click(_link("Comments"));
+	_assertVisible(_heading4("Comments"));
+	_assertVisible(_link("btn btn-primary showcomments"));
+	_click(_link("btn btn-primary showcomments"));
+	_assertVisible(_button("submit_comment"));
+	_assertVisible(_button("btn cancelComment btn-small"));
+	var $comment = "Comment added for Individual Ticket "+$individualEmail;
+	_setValue(_textarea("comment_textarea"), $comment);
+	_click(_button("submit_comment"));
+	// _assertTrue(new RegExp($comment).test(_getText(_div("editCommentBox gutter10-tb"))));
+	_assertTrue(new RegExp($comment).test(_getText(_div("controls gutter10-tb"))));
+	_assertVisible(_link("Add Comments"));
+	logOut();
+}
+
+function claimAndArchiveTicket(){
+	clickLogin();
+	$url = getUpdatedBaseURL("").split("/");
+	var $userDataPath = _userDataDir();
+	//	if ($url[2] =="idahohix.yourhealthidaho.org" || $url[2] =="iddemo.ghixqa.com"){
+	if (isProductionEnvironment() || $url[2] =="iddemo.ghixqa.com"){
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+		//Function returns username and password based on the Role
+		//		$data= getAccountDetails($ExcelPath,"Admin") ;
+		$data= getAccountDetails("Admin") ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_admin@getinsured.com");
+		//	_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		//	_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+
+	clickMangeTickets();
+	searchTicketBySubject("Ticket Created To Assist ptest123@yopmail.com");
+
+	clickSearchTicket();
+	var $count = _getText(_span("tktCountHeader")).split(" ")[1];
+	$count =parseInt($count);
+	_log("Ticket Count" + $count);
+	while($count!=0){
+		var $status = _getText(_span("ng-scope ng-binding[4]", _near(_tableHeader("Ticket Status"))));
+		if($status == "Unclaimed" || $status =="Reopened" ||$status =="Open"|| $status =="Restarted"){
+			clickGearButton();
+			ClaimTicket("Y");
+			MarkAsComplete("Complete","Y", "Ticket Created To Assist ptest123@yopmail.com");
+		}
+		else if($status == "Resolved" || $status == "Canceled"){
+			clickGearButton();
+		}
+		_click(_link("Archive Ticket", _in(_list("dropdown-menu pull-right"))));
+		_wait(_isVisible(_heading4("Archive ticket")));
+		_wait(1000);
+		_assertEqual("Are you sure you want to archive this ticket? Archiving the ticket will remove it from your ticket queue", _getText(_div("modal-body")));
+		_click(_submit("archiveSubmit"));
+		clickAccountSettingsGotoDashboard();
+		searchTicketBySubject("Ticket Created To Assist ptest123@yopmail.com");
+		_click(_submit("Search"));
+		$count = _getText(_span("tktCountHeader")).split(" ")[1]
+			$count =parseInt($count);
+		if($count == 0)
+			_assertVisible(_heading4("Records not found."));
+		_check(_checkbox("archiveFlagValue"));
+		clickSearchTicket();
+		_assertNotVisible(_heading4("Records not found."));
+
+		clickMangeTickets();
+		searchTicketBySubject("Ticket Created To Assist ptest123@yopmail.com");
+		_uncheck(_checkbox("archiveFlagValue"));
+		clickSearchTicket();
+	}
+	logOut();
+}
+
+function getCredentialsAndLogIn(){
+	$individualEmail = "ptest123@yopmail.com";
+	clickLogin();
+	$url = getUpdatedBaseURL("").split("/");
+	var $userDataPath = _userDataDir();
+
+	//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+		//Function returns username and password based on the Role
+		//		$data= getAccountDetails($ExcelPath,"L2_CS2") ;
+		//		$data= getAccountDetails("L2_CS2") ;
+		$data= getAccountDetails("SUPERVISOR");
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_l2csr@getinsured.com");
+		//	_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		//	_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+}
+
+function clickTicketHistoryFromLeftNav($status){
+	_click(_link("Ticket History"));
+	_assertVisible(_heading1("Ticket submission for: Document Verification"));
+	var $statusHistory = _getTableContents(_table("userlistTbl"), ["Status"] );
+	for (var $i =0; $i<$status.length;  $i++){
+		_assertEqual($status[$i], $statusHistory[$i]);
+	}
+}
+
+function setTicketAsMarkAsCompleteAfterUploadDocument($people,$CSRLogin){
+	_assertVisible(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Logout End of dropdown"));
+	_setValue(_textbox("Email Address"),$CSRLogin);
+	_setValue(_password("Password"), "ghix123#");
+	//		_setPassword(_password("Password"), "JgQAG1QSWk0="); //SAHI takes as ghix123#
+	_wait(2000);
+	_click(_submit("Log In"));
+	_wait(2000);
+	var $emailId = $people[0].$email;
+	var $firstName = $people[0].$firstName;
+	var $lastName = $people[0].$lastName;
+	_setValue(_textbox("householdEmail"), $emailId);
+	_click(_submit("Go"));
+	_wait(1000);
+	_click(_link($firstName+" " + $lastName));
+	_click(_link("Ticket History"));
+	var $ticketNumber = getTicketNumber($emailId);
+	_click(_link($ticketNumber[0]));
+	_assertVisible(_strong($ticketNumber[0], _near(_label("Ticket Number"))));
+	_assertVisible(_strong("Unclaimed", _near(_label("Status"))));
+	_click(_button("Claim", _near(_cell("Current Task: Verify Document"))));
+	_wait(1000);
+	_click(_button("\n                Mark As Complete\n                ", _near(_cell("Current Task: Verify Document"))));
+	_setSelected(_select("selectField"), "Accepted");
+	_click(_submit("Task Complete"));
+	_wait(1000);
+	_assertVisible(_strong("Resolved", _near(_label("Status"))));
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Logout End of dropdown"));
+	_setValue(_textbox("Email Address"), $emailId);
+	_setValue(_password("Password"), "ghix123#");
+	//		_setPassword(_password("Password"), "JgQAG1QSWk0=")
+	_click(_submit("Log In"));
+
+}
+
+
+

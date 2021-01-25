@@ -1,0 +1,76 @@
+_includeOnce("../lib/CommonFunctions.sah");
+
+function Login($email, $password){
+	if(_isVisible (_submit("Log In"))){
+		click(_submit("aid_login_01"));
+		_setValue(_textbox("Email Address"), $email);
+		_setValue(_password("j_password"), $password);
+		click(_submit("Log In"));
+		_assertNotVisible(_submit("Log In"));
+	}else{
+		if(_isVisible (_link("Log Out"))){_click(_link("Log Out"))};
+		if(_isVisible (_submit("Log Out"))){_click(_submit("Log Out"))};
+		
+		click(_submit("aid_login_01"));
+		_setValue(_textbox("Email Address"), $email);
+		_setValue(_password("j_password"), $password);
+		click(_submit("Log In"));
+	}
+}
+
+function loginAsBrokerAdmin($email, $password){
+	Login($email, $password);
+	_assertVisible(_tableHeader("/"+"Agent Name"+"/"));
+	verifyURL("/hix/admin/broker/manage/list");
+}
+
+function loginAsCertifiedAgent($email, $password){
+	Login($email, $password);
+	_assertVisible(_heading1("Agent Portal"));
+	_assertVisible(_heading4("Quick Links"));
+	_assertVisible(_heading4("Enrollment Dashboard"));
+	_assertNotEqual("/disabled/", _getAttribute(_link("Pending Delegation Requests", _in(_div("sidebar"))), "className"));
+	_assertNotEqual("/disabled/", _getAttribute(_link("My Profile", _in(_div("sidebar"))), "className"));
+	_assertNotEqual("/disabled/", _getAttribute(_link("Start New Application", _in(_div("sidebar"))), "className"));
+	verifyURL("hix/broker/dashboard");
+	click(_link("Delegations"));
+	_assertNotEqual("/disabled/", _getAttribute(_link("Pending Delegation Requests"), "className"));
+	_assertNotEqual("/disabled/", _getAttribute(_link("Active Consumers"), "className"));
+	_assertNotEqual("/disabled/", _getAttribute(_link("/"+"Inactive Consumers"+"/"), "className"));
+}
+
+function loginAsAgency($email, $password){
+	Login($email, $password);
+	_assertVisible(_link("Agents"));
+	_assertVisible(_link("Agency Delegations"));
+	_assertVisible(_link("Agency Account"));
+	_assertVisible(_link("My Delegations"));
+	_assertVisible(_link("My Agent Profile"));
+	verifyURL("hix/agency");
+}
+
+function logOut(){
+	//click(_submit("Log Out"));
+	_wait(7000);
+	_setStrictVisibilityCheck(true);
+	if(_isVisible (_submit("Logout"))){
+		click(_submit("Logout"));
+	}
+
+	if(_isVisible (_submit("Log Out"))){
+		click(_submit("Log Out"));
+	}
+
+	if(_isVisible (_link("Logout"))){
+		click(_link("Logout"));
+	}
+
+	if(_isVisible (_link("Log Out"))){
+		click(_link("Log Out"));
+	}
+
+	_assertVisible(_submit("Log In"));
+
+	_setStrictVisibilityCheck(false);
+}
+

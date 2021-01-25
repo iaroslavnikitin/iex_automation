@@ -1,0 +1,18 @@
+
+{
+    "getReady":{
+        "getReadyHeading":"$('h1')", 
+        "btn_continue":"$('=Continue')",
+        "btn_back":"$('=Back')"
+    },
+    "personalInformation":{
+        "personalInformationHeader":"$('h1')", 
+        "rb_male":"$('//label[.='Male']')",
+        "rd_female":"$('//label[.='Female']')",
+        "rb_male_id":"$('$('[id*=gender_label0]')",
+        "rb_female_id" : "$('[id*=gender_label1]')", 
+        "rb_yesForSocialSecurity_id":"$('[id*=socialSecurityCard_socialSecurityCardHolderIndicator_label0]')",
+        "rb_yesForSocialSecurity_xpath": "$('//fieldset[@class='usa-fieldset']/ul//label[.='Yes']')"
+    }
+}
+

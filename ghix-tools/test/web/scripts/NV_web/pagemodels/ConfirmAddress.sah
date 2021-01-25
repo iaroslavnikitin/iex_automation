@@ -1,0 +1,20 @@
+var $ConfirmAddress = true;
+
+var $confirmAddressHeader = _heading3("Check Your Address");
+var $confirmAddressAddressLabel = _heading4("Address you entered:");
+var $confirmAddressConfirm = _radio("userdefault");
+var $confirmAddressCancel = _button("back_button_from_iframe");
+var $confirmAddressOk = _button("submitAddr");
+
+function verifyConfirmAddress() {
+	_assertVisible($confirmAddressHeader);
+	_assertVisible($confirmAddressAddressLabel);
+	_assertVisible($confirmAddressConfirm);
+	_assertVisible($confirmAddressCancel);
+	_assertVisible($confirmAddressOk);
+}
+
+function clickConfirmAddress() {
+	_click($confirmAddressConfirm);
+	_click($confirmAddressOk);
+}

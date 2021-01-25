@@ -1,0 +1,283 @@
+{
+  "locationAndHoursHeader":
+  {
+        "label":"locationAndHoursPageHeader",
+        "fieldType":"staticText",
+        "selectors":
+        {
+          "common":"$('#rightpanel .header')",
+          "PA":"$('#rightpanel .header')"
+        },
+        "headerText":"Step 2: Agency Location and Hours"
+        
+  },
+    
+  "siteElements":
+  {
+    "hoursOfOperation":
+    {
+    "monday":
+    { 
+      "label": "Monday",
+      "fieldType":"hours",
+      "required":true,
+      "selectors":
+      {
+        "common":
+              { "openRadioButton":"$('#aid-radio-0-0')",
+                "from":"$('#aid-from-0-0')",
+                "to":"$('#aid-to-0-0')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-0')"
+              },
+        "PA":
+              { 
+              "openRadioButton":"$('#aid-radio-0-0')",
+                "from":"$('#aid-from-0-0')",
+                "to":"$('#aid-to-0-0')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-0')"
+              }
+      },
+      "matchingDataProperty":"monday"
+    },
+    "tuesday":
+    {
+      "label": "Tuesday",
+      "fieldType":"hours",
+      "required":true,
+      "selectors":
+      {
+        "common":
+              { 
+                "openRadioButton":"$('#aid-radio-0-1')",
+                "from":"$('#aid-from-0-1')",
+                "to":"$('#aid-to-0-1')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-1')"
+              },
+        "PA":
+              { 
+                "openRadioButton":"$('#aid-radio-0-1')",
+                "from":"$('#aid-from-0-1')",
+                "to":"$('#aid-to-0-1')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-1')"
+              }
+      },
+      "matchingDataProperty":"tuesday"
+    },
+    "wednesday":
+    {
+      "label": "Wednesday",
+      "fieldType":"hours",
+      "required":true,
+      "selectors":
+      {
+        "common":
+              { 
+                "openRadioButton":"$('#aid-radio-0-2')",
+                "from":"$('#aid-from-0-2')",
+                "to":"$('#aid-to-0-2')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-2')"
+              },
+        "PA":
+              { 
+                "openRadioButton":"$('#aid-radio-0-2')",
+                "from":"$('#aid-from-0-2')",
+                "to":"$('#aid-to-0-2')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-2')"
+              }
+      },
+      "matchingDataProperty":"wednesday"
+
+    },
+    "thursday":
+    {
+      "label": "Thursday",
+      "fieldType":"hours",
+      "required":true,
+      "selectors":
+      {
+        "common":
+              { 
+                "openRadioButton":"$('#aid-radio-0-3')",
+                "from":"$('#aid-from-0-3')",
+                "to":"$('#aid-to-0-3')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-3')"
+              },
+        "PA":
+              { 
+                "openRadioButton":"$('#aid-radio-0-3')",
+                "from":"$('#aid-from-0-3')",
+                "to":"$('#aid-to-0-3')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-3')"
+              }
+      },
+      "matchingDataProperty":"thursday"
+
+    },
+    "friday":
+    {
+      "label": "Friday",
+      "fieldType":"hours",
+      "required":true,
+      "selectors":
+      {
+        "common":
+              { 
+                "openRadioButton":"$('#aid-radio-0-4')",
+                "from":"$('#aid-from-0-4')",
+                "to":"$('#aid-to-0-4')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-4')"
+              },
+        "PA":
+              { 
+                "openRadioButton":"$('#aid-radio-0-4')",
+                "from":"$('#aid-from-0-4')",
+                "to":"$('#aid-to-0-4')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-4')"
+              }
+      },
+      "matchingDataProperty":"friday"
+
+    },
+    "saturday":
+    {
+      "label": "Saturday",
+      "fieldType":"hours",
+      "required":true,
+      "selectors":
+      {
+        "common":
+              { 
+                "openRadioButton":"$('#aid-radio-0-5')",
+                "from":"$('#aid-from-0-5')",
+                "to":"$('#aid-to-0-5')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-5')"
+              },
+        "PA":
+              { 
+                "openRadioButton":"$('#aid-radio-0-5')",
+                "from":"$('#aid-from-0-5')",
+                "to":"$('#aid-to-0-5')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-5')"
+              }
+      },
+      "matchingDataProperty":"saturday"
+    
+    },
+    "sunday":
+    {
+      "label": "Sunday",
+      "fieldType":"hours",
+      "required":true,
+      "selectors":
+      {
+        "common":
+              { 
+                "openRadioButton":"$('#aid-radio-0-6')",
+                "from":"$('#aid-from-0-6')",
+                "to":"$('#aid-to-0-6')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-6')"
+              },
+        "PA":
+              { 
+                "openRadioButton":"$('#aid-radio-0-6')",
+                "from":"$('#aid-from-0-6')",
+                "to":"$('#aid-to-0-6')", 
+                "closedRadioButton":"$('#aid-radio-closed-0-6')"
+              }
+      },
+      "matchingDataProperty":"sunday"
+    }
+    },
+"locationName":
+  {
+    "label":"Location Name",
+    "fieldType":"text",
+    "selectors":
+    {
+      "common":"$('#primaryLocationName-0')",
+      "PA":"$('#primaryLocationName-0')"
+    },
+    "required":true,
+    "matchingDataProperty":"locationName"
+  },
+
+  "addressLine1":
+  {
+      "label":"Address line 1",
+      "fieldType":"text",
+      "selectors":
+      {
+        "common":"$('#addressLine1-0')",
+        "PA":"$('#addressLine1-0')"
+      },
+      "required":true,
+      "matchingDataProperty":"AddressLine1",
+      "stateToSkip":["CA"]
+  },
+  "city":
+  {
+    "label":"City",
+    "fieldType":"text",
+    "selectors":
+    {
+      "common":"$('#city-0')",
+      "PA":"$('#city-0')"
+    },
+    "required":true,
+    "matchingDataProperty":"city",
+    "stateToSkip":["CA"]
+  },
+  "state":
+ {
+  "label":"State",
+  "fieldType":"dropDown",
+  "selectors":
+  {
+    "common":"$('#state-0')",
+    "PA":"$('#state-0')"
+  },
+  "required":true,
+  "matchingDataProperty":"state",
+  "stateToSkip":["CA"]
+},
+"zipCode":
+{
+"label":"Zip Code",
+  "fieldType":"zipCode",
+  "selectors":
+  {
+    "common":"$('#zip-0')",
+    "PA":"$('#zip-0')"
+  },
+  "required":true,
+  "matchingDataProperty":"zipCode",
+  "stateToSkip":["CA"]
+},
+
+"saveSiteButton":
+{
+  "label":"Save",
+  "fieldType":"button",
+  "selectors":
+   {
+      "common":"$('#aid-save-site-0')",
+      "PA":"$('#aid-save-site-0')"
+   }
+}
+     
+  },
+  "nextButton":
+  {
+    "label":"NEXT",
+    "fieldType":"button",
+    "selectors":
+     {
+        "common":"$('.aid-next')",
+        "PA":"$('.aid-next')"
+     }
+  }
+  
+
+    
+   
+}

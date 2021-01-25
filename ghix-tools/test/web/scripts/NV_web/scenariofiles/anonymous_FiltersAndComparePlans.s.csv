@@ -1,0 +1,43 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,,"loadSahi","../pagemodels/global_include.sah"
+,,,"loadSahi","../pagemodels/HomePage.sah"
+
+
+,,,"[Documentation]","eventType","Event Date","Event","isInOEP"
+,,,"$coverageStartDate = getCoverageStartDate","3",,,"$inOEP"
+,,,"$coverageDate = getCurrentCoverageYear"
+
+
+"Anonymous_Filters","Anonymous Shopping with filters","Verify Filters on Health and Dental Page","[Documentation]","1. 1Adult + 1 kid + CSR eligibile (CS4) + everyone under 30 2. No providers 3. Select preference randomly 4.Go to Plan Display page 5.Verify All filters 6. Go to Dental page 7. Verify all filters"
+
+,,,"clickStartShopping","$coverageDate"
+,,,"selectCoverageYear",,"$coverageDate"
+,,,"enterZipCode","""89501"""
+,,,"enterPrimaryInformation","""10/25/1990""","FALSE","TRUE","TRUE"
+,,,"clickBrowsePlans"
+,,,"clickNextPreferences"
+,,,"selectDoctorVisits","2"
+,,,"clickNextPreferences"
+,,,"selectMonthlyPrescriptions","2"
+,,,"clickNextPreferences"
+,,,"selectAcupuncture"
+,,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","ShowCatastrophic","ShowCSROnAllTiles"
+,,,"clickViewPlans",,,"""89501""","$coverageStartDate","1","0","""YES"""
+
+,,,"verifyDeductibleFilterOnPlanPage"
+,,,"verifyCompanyFilterOnPlanPage"
+,,,"verifyMetalTierFilterOnPlanPage"
+,,,"verifySortByFilterOnPlanPage"
+,,,"verifyPlanTypeFilterOnPlanPage"
+,,,"verifyPlanFeatureFilterOnPlanPage"
+,,,"verifyMetalTierFilterOnPlanPage","""Silver"""
+,,,"verifySortByFilterOnPlanPage","""Deductible"""
+
+,,,"[Documentation]","zipcode","coverage Date","no of Adults","noOfChildren"
+,,,"clickDentalPlansTab","""89501""","$coverageStartDate","1","0"
+
+,,,"verifySortByFilterOnPlanPage"
+,,,"verifyDentalPlanTierFilterOnPlanPage"
+,,,"verifyDentalDeductibleOnPlanPage"
+,,,"verifyCompanyFilterOnPlanPage"
+,,,"verifyPlanTypeFilterOnPlanPage"

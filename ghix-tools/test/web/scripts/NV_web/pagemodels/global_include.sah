@@ -1,0 +1,58 @@
+_resource("../scenariofiles/document.txt");
+_resource("../resources/data.csv");
+_resource("../resources/createTicketData.csv");
+_resource("../lib/iex_resources_es.properties");
+_resource("../lib/iex_resources.properties");
+_resource("../lib/Plan_display_es.properties");
+_resource("../lib/Plan_display.properties");
+_resource("../resources/small.zip");
+_resource("../resources/TestWordDoc.doc");
+_resource("../resources/Test.xls");
+_resource("../resources/Test.xml");
+_resource("../pic.jpg");
+
+_setLanguage("../lib/iex_resources.properties", "../lib/iex_resources_es.properties", true);
+_setLanguage("../lib/Plan_display.properties", "../lib/Plan_display_es.properties", true);
+
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+var $db;
+var $database;
+var $server;
+var $port;
+var $username;
+var $password;
+var $coverageYear;
+
+var	$url = getUpdatedBaseURL("").split("/");
+var $suiteInfo = _suiteInfo();
+_log("URL: "+$url);
+
+$database = $suiteInfo["databaseType"];
+$port = $suiteInfo["databasePort"];
+$server = $suiteInfo["databaseServer"];
+$username  = $suiteInfo["databaseUsername"];
+$password = $suiteInfo["databasePassword"];
+$coverageYear = $suiteInfo["year"];
+$SID = "ghixdb";
+
+_log("url :   "+$url);
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+
+if($database =="POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}
+
+var $inOEP = inGlobalOEP($coverageYear);
+
+function getUpdatedBaseURL($append) {
+	var $suiteInfo = _suiteInfo();
+	var $baseURL = $suiteInfo["baseURL"];
+	var $updatedURL = $baseURL + $append;
+	return $updatedURL;
+}

@@ -1,0 +1,5 @@
+{
+  "pageHeader": "$('h4*=Consumer History')",
+  "category": "$('//label[text()=\"Category\"]/ancestor::div[1]/div/select')",
+  "eventText": "$('#box_0').$('span.eventText')"
+}

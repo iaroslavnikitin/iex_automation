@@ -1,0 +1,61 @@
+{
+  "btn_back": "$('button[id*=leftButton]')",
+  "btn_saveAndExit": "$('button[id*=middleButton]')",
+  "btn_saveAndContinue": "$('button[id*=rightButton]')",
+  "btn_continue": "$('button[id*=rightButton]')",
+  "tb_amount": "$('#modal-content input[id*=amount]')",
+  "dd_frequency": "$('#modal-content select[id*=frequency]')",
+  "link_closeModal": "$(#close-button-icon)",
+  "btn_cancel": "$('#modal-content button[id=anchor]')",
+  "btn_save": "$('button=Save')",
+
+  "getReady": {
+    "getReadyHeading": "$('h1')"
+  },
+  "incomeSources": {
+    "incomeSourceHeading": "$('h1')",
+    "rb_anyIncomeYes": "$('[id *= isAnyIncome_label0]')",
+    "rb_anyIncomeNo": "$('[id *= isAnyIncome_label1]')",
+    "rb_membersAnyIncomeYes": "$('[id *= isAnyIncome_option0]')",
+    "rb_membersAnyIncomeNo": "$('[id *= isAnyIncome_option1]')",
+    "btn_addIncomeSource": "$('#iiIncomeSources button[id*=addIncomeSourceButton')",
+    "dd_selectIncomeSourcesType": "$('#modal-content select[id*=type]')",
+    "dd_incomeSubType": "$('#modal-content select[id*=subType]')",
+    "tb_nameOfStateOrEmployer": "$('#modal-content input[id*=sourceName]')",
+    "tb_amount"	:"$('#modal-content input[id*=amount]')",
+    "sb_howOften"	:"$('#modal-content select[id*=frequency]')",
+    "rb_expectedforWholeYear"	:"$('#modal-content select[id*=incomeExpectedForWholeYear]')",
+    "tb_profitOrLoss": "$('#modal-content select[id*=profit]')",
+    "tb_cyclesPerFrequency": "$('#modal-content input[id*=cyclesPerFrequency]')",
+    "tb_educationExpenses": "$('#modal-content input[id*=relatedExpense]')",
+    "btn_saveOnIncomeType":"$('button*=Save')"
+  },
+  "incomeSourcesVerification": {
+    "td_incomeType":  "$('#iiIncomeSources > div > div.margin-tb-20 > div > table > tbody > tr > td:nth-child(1)')",
+    "td_amount":  "$('#iiIncomeSources > div > div.margin-tb-20 > div > table > tbody > tr > td:nth-child(2)')",
+    "td_frequency": "$('#iiIncomeSources > div > div.margin-tb-20 > div > table > tbody > tr > td:nth-child(3)')"
+  },
+  "tribalIncome": {
+    "tribalIncomeHeading": "$('h1=Tribal Income')"
+  },
+  "deductionSources": {
+    "deductionSourceHeading": "$('h1')",
+    "rb_anyDeductionYes": "$('#iiDeductions label[id*=isAnyDeduction_label0]')",
+    "rb_anyDeductionNo": "$('[id*=isAnyDeduction_label1]')",
+    "btn_addDeductionSource": "$('#iiDeductions button[id*=addDeductionSourceButton')",
+    "dd_selectDeductionSourcesType": "$('#modal-content select[id*=type]')"
+  },
+  "expectedIncome": {
+    "expectedIncomeHeading": "$('h1')",  
+    "rb_isExpectIncomeYes": "$('[id *= annualTaxIncome_variableIncome_label0]')",
+    "rb_isExpectIncomeNo": "$('[id *= annualTaxIncome_variableIncome_label1]')",
+    "tb_enterExpectedIncome": "$('#iiExpectedIncom input[id*=annualTaxIncome_projectedIncome]')",
+    "lbl_unknownIncome": "$('#iiExpectedIncom label[id*=annualTaxIncome_unknownIncome_label]')"
+  },
+  "individualIncomeSummary": {
+    "summaryHeading": "$('h1')"
+  },
+  "incomeSummary": {
+    "incomeSummaryHeading": "$('h1')"
+  }
+}

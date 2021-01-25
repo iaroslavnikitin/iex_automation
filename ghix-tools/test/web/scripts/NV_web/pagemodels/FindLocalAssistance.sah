@@ -1,0 +1,90 @@
+_includeOnce("SearchForAgent.sah");
+_includeOnce("SearchForCounselor.sah");
+
+var $FindLocalAssistance = true;
+var $findLocalAssistanceLink = _link("Find Local Assistance");
+var $findLocalAssistanceHeader = _heading1("/Find Local Assistance at No Cost to You/");
+var $findLocalAssistanceBroker = _link("/FIND A NEVADA CERTIFIED AGENT OR BROKER NEAR YOU/");
+var $findLocalAssistanceCounselor = _link("/FIND A NEVADA CERTIFIED ENROLLMENT COUNSELOR NEAR YOU/")
+var $agentsAndBrokersHeader = _heading3("Agents & Brokers");
+var $enrollmentCounselors=_heading3("Enrollment Counselors");
+var $findLocalAssistanceBrokerHomePage = _link("/FIND A NEVADA CERTIFIED AGENT OR BROKER NEAR YOU/");//_link("Click Here", _near(_paragraph("Find a certified agent or broker in your area.")));
+var $findLocalAssistanceCounselorHomePage = _link("Click Here", _near(_paragraph("Find an enrollment counselor in your area.")));
+var $findLocalAssistanceCounselorButton = _link("FIND A NEVADA CERTIFIED ENROLLMENT COUNSELOR NEAR YOU");
+
+
+//Help and Support Accessors
+var $helpAndSupportSubmit = _submit("Help & Support");
+var $helpAndSupportLink = _link("/Help & Support/");
+var $frequentlyAskedQuestionsLink = _link("Frequently Asked Questions");
+var $contactUsLink = _link("/Contact Us/");
+
+//Verify accessors
+var $helpAndSupportDropdownAccessors = [$findLocalAssistanceLink,$frequentlyAskedQuestionsLink,$contactUsLink];
+
+
+
+function verifyElementsOfLocalAssistance() {
+	//if ($loggedIn){
+		_assertVisible($findLocalAssistanceHeader);
+		_assertVisible($findLocalAssistanceBroker);
+		_assertVisible($findLocalAssistanceCounselor);
+	//}
+	//else{
+	//	_assertVisible($agentsAndBrokersHeader);
+	//	_assertVisible($enrollmentCounselors);
+	//	_assertVisible($findLocalAssistanceBrokerHomePage);
+	//	_assertVisible($findLocalAssistanceCounselorHomePage);
+	//}
+}
+
+function clickFindBrokerForLocalAssistance() {
+	//if ($loggedIn){
+		_click($findLocalAssistanceBroker);
+		verifyElemenstForAgentSearch();	
+	//}
+	//else{
+	//	_click($findLocalAssistanceBrokerHomePage);
+	//	_selectWindow("Your Health Idaho");
+	//	 verifyElemenstForAgentSearch();
+	//	_closeWindow();
+	//	_selectWindow();
+	//	var $brokerSearchURL ="https://"+$url[2]+"/hix/broker/search/individual";
+	//	_wait(10000);
+	//	_navigateTo($brokerSearchURL);
+	//}
+}
+
+function clickFindCounselorForLocalAssistance() {
+	if ($loggedIn){
+		_click($findLocalAssistanceCounselor);
+		verifyElementsForCounselorSearch();
+	}
+	else{
+		_click($findLocalAssistanceCounselorHomePage);
+		_selectWindow("Your Health Idaho");
+		verifyElementsForCounselorSearch();
+		_closeWindow();
+		_selectWindow();
+		var $entitySearchURL ="https://"+$url[2]+"/hix/entity/locateassister/searchentities";
+		_wait(10000);
+		_navigateTo($entitySearchURL);
+	}
+}
+
+function goToFindCounselor() {
+	_click($findLocalAssistanceLink);
+	verifyElementsOfLocalAssistance();
+	_click($findLocalAssistanceCounselorButton);
+	verifyElementsForCounselorSearch();
+}
+
+function clickHelpAndSupport() {
+	if(_isVisible($helpAndSupportLink)){
+		_click($helpAndSupportLink);
+	}
+	else{
+		_click($helpAndSupportSubmit);
+	}
+	verifyArray($helpAndSupportDropdownAccessors);
+}

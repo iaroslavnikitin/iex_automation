@@ -1,0 +1,67 @@
+{
+    "welcomeDashboardHeading": "$('h1')",
+    "uppernavigationBar": "$('div#menu > .navbar-inner')",
+    "hd_additionalInfoHeader": "$('h4*=Additional Information Needed')",
+    "hd_lifeEvent": "$('h4*=Life Event')",
+    "hd_nextSteps": "$('h4*=NEXT STEPS')",
+    "yearTab": "$('p*=year')",
+    "p_oepAlert":"$('.gi-alert__info__body')",
+    "nextSteps": {
+        "btn_saveAndContinue": "$('a*=Save and Continue')",
+        "btn_furtherAction": "$('#further-action-btn')",
+        "btn_changePlans": "$('button*=CHANGE PLANS')",
+        "btn_confirmEvent": "$('button*=CONFIRM EVENT')",
+        "btn_uploadDocuments": "$('button*=UPLOAD DOCUMENTS')",
+        "btn_shopForHealthPlans": "$('a*=Shop Health Plans ')",
+        "p_further_action_txt":"$('#further-action-txt')"
+    },
+    "leftNav": {
+        "lk_myDashboard": "$('#dashboard')",
+        "lk_myEligibilityHistory": "$('#eligibility__history')",
+        "lk_myEligibilityResults": "$('#eligibility_results')",
+        "lk_myEnrollments": "$('#My Enrollments')",
+        "lk_myInbox": "$('#My Inbox')"
+    },
+    "overview": {
+        "lk_memberTooltip": "",
+        "lk_eligibilityDetails": "$('#application_status_link_0')",
+        "hd_overview": "$('h3*=Overview')",
+        "ct_caseId": "$('#application_status_header_householdId_wrapper')",
+        "p_application_status_year": "$('#application_status_year')",
+        "p_application_status_value": "$('#application_status_value')",
+        "ct_applicantsSize": "$('a*=For')",
+        "lk_application_status_link_0": "$('#application_status_link_0')"
+    },
+    "yourHouseholdEligibility": {
+        "lk_aptcTooltip": "",
+        "lk_csrTooltip": "",
+        "lk_viewDetails": "$('#household_elig_link')",
+        "lk_reportAChange": "$('#household_report_change_link')",
+        "hd_yourHouseholdEligibility": "$('h4*=Your Household Eligibility')",
+        "ct_groupMembers": "$('#auto-household').$$('.grid-row.household-eligibility-group')[j].$('.household-eligibility-group__members').$$('li')",
+        "ct_groupStatus": "$('#auto-household').$$('.grid-row.household-eligibility-group')[j].$('.household-eligibility-group__statuses').$$('li')",
+        "ct_eligibilityTable": "$('#auto-household').$$('.grid-row.household-eligibility-group')",
+        "p_chipContent": "$('p*=chipContent')",
+        "p_householdEligibility":"$('#auto-household').$('p')"
+    },
+    "yourHealthPlans": {
+        "hd_yourHealthPlans": "$('h4*=Your Health Plans')",
+        "p_healthPlans":"$('#auto-health-plans').$('.grid-col-12')",
+        "ct_company":"$('#auto-health-plans').$('div*=planCompany')",
+        "ct_companyName":"$('#auto-health-plans').$('span*=planCompanyName')",
+        "ct_status":"$('#auto-health-plans').$('a*=Pending')",
+        "ct_members":"$('#auto-health-plans').$('a*=For enrolledMembers member')",
+        "lk_viewDetails":"$('#auto-health-plans').$('a*=View Details')",
+        "ct_companyGroup2":"$('#auto-health-plans').$$('#Health_text')[i]",
+        "ct_companyGroup":"$('#auto-health-plans')"
+    },
+    "yourDentalPlans": {
+        "hd_yourDentalPlans": "$('h4*=Your Dental Plans')",
+        "p_dentalPlans":"$('#auto-dental-plans').$('.grid-col-12')",
+        "ct_company":"$('#Dental_text').$('div*=planCompany')",
+        "ct_companyName":"$('#Dental_text').$('span*=planCompanyName')",
+        "ct_status":"$('#Dental_text').$('a*=Pending')",
+        "ct_members":"$('#Dental_text').$('a*=For enrolledMembers member')",
+        "lk_viewDetails":"$('#Dental_text').$('a*=View Details')"
+    }
+}

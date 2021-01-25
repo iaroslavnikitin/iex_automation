@@ -1,0 +1,44 @@
+_includeOnce("Login.sah");
+_includeOnce("Preeligibility.sah");
+
+var $HomePage = true;
+
+var $Individual = _link("START SHOPPINGIndividual");
+var $Broker = _link("Health Insurance Agent/Broker");
+var $Entities = _link("Enrollment Entities");
+var $Login = _link("Log In");
+
+var $suiteInfo =  _suiteInfo();
+var $baseURL = $suiteInfo["baseURL"];
+
+function verifyElementsOfHomePage() {
+	_assertVisible($Individual);
+	_assertVisible($Login);
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (!isProductionEnvironment()) {
+		_assertVisible($Broker);
+		_assertVisible($Entities);
+	}
+}
+
+function clickStartShopping() {
+	_click($Individual);
+	verifyElementsOnPreeligibility();
+}
+
+function clickHealthInsuranceAgentOrBroker () {
+	_click($Broker);
+	$signupMode = "Agent";
+	verifyElementsOnSignUpPage();
+}
+
+function clickEnrollmentEntities() {
+	_click($Entities);
+	$signupMode = "Entity";
+	verifyElementsOnSignUpPage();
+}
+
+function clickLogin() {
+	if (!_isVisible(_textbox("Email Address"))) _click($Login);
+	loginVerify();
+}

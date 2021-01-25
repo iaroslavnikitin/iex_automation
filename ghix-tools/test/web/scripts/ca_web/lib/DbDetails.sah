@@ -1,0 +1,42 @@
+_includeOnce("CommonFunctions.sah");
+
+var $db;
+
+var $database;
+var $port;
+var $server;
+var $username;
+var $password;
+var $dbcon;
+
+var $suiteInfo = _suiteInfo();
+$database = $suiteInfo["databaseType"];
+$port = $suiteInfo["databasePort"];
+$server = $suiteInfo["databaseServer"];
+$username  = $suiteInfo["databaseUsername"];
+$password = $suiteInfo["databasePassword"];
+$SID = "ghixdb";
+
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+if($database == "POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}
+else if ($database == "ORACLE") {
+	$db = _getDB("oracle.jdbc.driver.OracleDriver","jdbc:oracle:thin:@"+$server+":"+$port+":"+$SID,$username,$password);
+}
+
+function getDb(){
+	return $db;
+}
+
+
+function getBaseDomain(){
+	_log(_suiteInfo()["baseURL"].split("/")[2])
+	return _suiteInfo()["baseURL"].split("/")[2];
+}
+

@@ -1,0 +1,9 @@
+{ "pageHeader": "$('h1')",
+    "btn_accessCode": "$('//p[@data-automation-id=\"access_code\"]')",
+    "btn_accessCodeNJ":"$('*=Transferred from healthcare.gov or NJ FamilyCare?')",
+    "txt_accessCode": "$('#accessCode')",
+    "chk_captcha": "$('#recaptcha-anchor')",
+    "chk_captcha2": "$('#recaptcha-anchor > div.recaptcha-checkbox-border')",
+    "chk_captcha3": "$('#recaptcha-anchor > div.recaptcha-checkbox-borderAnimation')",
+    "btn_submit": "$('#submit')"
+}

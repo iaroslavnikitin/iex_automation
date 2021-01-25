@@ -1,0 +1,18 @@
+{
+        "actions":{
+            "applicationPageHeader":"$('//h4[contains(text(),\"Current Application\")]')",
+            "dd_currentAppStatusPanel":"$('//div[@id=\"csrMenu_0\"]/div')",
+            "lk_actions":"$('#csrActionButton')",
+            "lk_changeCoverageDate":"$('#aid_changeCoverageDate')",
+            "lk_editApplication":"$('#aid_editapplication')",
+            "lk_overrideProgramEligibility":"$('#aid_overrideProgElig')",
+            "popUpchangeCoverageDateHeader":"$('//span[contains(text(),\"Change coverage start date\")]')",
+            "btn_CancelPopUp":"$('//a[@class=\"btn btn-secondary pull-right\"]')",
+            "popUpEditApplicationHeader":"$('//span[contains(text(),\"Edit Application\")]')",
+            "popUpOverrideProgramEligibilityHeader":"$$('//h3[contains(text(),\"Override Program Eligibility\")]')[0]",
+            "btn_continueOverrideProgramEligibility":"$('//button[contains(text(),\"Continue\")]')",
+            "popUpOverrideProgramEligibilityHeader2":"$('//h5[contains(text(),\"Please confirm\")]')",
+            "btn_CancelOverrideProgramEligibility":"$('//div[@id=\"editProgElig\"]/div[2]/button[2]')"
+        }
+
+}

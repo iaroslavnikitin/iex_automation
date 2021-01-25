@@ -1,0 +1,27 @@
+Tags,TestCase,[Keyword],Argument 1,Argument 2,Argument 3,Argument 4,,
+,,loadSahi,../pagemodels/global_include.sah,,,,,
+,,loadSahi,../pagemodels/HomePage.sah,,,,,
+,,loadSahi,../pagemodels/AccountSettings.sah,,,,,
+,,$userdata=,"_readCSVFile(""../resources/data.csv"")",,,,,
+,,,,,,,,
+,[Global],[SetUp],,,,,,
+,,maximizeWindow,,,,,,
+,,,,,,,,
+"cap,all",,[Documentation],"Verify HIX-121485 Allow hyphen (-), dot(.), single quote(') and comma (,) within emails, last name, middle name and emails ",,,,,
+,,capLogin,auto_admin24@yopmail.com,ghix123#,,,,
+"cap,all",Verify Add Enrollment Representative,[Documentation],Add Enrollment Representative,,,,,
+,,clickIssuersLinkCap,,,,,,
+,,clickManageIssuerAccountsLinkCap,,,,,,
+,,[Documentation],issuerStatus,,,,,
+,,$issuerName=searchIssuerCap,"""Certified""",,,,,
+,,[Keyword],addIssuerRepCap,,,,,
+,,[Documentation],firstName,lastName,title,phoneNum,issuerName,role
+,,[Data],[$userdata:addIssuerRep:firstName],[$userdata:addIssuerRep:lastName],"""Rep""","""7024327788""",$issuerName,"""ISSUER_ENROLLMENT_REPRESENTATIVE"""
+"cap,all",Verify Add Representative,[Documentation],Add Representative,,,,,
+,,clickIssuersLinkCap,,,,,,
+,,clickManageIssuerAccountsLinkCap,,,,,,
+,,[Documentation],issuerStatus,,,,,
+,,$issuerName=searchIssuerCap,"""Certified""",,,,,
+,,[Keyword],addIssuerRepCap,,,,,
+,,[Documentation],firstName,lastName,title,phoneNum,issuerName,role
+,,[Data],[$userdata:addIssuerRep:firstName],[$userdata:addIssuerRep:lastName],"""Rep""","""7024327788""",$issuerName,"""ISSUER_REPRESENTATIVE"""

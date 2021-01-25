@@ -1,0 +1,317 @@
+_include("AgentDashboard.sah");
+_includeOnce("Utils.sah");
+_includeOnce("Signup.sah");
+_resource("../resources/small.zip");
+_resource("../resources/TestWordDoc.doc");
+_resource("../resources/Test.xls");
+_resource("../resources/Test.xml");
+_resource("../resources/pic.jpg");
+
+var $CertificationStatus = true;
+var $showConfirmation;
+var $previousStatus;
+var $newStatus;
+var $certificationStatusCompleteHeader = _heading4("Account Registration Complete");
+var $certificationStatusCompleteClose = _submit("submitRequest");
+var $certificationStatusHeader = _heading4("Certification Status");
+var $certificationStatusAgentNumber = _cell("Agent Number");
+var $certificationStatusSubmissionDate = _cell("Application Submission Date");
+var $certificationStatusStatus = _cell("Certification Status");
+var $certificationStatusCertificationNumber = _cell("Certification Number");
+var $certificationStatusCertificationDate = _cell("Certification Date");
+var $certificationStatusRenewalDate = _cell("Renewal Date");
+var $newStatusOptions = ["Select","Pending","Withdrawn","Certified","Eligible","Denied","Terminated-Vested","Terminated-For-Cause","Deceased"];
+var $statusOptions = ["Select","Pending","Withdrawn","Eligible","Denied","Terminated-Vested","Terminated-For-Cause","Deceased"];
+var $filePath =[_resolvePath("../resources/small.zip", "\\"),_resolvePath("../resources/TestWordDoc.doc", "\\"),_resolvePath("../resources/Test.xls", "\\"),_resolvePath("../resources/Test.xml", "\\"),_resolvePath("../resources/pic.jpg", "\\")];
+var $chooseFile=[_file("fileInputEODeclPage"),_file("fileInputContract"),_file("fileInput")];
+var $uploadButton=[_button("Upload", _near(_label("Upload E&O declaration page"))), _button("Upload", _near(_label("Upload contract"))), _button("Upload", _near(_label("Upload Supporting Document")))];
+var $actionURL = getBaseURL() + "/hix/admin/broker/upload/";
+
+
+function clickCertificationStatusForAgent($status, $statusHistory, $agentInfo, $certificationStatusInfo,$brokerInfo){
+	if (!$certificationStatusInfo) {
+		var $today = _call(window.moment(new Date())).format("MM-DD-YYYY");
+		$certificationStatusInfo = {
+			"Agent Number": $brokerInfo[0][0],
+			"Application Submission Date": $today,
+			"Certification Number" : "",
+			"Start Date": "",
+			"End Date": ""
+		};
+	}
+	_click(_link("Certification Status"));
+	_assertVisible(_link("Certification Status"));
+	_assertVisible(_paragraph("View the status of your certification application here. You can also see the history of previous actions related to your status.", _in(_div("rightpanel"))));
+	_assertEqual("View the status of your certification application here. You can also see the history of previous actions related to your status.", _getText(_paragraph("View the status of your certification application here. You can also see the history of previous actions related to your status.", _in(_div("rightpanel")))));
+
+	_assertEqual($status, _getText(_cell(0, _rightOf(_cell("Certification Status")))));
+	_assertEqual($certificationStatusInfo["Agent Number"], _getText(_cell(0, _rightOf(_cell("Agent Number")))));
+	_assertEqual($certificationStatusInfo["Application Submission Date"], _getText(_cell(0, _rightOf(_cell("Application Submission Date")))));
+	_assertEqual($certificationStatusInfo["Certification Number"], _getText(_cell(0, _rightOf(_cell("Certification Number")))));
+	_assertEqual($certificationStatusInfo["Start Date"], _getText(_cell(0, _rightOf(_cell("Start Date")))));
+	_assertEqual($certificationStatusInfo["End Date"], _getText(_cell(0, _rightOf(_cell("End Date")))));
+
+	//Certification history header
+	_assertVisible(_heading4("Certification History"));
+	_assertVisible(_row("Date Previous Status New Status View Comment View Attachment"));
+	verifyCertificationHistoryTable($statusHistory);
+	return $certificationStatusInfo;
+}
+
+
+function verifyCertificationHistoryTable($statusHistory){
+	var $rows = _collect ("_row", "/.*/", _in(_table("brokerStatusHistory")));
+	for (var $i = 1; $i < $rows.length; $i++) {
+		var $status = $statusHistory[$i - 1];
+		_assertEqual($status, _getText(_cell(0, _in($rows[$i]), _under(_tableHeader("New Status"), 10))));
+	}
+
+	for (var $i = $rows.length - 2; $i > 0; $i--) {
+		var $status = $statusHistory[$i];
+		_assertEqual($status, _getText(_cell(0, _in($rows[$i]), _under(_tableHeader("Previous Status"), 10))));
+	}
+
+}
+
+
+function clickEditOnCertificationStatusForAgent($status, $statusHistory, $agentInfo, $certificationStatusInfo){
+	_assertVisible(_link("Edit"));
+	_click(_link("Edit"));
+	_assertVisible(_link("Cancel"));
+	_assertEqual("Cancel", _getText(_link("Cancel")));
+	if (!$certificationStatusInfo["Certification Date"]) $certificationStatusInfo["Certification Date"] = "";
+	if (!$certificationStatusInfo["Renewal Date"]) $certificationStatusInfo["Renewal Date"] = "";
+
+	_assertEqual($status, _getText(_cell(0, _rightOf(_cell("Certification Status")))));
+	_assertEqual($certificationStatusInfo["Agent Number"], _getText(_cell(0, _rightOf(_cell("Agent Number")))));
+	_assertEqual($certificationStatusInfo["Application Submission Date"], _getText(_cell(0, _rightOf(_cell("Application Submission Date")))));
+	_assertEqual($certificationStatusInfo["Certification Number"], _getText(_cell(0, _rightOf(_cell("Certification Number")))));
+	_assertEqual($certificationStatusInfo["Certification Date"], _getText(_cell(0, _rightOf(_cell("Certification Date")))));
+	_assertEqual($certificationStatusInfo["Renewal Date"], _getText(_cell(0, _rightOf(_cell("Renewal Date")))));
+	///Update certification header
+	_assertVisible(_heading4("Update Certification"));
+	_assertVisible(_label("New StatusRequired", _near(_heading4("Update Certification"))));
+	_assertEqual("New StatusRequired", _getText(_label("New StatusRequired", _near(_heading4("Update Certification")))));
+	_assertVisible(_select("certificationStatus", _near(_label("New StatusRequired"))));
+	_assertVisible(_label("Comment"));
+	_assertEqual("Comment", _getText(_label("Comment")));
+	_assertVisible(_textarea("comments", _near(_label("Comment"))));
+	_assertVisible(_label("Upload E&O declaration page"));
+	_assertEqual("Upload E&O declaration page", _getText(_label("Upload E&O declaration page")));
+	_assertVisible(_button("Upload"));
+	_assertVisible(_label("Upload contract"));
+	_assertEqual("Upload contract", _getText(_label("Upload contract")));
+	_assertVisible(_label("Upload Supporting Document"));
+	_assertEqual("Upload Supporting Document", _getText(_label("Upload Supporting Document")));
+	_assertEqual("Upload", _getText(_button("Upload")));
+	_assertVisible(_div("/File size limit is 5 MB./"));
+	_assertEqual("File size limit is 5 MB.", _getText(_div("/File size limit is 5 MB./")));
+	_assertVisible(_link("Cancel[1]"));
+	_assertEqual("Cancel", _getText(_link("Cancel[1]")));
+	_assertVisible(_button("Submit"));
+	_assertEqual("Submit", _getText(_button("Submit")));
+
+	_assertNotVisible(_heading4("Certification History"));
+	_assertVisible(_row("Date Previous Status New Status Comment View Attachment"));
+	verifyCertificationHistoryTable($statusHistory);
+	return $certificationStatusInfo;
+}
+
+
+function updateCertificationStatus($newStatus, $statusHistory, $agentInfo, $certificationStatusInfo){
+	_setSelected(_select("certificationStatus"), $newStatus);
+	_click(_button("Submit"));
+	_assertVisible(_heading4("Certification History"));
+	_assertEqual($newStatus, _getText(_cell(0, _rightOf(_cell("Certification Status")))));
+	
+	verifyCertificationHistoryTable($statusHistory);
+	var $date = new Date();
+	var $today = _call(window.moment($date)).format("MM-DD-YYYY");
+	$date.setFullYear($date.getFullYear() + 1);
+	var $nextYearToday = _call(window.moment($date)).format("MM-DD-YYYY");
+	if ($newStatus == "Certified") {
+		var $brokerInfo = getAgentBrokerNumberAndCertificationNumberFromDB($agentInfo.publicEmail);
+		$certificationStatusInfo["Certification Number"] = $brokerInfo[0][1];
+		$certificationStatusInfo["Start Date"] = $today;
+		$certificationStatusInfo["End Date"] = $nextYearToday;
+		$certificationStatusInfo["Certification Date"] = $today;
+		$certificationStatusInfo["Renewal Date"] = $nextYearToday;
+	}
+
+	_assertEqual($newStatus, _getText(_cell(0, _rightOf(_cell("Certification Status")))));
+	_assertEqual($certificationStatusInfo["Agent Number"], _getText(_cell(0, _rightOf(_cell("Agent Number")))));
+	_assertEqual($certificationStatusInfo["Application Submission Date"], _getText(_cell(0, _rightOf(_cell("Application Submission Date")))));
+	_assertEqual($certificationStatusInfo["Certification Number"], _getText(_cell(0, _rightOf(_cell("Certification Number")))));
+	_assertEqual($certificationStatusInfo["Start Date"], _getText(_cell(0, _rightOf(_cell("Start Date")))));
+	_assertEqual($certificationStatusInfo["End Date"], _getText(_cell(0, _rightOf(_cell("End Date")))));
+
+	return $certificationStatusInfo;
+}
+
+function certificationStatusVerify() {
+	if ($showConfirmation) {
+		_assertVisible($certificationStatusCompleteHeader);
+		_click($certificationStatusCompleteClose);
+	}
+	_assertVisible($certificationStatusHeader);
+	_assertVisible($certificationStatusAgentNumber);
+	_assertVisible($certificationStatusSubmissionDate);
+	_assertVisible($certificationStatusStatus);
+	_assertVisible($certificationStatusCertificationNumber);
+	_assertVisible($certificationStatusCertificationDate);
+	_assertVisible($certificationStatusRenewalDate);
+}
+
+function certificationStatusAgentCreatingIndivduals(){
+	_click(_link("Individuals"));
+	_click(_link("/Add New Individual/"));
+	var $name  = randomString(4);
+	_setValue(_textbox("firstName"),$name );
+	_setValue(_textbox("lastName"), $name);
+	_setValue(_textbox("dob"), "10/10/1980");
+	_setValue(_textbox("zipcode"), "94043");
+	_setValue(_textbox("phoneNumber1"), "408");
+	_setValue(_textbox("phoneNumber2"), "875");
+	_setValue(_textbox("phoneNumber3"), "7789");
+	_setValue(_textbox("email"), $name +"@yopmail.com");
+	_click(_submit("Start"));
+	_assertVisible(_heading3("View Individual Account"));
+	_click(_submit("Individual View"));
+	_assertEqual("/"+$announcement[0].Text+"/",_getText(_div("announcements alert alert-block")));
+}
+
+function searchForAgentByFirstAndLastName($firstName,$lastName, $Agent, $agentInfo){
+	_click(_link("/Agents/"));
+	_click(_link("/Manage Agents/"));
+	_setValue(_textbox("First Name"),$firstName);
+	_setValue(_textbox("Last Name"),$lastName);
+	_click(_submit("Go"));
+	_click(_link( $firstName+" "+$lastName, _under(_tableHeader("/Agent Name/"))));
+	verifyTopNavbar();
+	verifyNameHeader($firstName,$lastName,$agentInfo);
+	verifySidebar();
+	verifyBrokerInfoSearchedByAdmin($Agent, $agentInfo);
+}
+
+function verifyBrokerInfoSearchedByAdmin($agent, $agentInfo){
+	_assertContainsText($agentInfo[0].$firstName, _cell(0, _rightOf(_cell("First Name"))));
+	_assertContainsText($agentInfo[0].$lastName, _cell(0, _rightOf(_cell("Last Name"))));
+	_assertContainsText($agent.licenseNumber,_cell(0, _rightOf(_cell("New Jersey Agent License Number"))));
+	_assertVisible(_cell($agent.NPN, _near(_cell("Agent NPN"))));
+	var $formatedNumber = (_getText( _cell(0, _rightOf(_cell("Primary phone number")))).replace(/[( )-]/g,''));
+	_assertEqual($agent.agentPrimaryNumber, $formatedNumber);
+	$formatedNumber =_getText( _cell(0, _rightOf(_cell("Business Contact Phone Number")))).replace(/[( )-]/g,'');
+	_assertEqual($agent.agentBusinessNumber, $formatedNumber);
+	$formatedNumber = (_getText( _cell(0, _rightOf(_cell("Alternate Phone Number"))))).replace(/[( )-]/g,'')
+		_assertEqual($agent.agentAlternateNumber,$formatedNumber );
+	$formatedNumber = _getText( _cell(0, _rightOf(_cell("Fax Number")))).replace(/[( )-]/g,'');
+
+	_assertEqual($agent.agentFaxNumber, $formatedNumber);
+	_assertEqual($agent.businessName, _getText( _cell(0, _rightOf(_cell("Business Name")))));
+	var $EIN = ($agent.agentEIN)
+		_log($EIN+"))))))))))))))");
+	$EIN = "***-**-"+$EIN.substring(5,9);
+	_assertEqual($EIN, _getText( _cell(0, _rightOf(_cell("Federal Employer Identification Number (EIN)")))));
+	_assertVisible(_heading4("Business Address"));
+	_assertVisible(_heading4("Business Address"));
+
+}
+
+function editCertification(){
+	_assertVisible(_link("Certification Status"),"Verify Certification Status link is visible");
+	_click(_link("Certification Status"));
+	_assertVisible(_link("Edit"),"Verify edit link is visible");
+	_click(_link("Edit"));
+}
+
+
+
+function verifyGenerateSetNewStatus(){
+	$previousStatus=_getText(_cell(0, _rightOf(_cell("Certification Status"))));
+	_assertVisible(_label("New StatusRequired"),"Verify New Status label is displayed");
+	var $list = _getOptions(_select("certificationStatus"));
+	_assertEqual($newStatusOptions, $list, "Verify the new status options")
+		var $randomNumber = getRandomInt(1, 5);
+	_setSelected(_select("certificationStatus"), $statusOptions[$randomNumber]);
+	_assertEqual($statusOptions[$randomNumber], _getSelectedText(_select("certificationStatus")));
+	$newStatus = _getSelectedText(_select("certificationStatus"));
+}
+
+function verifyEnterComment(){
+	_assertVisible(_label("Comment"),"Verify comment label is displayed");
+	_setValue(_textarea("comments"), "UI testing");
+}
+
+function verifyFileUpload($filePathIndex,$chooseFileIndex, $uploadButtonIndex){
+	_assertVisible($chooseFile[$chooseFileIndex], "Verify if Choose File button is visible");
+	var $fileType= $filePath[$filePathIndex].split(".")[1];
+	_log("File type:" +$fileType);
+	_setFile2($chooseFile[$chooseFileIndex], $filePath[$filePathIndex],$actionURL, true, true );
+	_click($uploadButton[$uploadButtonIndex]);
+	//Valid file types: bmp, gif, jpeg, jpg, png, pdf 
+	if($fileType=="bmp" ||$fileType== "gif"||$fileType=="jpeg" ||$fileType=="jpg" ||$fileType=="png"||$fileType=="pdf" ){
+		_assertVisible(_heading4("/File uploaded Successfully./"),"Verify if file uploaded successfully pop up is displayed");
+		_assertVisible(_submit("Ok", _near(_heading4("/File uploaded Successfully./"))));
+		_click(_submit("Ok", _near(_heading4("/File uploaded Successfully./"))));
+
+	}
+	else{
+		_assertVisible(_heading4("/Failed to Upload File./"),"Verify if failed to upload file pop up is displayed");
+		_assertVisible(_submit("Ok", _near(_heading4("/Failed to Upload File./"))));
+		//Reload the page
+		_call(top.location.reload());
+	}
+}
+
+function verifyValidFileUpload($filePathIndex,$chooseFileIndex, $uploadButtonIndex){
+	verifyFileUpload(4,0,0);
+}
+
+function verifyFileUploadInAgentUpdateCertification(){
+	_assertVisible(_label("Upload E&O declaration page"),"Verify Upload E&O declaration page label is displayed");
+	// Valid/invalid file upload on Update Certification - Upload E&O declaration page
+	for (var $filePathIndex = 0; $filePathIndex < $filePath.length; $filePathIndex++) {
+		verifyFileUpload($filePathIndex,0,0);
+	}
+	_assertVisible(_label("Upload contract"),"Verify Upload contract label is displayed");
+	// Valid/invalid file upload on Update Certification - Upload contract
+	for (var $filePathIndex = 0; $filePathIndex < $filePath.length; $filePathIndex++) {
+		verifyFileUpload($filePathIndex,1,1);
+	}
+	_assertVisible(_label("Upload Supporting Document"),"Verify Upload Supporting Document label is displayed");
+	// Valid/invalid file upload on  Update Certification - Upload Supporting Document
+	for (var $filePathIndex = 0; $filePathIndex < $filePath.length; $filePathIndex++) {
+		verifyFileUpload($filePathIndex,2,2);
+	}
+	_click(_submit("Ok"));
+	//Reload the page
+	_call(top.location.reload());
+}
+
+function verifySubmitOnUpdateCertification(){
+	_assertVisible(_button("Submit"),"Verify Submit button under Update Certification");
+	_click(_button("Submit"));
+}
+
+function verifyUpdatedCertificationStatus(){
+	_wait(10000, _isVisible(_heading4("Certification History")));
+	_assertVisible(_cell($previousStatus, _under(_tableHeader("Previous Status"), 10)),"Verify Previous Status is displayed");
+	_assertVisible(_cell($newStatus, _under(_tableHeader("New Status"))),"Verify New Status is displayed");
+	_assertVisible(_link("View Comment", _under(_tableHeader("View Comment"))),"Verify View Comment is displayed");
+	_lockWindow();
+    _focusWindow();
+	_click(_link("View Comment", _under(_tableHeader("View Comment"))));
+	_assertVisible(_div("x View Comment"),"Verify View Comment pop up is displayed");
+	_assertVisible(_paragraph("UI testing", _under(_div("x View Comment"))),"Verify if the comment added is displayed");
+	_click(_link("Close", _near(_div("x View Comment"))));
+	_assertVisible(_link("E&O Declaration", _under(_tableHeader("View Attachment"))),"Verify E&O Declaration link is displayed");
+	_unlockWindow();
+}
+
+
+
+
+
+
+
+

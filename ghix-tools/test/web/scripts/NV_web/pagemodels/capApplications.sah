@@ -1,0 +1,531 @@
+_includeOnce("CAP.sah");
+_includeOnce("Applications.sah");
+_includeOnce("AccountSettings.sah");
+_includeOnce("seedData_SSAP.sah");
+
+//Accessors
+//var $appActionButton = _span("Actions");
+var $appActionButton = _link("Actions");
+var $appActionPanel = _div("well-step action_panel");
+var $openSpecialEnrollmentLinkAppTab = _link("OPEN SPECIAL ENROLLMENT", _in(_div("currentAppStatuspanel action-panel")));
+var $changeCovStartDateLinkAppTab = _link("CHANGE COVERAGE START DATE", _in(_div("currentAppStatuspanel action-panel")));
+var $overrideSpecialEnrollmentLinkAppTab = _link("Override Special Enrollment", _near(_link("Actions")));
+var $changeCoverageStartDateHeader = _span("Change coverage start date");
+var $changeCovStartDateReasonTextbox = _textarea(0, _in(_div("/Specify the reason for override/")));
+var $changeCovStartDateContinueLink = _link("Continue", _in(_div("/Specify the reason for override/")));
+var $newCoverageStartDateHeader = _span("Enter a new coverage start date:")
+var $newCoverageStartDateTextbox  = _textbox("cov");
+var $newCovStartDateContinueLink = _link("Continue", _in(_div("Continue Cancel")));
+var $submissionSuccessfulHeading = _heading3("Submission Successful!");
+var $submissionSuccessfulOkLink = _link("OK", _near(_div("/Submission Successful/")));
+
+
+
+//Open Special Enrollment Accessors
+
+
+//Override Special Enrollment Accessors
+var $overrideSpecialEnrollmentLinkAppTab = _link("Override Special Enrollment", _near(_link("Actions")));
+var $overrideSpecialEnrollmentHeading = _heading3("Override Special Enrollment Details");
+var $eventTypeDropdown = _select("eventType", _near(_span("Event Type Required")));
+var $eventDateTextbox  = _textbox("eventDate", _near(_span("Event Date Required")));
+var $continueButtonOverrideSep = _submit("Continue", _in(_div("overrideSepModal")));
+var $overrideSpecialEnrollDetailsHeader = _heading3("Override Special Enrollment Details");
+var $sepStartDateTextbox = _textbox("sepStartDate");
+var $sepEndDateTextbox = _textbox("sepEndDate");
+var $sepOverrideReasonTextbox  = _textarea("aid_sepOverrideReason", _in(_div("overrideSepModal")));
+var $saveButton = _submit("Save", _in(_div("overrideSepModal")));
+var $submissionSuccessfulHeading = _heading3("Submission Successful!", _in(_div("/Submission Successful/")));
+//var $okButtonOverrideSpecialEnrollment  = _submit("OK", _near(_div("/Submission Successful/")));
+var $okButtonOverrideSpecialEnrollment  =_link("OK", _in(_div("successModal")));
+var $shopForPlansDashboard =_button("SHOP FOR PLANS");
+var $uploadDocumentsDashboard = _button("UPLOAD DOCUMENTS");
+var $openSpecialEnrollHeading = _heading3("Open Special Enrollment");
+var $openSpecialEnrollReasonTextbox = _textarea("overrideText ng-pristine ng-valid");
+
+
+//Override Program Eligibility Accessors
+var $overridePgmEligibilityModal = _div("overrideProgEligModal");
+var $overridePgmEligibilityLink = _link("Override Program Eligibility");
+var $overridePgmEligibilityHeading = _heading3("Override Program Eligibility", _in(_div("overrideProgEligModal")));
+var $householdMaxAptcTextbox = _textbox("eligMaxAPTC", _under(_label("Household Maximum APTC Amount")));
+var $eligStartDateTextboxFnApp =  _textbox("eligStartDate", _under(_label("Eligibility (APTC & CSR) Start Date")));
+var $eligStartDateTextboxNfApp =  _textbox("eligStartDate", _under(_label("Eligibility Start Date")))
+var $headersTableOverridePgmEligFnApp = _row("Member Name Exchange Eligibility APTC Eligibility CSR Eligibility Medicaid Eligibility CHIP Eligibility", _in(_table("table table-borderless")));
+var $headersTableOverridePgmEligNfApp = _row("Member Name Exchange Eligibility CSR Eligibility");
+var $cancelButtonOverridePgmElig = _submit("Cancel", _in(_div("overrideProgEligModal")));
+var $continueButtonOverridePgmElig = _submit("Continue", _in(_div("overrideProgEligModal")));
+var $reasonTextAreaOverridePgmElig = _textarea("/overrideText/", _in(_div("overrideProgEligModal")));
+var $submitButtonOverridePgmElig = _submit("Submit", _in(_div("overrideProgEligModal")));
+var $successHeadingOverridePgmElig = _heading3("Submission Successful!", _in(_div("successModal")));
+var $okSuccessModalOverridePgmElig =  _link("OK", _in(_div("successModal")));
+var $uploadDocumentsMsgDashboard = _span("Please provide supporting documents to confirm your life event. Once your documents have been approved, you will have the ability to shop for plans.");
+var $uploadDoucmentsButtonDashoard = _button("UPLOAD DOCUMENTS", _in(_div("auto-further-action")));
+var $docsForHouseholdHeading = _heading4("Documents for This Household");
+var $ovverrideIncomeChangeQleLink = _link("Override", _in(_div("/Income Change/")));
+var $docUploadOverrideReasonTextArea = _textarea(0, _in(_div("adminOverrideModal")));
+var $submitDocUploadOverrideReason = _link("Submit", _in(_div("adminOverrideModal")));
+var $incomeChangeVerifiedResult = _div("Income Change (Verified)");
+var $memImpersonationChangePlansDashoard = _button("CHANGE PLANS", _in(_div("auto-further-action")));
+var $memImpersonationChangePlansAiAnMsg = _submit("Ok", _in(_div("You have already used this privilege once this month. Please try again next month.Ok")))
+var $memImpersonationChangePlanCustomGrouping = _submit("Change Plan", _in(_div("aid_health_enrolled_grps")));
+var $shopHealthPlansLinkCustomGrouping = _link("Shop Health Plans");
+var $memImpersonationConfirmPlanOnCart = _heading1("Confirm your Plan Selection");
+var $memImpersonationEditAppBtnDashboard = _button("EDIT APPLICATION", _in(_div("auto-further-action")));
+var $memImpersonationConfirmEventFinalizePlansBtn = _button("CONFIRM EVENT AND FINALIZE PLANS");
+var $memImpersonationIneligibleIndHeader = _heading5("Newly ineligible individuals");
+var $overridePgmEligibilityCancel =_submit("Cancel", _in(_div("overrideProgEligModal")));
+
+
+
+//Member portal
+var $memImpersonationMyApplicationsLink = _link("My Applications");
+var $myApplicationsHeading = _heading4("My Applications");
+var $memImpersonationMyEnrollmentsLink = _link("My Enrollments");
+var $currentEnrollmentsHeading = _heading4("Current Enrollments");
+
+
+//Verify accessors
+var $overridePgmEligModalAccessorsFnApp = [$overridePgmEligibilityHeading,$householdMaxAptcTextbox,$eligStartDateTextboxFnApp,$headersTableOverridePgmEligFnApp,$cancelButtonOverridePgmElig];
+var $overridePgmEligModalAccessorsNfApp= [$overridePgmEligibilityHeading,$eligStartDateTextboxNfApp,$headersTableOverridePgmEligNfApp,$cancelButtonOverridePgmElig];
+var $csrLevelChangesDashboardAccessors = [$uploadDocumentsMsgDashboard,$uploadDoucmentsButtonDashoard];
+
+function clickMyAccountBackToCap(){
+	_click($myAccountLink);
+	_assertVisible($capMenuBar,"Verify if menu bar in CAP is displayed");
+}
+
+function clickApplicationsTab($appType,$appStatus,$actionsAppTab,$openSpecialEnrollmentAppTab,$changeCovStartDateAppTab,$overrideSpecialEnrollmentAppTab,$overrideProgramEligAppTab){
+	$coverageDate = getCurrentCoverageYear();
+	_log("Select Application Year for   "+$coverageDate[0][0]);
+
+	_click($applicationsLink);
+	_setSelected(_select(0), $coverageDate[0][0]);
+	
+	if ($actionsAppTab =="Y"){
+			_assertVisible($appActionButton, "Verify that Actions button is displayed");
+			_click($appActionButton);
+		}
+	else if($actionsAppTab =="N"){
+			_assertNotVisible($appActionButton, "Verify that Actions button is not displayed");
+		}	
+			
+	if($appStatus == "ER"){
+		if($appType == "FN"){
+			verifyApplicationsAccessPermission($openSpecialEnrollmentAppTab,$changeCovStartDateAppTab,$overrideSpecialEnrollmentAppTab,$overrideProgramEligAppTab);
+		}
+		else if($appType == "NF"){
+			verifyApplicationsAccessPermission($openSpecialEnrollmentAppTab,$changeCovStartDateAppTab,$overrideSpecialEnrollmentAppTab,$overrideProgramEligAppTab);
+		}
+	}
+}
+
+
+function verifyApplicationsAccessPermission($openSpecialEnrollmentAppTab,$changeCovStartDateAppTab,$overrideSpecialEnrollmentAppTab,$overrideProgramEligAppTab){
+	if ($openSpecialEnrollmentAppTab =="Y"){
+		_assertVisible($openSpecialEnrollmentLinkAppTab, "Verify that Open Special Enrollment link is displayed");
+	}
+	else if ($openSpecialEnrollmentAppTab =="N"){
+		_assertNotVisible($openSpecialEnrollmentLinkAppTab, "Verify that Open Special Enrollment link is not displayed");
+	}
+	if ($changeCovStartDateAppTab =="Y"){
+		_assertVisible($changeCovStartDateLinkAppTab, "Verify that Change Coverage Start Date link is displayed");
+	}
+	else if ($changeCovStartDateAppTab =="N"){
+		_assertNotVisible($changeCovStartDateLinkAppTab, "Verify that Change Coverage Start Date link is not displayed");
+	}
+	if ($overrideSpecialEnrollmentAppTab =="Y" && inGlobalOEP()!= "ON"){
+		_assertVisible($overrideSpecialEnrollmentLinkAppTab, "Verify that Override Special Enrollment link is displayed");
+	}
+	else if ($overrideSpecialEnrollmentAppTab =="N"){
+		_assertNotVisible($overrideSpecialEnrollmentLinkAppTab, "Verify that Override Special Enrollment link is not displayed");
+	}
+	if ($overrideProgramEligAppTab =="Y"){
+		_assertVisible($overridePgmEligibilityLink, "Verify that Override Program Eligibility link is displayed");
+	}
+	else if ($overrideProgramEligAppTab =="N"){
+		_assertNotVisible($overridePgmEligibilityLink, "Verify that Override Program Eligibility link is not displayed");
+	}
+}
+
+function overrideSpecialEnrollment($overrideSpecialEnrollmentAppTab,$lastSelectedEvent,$lastEventDate,$newEvent,$newEventDate,$caseNumber, $member){
+_click($appActionButton);
+if(inGlobalOEP()!="ON"){
+	if($overrideSpecialEnrollmentAppTab == "Y"){
+		_click($overrideSpecialEnrollmentLinkAppTab);
+		_assertVisible($overrideSpecialEnrollmentHeading,"Verify if Override Special Enrollment Details heading is displayed");
+		//_assertVisible(_div($member[0].firstName+" "+$member[0].lastName+" (Primary)", _near(_span("Members"))),"Verify if the name of the primary person is displayed");
+		//_assertVisible(_div($houseHold.people[0].firstName+" "+$houseHold.people[0].lastName+" (Primary)", _near(_span("Members"))),"Verify if the name of the primary person is displayed");
+		//_assertEqual($lastSelectedEvent,_getSelectedText($eventTypeDropdown),"Verify if the selected event is displayed");
+		//_assertEqual($lastEventDate,_getText($eventDateTextbox),"Verify if the event date is displayed correctly");
+		_setSelected($eventTypeDropdown,$newEvent);
+		_setValue($eventDateTextbox,$newEventDate);
+		_click($continueButtonOverrideSep);
+		_assertVisible($overrideSpecialEnrollDetailsHeader,"Verify if Override Special Enrollment Details heading is displayed");
+		_assertEqual($newEventDate, _getValue($sepStartDateTextbox),"Verify the date in SEP Start Date textbox");
+		var $sepEndDate = calculateSepEndDate($newEventDate);
+		_assertEqual($sepEndDate, _getValue($sepEndDateTextbox),"Verify the date in SEP End Date textbox");
+		_setValue($sepOverrideReasonTextbox,"Overriding special enrollment");
+		_click($saveButton);
+		_assertVisible($submissionSuccessfulHeading,"Verify if Submission Successful heading is displayed");
+		_click($okButtonOverrideSpecialEnrollment);
+		clickViewMemberAccount();
+		_assertTrue(_isVisible($shopForPlansDashboard) || _isVisible($uploadDocumentsDashboard));
+		verifyEventinDB($newEvent,$caseNumber);
+	}
+}
+else
+   _stop();
+}
+
+function clickViewChanges($newEvent,$eventDate){
+	_click($viewChangesApplications);
+	_assertVisible($summaryOfReportedEvents,"Verify if Summary of Reported Events modal is displayed");
+	for (var $i=0; $i<$houseHold.people.length; $i++){
+		_assertVisible(_row($houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+$newEvent+$eventDate));
+	}
+	_click($okButtonSummaryOfReportedEvents);
+	_assertVisible($myApplicationsDivMemberPortal,"Verify if My Applications is displayed in member portal");
+}
+
+function sepEnded($isInOEP){
+	if($isInOEP != "ON"){
+		_assertEqual("You have missed the opportunity to enroll in a plan due to your life change event.", _getText($furtherActionParaDashboard));
+		_assertVisible($reportAChangeButtonDashbaord,"Verify if Report a Change button is displayed on Dashboard");
+	}
+}
+
+function sepOpened(){
+	_assertTrue(_isVisible($shopForPlansDashboard) || _isVisible($uploadDocumentsDashboard));
+}
+
+function verifyEventinDB($newEvent,$caseNumber){
+	var $dbEventLabel = getEventLabelFromDb($caseNumber);
+	_assertEqual($newEvent, $dbEventLabel[0][0], "Verify event in UI is same as in DB");
+}
+
+function verifyEnrollmentStartAndEndDateDb($caseNumber,$startOEP,$endOEP){
+	var $dbEnrollmentStartEndDates = getEnrollmentStartEndDatesFromDb($caseNumber);
+	$dbEnrollmentStartDate = getDateInMmDdYyyyFormat($dbEnrollmentStartEndDates[0][0]);
+	_assertEqual($startOEP, $dbEnrollmentStartDate, "Verify enrollment start date in UI is same as in DB");
+	$dbEnrollmentEndDate = getDateInMmDdYyyyFormat($dbEnrollmentStartEndDates[0][1]);
+	_assertEqual($endOEP, $dbEnrollmentEndDate, "Verify enrollment end date in UI is same as in DB");
+}
+
+//Override Program Eligibility
+
+function clickApplicationsActionButton(){
+	_click($appActionButton);
+	_assertVisible($overridePgmEligibilityLink,"Verify if Override Program Eligibility link is displayed");
+}
+
+function clickOverridePgmEligLink($appType){
+	_click($overridePgmEligibilityLink);
+	if($appType =="NF"){
+		verifyArray($overridePgmEligModalAccessorsNfApp);
+	}
+	else{
+		verifyArray($overridePgmEligModalAccessorsFnApp);
+	}
+}
+
+function verifyDbOverrideProgramEligibility($memberFirstName,$memberLastName,$exchangeElig,$aptcElig,$csrElig,$csrLevel,$medicaidElig,$chipElig,$people,$householdMaxAptc,$eligStartDate,$dbRowNum,$caseNumber){
+	if($householdMaxAptc != null){
+		verifyMaxAptcDB($caseNumber,$householdMaxAptc);
+	}
+	verifyDbMemberEligDetails($memberFirstName,$memberLastName,$exchangeElig,$aptcElig,$csrElig,$csrLevel,$people,$eligStartDate,$dbRowNum);
+}
+
+function verifyMaxAptcDB($caseNumber,$householdMaxAptc){
+	var $dbMaxAptc = getDetailsFromSsapApplications($caseNumber);
+	$householdMaxAptc = $householdMaxAptc.replace("$","");
+	_assertEqual($householdMaxAptc, parseFloat($dbMaxAptc[0][2]).toFixed(2), "Verify Household Maximum APTC Amount in UI is same as in DB");
+}
+
+
+function verifyDbMemberEligDetails($memberFirstName,$memberLastName,$exchangeElig,$aptcElig,$csrElig,$csrLevel,$people,$eligStartDate,$dbRowNum){
+	var $dbMemberEligDetails = getDetailsFromssapApplicants($people[0].$email);
+	if($csrLevel != null){
+	 var $csLevelNum = $csrLevel.split(" ")[2];
+	}
+	var $ssapApplicantId=$dbMemberEligDetails[$dbRowNum][0];
+	var $dbEligibilityType=["ExchangeEligibilityType","APTCEligibilityType","CSREligibilityType"];
+	var $eligibilityType=[$exchangeElig,$aptcElig,$csrElig];
+	
+	if ($aptcElig == null && $csrElig == null){
+		var $eligibilityType=[$exchangeElig];
+	}
+	else if ($aptcElig == null){
+		var $eligibilityType=[$exchangeElig,$csrElig];
+	}
+	else if ($csrElig == null){
+		var $eligibilityType=[$exchangeElig,$aptcElig];
+	}	
+	_assertEqual($memberFirstName, $dbMemberEligDetails[$dbRowNum][1], "Verify first name in DB");
+	_assertEqual($memberLastName, $dbMemberEligDetails[$dbRowNum][2], "Verify last name in DB");
+	if($exchangeElig=="Yes"){
+		_assertEqual("QHP", $dbMemberEligDetails[$dbRowNum][3], "Verify eligibility_status in ssap_applicants table");
+	} 
+	else{
+		_assertEqual("NONE", $dbMemberEligDetails[$dbRowNum][3], "Verify eligibility_status in ssap_applicants table");
+	}
+	if($csrLevel != null){
+		_assertEqual("CS"+$csLevelNum, $dbMemberEligDetails[$dbRowNum][4], "Verify csr_level in ssap_applicants table");
+	}
+	else{
+		_assertEqual("null", $dbMemberEligDetails[$dbRowNum][4], "Verify csr_level in ssap_applicants table");
+	}
+	for(var $i=0;$i<$eligibilityType.length;$i++){
+		var $dbPgmEligDetails = getProgramEligibilitiesDataDB($ssapApplicantId,$dbEligibilityType[$i]);
+		_log("$dbPgmEligDetailsJson: "+$dbPgmEligDetails);
+		if ($eligibilityType[$i]=="Yes"){
+			_assertEqual("TRUE",$dbPgmEligDetails.eligibility_indicator, "Verify "+$dbEligibilityType[$i]+" in program_eligibilities table");
+		}else{
+			_assertEqual("FALSE",$dbPgmEligDetails.eligibility_indicator, "Verify "+$dbEligibilityType[$i]+" in program_eligibilities table");
+		}
+	}
+}	
+
+function updateMaxAptcOverridePgmElig($householdMaxAptcAmt,$eligStartDate){
+	_setValue($householdMaxAptcTextbox, $householdMaxAptcAmt);
+	enterEligStartDate($eligStartDate);
+	_assertEqual($householdMaxAptcAmt, _getValue($householdMaxAptcTextbox),"Verify if Household Maximum APTC Amount is set correctly");
+}
+
+function enterEligStartDate($eligStartDate,$appType){
+	if($appType =="NF"){
+	_setValue($eligStartDateTextboxNfApp, $eligStartDate);
+	_assertEqual($eligStartDate, _getValue($eligStartDateTextboxNfApp),"Verify if Eligibility Start Date is set correctly");
+	}
+	else{
+	_setValue($eligStartDateTextboxFnApp, $eligStartDate);
+	_assertEqual($eligStartDate, _getValue($eligStartDateTextboxFnApp),"Verify if Eligibility (APTC & CSR) Start Date is set correctly");
+	}
+}
+
+function clickContinueOverridePgmElig(){
+	_click($continueButtonOverridePgmElig);
+	_setValue($reasonTextAreaOverridePgmElig, "Override Program Eligibility Test");
+	_click($submitButtonOverridePgmElig);
+	_assertVisible($successHeadingOverridePgmElig,"Verify Submission Successful message");
+	_click($okSuccessModalOverridePgmElig);
+}
+
+function currentApplicationCap($eligStartDate,$eligEndDate,$householdMaxAptcAmt,$csLevel,$appType){
+	$eligStartDate = getDateInMmmDdYyyyFormat($eligStartDate);
+	$eligEndDate = getDateInMmmDdYyyyFormat($eligEndDate);
+	_assertVisible(_div("Eligibility Start Date: "+$eligStartDate, _in(_div("currentAppStatus"))));
+	_assertVisible(_div("Eligibility End Date: "+$eligEndDate, _in(_div("currentAppStatus"))));
+	if($appType=="NF"){
+		_assertNotVisible(_div("APTC: ", _in(_div("currentAppStatuspanel action-panel"))));
+		_assertNotVisible(_div("CSR: ", _in(_div("currentAppStatuspanel action-panel"))));
+	}
+	else{
+	
+		if ($householdMaxAptcAmt != null){
+			_assertVisible(_div("APTC: "+$householdMaxAptcAmt, _in(_div("currentAppStatus"))));
+		}
+		else{
+			_assertVisible(_div("APTC: Not Eligible"+$householdMaxAptcAmt, _in(_div("currentAppStatus"))));
+		}
+		_assertVisible(_div("CSR: "+$csLevel, _in(_div("currentAppStatus"))));
+	}
+}
+
+function verifyMemImpersonationHhDetailsDashboard($memNum,$ssapInfo,$householdMaxAptcAmt,$csrElig,$exchangeElig,$hasAiAnMember){
+	if($exchangeElig != "Not Eligible"){
+		if($hasAiAnMember == "Yes"){
+		_assertVisible(_div($ssapInfo[$memNum].$firstName+" "+$ssapInfo[$memNum].$lastName+" American Indian/Alaska Native", _in(_div("auto-household"))),"Verify member names under Your Household Eligibility");
+		} else{
+		_assertVisible(_div($ssapInfo[$memNum].$firstName+" "+$ssapInfo[$memNum].$lastName, _in(_div("auto-household"))),"Verify member names under Your Household Eligibility");
+		}
+	}
+	
+	else{
+		_assertVisible(_div($ssapInfo[$memNum].$firstName+" "+$ssapInfo[$memNum].$lastName+" Not eligible", _in(_div("auto-household"))),"Verify member names under Your Household Eligibility");
+	}
+
+	if ($householdMaxAptcAmt != null){
+	_assertVisible(_span($householdMaxAptcAmt+" per month", _in(_div("auto-household"))),"Verify APTC amount under Your Household Eligibility");
+	}
+	if ($csrElig=="Yes"){
+		_assertVisible(_span("Eligible for Cost Sharing Reduction"),"Verify Eligible for Cost Sharing Reduction under Your Household Eligibility");
+	}
+}
+
+function verifyMemImpersonationAptcCsMyApplications($householdMaxAptcAmt,$csLevel,$isFinancial){
+	if($isFinancial == "No"){
+		_assertNotVisible(_paragraph("APTC: "+$householdMaxAptcAmt, _in(_div("currentAppStatus"))),"Verify APTC amount for current application in member portal on My Applications");
+		_assertNotVisible(_paragraph("CSR: "+$csLevel, _in(_div("currentAppStatus"))),"Verify CS level for current application in member portal on My Applications");
+	}
+	else{
+		if ($householdMaxAptcAmt != null){
+			_assertVisible(_paragraph("APTC: "+$householdMaxAptcAmt, _in(_div("currentAppStatus"))),"Verify APTC amount for current application in member portal on My Applications");
+		}
+		else{
+			_assertVisible(_paragraph("APTC: Not Eligible"+$householdMaxAptcAmt, _in(_div("currentAppStatus"))),"Verify APTC amount for current application in member portal on My Applications");
+		}
+		if ($csLevel != null){
+		_assertVisible(_paragraph("CSR: "+$csLevel, _in(_div("currentAppStatus"))),"Verify CS level for current application in member portal on My Applications");
+		}
+	}
+}
+
+function verifyMemImpersonationAptcDetailsMyEnrollments($householdMaxAptcAmt,$ssapInfo,$coverageStartDate,$coverageEndDate,$memNum,$enrollmentIndex){
+	if($householdMaxAptcAmt == 0 || $householdMaxAptcAmt == null){
+		_assertNotVisible(_cell($householdMaxAptcAmt, _rightOf(_tableHeader("Elected APTC:", _in(_div("enrollmentTemplate ng-scope["+$enrollmentIndex+"]"))))),"Verify Elected APTC amount in My Enrollments");
+	}
+	else{
+		_assertVisible(_cell($householdMaxAptcAmt, _rightOf(_tableHeader("Elected APTC:", _in(_div("enrollmentTemplate ng-scope["+$enrollmentIndex+"]"))))),"Verify Elected APTC amount in My Enrollments");
+	}
+	_assertVisible(_cell($coverageStartDate+" - "+$coverageEndDate, _rightOf(_cell($ssapInfo[$memNum].$firstName+" "+$ssapInfo[$memNum].$lastName,_in(_div("enrollmentTemplate ng-scope["+$enrollmentIndex+"]"))))),"Verify member names, coverage start and end dates in My Enrollments");
+}
+
+function verifyMemImpersonationClickMyApplications(){
+	_click($memImpersonationMyApplicationsLink);
+	_assertVisible($myApplicationsHeading,"Verify if My Applications heading is displayed");
+}
+
+function verifyMemImpersonationClickMyEnrollments(){
+	_click($memImpersonationMyEnrollmentsLink);
+	_assertVisible($currentEnrollmentsHeading,"Verify if Current Enrollments heading is displayed");
+}
+
+function updateAptcEligibility($memberNum,$aptcEligibility,$eligStartDate){
+	_setSelected(_select("aptcElig["+$memberNum+"]", _in(_div("overrideProgEligModal"))), $aptcEligibility);
+	_assertEqual($aptcEligibility, _getSelectedText(_select("aptcElig["+$memberNum+"]")),"Verify if APTC Eligibility is set correctly");
+}
+
+function updateCsrEligibility($memberNum,$csrEligibility){
+	_setSelected(_select("csrElig["+$memberNum+"]", _in(_div("overrideProgEligModal"))), $csrEligibility);
+	_assertEqual($csrEligibility, _getSelectedText(_select("csrElig["+$memberNum+"]")),"Verify if CSR Eligibility is set correctly");
+}
+
+function verifyMemImpersonationCSLevelChanges($householdMaxAptcAmt,$appType){
+	if($appType=="NF"){
+		_assertVisible(_span("Based on changes you reported in your income, your household is eligible for new Cost Sharing Reduction. Please complete the action below to ensure that these changes are applied to your enrollment."),"Verify text on dashboard");
+
+	}
+	else{
+		_assertEqual("Based on changes you reported in your income, your household is eligible for a new subsidy of "+$householdMaxAptcAmt+" and/or new Cost Sharing Reduction. Please complete the action below to ensure that these changes are applied to your enrollment.", _getText(_div("/gi-alert__info__text/", _in(_div("auto-warnings")))),"Verify text on dashboard");
+	}
+		verifyArray($csrLevelChangesDashboardAccessors);
+		_click($uploadDoucmentsButtonDashoard);
+		_assertVisible($docsForHouseholdHeading,"Verify if Documents for This Household heading is displayed");
+		_click($ovverrideIncomeChangeQleLink);
+		_setValue($docUploadOverrideReasonTextArea, "Testing override");
+		_click($submitDocUploadOverrideReason);
+		_assertVisible($incomeChangeVerifiedResult,"Verify Income Change (Verified) is displayed");
+}
+
+function verifyMemImpersonationChangePlans($isOnCap,$hasAiAnMember){
+	_assertVisible($memImpersonationChangePlansDashoard,"Verify Change Plans button is displayed on dashboard");
+	_click($memImpersonationChangePlansDashoard);
+	_assertVisible($shopHealthPlansLinkCustomGrouping,"Verify if Shop Health Plans link is displayed on custom grouping page");
+	_click($memImpersonationChangePlanCustomGrouping);
+	_assertVisible($memImpersonationConfirmPlanOnCart,"Verify if Confirm your Plan Selection heading is displayed");
+	_click($signAppButton);
+	clickAgreeESignEnrollmentForCap();
+	clickDashboard($isOnCap);
+	if($hasAiAnMember == "YES"){
+		_assertVisible($memImpersonationChangePlansDashoard,"Verify Change Plans button is displayed on dashboard");
+		_click($memImpersonationChangePlansDashoard);
+		_click($memImpersonationChangePlansAiAnMsg);
+		_assertVisible($memImpersonationChangePlansDashoard,"Verify Change Plans button is displayed on dashboard");
+	}
+	else{
+		_assertVisible($memImpersonationEditAppBtnDashboard,"Verify if Edit Application button is displayed");
+	}
+}
+
+function updateExchangeEligibility($memberNum,$exchangeEligibility){
+	_setSelected(_select("exchangeElig["+$memberNum+"]", _in(_div("overrideProgEligModal"))), $exchangeEligibility);
+	_assertEqual($exchangeEligibility, _getSelectedText(_select("exchangeElig["+$memberNum+"]")),"Verify if Exchange Eligibility is set correctly");
+}
+
+function verifyMemImpersonationExchangeEligChanges($removedMemFirstName,$removedMemLastName,$eventName){
+	var $eventdate = getBackDate(2);
+	_assertVisible($memImpersonationConfirmEventFinalizePlansBtn,"Verify if Confirm Event and Finalize Plans button is displayedon dashboard");
+	_click($memImpersonationConfirmEventFinalizePlansBtn);
+	_assertVisible($memImpersonationIneligibleIndHeader,"Verify if Newly ineligible individuals header is displayed");
+	_setSelected(_select(0, _rightOf(_label($removedMemFirstName+" "+$removedMemLastName+" Required"))), $eventName);
+	_setValue(_textbox(0, _rightOf(_label($removedMemFirstName+" "+$removedMemLastName+" Required"))), $eventdate);
+	_click(_checkbox("terms"));
+	_click(_submit("Continue"));
+	_wait(60000, !_isVisible(_heading3("Application is in progress...")));
+	_assertVisible($memImpersonationEditAppBtnDashboard,"Verify if Edit Application button is displayed");
+}
+
+function clickOverridePgmEligCancel(){
+	_click($overridePgmEligibilityCancel);
+	_assertNotVisible($overridePgmEligibilityModal,"Verify Override Program Eligibility modal is not displayed");
+}
+
+function getAptcAmtMyApplications($caseNumber){
+	var $aptcAmtMyApplications = _getText(_span(0, _rightOf(_span("APTC:", _leftOf(_div("Case Number: "+$caseNumber))))));
+	return $aptcAmtMyApplications;
+}
+
+function verifyEnrollmentInCAP($capEnrollmentIndex,$coverageStartDate,$coverageEndDate,$planTierAndType,$eligStartDate,$isFinancial,$hasCsrAmt,$caseNumber){
+	if($capEnrollmentIndex != null){
+		var $enrollmentIdCAP = _getText(_cell(0, _rightOf(_tableHeader("Exchange Assigned Policy ID", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]"))))));
+	}
+		var $dbEnrollmentDetails = getEnrollmentDetailsFromEnrollment($enrollmentIdCAP);
+		var $ssapApplicationIdFromCaseNumDb = getSsapApplicationIdFromDb($caseNumber);
+		var $enrollmentStatusCAP = _getText(_cell(0, _rightOf(_tableHeader("Enrollment Status:", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]"))))));
+		var $enrollmentEffectiveDateCAP = _getText(_cell(0, _rightOf(_tableHeader("Effective Date:", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]")))))).split("-");
+		var $enrollEffectiveStartDateDb = getDateInMmDdYyyyFormat($dbEnrollmentDetails[0]["benefit_effective_date"]);
+		var $enrollEffectiveEndDateDb = getDateInMmDdYyyyFormat($dbEnrollmentDetails[0]["benefit_end_date"]);
+		var $premiumAmtEnrollmentCAP = _getText(_cell(0, _rightOf(_tableHeader("Premium Amount", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]")))))).replace("$","");
+		var $netPremiumEnrollmentCAP = _getText(_cell(0, _rightOf(_tableHeader("Net Premium", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]")))))).replace("$","");
+		var $cmsPlanIdEnrollmentCAP = _getText(_cell(0, _rightOf(_tableHeader("CMS Plan ID", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]"))))));
+		var $transactionIdEnrollmentCAP = _getText(_cell(0, _rightOf(_tableHeader("Transaction ID", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]"))))));
+		//Got from plan object
+		var $planTier = $planTierAndType.split(" ");
+		if($enrollmentStatusCAP == "PENDING"){
+			_assertEqual(128,$dbEnrollmentDetails[0]["enrollment_status_lkp"],"Verify if enrollment status in UI is same as in DB");
+		}
+		_assertEqual($ssapApplicationIdFromCaseNumDb,$dbEnrollmentDetails[0]["ssap_application_id"],"Verify ssap_application_id in enrollment table in DB");
+		_assertEqual($enrollmentEffectiveDateCAP[0],$enrollEffectiveStartDateDb,"Verify benefit effective date in UI is same as in DB");
+		_assertEqual($enrollmentEffectiveDateCAP[1],$enrollEffectiveEndDateDb,"Verify benefit end date in UI is same as in DB");
+		_assertEqual($premiumAmtEnrollmentCAP,parseFloat($dbEnrollmentDetails[0]["gross_premium_amt"]).toFixed(2),"Verify Premium Amount in UI is same as in DB");
+	
+		
+			if($isFinancial=="Yes"){
+				var $aptcAmtEnrollmentCAP = _getText(_cell(0, _rightOf(_tableHeader("Elected Federal APTC Amount", _in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]")))))).replace("$","");
+				_assertEqual($aptcAmtEnrollmentCAP,parseFloat($dbEnrollmentDetails[0]["aptc_amt"]).toFixed(2),"Verify APTC Amount in UI is same as in DB");
+				var $aptcEffDateDb = getDateInMmDdYyyyFormat($dbEnrollmentDetails[0]["aptc_eff_date"]);
+				_assertEqual($eligStartDate,$aptcEffDateDb,"Verify aptc_eff_date in DB");
+			}
+			if($hasCsrAmt == "Yes"){
+				var $csrAmtCAP = _getText(_cell(0, _rightOf(_tableHeader("CSR Amount",_in(_div("enrollment-history-panel["+$capEnrollmentIndex+"]")))))).replace("$","");
+				var $csrEffDateDb = getDateInMmDdYyyyFormat($dbEnrollmentDetails[0]["csr_eff_date"]);
+				_assertEqual(parseFloat($csrAmtCAP).toFixed(2),parseFloat($dbEnrollmentDetails[0]["csr_amt"]).toFixed(2),"Verify CSR Amount in UI is same as in DB");
+				_assertEqual($eligStartDate,$csrEffDateDb,"Verify csr_eff_date in DB");
+			}
+		
+		_assertEqual($netPremiumEnrollmentCAP,parseFloat($dbEnrollmentDetails[0]["net_premium_amt"]).toFixed(2),"Verify Net Premium in UI is same as in DB");
+		_assertEqual($cmsPlanIdEnrollmentCAP,$dbEnrollmentDetails[0]["cms_plan_id"],"Verify CMS Plan ID in UI is same as in DB");
+		_assertEqual($transactionIdEnrollmentCAP,$dbEnrollmentDetails[0]["payment_txn_id"],"Verify Transaction ID in UI is same as in DB");
+		_assertEqual("/"+$planTier[0].toUpperCase()+"/", $dbEnrollmentDetails[0]["plan_level"],"Verify plan_level in DB");
+}
+
+function verifyDBAppApplicantSepEnrollEvents($caseNumber,$appType,$eventName,$eventType,$eventCategory,$isGated,$allowPlanSelection){
+	//ssap_application_events
+	var $ssapApplicationEventsDetails = getDetailsFromSsapApplicationEvents($caseNumber);
+	_assertEqual($appType,$ssapApplicationEventsDetails[0]["event_type"],"Verify event type in DB");
+	//ssap_applicant_events
+	var $ssapApplicantEventsDetails = getDetailsFromSsapApplicantEvents($caseNumber);
+	//sep_enrollment_events
+	var $sepEnrollmentEventsDetails = sepEnrollmentEvents($ssapApplicantEventsDetails[0]["sep_enrollment_events_id"]);
+	_assertEqual($eventName,$sepEnrollmentEventsDetails[0]["event_name"],"Verify event name in DB");
+	_assertEqual($eventType,$sepEnrollmentEventsDetails[0]["event_type"],"Verify event_type in DB");
+	_assertEqual($eventCategory,$sepEnrollmentEventsDetails[0]["event_category"],"Verify event_category in DB");
+	_assertEqual($isGated,$sepEnrollmentEventsDetails[0]["is_gated"],"Verify event_category in DB");
+	_assertEqual($allowPlanSelection,$sepEnrollmentEventsDetails[0]["allow_plan_selection"],"Verify allow_plan_selection in DB");
+}
+
+function getSsapApplicationIdFromDb($caseNumber){
+	var $ssapApplicationsDetails = getDetailsFromSsapApplications($caseNumber);
+	return $ssapApplicationsDetails[0]["id"];
+}

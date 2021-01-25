@@ -1,0 +1,77 @@
+_includeOnce("AccountSettings.sah");
+_includeOnce("Applications.sah");
+_includeOnce("EnrollmentHistory.sah");
+_includeOnce("Inbox.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("MyAppeals.sah");
+_includeOnce("Utils.sah");
+
+var $MyStuffMenu = true;
+
+var $myStuffHeader = _heading4("My Stuff");
+var $myStuffDashboard = _link("My Dashboard");
+var $myStuffDashboard2 = _link("Dashboard[1]");
+var $myStuffMyApplications = _link("My Applications");
+var $myStuffMyEnrollments = _link("My Enrollments");
+var $myStuffMyInbox = _link("My Inbox");
+var $myStuffMyAppeals = _link("My Appeals");
+var $myStuffAccountSettings = _link("My Account Settings");
+var $myStuffAccountSettings2 = _link("Account Settings[1]");
+
+var $myStuffAccessors = [$myStuffHeader, $myStuffMyApplications, $myStuffMyEnrollments, $myStuffMyInbox, $myStuffMyAppeals];
+
+function myStuffVerify() {
+	verifyArray($myStuffAccessors);
+	_assertTrue(_isVisible($myStuffDashboard) || _isVisible($myStuffDashboard2));
+	if(_isVisible(_div("view-broker pull-right")) || _isVisible(_div("navtopview"))){
+		_log("Agent / CSR View");
+	}
+	else{
+		_assertTrue(_isVisible($myStuffAccountSettings) || _isVisible($myStuffAccountSettings2));
+	}
+}
+
+function myStuffClickDashboard() {
+	if (_isVisible($myStuffDashboard)) {
+		_click($myStuffDashboard);
+	}
+	else {
+		_click($myStuffDashboard2);
+	}
+	verifyElementsOfIndividualDashboard();
+}
+
+function myStuffClickMyApplications() {
+	_click($myStuffMyApplications);
+	verifyElementsOnMyApplicationPage();
+}
+
+function myStuffClickMyEnrollments() {
+	_click($myStuffMyEnrollments);
+	enrollmentHistoryVerify();
+}
+
+function myStuffClickMyInbox($permission) {
+	if($permission=="N"){
+		_assertNotVisible($myStuffMyInbox);
+	}
+	else {
+		_click($myStuffMyInbox);
+		inboxVerify();
+	}
+}
+
+function myStuffClickMyAppeals() {
+	_click($myStuffMyAppeals);
+	myAppealsVerify();
+}
+
+function myStuffClickAccountSettings() {
+	if (_isVisible($myStuffAccountSettings)) {
+		_click($myStuffAccountSettings);
+	}
+	else {
+		_click($myStuffAccountSettings2);
+	}
+	verifyElementsOnAccountSettingPage();
+}

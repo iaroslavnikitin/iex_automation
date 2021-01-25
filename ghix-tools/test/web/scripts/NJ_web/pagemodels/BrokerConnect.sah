@@ -1,0 +1,230 @@
+_includeOnce("utils.sah");
+_includeOnce("AgentDashboard.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+var $brokerSuccessfullyEnrolledMessage = _span("Successfully enrolled", _in(_div("ds-c-alert ds-c-alert--success ds-l-row ds-u-radius ds-u-margin-bottom--1")));
+var $brokerParticipationMessage = _span("Your participation in the Broker Broker Connect program is confirmed. Please note that you will not start getting calls unless you select the hours during which you are available to take calls below.", _in(_div("ds-c-alert ds-c-alert--success ds-l-row ds-u-radius ds-u-margin-bottom--1")));
+var $brokerConnectActivityLabel = _heading4("Broker Connect Availability");
+var $brokerAvailabilitySelectionMesage = _paragraph("Please, select hours during which you are available to take the calls each day. For days when you don't plan to take any consumer calls, please select 'Closed'.");
+var $brokerWeekDayHoursButton = _button("Weekday Hours");
+var $brokerWeekHourButtonMessage = _paragraph("Click the button above to apply Monday hours to all weekdays");
+var $brokerSaveAvailabilityButton = _submit("Save Availability")
+var $brokerConnectUpdatePhoneNumberHeader = _heading4("Update Broker Connect Phone Number");
+var $brokerConnectUpdatePhoneNumberLabel = _label("Update Phone Number");
+var $brokerConnectUpdatePhoneNumberButton = _submit("Update Phone Number");
+var $brokerAvailableHoursProgramText = _paragraph("gutter10 btm-margin-0");
+var $brokerConnectAvailabilityContainer = _div("ds-l-container")
+var $brokerConnectPhoneNumberField = _textbox("brokerConnectPhone");
+
+var $brokerConnectAccessors = [$brokerSuccessfullyEnrolledMessage,$brokerConnectActivityLabel,$brokerAvailabilitySelectionMesage, $brokerWeekDayHoursButton, 
+$brokerSaveAvailabilityButton,$brokerWeekHourButtonMessage, $brokerConnectUpdatePhoneNumberHeader,$brokerConnectUpdatePhoneNumberLabel, $brokerConnectUpdatePhoneNumberButton];
+
+var $brokerConnectParticipationHeading = _heading4("Participation Information");
+var $brokerConnectRemoveParticipationButton = _submit("Remove Participation");
+var $brokerConnectEnrollmentChoiceCheckBox = _checkbox("enrollmentChoiceCheckbox");
+
+var $brokerConnectParticipationAccessors = [$brokerConnectParticipationHeading, $brokerConnectEnrollmentChoiceCheckBox, $brokerConnectRemoveParticipationButton];
+
+
+
+
+var $brokerConnectUnenrolledParticipationHeader =_paragraph("Successfully unenrolled");
+var $brokerConnectUnenrolledParticipationText1 = _paragraph("Your participation to the broker connect program has been removed with immediate effect."+
+" You have the option to join the program again at any time by signing up for the program again.");
+
+var $brokerConnectUnenrolledParticipationHeader2 = _heading4("Participation Information");
+var $brokerConnectUnenrolledParticipationText2 = _paragraph("Broker Connect is a program where brokers can join to receive leads for consumers that need help with completing their health insurance application or shop for a plan.")
+var $brokerConnectUnenrolledParticipationText3 = _paragraph("Please provide a phone number below on which you would like to receive calls.");
+var $brokerConnectUnenrolledParticipationPhoneLabel = _div("Broker Connect Phone Number");
+var $brokerConnectUnenrolledParticipationPhoneText = _paragraph("Please note that this number will be called only during business hours that you will provide on the next screen.");
+
+var $brokerConnectUnenrolledParticipationTermAndCondition = _link("Broker Connect Terms and Conditions");
+
+var $brokerConnectUnRolledParticAccessors = [$brokerConnectUnenrolledParticipationHeader,$brokerConnectUnenrolledParticipationText1,$brokerConnectUnenrolledParticipationHeader2,
+$brokerConnectUnenrolledParticipationText2,$brokerConnectUnenrolledParticipationText3,$brokerConnectUnenrolledParticipationPhoneLabel, $brokerConnectUnenrolledParticipationPhoneText,
+$brokerConnectUnenrolledParticipationTermAndCondition];
+
+
+var $brokerDaysOfTheWeek =  ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+
+function verifyBrokerHelpOnDemandAvailabilityPage($agentInfo, $phoneNumber){
+	var $fullName = $agentInfo[0].$firstName+" "+$agentInfo[0].$lastName
+	_assertVisible(_heading1($fullName));
+	verifyAgentsLeftNavLinks();
+	verifyArray($brokerConnectAccessors);
+	_assertVisible(_div("ds-l-col"));
+	_assertEqual("Please, select hours during which you are available to take the calls each day. For days when you don't plan to take any consumer calls, please select 'Closed'.On certain days when you are not available to take calls during your working hours, please use the button above to turn your availability OFF. Also if you would like to take calls beyond your working hours on certain days, you can turn the availability button ON to make yourself available for the calls.Note: Please enter Pacific Time", _getText(_div("ds-l-col")));
+	 
+	
+	for (var $i = 0; $i < $brokerDaysOfTheWeek.length; $i++) {
+		_assertVisible(_div($brokerDaysOfTheWeek[$i], _in($brokerConnectAvailabilityContainer)),"verify Days of the week are visible");
+		_assertVisible(_select(0, _near(_div($brokerDaysOfTheWeek[$i], _in($brokerConnectAvailabilityContainer)))),"Verify select box for start time is visible" );
+		_assertVisible(_select(1, _near(_div($brokerDaysOfTheWeek[$i], _in($brokerConnectAvailabilityContainer)))),"Verify select box for End time is visible" );
+		_assertVisible(_checkbox("Closed", _near(_div($brokerDaysOfTheWeek[$i], _in($brokerConnectAvailabilityContainer)))),"Verify close checkbox is displayed" );
+		_assertVisible(_span("Closed", _near(_div($brokerDaysOfTheWeek[$i], _in($brokerConnectAvailabilityContainer)))),"Verify Close label is displayed");
+	}
+	
+	_assertEqual($phoneNumber, _getValue($brokerConnectPhoneNumberField));
+	
+	
+
+}
+//$dayOfWeek = "Monday":  start/endtime = "9:00 AM"
+function selectStartTime($dayOfWeek, $startTime,$endTime){
+	
+	_setSelected(_select(0, _near(_div($dayOfWeek))), $startTime);
+	_assertEqual($startTime, _getSelectedText(_select(0, _near(_div($dayOfWeek)))));
+	_setSelected(_select(1, _near(_div($dayOfWeek))), $endTime);
+	_assertEqual($endTime, _getSelectedText(_select(1, _near(_div($dayOfWeek)))));
+	
+}
+
+function clickWeekDayHoursOnBrokerConnect($startTime, $endTime){
+	
+	_click($brokerWeekDayHoursButton);
+	for (var $i = 1; $i < $brokerDaysOfTheWeek.length-1; $i++) {
+		if($i<5){
+			_assertEqual( $startTime,_getSelectedText(_select(0, _near(_div($brokerDaysOfTheWeek[$i])))));
+			_assertEqual( $endTime,_getSelectedText(_select(1, _near(_div($brokerDaysOfTheWeek[$i])))));
+		}
+		else{
+		_assertEqual( "Select",_getSelectedText(_select(0, _near(_div($brokerDaysOfTheWeek[$i])))));
+		_assertEqual( "Select",_getSelectedText(_select(1, _near(_div($brokerDaysOfTheWeek[$i])))));
+		}
+	}
+
+
+}
+
+function updatePhoneNumberOnBrokerConnect($agent, $agentInfo){
+	var $newNumber = "408"+randomString(7, true);
+	_setValue(_textbox("brokerConnectPhone", _near($brokerConnectUpdatePhoneNumberLabel)), $newNumber);
+	$agent.agentPrimaryNumber = $newNumber
+	_click($brokerConnectUpdatePhoneNumberButton);
+	_assertEqual($newNumber, _getValue($brokerConnectPhoneNumberField).replace(/[\(\)-]/g, "") );
+	
+	return $agent;
+}
+
+function clickSaveAvailabilityOnBrookerConnect($agentInfo, $agent, $startTime, $endTime){
+
+	_click($brokerSaveAvailabilityButton);
+	_assertVisible($brokerAvailableHoursProgramText);
+	_assertEqual("Availability Hours Updated", _getText($brokerAvailableHoursProgramText));
+	_assertVisible(_span("Your availability hours have been successfully updated."));
+	verifyBrokerAvailabilityInDb($agent.publicEmail, $agent, $startTime, $endTime);
+	verifyPhoneNumberIsUpdatedInDb($agent.agentPrimaryNumber, $agent.publicEmail);
+		
+}
+
+
+
+
+function checkClosedCheckBoxOnBrookerConnect($dayOfWeek){
+	
+	_check(_checkbox("Closed", _near(_div($dayOfWeek))));
+	_assertEqual( "Select",_getSelectedText(_select(0, _near(_div($dayOfWeek)))));
+	_assertEqual( "Select",_getSelectedText(_select(1, _near(_div($dayOfWeek)))));
+
+}
+
+function turnBrokerConnectAvailability($email, $isOff){
+	_click(_div("ONOFF"));
+	var $isAvailable = false;
+	if($isOff){
+		_assertNotEqual("/rgb\\(0, 127, 174\\)/", _style(_div("ONOFF"), "background-color"),"Verify Broker Connect Availability is OFF");
+		
+	}
+	else{
+		_assertEqual("/rgb\\(0, 127, 174\\)/", _style(_div("ONOFF"), "background-color"),"Verify Broker Connect Availability is ON");
+		$isAvailable = true;
+	}
+	verifyBrokerAvailableStatus($isAvailable, $email);
+	
+}
+
+function verifyBrokerAvailableStatus($isAvailable, $email){
+	var $res = getBrokerConnectInfoFromDb($email)
+	if($isAvailable){
+		_assertEqual("1", $res[0][4], "Verify Broker Available Status is 1");
+	}
+	else
+		_assertEqual("0", $res[0][4], "Verify Broker Available Status is 0");
+}
+
+function verifyPhoneNumberIsUpdatedInDb($newNumber, $email){
+   var $res = getBrokerConnectInfoFromDb($email);
+   _assertEqual($newNumber, $res[0][2],"Verify broker phone is updated in db");
+   
+
+}
+
+function verifyBrokerAvailabilityInDb($email, $agent, $startTime, $endTime){
+	var $res = getBrokerConnectInfoFromDb($email);
+	_assertEqual($agent.agentPrimaryNumber, $res[0][2],"Verify broker phone is updated in db");
+	_assertEqual("ACTIVE", $res[0][3],"Verify broker phone is updated in db");
+	/*
+	if(isBrokerCurrentlyAvailable($startTime, $endTime)){
+		_assertEqual("1", $res[0][4], "Verify Broker Available Status is 1");
+	}
+	else{
+		_assertEqual("0", $res[0][4], "Verify Broker Available Status is 1");
+	}
+	*/
+     verifyBrokerConnectHoursInDb($res[0][0], $startTime,$endTime)
+
+}
+
+function isBrokerCurrentlyAvailable($startTime, $endTime){
+	var $format = 'hh:mm:ss';
+	var $$availability = false;
+	var $startTime =  _call(window.moment($startTime+":00", $format));
+	var $endTime =  _call(window.moment($endTime+":00", $format));
+
+	var $isAfter = _fetch(window.moment().isAfter($startTime));
+	var $isBefore = _fetch(window.moment().isBefore($endTime));
+	if( $isBefore && $isAfter) {
+		$availability = true;
+	}
+	_log("Currently Agent is available  =="+ $availability);
+	return $availability;
+
+
+}
+
+function verifyBrokerConnectHoursInDb($brokerId, $startTime, $endTime){
+	var $res = getBrokerConnectHoursFromDb($brokerId);
+	for(var $i = 0; $i<5; $i++){
+		_assertEqual($startTime, $res[$i][3],"Verify startTime for day >>"+$i);
+		_assertEqual($endTime, $res[$i][4],"Verify endTime for day >>"+$i);
+		
+	}
+}
+
+function clickParticipationInformationFromleftNav(){
+	_click(_link("Participation Information"));
+	verifyArray($brokerConnectParticipationAccessors);
+	_assertVisible(_paragraph("You are currently in the broker connect program. By clicking the button below your participation will be removed from this program with immediate effect."));
+	_assertVisible(_label("Remove participation from broker connect program"));
+	
+		
+}
+
+
+function clickcheckBoxRemoveParticipationFromConnectProgram(){
+	 _click($brokerConnectEnrollmentChoiceCheckBox);
+	// _assertNotTrue(_isChecked(_checkbox("enrollmentChoiceCheckbox")));//SAhi V8
+
+}
+
+function clickRemoveParticipationButton($email){
+	var $name = _getText(_heading1("skip"))
+	_click($brokerConnectRemoveParticipationButton);
+	_assertVisible(_heading1($name));
+	verifyArray($brokerConnectUnRolledParticAccessors);
+	var  $res = getBrokerConnectInfoFromDb($email);
+	_assertEqual("INACTIVE", $res[0][3],"Verify broker phone is updated in db");
+	_assertEqual("0", $res[0][4], "Verify Broker Available Status is 0");
+	
+}

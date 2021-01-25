@@ -1,0 +1,24 @@
+_includeOnce("EntityCounselorInfo.sah");
+
+var $registrationStatusTitle;
+var $registrationStatusHeader = _heading4("Registration Status");
+var $registrationStatusTable =_table("table table-border-none");
+var $registrationStatusHistoryHeader = _heading4("Registration History");
+var $registrationStatusHistoryTable = _table("entityRegStatusHistory");
+var $registrationStatus = [$registrationStatusHeader, $registrationStatusTable, $registrationStatusHistoryHeader, $registrationStatusHistoryTable];
+
+function verifyRegistrationStatus($companyName, $date) {
+	$registrationStatusTitle = _heading1($companyName);
+	$registrationStatus.push($registrationStatusTitle);
+	var $regStatus = _getTableContents($registrationStatusTable);
+	_assertEqual($regStatus[1][1], "Pending");
+	_assertEqual($regStatus[2][1], "N/A");
+	var $regHistory = _getTableContents($registrationStatusHistoryTable);
+	var $regInfo = [$date, "Incomplete", "Pending", "No Comments"].join(',');
+	_assertEqual($regHistory[1], $regInfo);
+	$entityInfo.date = $date;
+	$entityInfo.prevStatus = $regHistory[1][1];
+	$entityInfo.status = $regHistory[1][2];
+	$entityInfo.comment = $regHistory[1][3];
+	$entityInfo.entityNum = $regStatus[0][1];
+}

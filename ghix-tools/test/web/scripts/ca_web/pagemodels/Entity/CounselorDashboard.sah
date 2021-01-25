@@ -1,0 +1,45 @@
+_includeOnce("../../lib/CommonFunctions.sah");
+
+function createAllCounselorAccounts($entity){
+	for (var $i = 0; $i < $entity.counselors.length; $i++) {
+		$entity.counselors[$i] = createCounselorAccount($entity.counselors[$i]);
+		logOut();
+	}
+
+	return $entity;
+}
+
+function createCounselorAccount($counselor){
+
+	click(_link("Enrollment Counselor"));
+
+	$counselor.username = JSON.stringify($counselor.email).replace(/"/g, "");;
+	$counselor.password = "ghix123#"
+
+	setValue(_textbox("firstName"), $counselor.firstName);
+	setValue(_textbox("lastName"), $counselor.lastName);
+	setValue(_emailbox("email"), $counselor.username);
+	setValue(_emailbox("confirmEmail"), $counselor.username);
+
+	setValue(_textbox("phone1"), $counselor.primaryPhoneNumber[0]);
+	setValue(_textbox("phone2"), $counselor.primaryPhoneNumber[1]);
+	setValue(_textbox("phone3"), $counselor.primaryPhoneNumber[2]);
+
+	var $allOptions = _getText(_select("securityQuestion1"))
+	var $noOfOptions = JSON.stringify($allOptions).split(",").length;
+	var $option = _random($noOfOptions-1);
+	
+	if($option == 0){
+		$option++;
+	}
+	
+	_setSelected(_select("securityQuestion1"), $option);
+	_wait(500);
+	setValue(_textbox("Security Answer"), "abc");
+	
+	setValue(_password("password"), $counselor.password);
+	setValue(_password("confirmPassword"), $counselor.password);
+	click(_button("Submit"));
+
+	return $counselor;
+}

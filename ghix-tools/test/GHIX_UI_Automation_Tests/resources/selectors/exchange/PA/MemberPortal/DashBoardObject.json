@@ -1,0 +1,5 @@
+{
+    "btn_changePlans":"$('button*=Change Plans')",
+    "hd_nextSteps":"$('h4*=Next Steps')"
+}
+

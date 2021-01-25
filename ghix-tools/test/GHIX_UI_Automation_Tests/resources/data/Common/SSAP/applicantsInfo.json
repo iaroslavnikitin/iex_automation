@@ -1,0 +1,68 @@
+{
+		"NV": {
+			"SimpleJ": {
+				"income": {
+					"applicant":20052,
+					"household":[10215]
+				},
+				"deductionAmount":{
+					"applicant":20052,
+					"household":[10215]
+				}
+			},
+			"SimpleA": {
+				"income": {
+					"applicant":43033,
+					"household":[]
+				},
+				"deductionAmount":{
+					"applicant":43033,
+					"household":[]
+				}
+			}
+		},
+		"NJ": {
+			"SimpleJ": {
+				"income": {
+					"applicant":23628,
+					"household":[10000]
+				},
+				"deductionAmount":{
+					"applicant":23628,
+					"household":[10000]
+				}
+			},
+			"SimpleA": {
+				"income": {
+					"applicant":31176,
+					"household":[]
+				},
+				"deductionAmount":{
+					"applicant":31176,
+					"household":[]
+				}
+			}
+		},
+		"PA": {
+			"SimpleJ": {
+				"income": {
+					"applicant":23628,
+					"household":[10000]
+				},
+				"deductionAmount":{
+					"applicant":23628,
+					"household":[10000]
+				}
+			},
+			"SimpleA": {
+				"income": {
+					"applicant":31176,
+					"household":[]
+				},
+				"deductionAmount":{
+					"applicant":31176,
+					"household":[]
+				}
+			}
+		}
+}

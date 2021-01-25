@@ -1,0 +1,31 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/Broker.sah"
+,,"loadSahi","../pagemodels/Login.sah"
+,,"loadSahi","../lib/CommonNameCreation.sah"
+,,"loadSahi","../pagemodels/Agency.sah"
+,,"loadSahi","../pagemodels/Signup.sah"
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+
+"all","HIX-106119 Admin access to Agency Portal","[Documentation]","Verification of Admin has access to Agency Portal"
+,,"[Documentation]","Creating the new agency"
+,,"createDefaultAgency"
+,,"[Documentation]","Change Certification status to Terminated"
+,,"Login","brokeradmin@ghix.com","ghix123"
+,,"setAgencyNameEqualToBusinessLegalNameInDB"
+,,"navigateToManageAgencies"
+,,"searchForAgencyChangeAgencyCertificationStatus","Pending","Terminated"
+,,"verifyTerminatedSuccessful"
+,,"Logout"
+,,"[Documentation]","1.Login as brokeradmin
+2.Click on Agencies -> Manage Agencies
+3.Click on Business Name
+4.Click on 'View Agency Account' link and verify"
+,,"brokerAdminSwitchToAgency","$agencyName","""Terminated""","""brokeradmin@ghix.com""","""ghix123""","Y"
+,,"verifyAgencyPortalSubMenu","[""Agents"",""Admin Staff"",""Agency Delegations"",""Agency Account""]"
+,,"[Documentation]","Verifying all tabs"
+,,"verifyPendingAgencyAgentSubMenusDisabled"
+,,"verifyPendingAgencyAgencyDelegationSubMenusDisabled"
+,,"verifyPendingAgencyAdminStaffSubMenusDisabled"
+,,"verifyPendingAgencyAgencyAccountSubMenusEnabled"

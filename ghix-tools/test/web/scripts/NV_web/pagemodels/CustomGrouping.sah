@@ -1,0 +1,904 @@
+_includeOnce("Indportal.sah");
+_includeOnce("Preferences.sah");
+
+/*
+$numOfGroups: 1=> all members are to be enrolled in one grp
+2=> two members(primary and spouse are enrolled in one grp)
+3 => 4 member enrolled in two health plan
+*/
+
+function verifyCustomGroupingPage($household, $groups, $notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$landingTab,$isRenewals){
+	verifySideBarLinksOnIndDashboard();
+
+	_assertVisible(_link("Shop Health Plans"));
+	_assertVisible(_link("Shop Dental Plans"));
+
+	if($notEnrolledGroups == "Y"){
+		if($landingTab == "Dental"){
+			verifyNavigationTabOnCustomGrouping("Dental");
+			verifyNotEnrolledDentalGroup($groups);
+		}
+		else{
+			verifyNavigationTabOnCustomGrouping("Health");
+			//			verifyNotEnrolledGroup($groups);	
+		}
+	}
+	else{
+		_assertNotVisible(_div("Whom are you shopping health plans for?"));
+		_assertNotVisible(_span("/Based on your family members eligibility, we recommend that you shop in the groups shown./"));
+		_assertNotVisible(_div("Shop for these members"));
+		if(!$newMembersCount){
+			_assertNotVisible(_link("/Shop Health Plans/[1]"));
+		}
+
+	}
+
+	if($enrolledGroups == "Y"){
+		if($landingTab == "Dental"){
+			//add function
+		}
+		else{
+			// assertion will failed if user landed on Dental tab but test will keep runing and user clicking on health plans tab
+			if(_getAttribute(_link("Shop Health Plans"),"className")!= "active"){
+				_assertEqual(_getAttribute(_link("Shop Health Plans"),"className"),"active","User should be landed on Health plans tab");
+				_click(_link("tab-0"));
+			}
+
+			verifyEnrolledGroup($groups,$isSEP);
+		}
+
+	}
+	else{
+		//		_assertNotVisible(_div("/Enrolled/"));
+		_assertNotVisible(_div("You have successfully enrolled the following family members."));
+		_assertNotVisible(_link("Cancel Coverage"));
+		_assertNotVisible(_link("Change Plan"));
+	}
+	if($newMembersCount){
+		verifySelectOptionSection($household,$groups,$newMembersCount);
+	}
+}
+
+function verifySelectOptionSection($household,$groups,$newMembersCount){
+	_setStrictVisibilityCheck(true);
+	var $totalHouseholdMembers = $household.people.length-1;
+	var $newMemberFullName;
+
+	_assertVisible(_div("Select one of the options"));
+
+	// verify add to existing enrollment section
+	for(var $i=0;$i<$groups.length;$i++){
+		if($groups[$i].healthPlan != "null"){
+			var $membersEligibleForPlan = 0;
+			var $newMemberCsrLevel;
+			var $isEligibleMembers = false;
+
+			// checking if members are eligible for plan	
+			for(var $j=0; $j<$newMembersCount;$j++){
+				$newMemberCsrLevel = convertCSRLevel($household.people[$totalHouseholdMembers-$j].csrLevel,"Short");
+				if($household.people[$totalHouseholdMembers-$j].csrEligibility == "false"){
+					$newMemberCsrLevel = "";
+				}
+				_log("$newMemberCsrLevel = "+$newMemberCsrLevel);
+				_log("$groups[$i].csr = "+$groups[$i].csr);
+				if($groups[$i].csr == $newMemberCsrLevel || ($groups[$i].csr == "" && $newMemberCsrLevel == "null")){
+					$membersEligibleForPlan++;
+					$isEligibleMembers = true;
+				}
+			}
+
+			// Verify Add member(s) to an existing enrollment section
+			if($isEligibleMembers){
+				_assertVisible(_strong("Add member(s) to an existing enrollment", _in(_div("aid_multi_enrolled_grp_0"))));
+
+				for(var $j=0; $j<$membersEligibleForPlan;$j++){
+					$newMemberFullName = $household.people[$totalHouseholdMembers-$j].firstName+" "+$household.people[$totalHouseholdMembers-$j].lastName;
+					_assertVisible(_label($newMemberFullName+" has the same level of cost-sharing as these members.", _in(_div("aid_multi_enrolled_grp_0"))));
+				}
+
+
+				for(var $n = 0; $n< $groups[$i].member.length;$n++){
+					var $fullName = $groups[$i].member[$n].firstName+" "+$groups[$i].member[$n].lastName;
+					_assertVisible(_italic("icon-ok icon-large enrolled", _in(_div($fullName, _in(_div("aid_multi_enrolled_grp_0"))))));
+				}
+
+				_assertVisible(_div("/"+$groups[$i].healthPlan.name+"/", _in(_div("aid_multi_enrolled_grp_0"))),"Verify selected health plan is displayed");
+
+				for(var $j=0; $j<$membersEligibleForPlan;$j++){
+					_assertVisible(_checkbox(0, _in(_div($newMemberFullName, _in(_div("aid_multi_enrolled_grp_0"))))));
+					_assertFalse(_getAttribute(_checkbox(0, _in(_div($newMemberFullName, _in(_div("aid_multi_enrolled_grp_0"))))) , "checked"),"verify that checkbox not checked");
+				}
+
+				_assertVisible(_link("Add to this plan", _in(_div("aid_multi_enrolled_grp_0"))));
+				_assertEqual("true", _getAttribute(_link("Add to this plan", _in(_div("aid_multi_enrolled_grp_0"))),"disabled").toString());
+
+				if($groups[$i].csr){
+					_assertVisible(_div("These family members qualify for Cost-Sharing Subsidies on qualified health plans", _in(_div("aid_multi_enrolled_grp_0"))));
+				}
+				else{
+					_assertNotVisible(_div("These family members qualify for Cost-Sharing Subsidies on qualified health plans", _in(_div("aid_multi_enrolled_grp_0"))));
+				}
+
+				// if adding to same plan group aptc in Select options will be HH max aptc	
+				var $newGroupAPTC = $household.people[0].maxAPTC;
+				$newGroupAPTC = parseFloat($newGroupAPTC).toFixed(2);
+				_log("$newGroupAPTC = "+$newGroupAPTC);
+				if($groups[$i].aptc){
+					_assertVisible(_div("Total Advance Premium Tax Credit for this group: $"+$newGroupAPTC+" per month", _in(_div("aid_multi_enrolled_grp_0"))));
+				}
+				else{
+					_assertNotVisible(_div("/Total Advance Premium Tax Credit for this group:/", _in(_div("aid_multi_enrolled_grp_0"))))
+						}
+
+				_assertVisible(_span("OR", _under(_div("aid_multi_enrolled_grp_0"))));
+			}
+		}
+	}
+
+
+	//Verify Shop for a new health plan section
+	$newMembersAPTC = $household.people[$totalHouseholdMembers].memberAPTC
+		_log("$household.people[$totalHouseholdMembers].csrEligibility = "+$household.people[$totalHouseholdMembers].csrEligibility);
+	if($household.people[$totalHouseholdMembers].csrEligibility == "true"){
+		_assertVisible(_div("These family members qualify for Cost-Sharing Subsidies on qualified health plans", _in(_div("aid_un_mngd_0"))));
+	}
+	else{
+		_assertNotVisible(_div("These family members qualify for Cost-Sharing Subsidies on qualified health plans", _in(_div("aid_un_mngd_0"))));
+	}
+
+	_log("$household.people[$totalHouseholdMembers].aptcEligibility = "+$household.people[$totalHouseholdMembers].aptcEligibility)
+		if ($household.people[$totalHouseholdMembers].aptcEligibility == "true") {
+			_assertVisible(_div("Total Advance Premium Tax Credit for this group:$"+$newMembersAPTC+" per month", _in(_div("aid_un_mngd_0"))));
+		}
+	else{
+		_assertNotVisible(_div("/Total Advance Premium Tax Credit for this group:/", _in(_div("aid_un_mngd_0"))));
+	}
+
+	_assertVisible(_strong("Shop for a new health plan", _in(_div("aid_un_mngd_0"))));
+
+	for(var $j=0; $j<$newMembersCount;$j++){
+		$newMemberFullName = $household.people[$totalHouseholdMembers-$j].firstName+" "+$household.people[$totalHouseholdMembers-$j].lastName;
+		_assertVisible(_checkbox(0, _in(_div($newMemberFullName, _in(_div("aid_un_mngd_0"))))));
+		_assertFalse(_getAttribute(_checkbox(0, _in(_div($newMemberFullName, _in(_div("aid_un_mngd_0"))))) , "checked"),"verify that checkbox not checked");
+	}
+
+	_assertVisible(_link("Shop for Health Plans", _in(_div("aid_un_mngd_0"))));
+	_assertEqual("true", _getAttribute(_link("Shop for Health Plans", _in(_div("aid_un_mngd_0"))),"disabled").toString());
+
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyNotEnrolledGroup($groups){
+	//	var $numOfNotEnrolledGroups = 0;
+	var $fullName = "";
+	_assertVisible(_div("Whom are you shopping health plans for?"));
+	_assertVisible(_div("Shop for these members"));
+
+	var $count = 0;
+	for(var $i = 0; $i< $groups.length ;$i++){
+		_log($groups.length);
+		_log($groups);
+		_log($groups[$i]);
+		_log($groups[$i]["member"]);
+		_log($groups[$i].member);
+		_log($groups[$i].member[$i]);
+		_log("NOT ENROLLED " +JSON.stringify($groups));
+		_log("$i "+ $i + " " + $groups[$i].healthPlan );
+		if($groups[$i].healthPlan == "null"){
+			/*
+for(var $j = 0; $j< $groups[$i].member.length; $j++){
+$fullName = $groups[$i].member[$j].$firstName+" "+$groups[$i].member[$j].$lastName;
+_log("i"+" " +$groups[$i].member[$j].$firstName);
+_setStrictVisibilityCheck(true);
+_assertVisible(_label($fullName,  _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));
+_setStrictVisibilityCheck(false);
+}
+*/
+
+			//			for(var $i = 0; $i< $groups.length ;$i++){
+			_log($groups[$i].member[$i].$firstName+" "+$groups[$i].member[$i].$lastName);
+
+			$fullName = $groups[$i].member[$i].$firstName+" "+$groups[$i].member[$i].$lastName;
+			if(_getAttribute(_checkbox($fullName), "checked")){
+				$count++;
+			}
+			//			}
+
+
+			/*
+if(!$groups[$i].aptc && !$groups[$i].csr){
+_setStrictVisibilityCheck(true);
+_assertNotVisible(_div("/These family members qualify for Cost-Sharing Subsidies on qualified health plans/", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));		
+_assertNotVisible(_div("Total Advance Premium Tax Credit for this group: "+$groups[$i].aptc+" per month", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));
+_setStrictVisibilityCheck(false);
+}
+if($groups[$i].aptc  && !$groups[$i].csr){
+_setStrictVisibilityCheck(true);
+_assertNotVisible(_div("/These family members qualify for Cost-Sharing Subsidies on qualified health plans/", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));		
+_assertVisible(_div("Total Advance Premium Tax Credit for this group: "+$groups[$i].aptc+" per month", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));
+_setStrictVisibilityCheck(false);
+}
+if(!$groups[$i].aptc && $groups[$i].csr ){
+_setStrictVisibilityCheck(true);
+_assertVisible(_div("/These family members qualify for Cost-Sharing Subsidies on qualified health plans/", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));		
+_assertNotVisible(_div("Total Advance Premium Tax Credit for this group: "+$groups[$i].aptc+" per month", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));
+_setStrictVisibilityCheck(false);
+}
+
+if($groups[$i].aptc && $groups[$i].csr){
+_setStrictVisibilityCheck(true);				
+_assertVisible(_div("/These family members qualify for Cost-Sharing Subsidies on qualified health plans/", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));		
+_assertVisible(_div("Total Advance Premium Tax Credit for this group: "+$groups[$i].aptc+" per month", _in(_div("aid_uneg_members_"+$numOfNotEnrolledGroups, _under(_div("Shop for these members"))))));
+_setStrictVisibilityCheck(false);
+}
+$numOfNotEnrolledGroups++;
+*/
+		}
+	}
+	if($count == 1){
+		_assertVisible(_link("Shop Health Plans ("+$count+" Member)"));
+	}
+	else if($count >1) {
+		_assertVisible(_link("Shop Health Plans ("+$count+" Members)"));
+	}
+	//	if($numOfNotEnrolledGroups == 1){
+	//		_assertVisible(_div("Based on your family members' eligibility, we recommend that you shop in the groups shown. If you have any unique needs, you could select a different set of members you'd like to shop as a group"));
+	//	}else{
+	//		_assertVisible(_div("Based on your family members' eligibility, we recommend that you shop in the groups shown. If you have any unique needs, you may be able to select a different set of members you'd like to shop as a group, but one or more of your household members may give up benefits they would otherwise be eligible to."));
+	//	}
+}
+
+function verifyEnrolledGroup($groups,$isSEP){
+	var $fullName = "";
+	var $memberCount = 0;
+
+
+	for(var $i = 0; $i< $groups.length ;$i++){
+		if($groups[$i].healthPlan.enrollmentStatus != "Cancelled" && $groups[$i].healthPlan.enrollmentStatus != "Terminated" && $groups[$i].healthPlan != "null"){
+
+			// identify div with group
+			var $enrolledGroupContainer = 0;
+
+			for (var $x = 0; $x < $groups.length; $x++) {
+				var $memberName = $groups[$i].member[0].$firstName+" "+$groups[$i].member[0].$lastName;
+				if(_isVisible(_strong($memberName, _in(_div("aid_enrolled_grp_"+$x))))){
+					$enrolledGroupContainer = $x;
+					break;
+				}
+			}
+
+			_assertVisible(_div("/You have successfully enrolled the following family members./"));
+
+			// verify member names
+			for(var $j = 0; $j< $groups[$i].member.length ;$j++){
+				$fullName = $groups[$i].member[$j].$firstName+" "+$groups[$i].member[$j].$lastName;
+				_assertVisible(_italic("icon-ok icon-large enrolled ng-scope", _in(_div($fullName))));
+				$memberCount++;
+			}
+
+			// verify plan info
+			var $healthPlanName= $groups[$i].healthPlan.name.replace("/", "\\/");
+			_assertVisible(_div("/"+$groups[$i].healthPlan.issuerName+"/", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+			_assertVisible(_div("/"+$healthPlanName+"/", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))),"Verify selected health plan is displayed");
+			_assertVisible(_span($groups[$i].healthPlan.premium+" per month", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+
+
+
+
+			//verify APTC and CSR for enrolled group if financial
+			if($groups[$i].aptc){
+				if($isSEP && $groups[$i].isPlanFinalized == false){
+					_assertVisible(_span("APTC of "+$groups[$i].aptc+" per month will be applied for this enrollment when you click on finalize plans buttons and complete enrollment.", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+
+				}
+				else{
+					_assertVisible(_span("Advanced Premium Tax Credit of "+$groups[$i].aptc+" per month has been used for this enrollment"));
+				}
+
+			}
+
+			if($groups[$i].csr){
+				_assertVisible(_div("These family members qualify for Cost-Sharing Subsidies on qualified health plans"));
+			}
+			else{
+				_assertNotVisible(_div("These family members qualify for Cost-Sharing Subsidies on qualified health plans", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+//				_assertNotVisible(_div("These family members qualify for Cost-Sharing Subsidies on qualified health plans"));
+			}
+
+			// verify links to display
+			if($isSEP && $groups[$i].isPlanFinalized == false){
+				_assertVisible(_submit("Finalize Plan", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+
+			}
+			else{
+				_assertNotVisible(_submit("Finalize Plan", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+				if($inOEP == "OFF"){
+					_assertVisible(_submit("Cancel Coverage", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+				}
+				else
+					_assertVisible(_submit("Change Plan", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+			}
+
+			//			if($groups[$i].isChangePlanEnabled){
+			//				_assertVisible(_submit("Change Plan", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+			//			}else{
+			//				_assertNotVisible(_submit("Change Plan", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+			//			}
+
+
+			// verify "Cancel Coverage" or "Disenroll" links should be displayed
+			var $isBefore = _fetch(window.moment().isBefore($groups[$i].coverageStartDate));
+			if($isBefore){
+				_assertVisible(_submit("Cancel Coverage", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+			}
+			else{
+				_assertVisible(_submit("Disenroll", _in(_div("aid_enrolled_grp_"+$enrolledGroupContainer))));
+			}
+
+
+		}
+	}
+	if($memberCount == 1){
+		_assertVisible(_div("Enrolled ( "+$memberCount+" member)"));
+	}
+	else{
+		_assertVisible(_div("Enrolled ( "+$memberCount+" members)"));
+	}
+}
+
+function verifyNavigationTabOnCustomGrouping($plan){
+	//	
+	var $inActive="";
+	var $active = "active";
+	//	var $inActive="ng-binding";
+	//	var $active = "ng-binding active";
+	//	_assertEqual("Show " + $plan + " Plans", _getText(_link("active", _in(_div("rightpanel")))));
+	if($plan =="Dental"){
+		_assertEqual($inActive, _getAttribute(_link("Shop Health Plans"), "className"),"Verify Health navigation tab is not active on customGrouping page");
+		_assertEqual($active, _getAttribute(_link("Shop Dental Plans"), "className"),"Verify Dental navigation tab is active on planSelection page");
+	}
+	else{
+		_assertEqual($inActive, _getAttribute(_link("Shop Dental Plans"), "className"),"Verify Dental navigation tab is not active on customGrouping page");
+		_assertEqual($active, _getAttribute(_link("Shop Health Plans"), "className"),"Verify Health navigation tab is active on customGrouping page");
+	}
+
+}
+
+function clickShopHealthPlan($household, $verificationFlag){
+	_click(_link("/Shop Health Plans/", _in(_div("healthGroups"))));
+	var $zip = $household[0].$homeZip;
+	$prefPageIndex = 0;
+	verifyElementsOfPreferencePage($zip);
+}
+
+function clickShopDentalPlan($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping,$customGroupMem){
+	_click(_link("Shop Dental Plans", _in(_div("dentalGroups"))));
+	if(_isVisible(_heading3("Shopping For"))){
+		_click(_submit("Update Results"));
+		_wait(1000);
+	}
+	verifyElementsOnPlanPage($isCSREnabled, $aptcAmount,$zip,$coverageStartDate, $noOfAdults, $noOfChildren, $showCatastrophic,$ShowCSROnAllTiles, $customGrouping,$customGroupMem);
+}
+
+function clickShopDentalPlansTab($groups,$isEnrolledDental){
+	_click(_link("Shop Dental Plans", _in(_listItem("Shop Dental Plans"))));
+	verifyDentalGroup($groups,$isEnrolledDental);
+}
+
+function verifyDentalGroup($groups,$isEnrolledDental){
+	if($isEnrolledDental == "N"){
+		verifyNotEnrolledDentalGroup($groups);
+	}
+}
+
+function verifyNotEnrolledDentalGroup($groups){
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_div("Shop for these members"));
+	//	_assertVisible(_label("Children's dental coverage is included in health plans offered by Covered California."))
+	//	_assertVisible(_label("If you are enrolling one child, please make sure to select at least one adult (older than 19 years)."));
+	//	_assertVisible(_label("If you are enrolling one child in the dental plan, all children in the family are required to be enrolled."));
+
+	for(var $i = 0; $i< $groups.length ;$i++){
+		if($groups[$i].dentalPlan == "null"){
+
+			for(var $j = 0; $j< $groups[$i].member.length; $j++){
+				$fullName = $groups[$i].member[$j].$firstName+" "+$groups[$i].member[$j].$lastName;
+				_setStrictVisibilityCheck(true);
+				_assertVisible(_label($fullName, _under(_div("Shop for these members"))));
+				_assertTrue(_getAttribute(_checkbox($fullName, _near(_label($fullName))), "checked"));
+				_setStrictVisibilityCheck(false);
+			}
+		}
+	}
+	_assertNotVisible(_link("Change Plan", _in(_div("dentalGroups"))));
+	_assertNotVisible(_link("Disenroll", _in(_div("dentalGroups"))));
+	_assertVisible(_span("Shop Dental Plans", _in(_div("dentalGroups"))));
+
+	_setStrictVisibilityCheck(false);
+}
+
+function createCustomGroup($group){
+
+	_log("uncheck all the members");
+	_setStrictVisibilityCheck(true);
+	var $checkBox = _collect("_checkbox","/check/",  _in(_div("/flex-container/", _near(_div("Shop for these members")))));
+
+	for(var $i=0; $i< $checkBox.length;$i++){
+		_uncheck($checkBox[$i]);
+	}
+	for(var $i=0; $i< $group.member.length;$i++){
+		_check(_checkbox(0, _near(_label("/"+$group.member[$i].$firstName+" "+$group.member[$i].$lastName+"/"))));
+	}
+	if(onHealthGroup()){
+		if($group.member.length === 1){
+			_assertVisible(_link("Shop Health Plans (1 member)"));
+		}
+		else
+			_assertVisible(_link("Shop Health Plans ("+$group.member.length+" Members)"));
+	}
+	else{
+		_assertVisible(_link("Shop Dental Plans", _in(_div("dentalGroups"))));
+	}
+	_log("custom group "+JSON.stringify($group));
+}
+
+function onHealthGroup(){
+	if(_getAttribute(_link("Shop Health Plans"),"className") == "active"){
+		return true;
+	}
+	else{
+		return false;
+	}
+}
+
+function defineGroups($members,$household,$aptc,$csr){
+	var $numOfGroups = $members.split(";");
+	var $groups = [];
+	var $groupAptc = $aptc.split(";");
+	var $groupCSR = $csr.split(";");
+
+	for(var $j=0;$j<$numOfGroups.length;$j++){
+		var $numOfMembersInGroup = [];
+		var $group = {
+		};
+		var $member = [];
+		$numOfMembersInGroup = $numOfGroups[$j].split(":")[1].split(",");
+		for (var $i=0;$i<$numOfMembersInGroup.length;$i++){
+			$numOfMembersInGroup[$i] = parseInt($numOfMembersInGroup[$i]);
+			$member[$i]=$household[$numOfMembersInGroup[$i]];
+			$member[$i].coverageStartDate = $household.coverageStartDate;
+			//			$member[$i].coverageEndDate = $household.coverageEndDate;
+		}
+		$group.member = $member;
+		$group.healthPlan = "null";
+		$group.dentalPlan = "null";
+		if($groupAptc[$j].split(":")[1] == "null"){
+			$group.aptc = "";
+		}
+		else{
+			$group.aptc = $groupAptc[$j].split(":")[1];
+		}
+
+		if($group.csr = $groupCSR[$j].split(":")[1] == "null"){
+			$group.csr = "";
+		}
+		else{
+			$group.csr = $groupCSR[$j].split(":")[1];
+		}
+		$group.isNeedToBeFinalized = false;
+		$group.isPlanFinalized = false;
+		$group.coverageStartDate = $household.coverageStartDate;
+		//		$group.coverageEndDate = $household.coverageEndDate;
+		//		$group.coverageChangeEffectiveDate = "";
+		$group.isChangePlanEnabled = false;
+		$group.previousHealthPlan = "null";
+		$group.terminatedHealthPlan = "null";
+		$group.previousDentalPlan = "null";
+		$group.enrollmentStatus = "";
+		$groups.push($group);
+
+	}
+	var $str = JSON.stringify($groups);
+	_log("JSON: "+$str);
+	//	_writeFile($str, "JSONfileGroups.txt", true);
+	return $groups;
+}
+
+function clickShopHealthPlansTab($household, $groups, $notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$landingTab){
+	_click(_link("tab-0"));
+	verifyCustomGroupingPage($household, $groups, $notEnrolledGroups,$enrolledGroups,$newMembersCount,$isSEP,$landingTab)
+		}
+
+
+//SEP functions
+function clickAddToThisPlan($household,$groups,$memberNum,$groupNum,$cartPageCase,$event){
+	_setStrictVisibilityCheck(true);
+	var $members = [];
+	var $membersInGroup = $groups[$groupNum].member.length;
+	$members = $memberNum.split(",");
+
+	// if there is dental plan, create separate dental group
+	if($groups[$groupNum].dentalPlan){
+		var $groupsCount = $groups.length;
+		_log($groupsCount);
+		_log($groupNum);
+
+		var $dentalGroup = JSON.parse(JSON.stringify($groups));
+
+		$dentalGroup[$groupNum].healthPlan = "null";
+		$groups[$groupNum].dentalPlan = "null";
+		$groups[$groupsCount] = $dentalGroup[$groupNum];
+	}
+
+	for(var $i=0;$i<$members.length;$i++){
+
+		var $newMemberFullName = $household.people[$members[$i]].firstName+" "+$household.people[$members[$i]].lastName;
+		_click(_checkbox(0, _in(_div($newMemberFullName, _in(_div("aid_multi_enrolled_grp_0"))))));
+		$membersInGroup = $membersInGroup+$i;
+		$groups[$groupNum].member[$membersInGroup] = $household.people[$members[$i]];
+
+
+	}
+	_assertVisible(_link("Add to this plan ( "+$members.length+" Members)", _in(_div("aid_multi_enrolled_grp_0"))));
+	_click(_link("aid_mngd_add_engrp_shop_0", _in(_div("aid_multi_enrolled_grp_0"))));
+
+	_setStrictVisibilityCheck(false);
+	if($groups[$groupNum].aptc){
+		$groups = recalculatePremium($household,$groups,$groupNum);
+	}
+	var $coverageStartDate;
+
+	if(getEventType($event) == 2){
+		var $coverageMonth = _fetch(window.moment().add(1, 'M').format('MM'))
+			$coverageStartDate = $coverageMonth+"/01/"+$household.coverageYear;
+		$groups[$groupNum].coverageChangeEffectiveDate = $coverageStartDate;
+		$groups[$groupNum].member[$membersInGroup].coverageStartDate = $coverageStartDate;
+		$groups[$groupNum].member[$membersInGroup].coverageEndDate = $household.coverageEndDate;
+
+	}
+	else if(getEventType($event) == 1){
+		$coverageStartDate = $household.coverageStartDate;
+		$groups[$groupNum].member[$membersInGroup].coverageStartDate = $coverageStartDate;
+		$groups[$groupNum].member[$membersInGroup].coverageEndDate = $household.coverageEndDate;
+	}
+	$groups[$groupNum].coverageStartDate = $household.coverageStartDate;
+
+	$group = verifyElementsOnCartPage($groups[$groupNum].healthPlan,"",$coverageStartDate ,$groups[$groupNum],"YES",$cartPageCase);
+	$groups[$groupNum] = $group;
+
+	return $groups;
+}
+
+function clickShopHealthPlanForNewMember($household,$groups,$memberNum,$groupNum,$newGroupAPTC,$newGroupCSR,$eventDate,$event){
+	_setStrictVisibilityCheck(true);
+	var $members = [];
+	var $group = {
+	};
+	var $member = [];
+
+	$members = $memberNum.split(",");
+	for(var $i=0;$i<$members.length;$i++){
+		var $newMemberFullName = $household.people[$members[$i]].firstName+" "+$household.people[$members[$i]].lastName;
+		_click(_checkbox(0, _in(_div($newMemberFullName, _in(_div("aid_un_mngd_0"))))));
+		$member[$i] = $household.people[$members[$i]];
+		$member[$i].coverageStartDate = getCoverageStartDate(getEventType($event),$eventDate,$event);
+		$member[$i].coverageEndDate = $household.coverageEndDate;
+		$group.member = $member;
+	}
+	$group.healthPlan = "null";
+	$group.dentalPlan = "null";
+	$group.aptc = $newGroupAPTC;
+	$group.csr = $newGroupCSR;
+	$group.isNeedToBeFinalized = false;
+	$group.isPlanFinalized = true;
+	$group.previousHealthPlan = "null";
+	$group.previousDentalPlan = "null";
+
+	_assertVisible(_link("Shop for Health Plans ( "+$members.length+" Members)", _in(_div("aid_un_mngd_0"))));
+	_click(_link("aid_un_enroll_shop_btn_0", _in(_div("aid_un_mngd_0"))));
+
+	_setStrictVisibilityCheck(false);
+
+
+	$groups[$groupNum] = $group;
+	return $groups;
+}
+
+function clickFinalizeHealthPlanOnGroupingScreen($household,$group,$cartPageCase){
+	var $memberFullName = $group.member[0].firstName+" "+$group.member[0].lastName;
+	_click(_submit("Finalize Plan", _near(_strong($memberFullName))));
+	_wait(3000);
+
+	var $str = JSON.stringify($group.healthPlan);
+	_log("JSON: "+$str);
+
+	if($group.aptc){
+		$group.healthPlan.taxCredit = $group.healthPlan.taxCredit.replace($group.healthPlan.aptc,$group.aptc.replace("$",""));
+		$group.healthPlan.aptc = $group.aptc.replace("$","");
+
+		$group.healthPlan.numPremium = parseFloat($group.healthPlan.totalPayment) - parseFloat($group.healthPlan.aptc);
+		$group.healthPlan.numPremium = parseFloat($group.healthPlan.numPremium).toFixed(2);
+		$group.healthPlan.premium = "$"+$group.healthPlan.numPremium;
+
+	}
+
+	var $currentDay = parseInt(_fetch(window.moment().get('date')));
+	if($currentDay>15){
+		$group.coverageChangeEffectiveDate = getCoverageStartDate("3","","", "");
+		if($group.dentalPlan != "null"){
+			$group.dentalPlan.coverageChangeEffectiveDate = false;
+		}
+	}
+
+	var $str = JSON.stringify($group.healthPlan);
+	_log("JSON: "+$str);
+
+	verifyElementsOnCartPage($group.healthPlan, "", $household.coverageStartDate, $group, "YES",$cartPageCase);
+	$group.isPlanFinalized = true;
+	return $group;
+}
+
+function clickLinkChangePlan($household,$group,$cartPageCase){
+	var $memberFullName = $group.member[0].firstName+" "+$group.member[0].lastName;
+	_click(_link("Change Plan", _near(_strong($memberFullName))));
+	$group.coverageStartDate = getCoverageStartDate("3","","", "");
+	$group.coverageChangeEffectiveDate = $group.coverageStartDate;
+
+	for (var $i = 0; $i < $group.member.length; $i++) {
+		$group.member[$i].coverageStartDate = $group.coverageStartDate;
+	}
+
+	verifyElementsOnCartPage($group.healthPlan, "", $group.coverageStartDate, $group, "YES",$cartPageCase);
+	return $group;
+}
+
+function updateGroupAndPlanInfoAfterAutoCSChange($household,$group,$newCS,$sepEvent){
+	var $now=_call(window.moment());
+	var $currentDate = _call(window.moment($now).format('MM/DD/YYYY'));
+	var $sepEventType = getEventType($sepEvent);
+	var $coverageStartDate = getCoverageStartDate($sepEventType,$currentDate,"","");
+	var $coverageEndDate;
+
+	var $updatedGroup = JSON.parse(JSON.stringify($group));
+
+	var $terminatedGroup = $group;
+	_log("$terminatedGroup.coverageStartDate: "+$terminatedGroup.coverageStartDate);
+
+	var $isBefore = _fetch(window.moment($coverageStartDate).isBefore($terminatedGroup.coverageStartDate));
+	if($coverageStartDate == $terminatedGroup.coverageStartDate){
+		$isBefore = true;
+	}
+	_log("$isBefore: "+$isBefore);
+
+	if(!$isBefore){
+
+		$coverageEndDate = _fetch(window.moment($coverageStartDate).subtract(1,"d").format('MM/DD/YYYY'));
+		$terminatedGroup.healthPlan.enrollmentStatus = "Terminated";
+
+		for (var $i = 0; $i < $terminatedGroup.member.length; $i++) {
+			$terminatedGroup.member[$i].coverageEndDate = $coverageEndDate;
+		}
+
+		$terminatedGroup.coverageEndDate = $coverageEndDate;
+		$terminatedGroup.enrollmentStatus = "Terminated";
+
+	}
+	else{
+
+		$coverageEndDate = $coverageStartDate;
+		$terminatedGroup.healthPlan.enrollmentStatus = "Cancelled";
+
+		for (var $i = 0; $i < $terminatedGroup.member.length; $i++) {
+			$terminatedGroup.member[$i].coverageEndDate = $coverageEndDate;
+		}
+
+		$terminatedGroup.coverageEndDate = $coverageEndDate;
+		$terminatedGroup.enrollmentStatus = "Cancelled";
+		$terminatedGroup.previousHealthPlan = $terminatedGroup.healthPlan;
+		$terminatedGroup.healthPlan = "null";
+	}
+
+	_log("$terminatedGroup.coverageStartDate: "+$terminatedGroup.coverageStartDate);
+	_log("$terminatedGroup.coverageEndDate: "+$terminatedGroup.coverageEndDate);
+	_log("$terminatedGroup.enrollmentStatus: "+$terminatedGroup.enrollmentStatus);
+	_log("$terminatedGroup.healthPlan.enrollmentStatus: "+$terminatedGroup.healthPlan.enrollmentStatus);
+
+	//update new group and plan info
+	var $csNumInPlanName = $updatedGroup.healthPlan.name
+		var $issuerPlanNumber;
+	var $applicableYear = parseInt(_fetch(window.moment().get('year')));
+
+	$csNumInPlanName =  _extract($csNumInPlanName, "/Silver (..)/", true).toString();
+
+	if($newCS == "CS1"){
+		$updatedGroup.healthPlan.name = $updatedGroup.healthPlan.name.replace($csNumInPlanName, "70");
+		$updatedGroup.csr = "";
+		$issuerPlanNumber = "01";
+		_log("$updatedGroup.healthPlan.name: "+$updatedGroup.healthPlan.name);
+	}
+	else{
+		$updatedGroup.csr = $newCS;
+	}
+	_log("$updatedGroup.csr: "+$updatedGroup.csr);
+
+	if($newCS == "CS4"){
+		$updatedGroup.healthPlan.name = $updatedGroup.healthPlan.name.replace($csNumInPlanName, "73");
+		$issuerPlanNumber = "04";
+		_log("$updatedGroup.healthPlan.name: "+$updatedGroup.healthPlan.name);
+	}
+	if($newCS == "CS5"){
+		$updatedGroup.healthPlan.name = $updatedGroup.healthPlan.name.replace($csNumInPlanName, "87");
+		$issuerPlanNumber = "05";
+		_log("$updatedGroup.healthPlan.name: "+$updatedGroup.healthPlan.name);
+	}
+	if($newCS == "CS6"){
+		$updatedGroup.healthPlan.name = $updatedGroup.healthPlan.name.replace($csNumInPlanName, "94");
+		$issuerPlanNumber = "06";
+		_log("$updatedGroup.healthPlan.name: "+$updatedGroup.healthPlan.name);
+	}
+
+	$updatedGroup.healthPlan.planId = "cart_" + getPlanIdByPlanDetailsDB($issuerPlanNumber,$updatedGroup.healthPlan.name,$applicableYear,"HEALTH",$updatedGroup.healthPlan.issuerName);
+
+	$updatedGroup.enrollmentStatus = "Pending";
+	$updatedGroup.coverageStartDate = $coverageStartDate;
+	$updatedGroup.coverageEndDate = $household.coverageEndDate;
+
+	for (var $i = 0; $i < $updatedGroup.member.length; $i++) {
+		$updatedGroup.member[$i].coverageStartDate = $coverageStartDate;
+		$updatedGroup.member[$i].csrLevel = convertCSRLevel($newCS,"Long");
+	}
+
+	var $updatedGroups = {
+	};
+	$updatedGroups.terminatedGroup = $terminatedGroup;
+	$updatedGroups.updatedGroup = $updatedGroup;
+
+	return $updatedGroups;
+}
+
+function updateGroupAndPlanInfoAfterAutoRemove($household,$group,$insuranceType,$membersToRemove,$event,$eventDate,$newAPTC){
+
+	$group = JSON.parse(JSON.stringify($group));
+
+	$membersToRemove = $membersToRemove.split(",");
+	var $numOfMembers = $membersToRemove.length;
+
+	var $now=_call(window.moment());
+	var $currentDate = _call(window.moment($now).format('MM/DD/YYYY'));
+	var $coverageEndDate;
+	var $currentDay = parseInt(_fetch(window.moment().get('date')));
+
+	_log("$group.coverageStartDate: "+$group.coverageStartDate);
+
+	var $isBefore = _fetch(window.moment().isBefore($group.coverageStartDate));
+	_log("$isBefore: "+$isBefore);
+	_log("$currentDay: "+$currentDay);
+
+	if($insuranceType == "Health"){
+		$insuranceType = "1832";
+	}
+	else{
+		$insuranceType = "1831";
+	}
+
+	// updating coverage end date based on event 
+	if($event){
+		if($event == "Death"){
+			$coverageEndDate = $eventDate;
+			for (var $i = 0; $i < $membersToRemove.length; $i++) {
+				$group.member[$membersToRemove[$i]].coverageEndDate = $coverageEndDate;
+			}
+		}
+	}
+	else{
+		// if not passing event and coverage already started
+		if(!$isBefore){
+			$coverageEndDate = getCoverageStartDate(2,$currentDate,"","");
+			$coverageEndDate = _fetch(window.moment($coverageEndDate).subtract(1,"d").format('MM/DD/YYYY'));
+
+			for (var $i = 0; $i < $membersToRemove.length; $i++) {
+				$group.member[$membersToRemove[$i]].coverageEndDate = $coverageEndDate;
+				_log("$group.member[$membersToRemove[$i]].coverageEndDate: "+$group.member[$membersToRemove[$i]].coverageEndDate);
+			}
+
+		}
+		else{
+			// if coverage strting in future
+			$coverageEndDate = $group.coverageStartDate;
+			for (var $i = 0; $i < $membersToRemove.length; $i++) {
+				$group.member[$membersToRemove[$i]].coverageEndDate = $coverageEndDate;
+			}
+		}
+	}
+
+
+	// getting idividual responsobility amount from DB
+	for (var $i = 0; $i < $membersToRemove.length; $i++) {
+
+		var $ssn = $group.member[$membersToRemove[$i]].SSN;
+		var $planId;
+		if($insuranceType == "1832"){
+			$planId = $group.healthPlan.planId.replace(/\D+/g, "");
+		}
+		else{
+			$planId = $group.dentalPlan.planId.replace(/\D+/g, "");
+		}
+		var $enrollmentStatus = "1765";
+		var $extHouseholdCaseID = $household.externalHouseholdCaseId;
+
+		var $individualRespAmountFromEnrolee = getIndividualRespAmountFromEnrolee($ssn,$planId,$insuranceType,$enrollmentStatus,$extHouseholdCaseID);
+		_log("$individualRespAmountFromEnrolee: "+$individualRespAmountFromEnrolee);
+	}
+	// updating health plan info after removing
+	if($group.healthPlan != "null"){
+		$group.healthPlan.totalPayment = parseFloat($group.healthPlan.totalPayment).toFixed(2) - parseFloat($individualRespAmountFromEnrolee).toFixed(2);
+		if($group.aptc){
+			if($newAPTC){
+				$group.aptc = "$"+$newAPTC;
+				$group.healthPlan.taxCredit = $group.healthPlan.taxCredit.replace($group.healthPlan.aptc,$newAPTC);
+				$group.healthPlan.aptc = $newAPTC;
+			}
+			$group.healthPlan.numPremium = parseFloat($group.healthPlan.totalPayment).toFixed(2) - parseFloat($group.healthPlan.aptc).toFixed(2);
+			$group.healthPlan.numPremium = parseFloat($group.healthPlan.numPremium).toFixed(2);
+			$group.healthPlan.premium = "$"+$group.healthPlan.numPremium;
+		}
+		else{
+			$group.healthPlan.numPremium = parseFloat($group.healthPlan.totalPayment).toFixed(2);
+			$group.healthPlan.premium = "$"+$group.healthPlan.numPremium;
+		}
+	}
+
+	if($group.dentalPlan != "null"){
+		$group.dentalPlan.totalPayment = parseFloat($group.dentalPlan.totalPayment).toFixed(2) - parseFloat($individualRespAmountFromEnrolee).toFixed(2);
+		$group.dentalPlan.numPremium = parseFloat($group.dentalPlan.totalPayment).toFixed(2);
+		$group.dentalPlan.premium = "$"+$group.dentalPlan.numPremium;
+		_log("$group.dentalPlan.totalPayment: "+$group.dentalPlan.totalPayment);
+		_log("$group.dentalPlan.numPremium: "+$group.dentalPlan.numPremium);
+		_log("$group.dentalPlan.premium: "+$group.dentalPlan.premium);
+	}
+
+	$group.totalIndivRespEffDate = getCoverageStartDate(2,$currentDate,"","");
+	_log("$group.totalIndivRespEffDate: "+$group.totalIndivRespEffDate);
+
+	return $group;
+}
+
+function selectGroup($NumberOfmembers, $members, $aptc, $csr){
+	var $groups = [];
+	//	$inOEP = inGlobalOEP();
+	var $coverageStartDate = getCoverageStartDate(null, null, null, $inOEP)
+		var $group = {
+		};
+	var $memberInGroup = [];
+
+	for (var $i=0;$i<$NumberOfmembers.length;$i++){
+		$memberInGroup[$i] = $members[$NumberOfmembers[$i]];
+		var $fullName = $members[$NumberOfmembers[$i]].fullName(true);
+		if(!(_isChecked(_checkbox($fullName, _near(_label($fullName)))))){
+			_check(_checkbox($fullName, _near(_label($fullName))));
+		}
+	}
+	if(_isVisible(_div("aid_multi_group_failure_dialog"))){
+		_click(_submit("Got it. Continue"));
+	}
+	if($NumberOfmembers.length == 1){
+		_assertVisible(_link("Shop Health Plans (1 member)"));
+	}
+	else 	_assertVisible(_link("Shop Health Plans ("+$NumberOfmembers.length+" Members)"));
+
+	$group.member = $memberInGroup;
+	$group.healthPlan = "null";
+	$group.dentalPlan = "null";
+	$group.aptc = $aptc;
+	$group.csr = $csr
+		$group.coverageStartDate = $coverageStartDate;
+	$groups.push($group);
+	var $str = JSON.stringify($groups);
+	_log("JSON: "+$str);
+
+	return $groups;
+
+
+}
+
+

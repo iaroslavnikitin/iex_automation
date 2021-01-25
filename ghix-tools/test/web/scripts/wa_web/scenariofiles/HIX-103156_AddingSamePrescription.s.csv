@@ -1,0 +1,21 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/SmartPlanFinder.sah"
+,"loadSahi","../pagemodels/SaveHouseholdData.sah"
+
+"Adding same prescription","[Documentation]","1. Create a household
+2. Append the HouseholdId & Launch the URL: https://waqa.ghixqa.com/hix/dst/index?householdId=5a6caac9-69f4-4e01-a734-07563ab0f022&lang=en&appflow=pre&redirectDomain=https%3A%2F%2Fwww.yahoo.com.com
+3. Add a prescription.
+4. Add the same prescription"
+,"$redirectDomain=","""https://www.google.com"""
+,"$zipCode=","98203"
+,"createSaveHouseHoldAPI","$zipCode","6","2018"
+,"addMemberToSaveHouseholdAPI","1233123232","32","F"
+,"addMemberToSaveHouseholdAPI","1233123123","34","M"
+,"addPlanPremiumToSaveHouseholdAPI","49831WA192000101","400"
+,"addPlanPremiumToSaveHouseholdAPI","84481WA006000201","240.34"
+,"callSaveHouseholdAPI"
+,"$householdId=getHouseholdId"
+,"navigateToSmartPlanfinderWithParameters","en","pre","$redirectDomain","$householdId"
+,"selectDrug","Lipitor","""Lipitor 10 Mg Tab (Oral Tablet)"""
+,"selectDrug","Lipitor","""Lipitor 10 Mg Tab (Oral Tablet)"""
+,"verifyDuplicateDrugSelectionMessage"

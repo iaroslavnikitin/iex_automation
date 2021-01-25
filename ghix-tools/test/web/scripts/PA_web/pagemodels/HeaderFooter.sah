@@ -1,0 +1,127 @@
+_includeOnce("AccountSettings.sah");
+_includeOnce("FindLocalAssistance.sah");
+_includeOnce("HomePage.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("Login.sah");
+
+
+var $headerImage = _image("Pennie");
+//var $language = _link("language-select");
+var $helpAndSupportLink = _span("Help & Support");
+var $headerAccesors = [$headerImage,$helpAndSupportLink];
+
+var $headerFooterClickFindLocalAssistance = _link("Find Local Assistance");
+var $headerFooterHome = _image("Nevada Health Link");
+var $headerFooterHomeLink = _link("Home");
+var $headerFooterInbox = _italic("icon-envelope");
+var $headerFooterLogin = _link("Log In");
+var $headerFooterPrivacyPolicy = _link("Privacy Policy");
+var $headerFooterGetAssistance = _link("dropdown-toggle");
+var $headerFooterHelpAndSupportLink = _link("/Help & Support Dropdown Menu/");
+var $headerFooterClickFindLocalAssistance = _link("Find Local Assistance");
+var $headerFooterHelpCenter = _link("Help Center");
+var $headerFooterMyAccount = _link("dropdown-toggle[1]");
+var $headerFooterAccountSettings = _link("Account Settings");
+var $headerFooterDashboard = _link("Dashboard");
+var $headerFooterLogout = _link("Logout");
+
+var $loggedIn ;
+
+
+
+function verifyNJHeader(){
+	verifyArray($headerAccesors);
+}
+
+
+
+function clickLogin() {
+	_click($headerLogIn);
+	loginVerify();
+}
+
+function clickGetAssistance() {
+	_click($headerFooterGetAssistance);
+}
+
+function clickFindLocalAssistance() {
+	_click($headerFooterClickFindLocalAssistance);
+	verifyElementsOfLocalAssistance();
+}
+
+function clickHelpCenter() {
+	_click($headerFooterHelpCenter);
+}
+
+function clickConsumers() {
+	_click($headerFooterConsumers);
+}
+
+function clickMyAccount() {
+	_click($headerFooterMyAccount);
+}
+
+function clickAccountSettings() {
+	_click($headerFooterAccountSettings);
+	verifyElementsOnAccountSettingPage();
+}
+
+function clickDashboard($isOnCap) {
+	_click($headerFooterDashboard);
+	_wait(60000, !_isVisible(_heading3("Application is in progress...")));
+	if($isOnCap!="YES"){
+		verifyElementsOfIndividualDashboard();
+	}
+}
+
+function clickLogout() {
+	_click($headerFooterLogout);
+	$loggedIn = false;
+}
+
+function clickPrivacyPolicy() {
+	_click($headerFooterPrivacyPolicy);
+}
+
+function closeBrowser(){
+	_closeBrowser();
+	$eligibityFlag ="false";
+	$displayChildPlan = "false";
+	$kids = 0;
+	$adult = 0;
+	$apllicantAge="null";
+	$spouseAge ="null";
+	$announcement = [];
+	$totalAnnouncement = 0;
+	$planName="";
+	$dentalPlanName="";
+	$removeExisitngHealthPlan = false;
+	$overrideCoverage="";
+	//$coverageYear="2017";
+	$pastDate ="true";
+//	$eventReported ="";
+	$eventDate = "";
+	$isGatedEvent ="";
+	$selectedYear ="";
+	$onDentalPage = undefined;
+	$prescriptions = [];
+	
+}
+
+function openBrowser(){
+	_wait(500);
+	_openBrowser();
+}
+
+function clickUsersHeader(){
+	_click(_link("Users"));
+}
+
+function clickManageUser(){
+	_click(_link("Manage User"));
+}
+
+// function clickLogout(){
+// 	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+// 	_click(_link("/Logout/"));
+// }

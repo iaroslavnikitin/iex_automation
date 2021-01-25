@@ -1,0 +1,743 @@
+_includeOnce("Preeligibility.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+function clickAddNewIssuer(){
+	_click(_link("Add New Issuer"));
+	_assertVisible(_heading1("Add New Issuer"));
+	
+	_assertVisible(_heading4("Steps"));
+	_assertVisible(_link("Issuer Details"));
+	_assertVisible(_listItem("Primary Contact Details"));
+	_assertVisible(_listItem("Review and Submit"));
+	
+	_assertVisible(_heading4("Issuer Details"));
+	_assertVisible(_label("HIOS Issuer ID Required"));
+	_assertVisible(_textbox("HIOS Issuer ID Required"));
+	_assertVisible(_label("Name Required"));
+	_assertVisible(_textbox("Name Required"));
+	_assertVisible(_textbox("Company Legal Name Required"));
+	_assertVisible(_label("Company Legal Name Required"));
+	_assertVisible(_textbox("Company Legal Name Required"));
+	
+	_assertVisible(_label("Issuer Short Name Required"));
+	_assertVisible(_textbox("Issuer Short Name Required"));
+	
+	_assertVisible(_label("NAIC Company Code Required"));
+	_assertVisible(_textbox("NAIC Company Code  Required"));
+	
+	
+	_assertVisible(_label("NAIC Group Code Required"));
+	_assertVisible(_textbox("NAIC Group Code  Required"));
+		
+	_assertVisible(_label("Federal Employer ID"));
+	_assertVisible(_textbox("Federal Employer ID "));
+	
+	_assertVisible(_label("Street Address 1Required"));
+	_assertVisible(_textbox("Street Address 1Required"));
+	
+	_assertVisible(_label("Street Address 2"));
+	_assertVisible(_textbox("Street Address 2"));
+	
+	_assertVisible(_label("City Required"));
+	_assertVisible(_textbox("City Required"));
+	
+	_assertVisible(_label("State Required"));
+	_assertVisible(_select("state"));
+	
+	_assertVisible(_label("Zip Code Required"));
+	_assertVisible(_textbox("Zip Code Required"));
+	
+	_assertVisible(_submit("Next"));
+		
+}
+
+
+function clickManageIssuerAccounts(){
+	
+	_assertVisible(_heading1("/Issuers/"));
+	_assertVisible(_heading4("Refine Results"));
+	_assertVisible(_textbox("Name "));
+	_assertVisible(_select("status"));
+	_assertVisible(_submit("Go"));
+	_assertVisible(_link("Add New Issuer"));
+	_assertVisible(_row("Name Sortable Descending Contract Begins Sortable Descending Contract Ends Sortable Descending Last Updated Sortable Descending Status Sortable Descending"));
+
+}
+
+function searchIssuer($name, $status){
+	_setValue(_textbox("Name "), $name);
+	_setSelected(_select("status"), $status);
+	_click(_submit("Go"));
+	if($name){
+		$issuerName = _getTableContents(_table("table table-striped"), [0,"Name"] )[1];
+		_assertEqual($name, $issuerName, "Verify filter results has issuer name") 
+	}
+	if($status){
+		var $statusFromTable = _getTableContents(_table("table table-striped"), [4,"Status"] );
+		for(var $i=1; $i< $statusFromTable.length; $i++){
+			_assertEqual($status, $statusFromTable[$i], "Verify all the isuuers have '"+$status+"' status");
+		}
+	}
+	
+}
+
+function clickIssuerFromManageIssuer($issuer){
+	_click(_link($issuer));
+	_assertVisible(_heading1($issuer));
+	verifyIssuerDetails($issuer);
+	
+}
+
+
+/**
+ Methods created for Issuer Detail link
+
+*/
+function verifyIssuerDetails($issuer){
+	_assertVisible(_heading4("Issuer Details"));
+	_assertVisible(_link("Edit"));
+	
+	_assertEqual($issuer, _getText(_cell(0, _rightOf(_tableHeader("Name")))),"Verify The name of the issuer");
+	var $issuerDetails = getIssuerDetailsfromDB($issuer);
+	if(_isVisible(_link("Issuer Representative"))){
+		_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Issuer Short Name")))), $issuerDetails[0][0],"Verify Issuer short name is same as that in DB");
+	}
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("NAIC Company Code")))), $issuerDetails[0][1],"Verify NAIC Company Code is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("NAIC Group Code")))), $issuerDetails[0][2],"Verify NAIC Group Code is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Federal Employer ID")))), $issuerDetails[0][3],"Verify Federal Employer ID is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("HIOS Issuer ID")))), $issuerDetails[0][4],"Verify HIOS Issuer ID is same as that in DB");
+	
+	verifyIssuerAddress($issuer);
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_textbox("effectiveStartDate"));
+	_assertVisible(_link("View Consumer Shopping"));
+	
+}
+
+function verifyIssuerAddress($issuer){
+	var $issuerAddress = getIssuerAddressFromDB($issuer);
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Address line 1")))), $issuerAddress[0][0],"Verify Issuer Address is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("City")))), $issuerAddress[0][1],"Verify City is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("State")))), $issuerAddress[0][2],"Verify State is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Zip Code")))), $issuerAddress[0][3],"Verify Zip code is same as that in DB");
+
+
+}
+
+function clickEditOnIssuerDetails(){
+	var $issuer = _getText(_heading1(0))
+	_click(_link("Edit"));
+	_assertVisible(_heading1($issuer));
+	_assertEqual($issuer, _getText(_textbox(0, _near(_textbox("Name Required")))));
+	var $issuerDetails = getIssuerDetailsfromDB($issuer);
+	_assertEqual(_getValue(_textbox(0, _near(_label("Issuer Short Name Required")))),$issuerDetails[0][0],"Verify Issuer short name is same as that in DB");
+	_assertEqual(_getValue(_textbox(0, _near(_label("NAIC Company Code Required")))),$issuerDetails[0][1],"Verify NAIC Company Code is same as that in DB");
+	_assertEqual(_getValue(_textbox(0, _near(_label("NAIC Group Code Required")))),$issuerDetails[0][2],"Verify NAIC Group Code is same as that in DB");
+	_assertEqual(_getValue(_textbox(0, _near(_label("Federal Employer ID")))),$issuerDetails[0][3],"Verify Federal Employer ID is same as that in DB");
+	_assertEqual(_getValue(_textbox(0, _near(_label("HIOS Issuer ID Required")))),$issuerDetails[0][4],"Verify HIOS Issuer ID is same as that in DB");
+	
+	var $issuerAddress = getIssuerAddressFromDB($issuer);
+	_assertEqual(_getValue(_textbox(0, _near(_label("Address line 1 Required")))), $issuerAddress[0][0],"Verify Issuer Address is same as that in DB");
+	_assertEqual(_getValue(_textbox(0,_near(_label("City Required")))), $issuerAddress[0][1],"Verify City is same as that in DB");
+	_assertEqual("/"+$issuerAddress[0][2]+"/i",_getSelectedText(_select("state")),"Verify State is same as that in DB");
+	_assertEqual(_getValue(_textbox(0, _near(_label("Zip Code Required")))), $issuerAddress[0][3],"Verify Zip code is same as that in DB");
+	
+	verifyLeftNavigationLinksOnIssuerPage();
+}
+
+function clickSaveOnIssuerInformationPage(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Save"));
+	verifyIssuerDetails($issuer);
+}
+
+function clickCancelOnIssuerDetails(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Cancel"));
+	verifyIssuerDetails($issuer);
+}
+
+
+function enterEffectiveStartDate(){
+	var $setDate;
+	var $currentYear =  _fetch(window.moment().get('year'));
+	var $month = parseInt(_fetch(window.moment().get('month')));
+	if($month > 7){
+		_log("Year should be next Year");
+		$currentYear++
+	}
+	
+	$setDate = "01/01/"+$currentYear;
+	_log("Effective start date is   "+$setDate);
+	_setValue(_textbox("effectiveStartDate"), $setDate);
+	_click(_link("View Consumer Shopping"));
+	_selectWindow("/preeligibility/");
+	$selectedYear = $currentYear;
+	verifyElementsOnPreeligibility();
+	
+}
+
+/**
+ Methods created for Issuer Representative link
+
+*/
+
+function clickIssuerRepresentativeLinkFromLeftNavigation(){
+	_link("Issuer Representative");
+	verifyIssuerRepresentative();
+	
+}
+
+
+function verifyIssuerRepresentative(){
+	_assertVisible(_heading4("Issuer Representative"));
+	_assertVisible(_link("Add Enrollment Representative"));
+	_assertVisible(_link("Add Representative"));
+	_assertContainsText("Name Sortable Ascending Title Sortable Ascending Last Updated Sortable Ascending Status Sortable Ascending Role Sortable Ascending Updated By Sortable Ascending", _row("header"), "Verify Teable header of Issuer Representative");
+	verifyLeftNavigationLinksOnIssuerPage();
+}
+
+function clickAddEnrollmentRepresentative(){
+	var $issuer = _getText(_heading1(0))
+	_click(_link("Add Enrollment Representative"));
+	_assertVisible(_heading4("Add Enrollment Representative"));
+	addRepresentativePage($issuer);
+	
+}
+
+function clickCancelOnIssuerRepresentative(){
+	_click(_link("Cancel"));
+	verifyIssuerRepresentative();
+}
+
+function clickAddRepresentative(){
+	var $issuer = _getText(_heading1(0))
+	_click(_link("Add Representative"));
+	_assertVisible(_heading4("Add Representative"));
+	addRepresentativePage($issuer);
+}
+
+function addRepresentativePage($issuer){
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_heading1($issuer));
+	
+	_assertVisible(_submit("Save"));
+	_assertVisible(_link("Cancel"));
+	
+	_assertVisible(_textbox("firstName", _near(_label("First Name Required"))));
+	_assertVisible(_textbox("lastName", _near(_label("Last Name Required"))));
+	_assertVisible(_textbox("title", _near(_label("Title"))));
+	_assertVisible(_div("Phone Number: Required Phone first three digits required Phone second three digits required Phone last four digits required (Phone must be enabled to receive text messages)"));
+	_assertVisible(_textbox("email", _near(_label("Email Address: Required"))));
+
+}
+
+
+function clickIssuerRepFromTable($name){
+	if(!$name){
+		_log(" Pick first representative from the list");
+		$name = _getText(_cell(_table("table table-striped"), 1, 0));
+	}
+	_click(_link($name));
+	verifyEditFieldOfRepInformation();
+	
+}
+
+function verifyEditFieldOfRepInformation(){
+	
+	_assertVisible(_heading4("Representative Information"));
+	_assertVisible(_link("Edit"));
+	_assertVisible(_link("Cancel"));
+	
+	_assertNotNull(_getText(_cell(1, _near(_cell("First Name")))));
+	_assertNotNull(_getText(_cell(1, _near(_cell("Last Name")))));
+	_assertNotNull(_getText(_cell(1, _near(_cell("Title")))));
+	_assertNotNull(_getText(_cell(1, _near(_cell("Phone Number:")))));
+	_assertNotNull(_getText(_cell(1, _near(_cell("Email Address:")))));
+}
+function clickEditOnRepresentativeInformation(){
+	
+	var $firstName = _getText(_cell(1, _near(_cell("First Name"))));
+	var $lastName =_getText(_cell(1, _near(_cell("Last Name"))));
+	var $title = _getText(_cell(1, _near(_cell("Title"))));
+	var $phoneNumber = _getText(_cell(1, _near(_cell("Phone Number:"))));
+	var $emailAddress = _getText(_cell(1, _near(_cell("Email Address:"))));
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Edit"));
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_heading1($issuer));
+	_assertEqual($firstName, _getValue(_textbox(0, _near(_label("First Name Required")))));
+	_assertEqual($lastName, _getValue(_textbox(0, _near(_label("Last Name Required")))));
+	_assertEqual($title, _getValue(_textbox(0, _near(_label("Title")))));
+	_assertEqual($phoneNumber, _getValue(_textbox(0, _near(_label("Phone Number: Required")))));
+	_assertEqual($emailAddress, _getValue(_textbox(0, _near(_label("Email Address: Required")))));
+}
+
+function clickSaveOnRepresentativeInformation(){
+	_click(_button("Save"));
+	verifyIssuerRepresentative();
+
+}
+
+function clickCancelOnRepresentativeInformation(){
+	_click(_link("Cancel"));
+	verifyIssuerRepresentative();
+
+}
+function clickGearIconNearIssuerRep(){
+	_click(_link("dLabel"));
+	_assertVisible(_list("dropdown-menu pull-right"));
+	if(_getText(_cell(_table("table table-striped"), 1, 3))=="Active"){
+		_assertEqual("Edit Suspend End of dropdown", _getText(_list("dropdown-menu pull-right")));
+	}
+	else{
+		_assertEqual("Edit", _getText(_list("dropdown-menu pull-right")));
+	
+	}
+
+}
+
+function clickEditRepFromGearIcon(){
+	clickGearIconNearIssuerRep();
+	_click(_link("Edit"));
+	verifyEditFieldOfRepInformation();
+}
+
+function clickSuspendFromGearIcon(){
+	if(_getText(_cell(_table("table table-striped"), 1, 3))=="InActive"){	
+		_click(_link("/Status Sortable/"));
+	}
+	if(_getText(_cell(_table("table table-striped"), 1, 3))=="Active"){	
+		clickGearIconNearIssuerRep();
+		_click(_link("Suspend End of dropdown"));
+		
+		///////////////////////////////////////chk//////////////////////////////////////////
+	}
+	else{
+	_log("There are no Active enrollment","CUSTOM1");
+	}
+	
+}
+
+/**
+ Methods created for Company Profile Link
+
+*/
+function clickCompanyProfileLinkFromLeftNavigation(){
+	
+	var $issuer = _getText(_heading1(0))
+	_click(_link("Company Profile"));
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Company Profile"));
+	var $companyProfile = getCompanyProfileFromDb($issuer);
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Company Legal Name")))), $companyProfile[0][0],"Verify Company Legal Name is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Issuer State")))), $companyProfile[0][1],"Verify Issuer State is same as that in DB");
+	_assertVisible(_heading4("Company Address"));
+	verifyIssuerAddress($issuer);
+	verifyLeftNavigationLinksOnIssuerPage();
+}
+
+function clickEditOnCompanyProfile(){
+	var $companyName = _getText(_cell(0, _rightOf(_tableHeader("Company Legal Name"))));
+	var $issuerState = _getText(_cell(0, _rightOf(_tableHeader("Issuer State"))));
+	var $Address = _getText(_cell(0, _rightOf(_tableHeader("Address line 1"))));
+	var $city = _getText(_cell(0, _rightOf(_tableHeader("City"))));
+	var $zip = _getText(_cell(0, _rightOf(_tableHeader("Zip Code"))));
+	_click(_link("Edit"));
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_textbox($companyName));
+	_assertVisible(_file("companyLogoUI", _near(_label("Company Logotooltip link"))));
+	_assertEqual("/"+$issuerState+"/i", _getSelectedText(_select(0, _near(_label("Issuer State")))));
+	_assertEqual($Address, _getValue(_textbox("Address line 1", _near(_label("Address line 1")))));
+	_assertEqual($city, _getValue(_textbox("City", _near(_label("City")))));
+	_assertEqual($zip, _getValue(_textbox("Zip Code", _near(_label("Zip Code")))));
+
+}
+
+function clickSaveOnCompanyProfile(){
+	var $issuer = _getText(_heading1(0));
+	var $address = _getText(_textbox("Address line 1"));
+	_click(_link("Save"));
+	_assertEqual($address, _getText(_cell(0, _rightOf(_tableHeader("Address line 1")))),"Verify the address is updated after saving");
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Company Profile"));
+	_assertVisible(_heading4("Company Address"));
+	verifyLeftNavigationLinksOnIssuerPage();
+
+}
+
+function updateAddressOnCompanyProfile(){
+	
+	if(_getText(_textbox("Address line 1")) =="1005 Partridge Placess"){
+		_setValue(_textbox("Address line 1"), "Montana Department of Revenue");
+	}
+	else{
+		_setValue(_textbox("Address line 1"), "1005 Partridge Place");
+	}
+}
+
+/**
+ Methods created for Market Profile Link
+
+*/
+
+function clickIndividualMarketProfileLinkFromLeftNavigation(){
+	var $issuer = _getText(_heading1(0))
+	_click(_link("Individual Market Profile"));
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Individual Market Profile"));
+	var $indMarketProfile = getIndividualMarketProfileFromDb($issuer);
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Customer Service Phone")))), $indMarketProfile[0][0],"Verify Customer Service Phone is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Customer Service Toll Free Phone")))), $indMarketProfile[0][1],"Verify Customer Service Toll Free Phone is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Customer Service TTY")))), $indMarketProfile[0][2],"Verify Customer Service TTY is same as that in DB");
+	_assertEqual(_getText(_cell(0, _rightOf(_tableHeader("Customer Website Address (URL)")))), $indMarketProfile[0][3],"Verify Customer Website Address (URL) is same as that in DB");
+	verifyLeftNavigationLinksOnIssuerPage();
+	
+}
+
+function clickEditOnIndividualMarketProfile(){
+	var $customerServicePhone = _getText(_cell(0, _near(_tableHeader("Customer Service Phone")))).split(" ")[0];
+	var $customerTollFreePhone = _getText(_cell(0, _near(_tableHeader("Customer Service Toll Free Phone"))));
+	var $customerServiceTTY = _getText(_cell(0, _near(_tableHeader("Customer Service TTY"))));
+	var $customerWebsiteAddress = _getText(_cell(0, _near(_tableHeader("Customer Website Address (URL)"))));
+	
+	_assertEqual($customerServicePhone, "("+_getText(_textbox("phone1"))+") "+_getText(_textbox("phone2"))+" "+_getText(_textbox("phone3")),"Verify Customer Service Phone");
+	_assertEqual($customerTollFreePhone, "("+_getText(_textbox("phone4"))+") "+_getText(_textbox("phone5"))+" "+_getText(_textbox("phone6")),"Verify Customer toll free Phone");
+	_assertEqual($customerServiceTTY, _getText(_textbox("phone7"))+"-"+_getText(_textbox("phone8"))+"-"+_getText(_textbox("phone9")),"Verify Customer Service TTY");
+	_assertEqual($customerWebsiteAddress, "("+_getText(_textbox("phone7"))+") "+_getText(_textbox("phone8"))+" "+_getText(_textbox("phone9")),"Verify customer website Address");
+	
+}
+
+function clickSaveOnIndividualMarketProfile(){
+	var $issuer = _getText(_heading1(0))
+	_click(_link("Save"));
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Individual Market Profile"));
+	verifyLeftNavigationLinksOnIssuerPage();
+		
+}
+
+function clickCancelOnIndividualMarketProfile(){
+	var $issuer = _getText(_heading1(0))
+	_click(_link("Cancel"));
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Individual Market Profile"));
+	verifyLeftNavigationLinksOnIssuerPage();
+		
+}
+
+
+/**
+ Methods created for Accreditation Documents Link
+
+*/
+
+function clickAccreditationDocumentsLinkFromLeftNavigation(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Accreditation Documents"));
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Accreditation Documents"));
+	_assertVisible(_bold("Following Documents have been submitted for review."));
+	_assertVisible(_heading4("Certificate of Authority"));
+	_assertVisible(_heading4("Issuer Accreditation Status"));
+	_assertVisible(_label("Issuer Accreditation Status"));
+	_assertVisible(_label("Accrediting Entity"));
+	_assertVisible(_label("Expiration Date"));
+	
+	_assertVisible(_heading4("Organization Data"));
+	_assertVisible(_heading4("Marketing Requirements"));
+	_assertVisible(_heading4("Financial Disclosures"));
+	_assertVisible(_heading4("Claims Payment Policies And Practices"));
+	_assertVisible(_heading4("Enrollment And Disenrollment Data"));
+	_assertVisible(_heading4("Rating Practices"));
+	_assertVisible(_heading4("Cost Sharing And Payments"));
+	_assertVisible(_heading4("Additional Supporting Documents"));
+	_assertVisible(_link("Edit"));
+	verifyLeftNavigationLinksOnIssuerPage();
+	
+}
+
+function clickEditOnAccreditationDocuments(){
+	
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Edit"));
+	_assertVisible(_heading1($issuer));
+	verifyAccreditationDocumentView();
+}
+function verifyAccreditationDocumentView(){
+	
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_heading4("Accreditation Documents"));
+	_assertVisible(_paragraph("Please upload the document listed below to complete your application."));
+	_assertVisible(_heading4("Certificate of Authority"));
+	_assertVisible(_submit("Upload"));
+	_assertVisible(_heading4("Issuer Accreditation Status"));
+	_assertVisible(_div("Issuer Accreditation Status Select Yes No Excellent"));
+	_assertVisible(_div("Accrediting Entity"));
+	_assertVisible(_textbox("accreditationExpDate"));
+	_assertVisible(_submit("Upload[1]"));
+	_assertVisible(_heading4("Organization Data"));
+	_assertVisible(_submit("Upload[2]"));
+	_assertVisible(_heading4("Marketing Requirements"));
+	_assertVisible(_submit("Upload[3]"));
+	_assertVisible(_heading4("Financial Disclosures"));
+	_assertVisible(_submit("Upload[4]"));
+	_assertVisible(_heading4("Claims Payment Policies And Practices"));
+	_assertVisible(_submit("Upload[5]"));
+	_assertVisible(_heading4("Enrollment And Disenrollment Data"));
+	_assertVisible(_submit("Upload[6]"));
+	_assertVisible(_heading4("Rating Practices"));
+	_assertVisible(_submit("Upload[7]"));
+	_assertVisible(_heading4("Cost Sharing And Payments"));
+	_assertVisible(_submit("Upload[8]"));
+	_assertVisible(_heading4("Additional Supporting Documents"));
+	_assertVisible(_submit("Upload[9]"));
+	
+	_assertVisible(_submit("Save"));
+	_assertVisible(_link("Cancel"));
+	
+}
+
+function clickSaveOnAccreditationDocuments(){
+	_click(_link("Save"));
+	verifyAccreditationDocumentView();
+}
+
+function clickCancelOnAccreditationDocuments(){	
+	_click(_link("Cancel"));
+	verifyAccreditationDocumentView();
+}
+
+
+/**
+ Methods created for Certification Status Link
+
+*/
+
+function clickCertificationStatusFromFromLeftNavigation(){
+	
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Certification Status"));
+	_assertVisible(_heading1($issuer));
+	verifyCertificationStatusPage();
+}	
+	
+function verifyCertificationStatusPage($issuer, $changedStatus){
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_heading4("Certification Status"));
+	_assertVisible(_link("Edit"));
+	_assertVisible(_row("header"), "Verify Certification status Header");
+	_assertEqual("DateSortable Certification StatusSortable User NameSortable Comment File", _getText(_row("header")));
+	var $status = _getText(_cell(1, _in(_row(1), _in(_table("table table-condensed table-border-none table-striped"))))).toUpperCase();
+	if($changedStatus){
+		_assertEqual($changedStatus, $status, "Verify certification Status has been updated");
+	}
+	else{
+		_assertEqual(getCertificationStatusOfIssuerFromDb($issuer), $status, "Verify certification Status in UI is same as that in Db");
+	}
+}
+
+
+function clickEditOnCertificationStatus(){
+	var $issuer = _getText(_heading1(0));
+	var $status = _getText(_cell(1, _in(_row(1), _in(_table("table table-condensed table-border-none table-striped"))))).toUpperCase()
+	_click(_link("Edit"));
+	_assertVisible(_heading1($issuer));
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_div($issuer, _rightOf(_label("Issuer"))), "Verify Issuer name is displayed");
+	_assertVisible(_div($status, _rightOf(_label("Current Status"))));
+	_assertVisible(_select("certificationStatus", _near(_label("Certification StatusRequired"))));
+	_assertVisible(_textarea("comment_text", _near(_label("Comment"))));
+	_assertVisible(_submit("Upload"));
+
+}
+
+function clickCancelOnCertificationStatus(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Cancel"));
+	_assertVisible(_heading1($issuer));
+	verifyCertificationStatusPage($issuer, $status);
+}
+
+function clickSaveOnCertificationStatus($status, $comment){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Save"));
+	_assertVisible(_heading1($issuer));
+	verifyCertificationStatusPage($issuer, $status);
+	if($comment){
+		_click(_link("Comment"));
+		_assertVisible(_div("modalBox"));
+		_assertVisible(_paragraph($comment));
+		_click(_link("Close"));
+		_assertVisible(_heading4("Certification Status"));
+	}
+	
+}
+
+function selectCertificationStatus($status){
+	_setSelected(_select("certificationStatus"), $status);
+	if($status == "Certified" || $status == "Pending" || $status == "Registered"){
+		_assertVisible(_div("certi-status-modal"));
+		_assertVisible(_heading3("Change Certification Status?"));
+		_assertVisible(_div("Are you sure you want to update the Status?"));
+		_assertVisible(_button("Yes", _in(_div("certi-status-modal"))));
+		_assertVisible(_button("No", _in(_div("certi-status-modal"))));
+		_assertVisible(_link("close statusModalClose", _in(_div("certi-status-modal"))));
+	}
+	else if($status == "De-certified"){
+		_assertVisible(_div("de-certify-modal"));
+		_assertVisible(_div("Are you sure you want to De-Certify the Issuer ?"));
+		_assertVisible(_button("Yes", _in(_div("de-certify-modal"))));
+		_assertVisible(_button("No", _in(_div("de-certify-modal"))));
+		_assertVisible(_link("close statusModalClose", _in(_div("de-certify-modal"))));
+	}
+	_click(_button("/Yes/"));
+	_assertNotVisible(_div("certi-status-modal"));
+	_assertEqual($status, _getSelectedText(_select("certificationStatus")));
+}
+
+function addCommentForCertificationStatus($comment){
+	
+	_setValue(_textarea("comment_text"), $comment);
+	_assertEqual($comment, _getValue(_textarea("comment_text")));
+}
+
+/**
+ Methods created for Issuer History Link
+
+*/
+function clickIssuerHistoryLinkFromFromLeftNavigation(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Issuer History"));
+	verifyIssuerHistoryPage($issuer);
+	
+}
+
+function verifyIssuerHistoryPage($issuer){
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_heading4("Issuer History"));
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_row("header"));
+	_assertEqual("DateSortable Field UpdatedSortable New ValueSortable User Name Comment", _getText(_row("header")));
+	_assertContainsText("DateSortable Field UpdatedSortable New ValueSortable User Name Comment", _row("header"));
+}
+
+function clickNextOnIssuerHistoryPage(){
+	var $numOfPages = _collect("_link", "/.*/", _in(_div("pagination center")));
+	for(var $i=1; $i< $numOfPages -1;$i++){
+		_click($numOfPages[$i]);
+		var $issuer = _getText(_heading1(0));
+		verifyIssuerHistoryPage($issuer);
+	}
+}
+
+/**
+ Methods created for Plan ID Crosswalk
+
+*/
+
+function clickPlanIdCrosswalkLinkFromFromLeftNavigation(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Plan ID Crosswalk"));
+	_assertVisible(_heading1($issuer));
+	verifyPlanIdCrosswalkPage();
+		
+}
+
+
+function verifyPlanIdCrosswalkPage(){
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_heading4("Plan ID Crosswalk"));
+	_assertVisible(_link("Upload"));
+	_assertVisible(_row("header"));
+	_assertEqual("File NameSortable Plan YearSortable DateSortable Download", _getText(_row("header")));
+
+}	
+
+function clickUploadFromPlanIdCrossWalk(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Upload"));
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_select("field_name", _near(_label("Select Year Required"))));
+	_assertVisible(_file("fileUploadExcel", _near(_label("Plan ID Crosswalk File Required"))));
+	_assertVisible(_link("Cancel"));
+	_assertVisible(_link("Save"));
+}
+
+function clickCancelOnPlanIdCrosswalkFileUpload(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Cancel"));
+	_assertVisible(_heading1($issuer));
+	verifyPlanIdCrosswalkPage();
+
+}
+
+function clickDownloadLinkOnPlanIdCrosswalk(){
+	_click(_link("Download"));
+// check download function
+}
+
+
+
+/**
+ Methods created for Plan ID Crosswalk
+
+*/
+function clickNetworkRatingLinkFromFromLeftNavigation(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Network Rating"));
+	_assertVisible(_heading1($issuer));
+	
+}
+
+function verifyNetworkRatingPage(){
+	verifyLeftNavigationLinksOnIssuerPage();
+	_assertVisible(_heading4("Network Rating"));
+	_assertVisible(_link("Upload"));
+	_assertVisible(_row("header"));
+	_assertEqual("File NameSortable Plan YearSortable DateSortable Download", _getText(_row("header")));
+
+}
+
+function clickUploadFromNetworkRating(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Upload"));
+	_assertVisible(_heading1($issuer));
+	_assertVisible(_select("field_name", _near(_label("Select Year Required"))));
+	_assertVisible(_file("fileUploadExcel", _near(_label("Network Rating File Required"))));
+	_assertVisible(_link("Cancel"));
+	_assertVisible(_link("Save"));
+}
+
+function clickCancelOnNetworkrating(){
+	var $issuer = _getText(_heading1(0));
+	_click(_link("Cancel"));
+	_assertVisible(_heading1($issuer));
+	verifyNetworkRatingPage();
+}
+
+
+/**
+Common methods used for issuer portal
+
+*/	
+	
+function verifyLeftNavigationLinksOnIssuerPage(){
+	
+	_log("Verify left navigation links");
+	_assertVisible(_heading4("About This Issuer"));
+	_assertVisible(_link("Issuer Details"));
+	_assertVisible(_link("Issuer Representative"));
+	_assertVisible(_link("Company Profile"));
+	_assertVisible(_link("Individual Market Profile"));
+	_assertVisible(_link("Accreditation Documents"));
+	_assertVisible(_link("Certification Status"));
+	_assertVisible(_link("Issuer History"));
+	_assertVisible(_link("Plan ID Crosswalk"));
+	_assertVisible(_link("Network Rating"));
+	
+		
+	
+}
+
+

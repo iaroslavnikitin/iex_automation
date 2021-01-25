@@ -1,0 +1,151 @@
+_includeOnce("../lib/DB.sah");
+_includeOnce("Tickets.sah");
+
+
+_resource("../resources/pic.jpg");
+_resource("../resources/small.zip");
+_resource("../resources/TestWordDoc.doc");
+_resource("../resources/Test.xls");
+_resource("../resources/Test.xml");
+_resource("../resources/ReviewSummary.pdf");
+
+var $uploadDocumentFilePath =_resolvePath("../resources/pic.jpg", "\\");
+var $uploadDocumentFilePath1 = _resolvePath("../resources/ReviewSummary.pdf", "\\");
+
+
+var $filePath =[_resolvePath("../resources/small.zip", "\\"),_resolvePath("../resources/TestWordDoc.doc", "\\"),_resolvePath("../resources/Test.xls", "\\"),_resolvePath("../resources/Test.xml", "\\")];
+
+
+var $fileUpload = _file("manualVerificationFile");
+var $fileUpload1 = _file("fileuploadaction");
+var $uploadDocumentActionURL = getBaseURL() + "/hix/ridp/manualVerificationFileUpload";
+var $uploadDocumentActionURL1 = getBaseURL() + "/hix/ticketmgmt/ticket/uploadTicketAttachments";
+
+function clickStartApplicationRIDP($isfirstTime){
+	_click(_link("Start Application"));
+	if($isfirstTime == "NO"){
+		_assertVisible(_div("Document Rejected One of your documents was rejected by our customer service center. Please check your secure inbox and resubmit the corrected document to proceed further."));
+	}
+	else{
+		_assertTrue(_isVisible(_heading4("Verify your Identity")) || _isVisible(_heading4("Submit documents that prove your identity")));
+		
+	}
+}
+
+function clickGetStartedRIDP(){
+	_click(_link("Get Started"));
+	_assertVisible(_heading4("Contact Information"));
+	_assertEqual("", _getValue(_textbox("personSSNIdentification")));
+
+}
+
+function clickContinueRIDP(){
+	_click(_submit("CONTINUE"));
+	if(_isVisible(_div("An error has occurred. Please try again later."))){
+		_click(_submit("CONTINUE"));
+	}
+	_assertTrue(_isVisible(_link("Proceed with Manual Verification"))|| _isVisible(_heading4("Call Experian"))|| _isVisible(_heading4("Submit documents that prove your identity")));
+	
+}
+
+function clickProceedWithManualVerification($admin, $password, $email){
+	if(_isVisible(_link("Proceed with Manual Verification"))){
+		_click(_link("Proceed with Manual Verification"));
+		_assertVisible(_heading4("Submit documents that prove your identity"));
+		_assertVisible(_div("Your identity wasn't verified. You won't be able to submit your application for health coverage until your identity is verified."));
+	}
+	else if(_isVisible(_link("I have verified my identity over the phone"))){
+		_click(_link("I have verified my identity over the phone"));
+		_assertVisible(_div("alert alert-error ng-binding"));
+		_assertEqual("Experian is still reporting this issue as unresolved. To proceed further, please call Experian and then click on the above button. If you need to resubmit with new contact information, then click here.", _getText(_div("alert alert-error ng-binding")));
+		var $code = _getText(_div("alert alert-info txt-center")).split(":")[1];
+		clickLogout();
+		getManualVerification($admin, $password, $email);
+	}
+	
+}
+
+
+function getManualVerification($admin, $password, $email){
+	capLogin($admin, $password);
+	_setValue(_textbox("householdEmail"), $email);
+	_click(_submit("Go"));
+	_click(_link(0, _in(_row(1))))
+	_assertVisible(_heading4("Basic Information"));
+	_click(_button("Convert to Manual Document Verification"));
+	_assertNotVisible(_button("Convert to Manual Document Verification"))
+	clickLogout();
+	loginUser($email,"ghix123#");
+	clickStartApplicationRIDP();
+
+}
+
+//@param = "Driver's License"
+function uploadValidDocumentType($documentType){
+	
+	_setSelected(_select("doctype"), $documentType);
+	//var $fileType= $uploadDocumentFilePath.split(".")[1];
+	_setFile2($fileUpload,$uploadDocumentFilePath,$uploadDocumentActionURL,true,true);
+	_click(_submit("Submit"));
+	
+	_assertVisible(_cell("SUBMITTED"));
+	_assertVisible(_div("alert alert-info ng-scope"));
+	_assertEqual("In Process We have received your documents and it is being processed by our customer service center. We will notify you when your results are available. "+
+	"You won't be able to submit your application for health coverage until your identity is verified.", _getText(_div("alert alert-info ng-scope")));
+	_assertVisible(_cell("/"+$documentType+"/"));
+}
+
+function uploadInvalidDocumentType($documentType){
+	
+	for(var $filePathIndex = 0; $filePathIndex < $filePath.length; $filePathIndex++) {
+		_setSelected(_select("doctype"), $documentType);
+		//var $fileType= $filePath[filePathIndex].split(".")[1];
+		_setFile2($fileUpload,$filePath[$filePathIndex],$uploadDocumentActionURL,true,true);
+		_click(_submit("Submit"));
+		_assertNotVisible(_cell("SUBMITTED"));
+		_assertVisible(_div("Your file could not be uploaded. Use one of these file types: BMP, GIF, JPG, JPEG, PNG, or PDF."));
+		//Reload the page
+		_call(top.location.reload());
+	}
+	
+
+}
+
+function searchTicketCreatedDuringRIDP($email){
+	navgateToManageTicket();
+	var $ticketNumber = getTicketNumber($email);
+	searchTicketByTicketNumber($ticketNumber);
+	return $ticketNumber;
+}
+
+function reopenTicketCreatedDuringRIDP($ticketNumber){
+	navgateToManageTicket();
+	searchTicketByTicketNumber($ticketNumber);
+	_click(_link("/"+$ticketId+"/"));
+	_assertVisible(_heading4("Ticket Summary"));
+	_click(_link("Reopen[1]"));
+	_assertVisible(_heading3("Are you sure you want to Reopen this ticket?"));
+	_click(_link("Reopen"));
+	_assertVisible(_button("Claim"));
+
+}
+
+function navgateToManageTicket(){
+	_click(_link("Tickets"));
+	_click(_link("Manage Tickets"));
+	_click(_link("btnShowHide"));
+
+}
+//@fileType = pdf
+function addAttachmentsToTicketAdminRole($fileType){
+	_click(_link("Attachments"));
+	_assertVisible(_link("Add Attachment[1]"));
+	_click(_link("Add Attachment[1]"));
+	_setFile2($fileUpload1,$uploadDocumentFilePath1,$uploadDocumentActionURL1,true,true);
+	_click(_submit("Submit[3]"));
+	_assertVisible(_cell("/"+$fileType+"/"));
+
+}
+
+
+	

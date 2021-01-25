@@ -1,0 +1,2206 @@
+_includeOnce("../lib/CommonFunctions.sah");
+_includeOnce("../lib/CommonNameCreation.sah");
+_includeOnce("../lib/DB.sah");
+_includeOnce("../lib/Utils.sah");
+_includeOnce("../pagemodels/Login.sah");
+_includeOnce("../pagemodels/Agency.sah");
+
+
+var $tbAgentFirstName = _textbox("firstName");
+var $tbAgentLastName = _textbox("lastName");
+var $tbLicenseNumber = _textbox("licenseNumber");
+var $tbFederalEIN = _textbox("federalEIN");
+var $btnSaveOnAgentInfo = _button("Save");
+
+
+function verifyExistingAgencyLeftNavigation(){
+	_assertVisible(_heading4("Steps"));
+	_assertVisible(_link("/Agency Information/"));
+	_assertVisible(_link("/Location and Hours/"));
+	_assertVisible(_link("/Document Upload/"));
+	_assertVisible(_link("/Certification Status/"));
+	_assertVisible(_link("View Agency Account"));
+}
+/**
+* Broker admin navigation
+*/
+function navigateToManageAgencies(){
+	_click(_link("Agencies"));
+	_click(_link("Manage Agencies"));
+}
+
+function navigateToManageAgents(){
+	_click(_link("Agents"));
+	_click(_link("Manage Agents"));		
+}
+
+
+/**
+* Broker admin edit Agency Information
+*/
+
+function brokerAdminEditAgencyFederalTaxIdStartZerro($agency){
+	_click(_link("Agency Information", _in(_list("/nav nav-list/"))));
+	_click(_submit("Edit"));
+	_assertVisible(_submit("Cancel", _near(_heading4("Agency Information"))));
+	var $oldFedTaxId = _getValue(_textbox("federal-tax-id"));
+	var $newFedTaxId = "00"+$oldFedTaxId.substring(2,$oldFedTaxId.length);
+	_setValue(_textbox("federal-tax-id"), $newFedTaxId);
+	_click(_submit("Save"));
+	_assertVisible(_strong($newFedTaxId, _near(_cell("Federal Tax Id"))));
+	$agency.federalTaxID = $newFedTaxId;
+	return $agency;
+}
+
+/**
+* Agency Manager "My Agent Profile" Navigation
+*/
+function navigateToAgencyManagerAgentInformation(){
+	_click(_link("My Agent Profile"));
+	_click(_link("Agent Information"));
+}
+
+function navigateToAgencyManagerPublicProfile(){
+	_click(_link("My Agent Profile"));
+	_click(_link("Profile"));
+}
+
+function navigateToAgencyManagerAgentCertificationStatus(){
+	_click(_link("My Agent Profile"));
+	_click(_link("/Certification Status/"));
+}
+
+function navigateToAgencyManagerAgentStatus(){
+	_click(_link("My Agent Profile"));
+	if(_isIE()){
+		_click(_link("StatusEnd of dropdown"));
+		_log("IE browser");
+	}else{
+		_click(_link("Status End of dropdown"));
+		_log("Firefox and Chrome browser");
+	}
+	_assertVisible(_heading4("Status"));
+	_assertVisible(_heading4("Status History"));
+}
+
+/**
+* Broker admin search for agency manager, certify agency manager
+*/
+
+function searchForAgencyManagerCertifyAgencyManager($newCertificationStatus,$managerInfo){
+	if($managerInfo){
+		$firstName = $managerInfo[0].firstName;
+		$lastName = $managerInfo[0].lastName;
+	}
+	var $name = $firstName + " " + $lastName;
+	_setValue(_textbox("First Name "), $firstName);
+	_setValue(_textbox("Last Name"), $lastName);
+	_click(_submit("Go"));
+	_click(_link("/Action/", _near(_cell($name))));
+	_click(_link("/Edit/", _near(_cell($name))));
+	
+	_setSelected(_select("certificationStatus"), $newCertificationStatus);
+
+	if(_isVisible(_submit("Submit"))){
+		_click(_submit("Submit"));
+	}else if(_isVisible(_button("Submit"))){
+		_click(_button("Submit"));
+	}
+	
+	if($managerInfo){
+		$managerInfo[0].agentNumber = _getText(_strong("", _in(_row("/Agent Number/"))));
+		$managerInfo[0].certificationNum = _getText(_strong("", _in(_row("/Certification Number/"))));
+		$managerInfo[0].certiDate = _getText(_strong("", _in(_row("/Start Date/"))));
+		$managerInfo[0].certiRenewDate = _getText(_strong("", _in(_row("/End Date/"))));
+		$managerInfo[0].certiStatus = _getText(_strong("", _in(_row("/Certification Status/"))));
+		if(_isVisible(_row("/Delegation Code/"))){
+			$managerInfo[0].delegationCode = _getText(_strong("", _in(_row("/Delegation Code/"))));	
+		}
+	}
+	return $managerInfo;
+}
+
+/**
+* Agency Manager in "My Agent Profile" - view mode
+*/
+//function can be used for Agent/Agency Manager
+function verifyAgencyManagerAgentInformationViewMode($agencyManagerStatus,$agentInfo,$role){
+	var $expectedPrimaryPhone = $agentInfo[0].phone;
+	var $phone1 = $expectedPrimaryPhone.substring(0,3);
+	var $phone2 = $expectedPrimaryPhone.substring(3,6);
+	var $phone3 = $expectedPrimaryPhone.substring(6,10);
+	$expectedPrimaryPhone = "("+$phone1+") "+$phone2+"-"+$phone3;
+	_log($expectedPrimaryPhone);
+	
+	_assertVisible(_strong($expectedPrimaryPhone, _rightOf(_cell("Primary phone number"))));
+	_assertVisible(_strong($agentInfo[0].firstName, _rightOf(_cell("First Name"))));
+	_assertVisible(_strong($agentInfo[0].lastName, _rightOf(_cell("Last Name"))));
+	_assertVisible(_strong($agentInfo[0].licenseNumber, _rightOf(_cell("/Insurance Agent License Number/"))));
+	
+	_assertVisible(_strong($agentInfo[0].communicationpreference, _rightOf(_cell("Preferred Method of Communication"))));
+	_assertVisible(_strong($agentInfo[0].personalEmail, _rightOf(_cell("Individual Email"))));
+	_assertVisible(_strong($agentInfo[0].businessName, _rightOf(_cell("Business Name"))));
+	_assertVisible(_strong($agentInfo[0].federalEINnum, _rightOf(_cell("/Federal Employer Identification Number/"))));
+	_assertVisible(_strong($agentInfo[0].role, _near(_cell("Role"))),"Verifying Agent Role");
+	_assertVisible(_heading4("Business Address"),"Verify that Business Address header is visible");
+	_assertVisible(_strong($agentInfo[0].businessStreet, _near(_cell("Business Address"))),"Verify that business address visible");
+	_assertVisible(_strong($agentInfo[0].businessAddressFull, _near(_cell("Business Address"))),"Verify City, state and zipcode");
+	
+	
+	_assertVisible(_heading4("Correspondence Address"));
+	_assertVisible(_strong($agentInfo[0].correspAddressStreet, _near(_cell("Correspondence Address"))), "Verify that correspondence address street visible");
+	_assertVisible(_strong("/"+$agentInfo[0].correspAddressCity+"/", _near(_cell("Correspondence Address"))), "Verify that correspondence address city visible");
+	_assertVisible(_strong("/"+$agentInfo[0].correspAddressZipcode+"/", _near(_cell("Correspondence Address"))), "Verify that correspondence address zipcode visible");
+// add assertions for pending and certiffied cases
+	if($agencyManagerStatus == "Pending"){
+		_assertNotVisible(_button("aid-editMap", _in(_div("rightpanel"))));
+	}
+	if($agencyManagerStatus == "Certified"){
+		_assertVisible(_button("aid-editMap", _in(_div("rightpanel"))));
+	}
+	
+}
+
+function verifyAgencyManagerPublicProfileViewMode($agencyManagerStatus, $agentInfo, $verifyOptionsFlag){
+	var $publicEmail = $agentInfo[0].publicEmail;
+	var $actualPublicEmail = _getText(_strong("", _rightOf(_cell("Your Public Email"))));
+	if($actualPublicEmail.length>0){
+		$actualPublicEmail = $actualPublicEmail.toLowerCase();
+	}else{
+		$actualPublicEmail = null;
+	}
+	
+	var $phoneNumber = $agentInfo[0].phone;
+	var $primPhone1 = $phoneNumber.substring(0,3);
+	var $primPhone2 = $phoneNumber.substring(3,6);
+	var $primPhone3 = $phoneNumber.substring(6,10);
+	$phoneNumber = "("+$primPhone1+") "+$primPhone2+" "+$primPhone3;
+	_log($phoneNumber);
+	_assertVisible(_heading4("Profile"));
+	if($publicEmail != null){
+		$publicEmail = $publicEmail.toLowerCase();
+	}else{
+		$publicEmail = $agentInfo[0].primaryEmail.toLowerCase();
+	}
+	_assertEqual($publicEmail,$actualPublicEmail,"Public email should match with expected");
+	_assertVisible(_strong($agentInfo[0].clientsServed, _rightOf(_cell("Clients Served"))),"The agency manager clients served should be visible as a text item");
+	_assertVisible(_strong($agentInfo[0].language, _rightOf(_cell("Languages Spoken"))), "The agency manager languages spoken should be visible as a text item");
+	_assertVisible(_strong($agentInfo[0].productExpertise, _rightOf(_cell("Product Expertise"))),"The agency manager product expertise should be visible as a text item");
+	_assertVisible(_strong($phoneNumber, _near(_cell("/Phone number/"))));
+//	_assertVisible(_strong($agentInfo[0].education, _near(_cell("Education")))); need werify with Seema how to display it properly
+	if($verifyOptionsFlag != "NO"){
+		_assertVisible(_strong($agentInfo[0].webAddress, _near(_cell("Website address"))));
+		_assertVisible(_strong($agentInfo[0].aboutMe, _near(_cell("About Me"))));
+	}
+	// add assertions for pending and certiffied cases
+	if($agencyManagerStatus == "Pending"){
+		_assertNotVisible(_button("Edit", _in(_div("Profile Edit"))));
+	}
+	if($agencyManagerStatus == "Certified"){
+		_assertVisible(_button("Edit", _in(_div("Profile Edit"))));
+	}
+	
+}
+
+function verifyAgencyManagerAgentCertificationStatusViewMode($agencyManagerStatus,$agentCertInfo){
+	_assertVisible(_heading4("/Certification Status/"));
+	_set($todayDate, _call(window.moment().format("MM-DD-YYYY")));
+	_assertVisible(_strong($todayDate, _rightOf(_cell("Application Submission Date"))), "The Submission date should be visible as a text item");
+	_assertVisible(_strong($agencyManagerStatus, _rightOf(_cell("Certification Status"))), "The certification status should be visible as a text item");
+	_assertVisible(_cell("Delegation Code"),"The delegation code should be visible as a text item");
+	_assertNotVisible(_link("Edit"));
+	if($agencyManagerStatus == "Certified"){
+		_assertVisible(_strong($todayDate, _rightOf(_cell("Certification Date"))), "The certification date should be visible as a text item");
+	}
+	if($agencyManagerStatus == "Pending"){
+		_assertNotVisible(_strong($todayDate, _rightOf(_cell("Certification Date"))), "The certification date should be not visible as a text item in Pending agency");
+	}
+	if($agentCertInfo){
+		_assertVisible(_strong($agentCertInfo[0].agentNumber, _rightOf(_cell("/Agent Number/"))));
+		_assertVisible(_strong($agentCertInfo[0].certificationNum, _rightOf(_cell("/Certification Number/"))));
+		_assertVisible(_strong($agentCertInfo[0].certiStatus, _rightOf(_cell("/Certification Status/"))));
+		_assertVisible(_strong($agentCertInfo[0].certiDate, _rightOf(_cell("/Certification Date/"))));
+		_assertVisible(_strong($agentCertInfo[0].certiRenewDate, _rightOf(_cell("/Renewal Date/"))));
+		if($agentCertInfo[0].originalRole == "Agent"){
+			_assertVisible(_strong($agentCertInfo[0].delegationCode, _rightOf(_cell("Delegation Code"))));
+		}
+	}
+}
+
+// to use this function need provide Agency Manager status(Active or InActive)
+function verifyAgencyManagerAgentStatusViewMode($amStatus,$agentCertiStatus){
+	_set($todayDate, _call(window.moment().format("MMM DD, YYYY")));
+	_assertVisible(_heading4("Status"));
+	_assertVisible(_heading4("Status History"));
+	_assertVisible(_strong($amStatus, _in(_row("viewStatusRow"))));
+	_assertVisible(_cell("Status", _in(_row("viewStatusRow"))));
+	_assertVisible(_cell($todayDate, _near(_tableHeader("Date"))));
+	if($amStatus == "Active"){
+		_assertVisible(_cell("InActive", _near(_tableHeader("Previous Status"))));
+	}
+	if($amStatus == "InActive"){
+		_assertVisible(_cell("Active", _near(_tableHeader("Previous Status"))));
+	}
+	_assertVisible(_cell($amStatus, _near(_tableHeader("New Status"))));
+	_assertVisible(_cell("No Comments", _near(_tableHeader("View Comment"))));
+	if($agentCertiStatus){
+		if($agentCertiStatus == "Pending"){
+			_assertNotVisible(_link("Edit", _near(_heading4("Status"))));
+		}
+		if($agentCertiStatus == "Certified"){
+			_assertVisible(_link("Edit", _near(_heading4("Status"))));
+		}
+	}
+}
+/**
+* Agency Manager in "My Agent Profile" - edit mode
+*/
+
+function verifyAgencyManagerAgentInformationEditMode(){
+	_click(_button("Edit", _in(_div("Agent Information Edit"))));
+	var $firstNameAttribute = _getAttribute($tbAgentFirstName, "readonly");
+	_assertEqual($firstNameAttribute, "readonly", ["The first name textbox should not be editable"]);
+	var $lastNameAttribute = _getAttribute($tbAgentLastName, "readonly");
+	_assertEqual($lastNameAttribute, "readonly", ["The last name textbox should not be editable"]);
+	var $licenseNumAttribute = _getAttribute($tbLicenseNumber, "readonly");
+	_assertEqual($licenseNumAttribute, "readonly", ["The license number textbox should not be editable"]);
+	var $businessNameAttribute = _getAttribute(_textbox("companyName"), "readonly");
+	_assertEqual($businessNameAttribute, "readonly", ["The business name textbox should not be editable"]);
+	var $federalEINAttribute = _getAttribute($tbFederalEIN, "readonly");
+	_assertEqual($federalEINAttribute, "readonly", ["The federal EIN textbox should not be editable"]);
+	_assertVisible(_heading4("Business Address"));
+	_assertContainsText($businessAddressStreet,_div("dynamicLocationBox", _near(_label("Current Location"))));
+	_assertNotVisible(_heading4("Correspondence Address"),"Verify that correspondence address not visible in edit mode");	
+	_assertVisible(_link("Cancel", _in(_div("Cancel"))));
+	_click(_link("Cancel", _in(_div("Cancel"))));
+}
+
+function verifyAgencyManagerPublicProfileEditMode(){
+	_click(_button("Edit", _in(_div("Profile Edit"))));
+	var $agentNameAttribute = _getAttribute(_textbox("Agent Name"), "aria-disabled");
+	_assertEqual($agentNameAttribute, "true", "The agent name textbox should be disabled");
+	_assertVisible(_submit("Save", _in(_div("Cancel"))));
+	_assertVisible(_link("Cancel", _in(_div("Cancel"))));
+
+	verifyProductExpertiseEditMode();
+	verifyClientsServedEditMode();
+
+	_click(_link("Cancel", _in(_div("Cancel"))));
+}
+
+function verifyPublicProfileOnCreation(){
+	verifyProductExpertiseEditMode();
+	verifyClientsServedEditMode();
+}
+
+function verifyProductExpertiseEditMode(){
+	var $elements = _collect ("_checkbox", "productExpertise");
+	var $nameList = ["Health","Dental","Vision","Life","Medicare","Workers Compensation","Property/Casualty"];
+
+	_assertEqual ($nameList.length, $elements.length);
+
+
+	for(var $i=0;$i<$nameList.length; $i++){
+		_assertVisible(_checkbox($nameList[$i], _in(_label($nameList[$i]))));
+	}
+}
+
+function verifyClientsServedEditMode(){
+	var $elements = _collect ("_checkbox", "clientsServed");
+	var $nameList = ["Individuals / Families","Employers"];
+
+	_assertEqual ($nameList.length, $elements.length);
+
+	for(var $i=0;$i<$nameList.length; $i++){
+		_assertVisible(_checkbox($nameList[$i], _in(_label($nameList[$i]))));
+	}
+}
+
+/**
+* Agency Manager in "My Agent Profile" - edit data
+*/
+
+function getBusinessAddressFromUI(){
+	var $businessAddressFromUI = {};
+	$businessAddressFull = _getText(_div("dynamicLocationBox").childNodes[2]);
+	$businessAddressStr = _getText(_div("dynamicLocationBox").firstChild);
+	$businessAddressStr = $businessAddressStr;
+	$businessCity = $businessAddressFull.substring(0,$businessAddressFull.indexOf(","));
+	$businessState = $businessAddressFull.substring($businessAddressFull.indexOf(",")+2,$businessAddressFull.indexOf(",")+4);
+	$businessZipcode = $businessAddressFull.substring($businessAddressFull.length - 5,$businessAddressFull.length);
+	$businessAddressFromUI.businessAddressStr = $businessAddressStr;
+	$businessAddressFromUI.businessCity = $businessCity;
+	$businessAddressFromUI.businessState = $businessState;
+	$businessAddressFromUI.businessZipcode = $businessZipcode;
+	return $businessAddressFromUI;
+}
+
+function verifyAndEditAgencyManagerAgentInformation($newPhone1,$newPhone2,$newPhone3,$newFax1,$newFax2,$newFax3,$newCommunicationPref,$editManagerInfo){
+	_click(_button("Edit", _in(_div("Agent Information Edit"))));
+	//license renewal date
+	_click(_italic("icon-calendar"));
+	_click(_tableHeader("»"));
+	_click(_cell("day"));
+	var $newPersonalEmail = "new"+$editManagerInfo[0].personalEmail;
+	$newPersonalEmail = $newPersonalEmail.toLowerCase();
+	var $newLicenseRenewalDate = _getText(_textbox("licrenewaldate"));//in format xx-xx-xxxx, but will save in format xx/xx/xxxx
+//	_set($newLicenseRenewalDate, _call(window.moment($newLicenseRenewalDate).format("MM/DD/YYYY")));
+	$newLicenseRenewalDate=$newLicenseRenewalDate.replace(/-/g, "/");
+	
+	_setValue(_textbox("phone1"), $newPhone1);
+	_setValue(_textbox("phone2"), $newPhone2);
+	_setValue(_textbox("phone3"), $newPhone3);
+	_setValue(_textbox("Business Contact Number"), $newPhone1);
+	_setValue(_textbox("Business Contact Number[1]"), $newPhone2);
+	_setValue(_textbox("Business Contact Number[2]"), $newPhone3);
+	_setValue(_textbox("Alternate Contact Number"), $newPhone1);
+	_setValue(_textbox("Alternate Contact Number[1]"), $newPhone2);
+	_setValue(_textbox("Alternate Contact Number[2]"), $newPhone3);
+	_setValue(_textbox("Fax Number"), $newFax1);
+	_setValue(_textbox("Fax Number[1]"), $newFax2);
+	_setValue(_textbox("Fax Number[2]"), $newFax3);
+	_setSelected(_select("communicationPreference"), $newCommunicationPref);
+	_setValue(_textbox("personalEmailAddress"), $newPersonalEmail);
+
+	var $oldLocation = _getSelectedText(_select("select_agencyLocation"));
+		_log("Old Location:" + $oldLocation);
+		var $locations = _getOptions(_select("select_agencyLocation"), "sahiText");
+		_log("Locations: "+ $locations);
+		var $locationNum = $locations.length;
+		for ($i=0;$i<$locationNum;$i++){
+			if ($oldLocation==$locations[$i]){
+				$i++;
+				var $mod = $i%$locationNum;
+				if ($mod == 0){//select location
+					$mod++;
+					_setSelected(_select("select_agencyLocation"), $locations[$mod]);
+				}
+				else{
+					_setSelected(_select("select_agencyLocation"), $locations[$mod]);
+				}
+			break;
+			}
+		}
+	var $newLocation = _getSelectedText(_select("select_agencyLocation"));
+	_log("New Location:" + $newLocation);
+	var $newAddress = _getText(_div("dynamicLocationBox", _rightOf(_label("Current Location"))));
+	var $newBusinessAddressInfo = getBusinessAddressFromUI();
+	_assertNotVisible(_heading4("Correspondence Address"));
+	_click($btnSaveOnAgentInfo);
+	//verify data has been saved correctly
+	var $savedBusinessAddress = _getText(_cell(1, _near(_cell("Business Address")))) + " " +_getText(_cell(3, _near(_cell("Business Address"))));
+	//_getText(_cell(0, _rightOf(_cell("Business Address")))) + " " +_getText(_cell(1, _rightOf(_cell("Business Address"))));
+	var $savedCorrespondenceAddress = _getText(_cell(1, _near(_cell("Correspondence Address")))) + " " +_getText(_cell(3, _near(_cell("Correspondence Address"))));
+	//_getText(_cell(0, _rightOf(_cell("Correspondence Address")))) + " " +_getText(_cell(1, _rightOf(_cell("Correspondence Address"))));
+	_assertEqual($newLicenseRenewalDate,_getText(_strong("sLicenseRenewalDate", _rightOf(_cell("License Renewal Date")))),"The saved value for license renewal date should match the new inputed value");
+	_assertEqual("("+$newPhone1+")"+" "+$newPhone2+"-"+$newPhone3, _getText(_strong("sPrimaryPhoneNumber", _rightOf(_cell("Primary phone number")))),"The saved value for primary phone number should match the new inputed value");
+	_assertEqual("("+$newPhone1+")"+" "+$newPhone2+"-"+$newPhone3, _getText(_strong("sBusinessContactPhoneNumber", _rightOf(_cell("Business Contact Number")))),"The saved value for business contact number should match the new inputed value");
+	_assertEqual("("+$newPhone1+")"+" "+$newPhone2+"-"+$newPhone3, _getText(_strong("sAlternatePhoneNumber", _rightOf(_cell("Alternate Contact Number")))),"The saved value for alternate contact number should match the new inputed value");
+	_assertEqual("("+$newFax1+")"+" "+$newFax2+"-"+$newFax3, _getText(_strong("sFaxNumber", _rightOf(_cell("Fax Number")))),"The saved value for fax number should match the new inputed value");
+	_assertEqual($newCommunicationPref,_getText(_strong(0, _rightOf(_cell("Preferred Method of Communication")))),"The saved value for preferred method of communication should match the new inputed value");
+	_assertVisible(_strong($newPersonalEmail, _rightOf(_cell("Individual Email"))));
+	_assertEqual($newAddress, $savedBusinessAddress);
+	_assertVisible(_heading4("Correspondence Address"));
+	// for IND35
+	$editManagerInfo[0].phone = $newPhone1.toString()+$newPhone2.toString()+$newPhone3.toString();
+	$editManagerInfo[0].personalEmail = $newPersonalEmail;
+	$editManagerInfo[0].businessStreet = $newBusinessAddressInfo.businessAddressStr;
+	$editManagerInfo[0].businessCity = $newBusinessAddressInfo.businessCity;
+	$editManagerInfo[0].businessState = $newBusinessAddressInfo.businessState;
+	$editManagerInfo[0].businessZipcode = $newBusinessAddressInfo.businessZipcode;
+	//for DB verification
+	$editManagerInfo[0].businessPhone = $newPhone1+"-"+$newPhone2+"-"+$newPhone3;
+	$editManagerInfo[0].communicationPref = $newCommunicationPref; 
+	return $editManagerInfo;
+}
+
+function verifyAndEditAgencyManagerPublicProfile($serveClients,$oldLanguage,$language1,$language2,$oldProductExpertise,$newProductExpertise1,$newProductExpertise2,$newWebsiteAddress,$managerInfo){
+	var $clientsServed;
+	_click(_button("Edit", _in(_div("Profile Edit"))));
+	if (isTrue($serveClients)) {
+		_uncheck(_checkbox("clientsServed"));
+	}
+	else{
+		_check(_checkbox("clientsServed"));
+	}
+	_click(_listItem($language1));
+	_click(_listItem($language2));
+	_uncheck(_checkbox($oldProductExpertise));
+	_check(_checkbox($newProductExpertise1));
+	_check(_checkbox($newProductExpertise2));
+	_setValue(_textbox("yourWebSite"), $newWebsiteAddress);
+	var $firstname;
+	var $lastname;
+	var $newEmail;
+	if($managerInfo){
+		$newEmail = $managerInfo[0].firstName+"public@yopmail.com";
+		$newEmail = $newEmail.toLowerCase();
+	}else{
+		$firstname = $firstName.toLowerCase();//this changes the name?
+		$lastname = $lastName.toLowerCase();//this changes the name?
+		$newEmail = "new"+$firstname+$lastname+"public@yopmail.com";
+	}
+	_setValue(_textbox("yourPublicEmail"), $newEmail);
+	//var $newAboutMe = _getText(_textarea("aboutMe")) + " EDIT";
+	var $newAboutMe = randomString(10, "A");
+	_setValue(_textarea("aboutMe"), $newAboutMe);
+	_click(_submit("Save"));
+	//verify that the data has been saved correctly //jxulecspqgjcgpedit@yopmail.com
+	if (isTrue($serveClients)) {
+		$clientsServed = "null";
+		_assertEqual("",_getText(_cell(0, _rightOf(_cell("Clients Served")))),"If the 'clientsServed' checkbox is unselected, the 'Clients Served' cell should be blank");
+	}
+	else{
+		$clientsServed = _getText(_cell(0, _rightOf(_cell("Clients Served"))));
+		_assertEqual("Individuals / Families",_getText(_cell(0, _rightOf(_cell("Clients Served")))),"If the 'clientsServed' checkbox is unselected, the 'Clients Served' cell should be blank");
+	}
+	
+	var $expectedLanguagesArr;
+		if($oldLanguage){
+			$expectedLanguagesArr = [$oldLanguage, $language1, $language2].sort();
+		}else{
+			$expectedLanguagesArr = [$language1, $language2].sort();
+		}
+	var $expectedLanguages = $expectedLanguagesArr.join(", ");
+	var $newProductExpertise = $newProductExpertise1+","+$newProductExpertise2;
+	_assertEqual($expectedLanguages, _getText(_cell(0, _rightOf(_cell("Languages Spoken")))), "message");
+	
+	_assertEqual($newProductExpertise1+", "+$newProductExpertise2, _getText(_cell(0, _rightOf(_cell("Product Expertise")))), "message");
+	_assertEqual($newWebsiteAddress, _getText(_cell(0, _rightOf(_cell("Website address")))), "message");
+	_assertEqual($newEmail, _getText(_cell(0, _rightOf(_cell("Your Public Email")))), "message");
+	_assertEqual($newAboutMe, _getText(_cell(0, _rightOf(_cell("About Me")))), "message");
+	if($managerInfo){
+		$managerInfo[0].clientsServed = $clientsServed;
+		$managerInfo[0].language = $expectedLanguages;
+		$managerInfo[0].productExpertise = $newProductExpertise;
+		$managerInfo[0].websiteAddress = $newWebsiteAddress;
+		$managerInfo[0].publicEmail = $newEmail;
+	}
+	return $managerInfo;
+}
+
+function verifyAndEditAgencyManagerAgentStatus($newStatus, $comment, $managerInfo){
+	var $previousStatus = _getText(_strong("", _in(_row("viewStatusRow"))));
+	$managerInfo[0].activeStatus = $newStatus;
+	$managerInfo[0].statusComment = $comment;
+	var $agentActiveStatusChangeDate = _fetch(window.moment().format("MMM DD, YYYY"));
+	
+	_click(_link("editLink"));
+	if ($newStatus == "InActive"){
+		_setSelected(_select("activityStatus"), "Inactive");
+	}
+	_setSelected(_select("activityStatus"), $newStatus);
+	_setValue(_textarea("comment"), $comment);
+	
+	_assertVisible(_link("cancelLink"),"Button Cancel should be visible in edit mode");
+	_assertVisible(_cell("Status", _in(_row("viewStatusRow"))));
+	_assertNotVisible(_strong($newStatus, _in(_row("viewStatusRow"))),"New status should be not visible as a text");
+	_assertVisible(_strong($previousStatus, _in(_row("viewStatusRow"))),"Previous status should be visible as a text");
+	_assertVisible(_cell("/Status/", _in(_row("editStatusRow"))));
+	_assertVisible(_cell("Comment", _in(_row("editCommentRow"))),"Text Comment should be visible");
+	_assertEqual($comment, _getText(_textarea("comment", _in(_row("editCommentRow")))));
+	_assertVisible(_submit("submitBtn"),"Submit button should be visible");
+	_click(_submit("submitBtn"));
+	
+	_assertEqual($newStatus, _getText(_strong("", _in(_row("viewStatusRow")))),"New status should be displayed");
+	_assertVisible(_heading4("/Status History/"),"Status history should be displayed");
+	_assertVisible(_cell($agentActiveStatusChangeDate, _near(_tableHeader("Date"))),"Date should be visible");
+	_assertVisible(_cell($previousStatus, _near(_tableHeader("Previous Status"))),"Previous status should be visible");
+	_assertVisible(_cell($newStatus, _near(_tableHeader("New Status"))),"New status should be visible");
+	_assertVisible(_link("View Comment", _near(_tableHeader("View Comment"))),"Comment link should be visible");
+	_click(_link("View Comment"));
+
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_heading3("myModalLabel"));
+	_assertEqual($comment, _getText(_label("commentlbl")));
+	_assertVisible(_link("Close"));
+	_click(_link("Close"));
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+	return $managerInfo;
+}
+/**
+*Agency Manager Adds a new agent
+*/
+
+function createNewAgent($agentNum,$communicationpreference, $selectAgencyLocation,$serveClients,$language,$productExpertise,$websiteAddress,$education){
+	var $agentObject = [];
+	for ($i = 0; $i < $agentNum; $i++){ //agency manager creating new agent based on agentNum
+
+		var $agentPhone1 = randomStringWithoutStartingZero(3,"N");
+		var $agentPhone2 = randomString(3,"N");
+		var $agentPhone3 = randomString(4,"N");
+		var $agentPhone = $agentPhone1+$agentPhone2+$agentPhone3;
+		var $insuranceAgentLicenseNumber = randomStringWithoutStartingZero(7,"N");
+		var $personalAgentEmail = "Agent"+$i+$personalEmail;
+		var $publicAgentEmail = $firstName+"AgentTest"+$i+"@yopmail.com";
+		var $randomStr = randomString(3,"A");
+		var $agentFirstName = $firstName+"TestAgent"+$i;
+		var $agentLastName = "TestAgent"+$i;
+		var $businessName;
+		var $federalEINnum;
+		var $role = "Agent";
+		var $originalRole = "Agent";
+		var $businessAddressFull;
+		var $businessAddressStr;
+		var $businessCity;
+		var $businessState;
+		var $businessZipcode;
+		var $certiStartDate = _fetch(window.moment().format("MMDDYYYY"));
+		var $certiRenewalDate;
+		var $certiEndDate;
+		var $recordType = "Agent";
+		var $activeStatus = "Active";
+		var $clientsServed;
+		var $aboutMe = "This is my about me " + $i;
+		$agentLicenseNumber = $insuranceAgentLicenseNumber;
+		
+		var $certificationNum;
+		var $agentNumber;
+		var $certiDate;
+		var $certiRenewDate;
+		var $certiStatus = "Pending";
+		var $delegationCode;
+		var $statusDate;
+		
+		_click(_link("Agents"));
+		_click(_link("/Add a New Agent/"));
+		_setValue($tbAgentFirstName, $agentFirstName);
+		_setValue($tbAgentLastName, $agentLastName);
+		_setValue($tbLicenseNumber, $insuranceAgentLicenseNumber);
+		_click(_italic("icon-calendar"));
+		_click(_tableHeader("»"));
+		_click(_cell("day"));
+		$certiRenewalDate = _getText(_textbox("licrenewaldate"));
+		$certiEndDate = $certiRenewalDate;
+		_setValue(_textbox("personalEmailAddress"), $personalAgentEmail);
+		_setValue(_textbox("phone1"), $agentPhone1);
+		_setValue(_textbox("phone2"), $agentPhone2);
+		_setValue(_textbox("phone3"), $agentPhone3);
+		_setSelected(_select("communicationPreference"), $communicationpreference);
+		//capturing business address from UI
+		$businessName = _getText(_textbox("Business NameRequired"));
+		$federalEINnum = _getText(_textbox("Federal Employer Identification Number (EIN)Required"));
+		
+		if($selectAgencyLocation){
+			_setSelected(_select("select_agencyLocation"), $selectAgencyLocation);
+		}else{
+			var $options = _getOptions (_select("select_agencyLocation"));
+			_setSelected(_select("select_agencyLocation"), $options[1]);
+		}
+		
+		$businessAddressFull = _getText(_div("dynamicLocationBox").childNodes[2]);
+		$businessAddressStr = _getText(_div("dynamicLocationBox").firstChild);
+		$businessCity = $businessAddressFull.substring(0,$businessAddressFull.indexOf(","));
+		$businessState = $businessAddressFull.substring($businessAddressFull.indexOf(",")+2,$businessAddressFull.indexOf(",")+4);
+		$businessZipcode = $businessAddressFull.substring($businessAddressFull.length - 5,$businessAddressFull.length);
+
+		_setValue(_textbox("address1_mailing"), $correspAddressStreet);
+		_setValue(_textbox("city_mailing"), $correspAddressCity);
+		_setSelected(_select("state_mailing"), $correspAddressState);
+		_setValue(_textbox("zip_mailing"), $correspAddressZipcode);
+
+		_click(_button("Next"));
+		if (isTrue($serveClients)) {
+			_check(_checkbox("clientsServed"));
+			$clientsServed = _getValue(_checkbox("clientsServed"));
+		}
+		_click(_listItem($language));
+		_check(_checkbox($productExpertise));
+		_setValue(_textbox("yourWebSite"),$websiteAddress);
+		_setValue(_textbox("yourPublicEmail"), $publicAgentEmail);
+		_setSelected(_select("education"), $education);
+		_setValue(_textarea("aboutMe"), $aboutMe);
+		_click(_submit("Finish"));
+		_click(_submit("Exit"));
+		
+		$agentObject.push({firstName:$agentFirstName,
+							lastName:$agentLastName,
+							phone:$agentPhone,
+							communicationpreference:$communicationpreference,
+							personalEmail:$personalAgentEmail,
+							publicEmail:$publicAgentEmail,
+							businessName:$businessName,
+							federalEINnum:$federalEINnum,
+							role:$role,
+							originalRole:$originalRole,
+							activeStatus:$activeStatus,
+							businessAddressFull:$businessAddressFull,
+							businessStreet:$businessAddressStr,
+							businessCity:$businessCity,
+							businessState:$businessState,
+							businessZipcode:$businessZipcode,
+							correspAddressState:$correspAddressState,
+							correspAddressStreet:$correspAddressStreet,
+							correspAddressCity:$correspAddressCity,
+							correspAddressZipcode:$correspAddressZipcode,
+//							certiStartDate:$certiStartDate,
+							licenseNumber:$insuranceAgentLicenseNumber,
+							recordType:$recordType,
+							language:$language,
+							productExpertise:$productExpertise,
+							education:$education,
+							clientsServed:$clientsServed,
+							webAddress:$websiteAddress,
+							aboutMe:$aboutMe,
+							
+							certificationNum:$certificationNum,
+							agentNumber:$agentNumber,
+							certiDate:$certiDate,
+							certiRenewDate:$certiRenewDate,
+							certiStatus:$certiStatus,
+							delegationCode:$delegationCode,
+							statusDate:$statusDate														
+							});
+	}
+	return $agentObject;
+}
+
+
+/**
+*Broker searches for the created agent(s) and certifies them
+*/
+
+var $brokerAdminTopNavAgents = _link("Agents");
+var $brokerAdminTopNavManageAgents = _link("/Manage Agents/");
+var $brokerAdminPortalGearIconIE = _link("EditEnd of dropdown");
+var $brokerAdminPortalGearIconFF = _link("Edit End of dropdown");
+
+var $brokerAdminAgentSearchFirstName = _textbox("First Name ");
+var $brokerAdminAgentSearchLastName = _textbox("Last Name");
+var $brokerAdminAgentSearchBusinessName = _textbox("Business Name");
+var $brokerAdminAgentSearchCertStatus = _select("certificationStatus");
+
+function closeUpdateAgentsCertStatuspopup(){
+	_lockWindow();
+	_focusWindow();
+	if (_isVisible(_link("submitSameBrokers"))) {
+		_click(_link("x", _in(_div("multipleBrokerBox"))));
+	}
+	_unlockWindow();
+}
+
+function brokerSearchForAgentCertifyAgent($agentNum,$certificationStatus, $certificationStatus2,$agentInfo){
+	var $iteration;
+	if ($agentInfo) {
+		$iteration=1;
+	}else{
+		$iteration = $agentNum;
+	}
+
+	for ($i = 0; $i < $iteration; $i++){ //searching for and certifying agents based on agentNum
+		_click($brokerAdminTopNavAgents);
+		_click($brokerAdminTopNavManageAgents);
+		if ($agentInfo) {
+			_setValue($brokerAdminAgentSearchFirstName, $agentInfo.firstName); 
+			_setValue($brokerAdminAgentSearchBusinessName, $agentInfo.businessName);
+			_setValue($brokerAdminAgentSearchLastName, $agentInfo.lastName);
+		}else{
+			_setValue($brokerAdminAgentSearchFirstName, $firstName+"TestAgent"+$i); // "_" does not work in the search bar
+			_setValue($brokerAdminAgentSearchBusinessName, $firstName);
+			_setValue($brokerAdminAgentSearchLastName, "TestAgent"+$i);
+		}
+		_setSelected($brokerAdminAgentSearchCertStatus, $certificationStatus);
+		
+
+		_click(_submit("Go"));
+		_click(_link("dropdown"));
+		//selecting that agent
+		if(_isIE()){
+			_click($brokerAdminPortalGearIconIE);
+			_log("IE browser");
+		}else{
+			_click($brokerAdminPortalGearIconFF);
+			_log("Firefox and Chrome browser");
+		}
+		
+		_setSelected($brokerAdminAgentSearchCertStatus, $certificationStatus2);
+		//certifying that agent
+		if(_isVisible(_submit("Submit"))){
+		_click(_submit("Submit"));
+		}else if(_isVisible(_button("Submit"))){
+			_click(_button("Submit"));
+		}
+
+		closeUpdateAgentsCertStatuspopup();
+		// get sertification info from UI
+		
+		if($agentInfo){
+			$agentInfo.agentNumber = _getText(_strong("", _in(_row("/Agent Number/"))));
+			$agentInfo.certificationNum = _getText(_strong("", _in(_row("/Certification Number/"))));
+			$agentInfo.certiDate = _getText(_strong("", _in(_row("/Start Date/"))));
+			$agentInfo.certiRenewDate = _getText(_strong("", _in(_row("/End Date/"))));
+			$agentInfo.certiStatus = _getText(_strong("", _in(_row("/Certification Status/"))));
+			$agentInfo.delegationCode = _getText(_strong("", _in(_row("/Delegation Code/"))));
+			var $todayDate;
+			_set($todayDate, _call(window.moment().format("MMDDYYYY")));
+			$agentInfo.statusDate = $todayDate;
+			
+		}
+	}
+	if($agentInfo){
+		return $agentInfo;
+	}	
+}
+
+function updateBrokerIdAndStatusAfterDesignationToDifferentAgency($individualCaseId,$newBrokerId){
+	updateBrokerIdInDesignateBrokerTable($individualCaseId,$newBrokerId);
+	updateStatusInDesignateBrokerTableToActive($individualCaseId);
+}
+
+function brokerSearchForAgent($firstName, $lastName, $certificationStatus){
+	_setValue(_textbox("First Name "), $firstName);
+	_setValue(_textbox("Last Name"), $lastName);
+	_setSelected(_select("certificationStatus"), $certificationStatus);
+	_click(_submit("Go"));
+}
+/**
+* Agency Manager Edits Certified Agent information
+*/
+
+function verifyAndEditAgentInformation($agentNum,$newPhone1,$newPhone2,$newPhone3,$newFax1,$newFax2,$newFax3,$newCommunicationPref){
+	for ($z = 0; $z < $agentNum; $z++){
+		_click(_italic("icon-cog["+($z+1)+"]", _under(_tableHeader("Actions"))));
+		_click(_link("Edit["+($z+1)+"]"));
+		_click(_button("Edit"));
+		//license renewal date
+		_click(_span("add-on"));
+		_click(_tableHeader("»"));
+		_click(_cell("day"));
+		var $newPersonalAgentEmail = "Agent_edit"+$z+$personalEmail;
+		var $newLicenseRenewalDate = _getText(_textbox("licrenewaldate"));//in format xx-xx-xxxx, but will save in format xx/xx/xxxx
+//		_set($newLicenseRenewalDate, _call(window.moment($newLicenseRenewalDate).format("MM/DD/YYYY")));
+		$newLicenseRenewalDate=$newLicenseRenewalDate.replace(/-/g, "/");
+		_setValue(_textbox("personalEmailAddress"), $newPersonalAgentEmail);
+		_setValue(_textbox("phone1"), $newPhone1);
+		_setValue(_textbox("phone2"), $newPhone2);
+		_setValue(_textbox("phone3"), $newPhone3);
+		_setValue(_textbox("Business Contact Number"), $newPhone1);
+		_setValue(_textbox("Business Contact Number[1]"), $newPhone2);
+		_setValue(_textbox("Business Contact Number[2]"), $newPhone3);
+		_setValue(_textbox("Alternate Contact Number"), $newPhone1);
+		_setValue(_textbox("Alternate Contact Number[1]"), $newPhone2);
+		_setValue(_textbox("Alternate Contact Number[2]"), $newPhone3);
+		_setValue(_textbox("Fax Number"), $newFax1);
+		_setValue(_textbox("Fax Number[1]"), $newFax2);
+		_setValue(_textbox("Fax Number[2]"), $newFax3);
+		_setSelected(_select("communicationPreference"), $newCommunicationPref);
+		
+		var $oldLocation = _getSelectedText(_select("select_agencyLocation"));
+		_log("Old Location:" + $oldLocation);
+		var $locations = _getOptions(_select("select_agencyLocation"), "sahiText");
+		_log("Locations: "+ $locations);
+		var $locationNum = $locations.length;
+		for ($i=0;$i<$locationNum;$i++){
+			if ($oldLocation==$locations[$i]){
+				$i++;
+				var $mod = $i%$locationNum;
+				if ($mod == 0){//select location
+					$mod++;
+					_setSelected(_select("select_agencyLocation"), $locations[$mod]);
+				}
+				else{
+					_setSelected(_select("select_agencyLocation"), $locations[$mod]);
+				}
+			break;
+			}
+		}
+		var $newLocation = _getSelectedText(_select("select_agencyLocation"));
+		_log("New Location:" + $newLocation);
+		var $newAddress = _getText(_div("dynamicLocationBox", _rightOf(_label("Current Location"))));
+		_assertNotVisible(_div("Correspondence Address"),"Corresponding address should not be visible in edit mode");
+		
+		_click($btnSaveOnAgentInfo);
+		
+		//verify that the data saved is permited
+		var $savedBusinessAddress = _getText(_cell("aid_agentBusinessAddress_2", _near(_cell("Business Address")))) + " " +_getText(_cell("aid_agentBusinessAddress_3", _near(_cell("Business Address"))));
+		var $savedCorrespondenceAddress = _getText(_cell("aid_agentMailingAddress", _near(_cell("Correspondence Address")))) + " " +_getText(_cell("aid_agentMailingLocation", _near(_cell("Correspondence Address"))));
+		_log($savedCorrespondenceAddress);
+		_assertTrue($savedCorrespondenceAddress.indexOf($correspAddressStreet) != -1 && $savedCorrespondenceAddress.indexOf($correspAddressCity) != -1, "Verify correspondence address");
+		_assertEqual($newLicenseRenewalDate,_getText(_strong("sLicenseRenewalDate", _rightOf(_cell("License Renewal Date")))),"The saved value for license renewal date should match the new inputed value");
+		_assertEqual("("+$newPhone1+")"+" "+$newPhone2+"-"+$newPhone3, _getText(_strong("sPrimaryPhoneNumber", _rightOf(_cell("Primary phone number")))),"The saved value for primary phone number should match the new inputed value");
+		_assertEqual("("+$newPhone1+")"+" "+$newPhone2+"-"+$newPhone3, _getText(_strong("sBusinessContactPhoneNumber", _rightOf(_cell("Business Contact Number")))),"The saved value for business contact number should match the new inputed value");
+		_assertEqual("("+$newPhone1+")"+" "+$newPhone2+"-"+$newPhone3, _getText(_strong("sAlternatePhoneNumber", _rightOf(_cell("Alternate Contact Number")))),"The saved value for alternate contact number should match the new inputed value");
+		_assertEqual("("+$newFax1+")"+" "+$newFax2+"-"+$newFax3, _getText(_strong("sFaxNumber", _rightOf(_cell("Fax Number")))),"The saved value for fax number should match the new inputed value");
+		_assertEqual($newCommunicationPref,_getText(_strong(0, _rightOf(_cell("Preferred Method of Communication")))),"The saved value for preferred method of communication should match the new inputed value");
+		_assertEqual($newAddress, $savedBusinessAddress);
+		_assertVisible(_strong($newPersonalAgentEmail, _near(_cell("Individual Email"))));
+		_assertVisible(_div("Correspondence Address"),"Corresponding address should be visible in view mode");
+		//go back to view agent list
+		_click(_link("Agents"));
+		_click(_link("View Agent List"));
+	}
+}
+
+function verifyAndEditAgentPublicProfile($agentNum,$serveClients,$oldLanguage,$language1,$language2,$oldProductExpertise,$newProductExpertise1,$newProductExpertise2,$newWebsiteAddress){
+	for ($z = 0; $z < $agentNum; $z++){
+		_click(_italic("icon-cog["+($z+1)+"]", _under(_tableHeader("Actions"))));
+		_click(_link("Edit["+($z+1)+"]"));
+	
+		_click(_link("Profile[1]"));
+	
+		_click(_button("Edit", _in(_div("Profile Edit"))));
+		if (isTrue($serveClients)) {
+			_uncheck(_checkbox("clientsServed"));
+		}
+		else{
+			_check(_checkbox("clientsServed"));
+		}
+		_click(_listItem($language1));
+		_click(_listItem($language2));
+		_uncheck(_checkbox($oldProductExpertise));
+		_check(_checkbox($newProductExpertise1));
+		_check(_checkbox($newProductExpertise2));
+		_setValue(_textbox("yourWebSite"), $newWebsiteAddress);
+		var $firstname = $firstName.toLowerCase();//this changes the name?
+		var $lastname = $lastName.toLowerCase();//this changes the name?
+		var $newEmail = $firstname+$lastname+"edit@yopmail.com";
+		_setValue(_textbox("yourPublicEmail"), $newEmail);
+		//var $newAboutMe = _getText(_textarea("aboutMe")) + " EDIT";
+		var $newAboutMe = randomString(10, "A");
+		_setValue(_textarea("aboutMe"), $newAboutMe);
+		_click(_submit("Save"));
+		//verify that the data has been saved correctly //jxulecspqgjcgpedit@yopmail.com
+		if (isTrue($serveClients)) {
+			_assertEqual("",_getText(_cell(0, _rightOf(_cell("Clients Served")))),"If the 'clientsServed' checkbox is unselected, the 'Clients Served' cell should be blank");
+		}
+		else{
+			_assertEqual("Individuals / Families",_getText(_cell(0, _rightOf(_cell("Clients Served")))),"If the 'clientsServed' checkbox is unselected, the 'Clients Served' cell should be blank");
+		}
+		var $expectedLanguagesArr = [$oldLanguage, $language1, $language2].sort();
+		var $expectedLanguages = $expectedLanguagesArr.join(", ");
+		_assertEqual($expectedLanguages, _getText(_cell(0, _rightOf(_cell("Languages Spoken")))), "message");
+		_assertEqual($newProductExpertise1+", "+$newProductExpertise2, _getText(_cell(0, _rightOf(_cell("Product Expertise")))), "message");
+		_assertEqual($newWebsiteAddress, _getText(_cell(0, _rightOf(_cell("Website address")))), "message");
+		_assertEqual($newEmail, _getText(_cell(0, _rightOf(_cell("Your Public Email")))), "message");
+		_assertEqual($newAboutMe, _getText(_cell(0, _rightOf(_cell("About Me")))), "message");
+		
+		//go back to view agent list
+		_click(_link("Agents"));
+		_click(_link("View Agent List"));
+	}
+}
+
+/**
+*Broker admin edits any agent information
+*/
+
+function convertPhone($phone){
+	$phone = $phone.replace(/-/g, "");
+	var $phone1 = $phone.substring(0,3);
+	var $phone2 = $phone.substring(3,6);
+	var $phone3 = $phone.substring(6,10);
+	$phone = "("+$phone1+") "+$phone2+"-"+$phone3;
+	_log("Phone is: "+$phone);
+	return $phone;
+}
+
+function convertPhoneForEditMode($phone){
+	$phone = $phone.replace(/\D+/g, "");
+	
+	var $phoneList={};
+	$phoneList.phone1 = $phone.substring(0,3);
+	$phoneList.phone2 = $phone.substring(3,6);
+	$phoneList.phone3 = $phone.substring(6,10);
+	_log("phone1: "+$phoneList.phone1);
+	_log("phone2: "+$phoneList.phone2);
+	_log("phone3: "+$phoneList.phone3);
+	return $phoneList;
+}
+
+function brokerAdminVerifyAgentInformationEditMode($agent){
+	clickEditIfVisible();
+		//left menu verification
+	brokerAdminVerifyAgentLeftMenuNavigation();
+//	_assertEqual("/rgb\\(17, 130, 142\\)/", _style(_listItem("Agent Information"), "background-color"),"Agent Information left nav tab should be highlighted");
+	
+	var $name = $agent[0].firstName+" "+$agent[0].lastName;
+	_assertVisible(_heading1($name),"Agent name should be displayed on top");
+	_assertEqual($name, _getText(_heading1("")),"Agent name should match");
+	_assertVisible(_heading4("Registration Information"));
+	_assertEqual("Registration Information", _getText(_heading4(0)));
+	_assertVisible(_link("Cancel", _near(_heading4("Registration Information"))));
+	_assertVisible(_link("Save", _near(_heading4("Registration Information"))));
+	_assertVisible(_paragraph("To apply for certification enter the following information in the fields below. California. will review your application for certification and will notify you once the review is complete."));
+	_assertEqual("To apply for certification enter the following information in the fields below. California. will review your application for certification and will notify you once the review is complete.", _getText(_paragraph("To apply for certification enter the following information in the fields below. California. will review your application for certification and will notify you once the review is complete.")));
+	_assertVisible(_textbox("firstName", _near(_label("/First Name/"))));
+	_assertEqual($agent[0].firstName, _getValue(_textbox("firstName", _near(_label("/First Name/")))));
+	_assertVisible(_image("Required!", _in(_label("/First Name/"))));
+	_assertVisible(_textbox("lastName", _near(_label("/Last Name/"))));
+	_assertEqual($agent[0].lastName, _getValue(_textbox("lastName", _near(_label("/Last Name/")))));
+	_assertVisible(_image("Required!", _in(_label("/Last Name/"))));
+	_assertVisible(_textbox("licenseNumber", _near(_label("Insurance Agent License NumberRequired"))));
+	_assertEqual($agent[0].licenseNumber, _getValue(_textbox("licenseNumber", _near(_label("Insurance Agent License NumberRequired")))));
+	_assertVisible(_image("Required!", _in(_label("/Insurance Agent License Number/"))));
+	_assertVisible(_div("(Not your NPN)", _near(_label("/Insurance Agent License Number/"))));
+	_assertEqual("(Not your NPN)", _getText(_div("controls", _near(_label("/Insurance Agent License Number/")))));
+	_assertVisible(_textbox("licrenewaldate", _near(_label("/License Renewal Date/"))));
+	_assertEqual($agent[0].licenseRenewalDate, _getValue(_textbox("licrenewaldate", _near(_label("/License Renewal Date/")))));
+	_assertVisible(_image("Required!", _in(_label("/License Renewal Date/"))));
+	_assertVisible(_italic("icon-calendar", _near(_textbox("licrenewaldate"))));
+	_assertVisible(_textbox("personalEmailAddress", _near(_label("/Individual Email/"))));
+	_assertEqual($agent[0].personalEmail, _getValue(_textbox("personalEmailAddress", _near(_label("/Individual Email/")))));
+	_assertVisible(_image("Required!", _in(_label("/Individual Email/"))));
+	_assertVisible(_link("ttclass", _in(_label("/Individual Email/"))));
+	_assertEqual("This email will be used for sending training and other documents directly to the agent. Please enter the agent's individual email, not a shared email address.", _getAttribute (_link("ttclass"), "data-original-title"));
+	
+	$phoneList = convertPhoneForEditMode($agent[0].phone);
+	_assertVisible(_textbox("phone1", _near(_label("/Primary contact number/"))));
+	_assertEqual($phoneList.phone1, _getValue(_textbox("phone1", _near(_label("/Primary contact number/")))));
+	_assertVisible(_textbox("phone2", _near(_label("/Primary contact number/"))));
+	_assertEqual($phoneList.phone2, _getValue(_textbox("phone2", _near(_label("/Primary contact number/")))));
+	_assertVisible(_textbox("phone3", _near(_label("/Primary contact number/"))));
+	_assertEqual($phoneList.phone3, _getValue(_textbox("phone3", _near(_label("/Primary contact number/")))));
+	_assertVisible(_image("Required!", _in(_label("/Primary contact number/"))));
+	
+	$phoneList = convertPhoneForEditMode($agent[0].buisnessPhone);
+	_assertVisible(_textbox("businessContactPhone1", _near(_label("/Business Contact Number/"))));
+	_assertEqual($phoneList.phone1, _getValue(_textbox("businessContactPhone1", _near(_label("/Business Contact Number/")))));
+	_assertVisible(_textbox("businessContactPhone2", _near(_label("/Business Contact Number/"))));
+	_assertEqual($phoneList.phone2, _getValue(_textbox("businessContactPhone2", _near(_label("/Business Contact Number/")))));
+	_assertVisible(_textbox("businessContactPhone3", _near(_label("/Business Contact Number/"))));
+	_assertEqual($phoneList.phone3, _getValue(_textbox("businessContactPhone3", _near(_label("/Business Contact Number/")))));
+	_assertNotVisible(_image("Required!", _in(_label("/Business Contact Number/"))));
+	
+	$phoneList = convertPhoneForEditMode($agent[0].altPhone);
+	_assertVisible(_textbox("alternatePhone1", _near(_label("/Alternate Contact Number/"))));
+	_assertEqual($phoneList.phone1, _getValue(_textbox("alternatePhone1", _near(_label("/Alternate Contact Number/")))));
+	_assertVisible(_textbox("alternatePhone2", _near(_label("/Alternate Contact Number/"))));
+	_assertEqual($phoneList.phone2, _getValue(_textbox("alternatePhone2", _near(_label("/Alternate Contact Number/")))));
+	_assertVisible(_textbox("alternatePhone3", _near(_label("/Alternate Contact Number/"))));
+	_assertEqual($phoneList.phone3, _getValue(_textbox("alternatePhone3", _near(_label("/Alternate Contact Number/")))));
+	_assertNotVisible(_image("Required!", _in(_label("/Alternate Contact Number/"))));
+	
+	$phoneList = convertPhoneForEditMode($agent[0].fax);
+	_assertVisible(_textbox("faxNumber1", _near(_label("/Fax Number/"))));
+	_assertEqual($phoneList.phone1, _getValue(_textbox("faxNumber1", _near(_label("/Fax Number/")))));
+	_assertVisible(_textbox("faxNumber2", _near(_label("/Fax Number/"))));
+	_assertEqual($phoneList.phone2, _getValue(_textbox("faxNumber2", _near(_label("/Fax Number/")))));
+	_assertVisible(_textbox("faxNumber3", _near(_label("/Fax Number/"))));
+	_assertEqual($phoneList.phone3, _getValue(_textbox("faxNumber3", _near(_label("/Fax Number/")))));
+	_assertNotVisible(_image("Required!", _in(_label("/Fax Number/"))));
+	_assertVisible(_select("communicationPreference", _in(_fieldset("/Preferred Method of Communication/"))));
+	_assertEqual($agent[0].communicationpreference, _getSelectedText(_select("communicationPreference", _in(_fieldset("/Preferred Method of Communication/")))));
+	_assertVisible(_image("Required!", _in(_fieldset("/Preferred Method of Communication/"))));
+	_assertVisible(_textbox("companyName", _near(_label("/Business Name/"))));
+	_assertEqual($agent[0].businessName, _getValue(_textbox("companyName", _near(_label("/Business Name/")))));
+	_assertEqual(false, _getAttribute (_textbox("companyName"), "disabled"),"Assert that Business name is editable");
+	_assertVisible(_textbox("federalEIN", _near(_label("/Federal Employer Identification Number/"))));
+	_assertEqual($agent[0].federalEINnum, _getValue(_textbox("federalEIN", _near(_label("/Federal Employer Identification Number/")))));
+	_assertVisible(_image("Required!", _in(_label("/Federal Employer Identification Number/"))));
+	_assertVisible(_link("What if i don't have an EIN?", _near($tbFederalEIN)));
+	//role verification
+	_assertVisible(_label("Agency Manager", _near(_label("/Role/"))));
+	_assertEqual("Agency Manager", _getText(_label("Agency Manager", _near(_label("/Role/")))));
+	_assertVisible(_label("Agent", _near(_label("/Role/"))));
+	_assertEqual("Agent", _getText(_label("Agent", _near(_label("/Role/")))));
+	_assertVisible(_radio("ROLEAGENCYMANAGER"));
+	_assertVisible(_radio("ROLEBROKER"));
+	if($agent[0].role == "Agent"){
+//		_assert(_isChecked(_radio("ROLEBROKER")),"If role is Agent, radio should be checked");
+		_assert(_radio("ROLEBROKER").checked,"If role is Agent, radio should be checked");
+	}
+	if($agent[0].role == "Agency Manager"){
+//		_assert(_isChecked(_radio("ROLEAGENCYMANAGER")),"If role is Agency Manager, radio should be checked");
+		_assert(_radio("ROLEAGENCYMANAGER").checked,"If role is Agency Manager, radio should be checked");
+	}
+	// business address
+	_assertVisible(_heading4("Business Address"));
+	_assertEqual("Business Address", _getText(_heading4("Business Address")));
+	_assertVisible(_select("select_agencyLocation", _near(_label("/Select Agency Location/"))));
+	_assertEqual($agent[0].siteLocationName, _getSelectedText(_select("select_agencyLocation", _near(_label("/Select Agency Location/")))));
+	_assertVisible(_image("Required!", _in(_label("/Select Agency Location/"))));
+	
+	var $businessAddress = $agent[0].businessStreet+" "+$agent[0].businessAddressFull;
+	_assertVisible(_div($businessAddress, _rightOf(_label("Current Location"))));
+	_assertEqual($businessAddress, _getText(_div("dynamicLocationBox", _rightOf(_label("Current Location")))));
+	// Correspondence Address
+	_assertVisible(_heading4("Correspondence Address"));
+	_assertEqual("Correspondence Address", _getText(_heading4("Correspondence Address")));
+	_assertVisible(_checkbox("mailingAddressCheck", _near(_label("Same as business address"))));
+	_assertVisible(_textbox("address1_mailing", _near(_label("/Address line 1/"))));
+	_assertEqual($agent[0].correspAddressStreet, _getValue(_textbox("address1_mailing", _near(_label("/Address line 1/")))));
+	_assertVisible(_textbox("address2_mailing", _near(_label("Address line 2"))));
+	if($agent[0].correspAddressStreet2 != "null"){
+		_assertEqual($agent[0].correspAddressStreet2, _getValue(_textbox("address2_mailing", _near(_label("Address line 2")))));
+	}else{
+		_assertEqual("", _getValue(_textbox("address2_mailing", _near(_label("Address line 2")))));
+	}
+	_assertVisible(_textbox("city_mailing", _near(_label("CityRequired"))));
+	_assertEqual($agent[0].correspAddressCity, _getValue(_textbox("city_mailing", _near(_label("CityRequired")))));
+	_assertVisible(_image("Required!", _in(_label("CityRequired"))));
+	_assertVisible(_select("state_mailing", _near(_label("StateRequired"))));
+	var $state = abbrState($agent[0].correspAddressState, "name");
+	_assertEqual($state, _getSelectedText(_select("state_mailing", _near(_label("StateRequired")))));
+	_assertVisible(_image("Required!", _in(_label("StateRequired"))));
+	_assertVisible(_textbox("zip_mailing", _near(_label("Zip CodeRequired"))));
+	_assertEqual($agent[0].correspAddressZipcode, _getValue(_textbox("zip_mailing", _near(_label("Zip CodeRequired")))));
+	_assertVisible(_link("Cancel", _near(_button("SaveBrkCerti"))));
+	_assertVisible(_button("SaveBrkCerti"));
+}
+
+function brokerAdminVerifyAgentLeftMenuNavigation(){
+	_assertVisible(_link("Agent Information", _in(_list("nav nav-list"))));
+	_assertEqual("Agent Information", _getText(_link("Agent Information", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Profile", _in(_list("nav nav-list"))));
+	_assertEqual("Profile", _getText(_link("Profile", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Certification Status", _in(_list("nav nav-list"))));
+	_assertEqual("Certification Status", _getText(_link("Certification Status", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Status", _in(_list("nav nav-list"))));
+	_assertEqual("Status", _getText(_link("Status", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Comments", _in(_list("nav nav-list"))));
+	_assertEqual("Comments", _getText(_link("Comments", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Secure Mailbox", _in(_list("nav nav-list"))));
+	_assertEqual("Secure Mailbox", _getText(_link("Secure Mailbox", _in(_list("nav nav-list")))));
+}
+
+function brokerAdminVerifyAgentInformationViewMode($agent){
+	//left menu verification
+	brokerAdminVerifyAgentLeftMenuNavigation();
+///	_assertEqual("/rgb\\(17, 130, 142\\)/", _style(_listItem("Agent Information"), "background-color"),"Agent Information left nav tab should be highlighted");
+	
+	// verify agent info
+	_assertVisible(_heading4("Agent Information"),"Header should be visible");
+	_assertVisible(_link("Edit"),"Edit link should be visible on top");
+	_assertVisible(_link("Edit[1]"),"Second 'Edit' link should be visible");
+	_assertEqual("Agent Information", _getText(_heading4("Agent Information")),"Text should be Agent Information");
+	var $name = $agent[0].firstName+" "+$agent[0].lastName;
+	_assertVisible(_heading1($name),"Agent name should be displayed on top");
+	_assertEqual($name, _getText(_heading1("")),"Agent name should match");
+	_assertVisible(_strong($agent[0].firstName, _near(_cell("First Name"))));
+	_assertEqual($agent[0].firstName, _getText(_strong("", _near(_cell("First Name")))));
+	_assertVisible(_strong($agent[0].lastName, _near(_cell("Last Name"))));
+	_assertEqual($agent[0].lastName, _getText(_strong("", _near(_cell("Last Name")))));
+	_assertVisible(_strong($agent[0].licenseNumber, _near(_cell("Insurance Agent License Number"))));
+	_assertEqual($agent[0].licenseNumber, _getText(_strong("", _near(_cell("Insurance Agent License Number")))));
+	
+	var $licenseRenewalDate = $agent[0].licenseRenewalDate;
+	$licenseRenewalDate = $licenseRenewalDate.replace(/-/g, "/");	
+	_assertVisible(_strong($licenseRenewalDate, _near(_cell("License Renewal Date"))));
+	_assertEqual($licenseRenewalDate, _getText(_strong("", _rightOf(_cell("License Renewal Date")))));
+	
+	_assertVisible(_strong($agent[0].personalEmail, _near(_cell("Individual Email"))));
+	_assertEqual($agent[0].personalEmail, _getText(_strong("", _rightOf(_cell("Individual Email")))));
+	
+	var $expectedPrimaryPhone = convertPhone($agent[0].phone);
+	_assertVisible(_strong($expectedPrimaryPhone, _near(_cell("Primary phone number"))));
+	_assertEqual($expectedPrimaryPhone, _getText(_strong("", _rightOf(_cell("Primary phone number")))));
+	
+	var $expectedBuisnessPhone = convertPhone($agent[0].buisnessPhone);
+	_assertVisible(_strong($expectedBuisnessPhone, _near(_cell("Business Contact Number"))));
+	_assertEqual($expectedBuisnessPhone, _getText(_strong("", _rightOf(_cell("Business Contact Number")))));
+	
+	var $expectedAltPhone = convertPhone($agent[0].altPhone);
+	_assertVisible(_strong($expectedAltPhone, _near(_cell("Alternate Contact Number"))));
+	_assertEqual($expectedAltPhone, _getText(_strong("", _rightOf(_cell("Alternate Contact Number")))));
+	
+	var $expectedFax = convertPhone($agent[0].fax);
+	_assertVisible(_strong($expectedFax, _near(_cell("Fax Number"))));
+	_assertEqual($expectedFax, _getText(_strong("", _rightOf(_cell("Fax Number")))));
+	
+	_assertVisible(_strong($agent[0].communicationpreference, _near(_cell("Preferred Method of Communication"))));
+	_assertEqual($agent[0].communicationpreference, _getText(_strong("", _rightOf(_cell("Preferred Method of Communication")))));
+	
+	_assertVisible(_strong($agent[0].businessName, _near(_cell("Business Name"))));
+	_assertEqual($agent[0].businessName, _getText(_strong("", _rightOf(_cell("Business Name")))));
+	
+	_assertVisible(_strong($agent[0].federalEINnum, _near(_cell("Federal Employer Identification Number (EIN)"))));
+	_assertEqual($agent[0].federalEINnum, _getText(_strong("", _rightOf(_cell("Federal Employer Identification Number (EIN)")))));
+	
+	_assertVisible(_strong($agent[0].role, _near(_cell("Role"))));
+	_assertEqual($agent[0].role, _getText(_strong("", _rightOf(_cell("Role")))));
+	
+	//verify buisness address
+	_assertVisible(_heading4("Business Address"));
+	_assertEqual("Business Address", _getText(_heading4("Business Address")));
+//	_assertEqual("rgb(85, 77, 86)", _style(_heading4("Business Address"), "background-color"),"Color assertion");
+	_assertVisible(_strong($agent[0].businessStreet, _near(_cell("Business address"))));
+	_assertEqual($agent[0].businessStreet, _getText(_strong("", _rightOf(_cell("Business address")))));
+	_assertVisible(_strong($agent[0].businessAddressFull, _near(_cell("Business address"))));
+	_assertEqual($agent[0].businessAddressFull, _getText(_cell(1, _in(_row(1, _in(_table("/table/", _near(_heading4("Business Address")))))))));
+	
+	//verify correspondence address
+	_assertVisible(_heading4("Correspondence Address"));
+	_assertEqual("Correspondence Address", _getText(_heading4("Correspondence Address")));
+	_assertVisible(_cell("Same as business address"));
+	_assertEqual("Same as business address", _getText(_cell("Same as business address")));
+	_assertVisible(_strong($agent[0].correspAddressStreet, _near(_cell("Correspondence Address"))));
+	_assertEqual($agent[0].correspAddressStreet, _getText(_strong("", _rightOf(_cell("Correspondence Address")))));
+	_assertVisible(_strong($agent[0].correspAddressFull, _near(_cell("Correspondence Address"))));
+	_assertEqual($agent[0].correspAddressFull, _getText(_cell(1, _in(_row(2, _in(_table("/table/", _near(_heading4("Correspondence Address")))))))));
+}
+
+function brokerAdminNavigateToAgentCertificationStatus(){
+	_click(_link("Certification Status", _in(_list("nav nav-list"))));
+}
+
+function brokerAdminVerifyAgentProfileEditMode($agent){
+	var $agentName = $agent[0].firstName+" "+$agent[0].lastName;
+	var $state = $agent[0].businessState;
+	$state = abbrState($state, "name");
+	
+	clickEditIfVisible();
+	//left menu verification
+	brokerAdminVerifyAgentLeftMenuNavigation();
+//	_assertEqual("/rgb\\(17, 130, 142\\)/", _style(_listItem("Profile"), "background-color"),"Agent Information left nav tab should be highlighted");
+	_assertVisible(_link("Cancel", _near(_heading4("Profile"))));
+	_assertVisible(_link("Save", _near(_heading4("Profile"))));
+	_assertVisible(_image("brokerPhoto", _near(_heading4("Profile"))));
+	_assertVisible(_cell("Provide information about you and your business for your public profile. This information will be displayed to consumers seeking application assistance.", _near(_heading4("Profile"))));
+	_assertEqual("Provide information about you and your business for your public profile. This information will be displayed to consumers seeking application assistance.", _getText(_cell("Provide information about you and your business for your public profile. This information will be displayed to consumers seeking application assistance.", _near(_heading4("Profile")))));
+	_assertVisible(_file("fileInputPhoto", _near(_label("Change Photo"))));
+	_assertVisible(_submit("Upload", _near(_file("fileInputPhoto"))));
+	_assertVisible(_div("You can upload a JPG, GIF or PNG file (File size limit is 5 MB)."));
+	_assertVisible(_textbox("brkName", _near(_label("Agent Name"))));
+	_assertEqual($agentName, _getValue(_textbox("brkName", _near(_label("Agent Name")))));
+	_assertEqual(true, _getAttribute (_textbox("brkName"), "readOnly"));
+	_assertVisible(_heading4("Business Address"));
+	_assertVisible(_textbox("address1", _near(_label("/Business Address Line 1/"))));
+	_assertEqual($agent[0].businessStreet, _getValue(_textbox("address1", _near(_label("/Business Address Line 1/")))));
+	_assertEqual(true, _getAttribute (_textbox("address1"), "readOnly"));
+	_assertVisible(_image("Required!", _in(_label("/Business Address Line 1/"))));
+	
+	_assertVisible(_textbox("address2", _near(_label("Address Line 2"))));
+	_assertEqual(true, _getAttribute (_textbox("address2"), "readOnly"));
+	_assertVisible(_textbox("city", _near(_label("/City/"))));
+	_assertEqual($agent[0].businessCity, _getValue(_textbox("city", _near(_label("/City/")))));
+	_assertEqual(true, _getAttribute (_textbox("city"), "readOnly"));
+	_assertVisible(_image("Required!", _in(_label("/City/"))));
+	_assertVisible(_select("state", _near(_label("/State/"))));
+	_assertEqual($state, _getSelectedText(_select("state", _near(_label("/State/")))));
+	_assertEqual("readonly", _getAttribute (_select("state"), "readOnly"));
+	_assertVisible(_textbox("zip", _near(_label("/Zip Code/"))));
+	_assertEqual($agent[0].businessZipcode, _getValue(_textbox("zip", _near(_label("/Zip Code/")))));
+	_assertEqual(true, _getAttribute (_textbox("zip"), "disabled"));
+	_assertVisible(_image("Required!", _in(_label("/Zip Code/"))));
+	_assertVisible(_textbox("email", _near(_label("/Email/"))));
+	_assertEqual($agent[0].publicEmail, _getValue(_textbox("email", _near(_label("/Email/")))));
+	_assertVisible(_image("Required!", _in(_label("/Email/"))));
+
+//	Consumers Served
+	$consumersServedCommon;
+	var $agentClientServed = $agent[0].clientsServed.split(",");
+	for(var $i=0;$i<$consumersServedCommon.length;$i++){
+		_assertVisible(_checkbox($consumersServedCommon[$i], _in(_fieldset("/Consumers Served/"))));
+		if($agentClientServed.indexOf($consumersServedCommon[$i]) != -1){
+			_assertTrue(_checkbox($consumersServedCommon[$i], _in(_label($consumersServedCommon[$i]))).checked);
+		}else{
+			_assertNotTrue(_checkbox($consumersServedCommon[$i], _in(_label($consumersServedCommon[$i]))).checked);
+		}
+	
+	}
+	_assertVisible(_link("tooltip to view profile", _in(_fieldset("/Consumers Served/"))));
+	_assertEqual("This field allows you to control which users will be able to view your profile. For example, if you leave \"individuals\" unchecked, only employers will be able to find and view your profile.", _getAttribute (_link("tooltip to view profile", _in(_fieldset("/Consumers Served/"))), "data-original-title"));
+	
+	_assertVisible(_list("chzn-choices", _near(_label("Languages"))));
+	_assertVisible(_listItem($agent[0].language));
+	
+	//verify product expertise edit mode
+	_assertEqual("This field allows you to list the insurance products that you focus on, such as dental, vision, primary health, life, etc.", _getAttribute (_link("Broker Tip", _in(_fieldset("/Product Expertise/"))), "data-original-title"));
+	var $agentProductExpertise = $agent[0].productExpertise.split(",");
+	_log("agent experties: "+$agentProductExpertise.toString());
+	for(var $i=0;$i<$productExpertiseCommon.length;$i++){
+		_assertVisible(_label($productExpertiseCommon[$i], _near(_checkbox($productExpertiseCommon[$i], _in(_fieldset("/Product Expertise/"))))));
+		if($agentProductExpertise.indexOf($productExpertiseCommon[$i]) != -1){
+			_assertTrue(_checkbox($productExpertiseCommon[$i]).checked,"Checkbox should be checked");
+		}else{
+			_assertNotTrue(_checkbox($productExpertiseCommon[$i]).checked,"Checkbox should be unchecked");
+		}
+	}
+	
+	//web address
+	_assertEqual("This field allows you to list your business's website address; if you have one.", _getAttribute (_link("Website address", _in(_label("/Website address/"))), "data-original-title"));
+	_assertVisible(_textbox("yourWebSite", _near(_label("/Website address/"))));
+	_assertEqual($agent[0].webAddress, _getValue(_textbox("yourWebSite", _near(_label("/Website address/")))));
+	
+	//about me
+	_assertVisible(_textarea("aboutMe", _near(_label("About Yourself"))));
+	_assertEqual($agent[0].aboutMe, _getText(_textarea("aboutMe", _near(_label("About Yourself")))));
+	
+	_assertVisible(_link("Cancel", _near(_textarea("aboutMe"))));
+	_assertVisible(_submit("Save", _near(_textarea("aboutMe"))));
+}
+
+function brokerAdminVerifyAgentCertificationStatusEditMode($agent){
+	brokerAdminNavigateToAgentCertificationStatus();
+	clickEditIfVisible();
+	var $agentName = $agent[0].firstName+" "+$agent[0].lastName;
+	//left menu verification
+	brokerAdminVerifyAgentLeftMenuNavigation();
+//	_assertEqual("/rgb\\(17, 130, 142\\)/", _style(_listItem("Certification Status"), "background-color"),"Agent Information left nav tab should be highlighted");
+	_assertVisible(_link("Cancel", _near(_heading4("Certification Status"))));
+	
+	_assertVisible(_strong($agent[0].agentNumber, _rightOf(_cell("/Agent Number/"))));
+	_assertVisible(_strong($agent[0].applicationDate, _near(_cell("Application Submission Date"))));
+	_assertVisible(_strong($agent[0].certificationNum, _rightOf(_cell("/Certification Number/"))));
+	_assertVisible(_strong($agent[0].certiStatus, _rightOf(_cell("/Certification Status/"))));
+	_assertVisible(_strong($agent[0].certiDate, _rightOf(_cell("/Certification Date/"))));
+	_assertVisible(_strong($agent[0].certiRenewDate, _rightOf(_cell("/Renewal Date/"))));
+	_assertVisible(_strong($agent[0].delegationCode, _rightOf(_cell("Delegation Code"))));
+	
+	_assertVisible(_heading4("Update Certification"));
+	_assertVisible(_select("certificationStatus", _near(_label("/New Status/"))));
+	_assertEqual("Select", _getSelectedText(_select("certificationStatus", _near(_label("/New Status/")))));
+	_assertVisible(_image("Required!", _in(_label("/New Status/"))));
+	var $actualAgentStatuses = _getOptions (_select("certificationStatus"));
+	for(var $i=0;$i<$agentCertificationStatusesCommon.length;$i++){
+		_assertEqual ($agentCertificationStatusesCommon[$i], $actualAgentStatuses[$i], "All statuses should be present in select")
+	}
+	
+	_assertVisible(_textarea("comments", _near(_label("Comment"))));
+	_assertEqual("", _getText(_textarea("comments", _near(_label("Comment")))));
+	_assertNotVisible(_image("Required!", _in(_label("Comment"))));
+	_assertVisible(_file("fileInputEODeclPage", _near(_label("Upload E&O declaration page"))));
+	_assertVisible(_button("btn_Upload_fileInputEODeclPage", _near(_label("Upload E&O declaration page"))));
+	_assertVisible(_div("File size limit is 5 MB.", _near(_label("Upload E&O declaration page"))));
+	_assertVisible(_file("fileInputContract", _near(_label("Upload contract"))));
+	_assertVisible(_button("btn_Upload_fileInputContract", _near(_label("Upload contract"))));
+	_assertVisible(_div("File size limit is 5 MB.", _near(_label("Upload contract"))));
+	_assertVisible(_file("fileInput", _near(_label("Upload Supporting Document"))));
+	_assertVisible(_button("btn_UploadDoc_fileInput", _near(_label("Upload Supporting Document"))));
+	_assertVisible(_div("File size limit is 5 MB.", _near(_label("Upload Supporting Document"))));
+	_assertVisible(_button("updateCertStatus"));
+	_assertVisible(_tableHeader("Date"));
+	_assertVisible(_tableHeader("Previous Status"));
+	_assertVisible(_tableHeader("New Status"));
+	_assertVisible(_tableHeader("Comment"));
+	_assertVisible(_tableHeader("Attachment"));
+}
+
+function brokerAdminVerifyAgentProfileViewMode($agent){
+	brokerAdminVerifyAgentLeftMenuNavigation();
+	_assertVisible(_heading4("Profile"));
+	_assertEqual("Profile", _getText(_heading4("Profile")));
+	_assertVisible(_image("Profile image of broker"));
+	var $address = $agent[0].businessStreet+" "+$agent[0].businessAddressFull.replace(/,/g, "");
+	_assertVisible(_paragraph($address, _near(_image("Profile image of broker"))));
+	_assertEqual($address, _getText(_paragraph("", _near(_image("Profile image of broker")))));
+	var $phone = convertPhone($agent[0].phone);
+	
+	_assertVisible(_strong($phone, _rightOf(_cell("Phone number"))));
+	_assertEqual($phone, _getText(_strong("", _rightOf(_cell("Phone number")))));
+	_assertVisible(_strong($agent[0].publicEmail, _near(_cell("Email Address"))));
+	
+	if($agent[0].clientsServed == "null"){
+		_assertEqual("", _getText(_strong("", _rightOf(_cell("Consumers Served")))));
+	}else{
+		_assertVisible(_strong($agent[0].clientsServed, _near(_cell("Consumers Served"))));
+	}
+	_assertVisible(_strong($agent[0].language, _near(_cell("Languages Spoken"))));
+	
+	var $productExpertise = $agent[0].productExpertise.replace(/,/g, ", ");
+	_assertVisible(_strong($productExpertise, _near(_cell("Product Expertise"))));
+	_assertEqual($productExpertise, _getText(_strong("", _rightOf(_cell("Product Expertise")))));
+	_assertVisible(_strong($agent[0].webAddress, _near(_cell("Website address"))));
+	_assertVisible(_strong($agent[0].aboutMe, _near(_cell("About me"))));
+	
+}
+
+function brokerClickAgentEdit($agentListNum){
+	_click(_link("dropdown["+$agentListNum+"]"));
+	_click(_link("/Edit/["+$agentListNum+"]"));
+}
+
+function brokerNavigateToAgentInformation(){
+	_click(_link("Agent Information"));
+}
+
+function clickSaveAgentInformation(){
+	click($btnSaveOnAgentInfo);
+}
+
+function brokerAdminEditAgentFirstName($agent){
+	clickEditIfVisible();
+	var $newAgentFirstName = $agent.firstName.substring(0,$agent.firstName.length-3) + randomString(3,"A");
+	 $agent.firstName = $newAgentFirstName;
+	_setValue($tbAgentFirstName, $agent.firstName);
+}
+
+function brokerAdminEditAgentLastName($agent){
+	
+	clickEditIfVisible();
+	var $newAgentLastName = $agent.lastName.substring(0,$agent.lastName.length-3) + randomString(3,"A");
+	 $agent.lastName = $newAgentLastName;
+	_setValue($tbAgentLastName, $agent.lastName);
+}
+
+function brokerAdminEditAgentLicenseNum($agent){
+	clickEditIfVisible();
+	$agent.licenseNumber = randomString(7,"N");
+	_setValue($tbLicenseNumber, $agent.licenseNumber);
+}
+
+function brokerAdminEditAgentFederalEIN($agent){
+	clickEditIfVisible();
+	$agent.federalEINnum = randomString(9,"N");
+	_setValue($tbFederalEIN, $agent.federalEINnum);
+}
+
+function verifyAgentDataInEnrollmentDB($household, $group, $healthPlan, $dentalPlan,$agent){
+
+	var $subscriberNumInGroup = getSubscriberNumInGroup($household,$group);
+	var $CMRHouseholdData = getCMRHouseholdData($household.people[0].email);
+	var $SSAPApplicationsDataDB = getSSAPApplicationsDataDB($CMRHouseholdData.ID, $household);
+	
+	var $planId = "";
+	var $enrollmentTypeLkp = "";
+	if($healthPlan){
+		$planId = $healthPlan.planId.replace(/\D+/g, "");
+		$enrollmentTypeLkp = "1832";
+	}else{
+		$planId = $dentalPlan.planId.replace(/\D+/g, "");
+		$enrollmentTypeLkp = "1831";
+	}
+
+
+	var $enrollmentDataDB; 
+	var $agentName = $agent.firstName+" "+$agent.lastName;
+
+	for (var $i = 0; $i < 6; $i++) {
+		$enrollmentDataDB = getEnrollmentDataDB($SSAPApplicationsDataDB.ID,$enrollmentTypeLkp,$group.member[$subscriberNumInGroup].personMedicaidIdentification,$planId);
+		if ($agentName == $enrollmentDataDB[0].AGENT_BROKER_NAME &&
+			$agent.licenseNumber == $enrollmentDataDB[0].BROKER_TPA_ACCOUNT_NUMBER_1 &&
+			$agent.federalEINnum == $enrollmentDataDB[0].BROKER_FED_TAX_PAYER_ID) {
+			break;
+		}else{
+			_wait(10000);
+			_log("waiting... as to many enrollments to update");
+		}
+	}
+	
+
+	_assertEqual($agentName,$enrollmentDataDB[0].AGENT_BROKER_NAME,"Verify agent name in enrollment");
+	_assertEqual($agent.licenseNumber,$enrollmentDataDB[0].BROKER_TPA_ACCOUNT_NUMBER_1,"Verify agent license number in enrollment");
+	_assertEqual($agent.federalEINnum,$enrollmentDataDB[0].BROKER_FED_TAX_PAYER_ID,"Verify agent federal EIN in enrollment");
+
+	return $enrollmentDataDB;
+}
+
+function verifyEnrollmentEventAfterAgentUpdate($enrollmentDataDB,$numOfUpdates,$group){
+	var $numOfMembers = $group.member.length;
+	var $enrollmentEventData = getEnrollmentEventDataDB($enrollmentDataDB.ID,null);
+	var $numOfRecords = $enrollmentEventData.length;
+	var $eventsToCheck = $numOfMembers*$numOfUpdates-$numOfMembers;
+	var $totalEvents = $numOfMembers*$numOfUpdates;
+
+	var $enrollmentEventDataBrokerUpdate = [];
+	var $count = 0;
+
+
+
+	for (var $i = 0; $i < $numOfRecords; $i++) {
+		if ($enrollmentEventData[$i].TXN_IDENTIFIER == 'BROKER_UPDATE') {
+			$enrollmentEventDataBrokerUpdate[$count] = $enrollmentEventData[$i];
+			$count++;
+		}
+	}
+
+	var $numOfRecordsBrokerUpdate = $enrollmentEventDataBrokerUpdate.length;
+	_log("$numOfRecordsBrokerUpdate: "+$numOfRecordsBrokerUpdate);
+	var $eventTypeDB = getLookupValueDataByValueIdDB($enrollmentEventDataBrokerUpdate[$numOfRecordsBrokerUpdate-1].EVENT_TYPE_LKP);
+	var $eventReasonDB = getLookupValueDataByValueIdDB($enrollmentEventDataBrokerUpdate[$numOfRecordsBrokerUpdate-1].EVENT_REASON_LKP);
+
+	_assertEqual("001", $eventTypeDB.LOOKUP_VALUE_CODE, "Verify EVENT_TYPE_LKP in enrollment_event No Reason Given");
+	_assertEqual("AI", $eventReasonDB.LOOKUP_VALUE_CODE, "Verify EVENT_REASON_LKP in enrollment_event Change");
+
+	for (var $i = 0; $i < $numOfMembers; $i++) {
+		_log("-------------------verify enrollee "+$i+" for event id "+$enrollmentEventDataBrokerUpdate[$eventsToCheck].ID+"-----------------------");
+		var $eventTypeLkp = $enrollmentEventDataBrokerUpdate[$numOfRecordsBrokerUpdate-1].EVENT_TYPE_LKP;
+		var $eventReasonLkp = $enrollmentEventDataBrokerUpdate[$numOfRecordsBrokerUpdate-1].EVENT_REASON_LKP;
+		_assertEqual($eventTypeLkp, $enrollmentEventDataBrokerUpdate[$eventsToCheck].EVENT_TYPE_LKP, "");
+		_assertEqual($eventReasonLkp, $enrollmentEventDataBrokerUpdate[$eventsToCheck].EVENT_REASON_LKP, "");
+		$eventsToCheck++;
+	}
+
+	_assertEqual($totalEvents, $numOfRecordsBrokerUpdate, "verify event count");
+
+}
+
+function brokerEditAgentInformation($agent){
+	clickEditIfVisible();
+	var $currentFirstName = _getText($tbAgentFirstName);
+	$currentFirstName = $currentFirstName.substring(0,$currentFirstName.length-3);
+	var $currentLastName = _getText($tbAgentLastName);
+	$currentLastName = $currentLastName.substring(0,$currentLastName.length-3);
+	var $newFirstName = $currentFirstName + randomString(3,"A");
+	var $newLastName = $currentLastName + randomString(3,"A");
+	var $newInsuranceLicNum = randomString(7,"N");
+	var $newPhone1 = randomStringWithoutStartingZero(3,"N");
+	var $newPhone2 = randomString(3,"N");
+	var $newPhone3 = randomString(4,"N");
+	var $newPhone = $newPhone1+"-"+$newPhone2+"-"+$newPhone3;
+	var $newBusPhone1 = randomStringWithoutStartingZero(3,"N");
+	var $newBusPhone2 = randomString(3,"N");
+	var $newBusPhone3 = randomString(4,"N");
+	var $newBusPhone = $newBusPhone1+"-"+$newBusPhone2+"-"+$newBusPhone3;
+	var $newAltPhone1 = randomStringWithoutStartingZero(3,"N");
+	var $newAltPhone2 = randomString(3,"N");
+	var $newAltPhone3 = randomString(4,"N");
+	var $newAltPhone = $newAltPhone1+"-"+$newAltPhone2+"-"+$newAltPhone3;
+	var $newFax1 = randomStringWithoutStartingZero(3,"N");
+	var $newFax2 = randomString(3,"N");
+	var $newFax3 = randomString(4,"N");
+	var $newFax = $newFax1+"-"+$newFax2+"-"+$newFax3;
+	
+	var $newCommunicationPref;
+	
+	_setValue($tbAgentFirstName, $newFirstName);
+	_setValue($tbAgentLastName, $newLastName);
+	_setValue($tbLicenseNumber, $newInsuranceLicNum);
+	
+	var $newLicenseRenewalDate = _fetch(window.moment().format("MM-DD-YYYY"));;
+//	_set($newLicenseRenewalDate, _call(window.moment($newLicenseRenewalDate).format("MM-DD-YYYY")));
+	_setValue(_textbox("licrenewaldate"), $newLicenseRenewalDate);
+	_click(_italic("icon-calendar"));
+	_click(_tableHeader("»"));
+	_click(_cell("15"));
+	$newLicenseRenewalDate = _getValue(_textbox("licrenewaldate"));//in format xx-xx-xxxx, but will save in format xx/xx/xxxx
+	
+	
+//	_set($newLicenseRenewalDateDB, _call(window.moment($newLicenseRenewalDateDB).format("YYYY-MM-DD")));
+//	$newLicenseRenewalDate = $newLicenseRenewalDate.replace(/-/g, "/");
+//	_set($newLicenseRenewalDate, _call(window.moment($newLicenseRenewalDate).format("YYYYMMDD")));
+	
+//	$newLicenseRenewalDateDB = $newLicenseRenewalDateDB.toUpperCase();
+	
+	_setValue(_textbox("phone1"), $newPhone1);
+	_setValue(_textbox("phone2"), $newPhone2);
+	_setValue(_textbox("phone3"), $newPhone3);
+	_setValue(_textbox("businessContactPhone1"), $newBusPhone1);
+	_setValue(_textbox("businessContactPhone2"), $newBusPhone2);
+	_setValue(_textbox("businessContactPhone3"), $newBusPhone3);
+	_setValue(_textbox("alternatePhone1"), $newAltPhone1);
+	_setValue(_textbox("alternatePhone2"), $newAltPhone2);
+	_setValue(_textbox("alternatePhone3"), $newAltPhone3);
+	_setValue(_textbox("faxNumber1"), $newFax1);
+	_setValue(_textbox("faxNumber2"), $newFax2);
+	_setValue(_textbox("faxNumber3"), $newFax3);
+	
+	var $flag=false;
+	var $options = _getOptions (_select("communicationPreference"));
+	var $value = _getValue (_select("communicationPreference"));
+	while($flag==false){	
+		var $i = Math.floor(Math.random() * 3) + 1;
+		if($options[$i] != $value){
+			_setSelected (_select("communicationPreference"),$options[$i]);
+			$newCommunicationPref = $options[$i];
+			$flag=true;
+		}
+	}
+	
+	var $individualEmail = randomString(5, "A").toLowerCase()+"indiv@yopmail.com";
+	_setValue(_textbox("personalEmailAddress"), $individualEmail);
+	
+	_uncheck(_checkbox("mailingAddressCheck"));//to reupdate the address in correspondence address
+	
+	var $oldLocation = _getSelectedText(_select("select_agencyLocation"));
+		_log("Old Location:" + $oldLocation);
+		var $locations = _getOptions(_select("select_agencyLocation"), "sahiText");
+		_log("Locations: "+ $locations);
+		var $locationNum = $locations.length;
+		for ($i=0;$i<$locationNum;$i++){
+			if ($oldLocation==$locations[$i]){
+				$i++;
+				var $mod = $i%$locationNum;
+				if ($mod == 0){//select location
+					$mod++;
+					_setSelected(_select("select_agencyLocation"), $locations[$mod]);
+				}
+				else{
+					_setSelected(_select("select_agencyLocation"), $locations[$mod]);
+				}
+			break;
+			}
+		}
+		var $newLocation = _getSelectedText(_select("select_agencyLocation"));
+		_log("New Location:" + $newLocation);
+		var $newAddress = _getText(_div("dynamicLocationBox", _rightOf(_label("Current Location"))));
+	
+	if(_isVisible(_div("address-failure-box"))){
+		_setStrictVisibilityCheck(true);
+		_click(_button("OK"));
+		_setStrictVisibilityCheck(false);
+	}
+	
+	if(_isVisible(_div("address-failure-box"))){
+		_setStrictVisibilityCheck(true);
+		_click(_button("OK"));
+		_setStrictVisibilityCheck(false);
+	}
+	var $newBusinessAddressInfo = getBusinessAddressFromUI();
+	_click($btnSaveOnAgentInfo);
+	
+	//verify data has been saved correctly
+	var $savedBusinessAddress = _getText(_cell(0, _rightOf(_cell("Business address")))) + " " +_getText(_cell(0, _under(_cell(0, _rightOf(_cell("Business address"))))));
+	var $savedCorrespondenceAddress = _getText(_cell(0, _rightOf(_cell("Correspondence Address")))) + " " +_getText(_cell(0, _under(_cell(0, _rightOf(_cell("Correspondence Address"))))));
+	_assertEqual($newFirstName,_getText(_cell(0, _rightOf(_cell("First Name")))),"The saved value for first name should match the new inputed value");
+	_assertEqual($newLastName,_getText(_cell(0, _rightOf(_cell("Last Name")))),"The saved value for last name should match the new inputed value");
+	
+	$agent[0].firstName = $newFirstName;
+	$agent[0].lastName = $newLastName;
+	$agent[0].name = $newFirstName +" "+ $newLastName;
+	$agent[0].phone = $newPhone;
+	$agent[0].buisnessPhone = $newBusPhone;
+	$agent[0].altPhone = $newAltPhone;
+	$agent[0].fax = $newFax;
+	$agent[0].licenseNumber = $newInsuranceLicNum;
+	$agent[0].licenseRenewalDate = $newLicenseRenewalDate;
+	_log("License renewval date: "+$agent[0].licenseRenewalDate);
+	$agent[0].communicationpreference = $newCommunicationPref;
+	$agent[0].personalEmail = $individualEmail;
+	
+	$agent[0].siteLocationName = $newLocation;
+	$agent[0].businessStreet = $newBusinessAddressInfo.businessAddressStr;
+	$agent[0].businessCity = $newBusinessAddressInfo.businessCity;
+	$agent[0].businessState = $newBusinessAddressInfo.businessState;
+	$agent[0].businessZipcode = $newBusinessAddressInfo.businessZipcode;
+	$agent[0].businessAddressFull = $newBusinessAddressInfo.businessCity+", "+$newBusinessAddressInfo.businessState+" "+$newBusinessAddressInfo.businessZipcode;
+	
+	//edit correspondence address
+	$agent = brokerAdminEditAgentCorrespondenceAddress($agent);
+	
+	return $agent;
+}
+
+function brokerAdminEditAgentFederalEINToStartZerro($agent){
+	clickEditIfVisible();
+	var $oldFederalEIN = _getValue($tbFederalEIN);
+	var $newFederalEIN = "00"+$oldFederalEIN.substring(2,$oldFederalEIN.length);
+	_assertVisible(_link("Save", _near(_heading4("Registration Information"))));
+	_assertVisible(_link("Cancel", _near(_heading4("Registration Information"))));
+	_setValue($tbFederalEIN, $newFederalEIN);
+	_click(_link("Save", _near(_heading4("Registration Information"))));
+	_assertVisible(_strong($newFederalEIN, _near(_cell("Federal Employer Identification Number (EIN)"))));
+	$agent[0].federalEINnum = $newFederalEIN;
+	return $agent;
+}
+
+function verifyAgentFederalEINToStartZerroDB($isUserAccountCreated,$agent){
+	var $agentDB;
+	var $agentFederalEINDB;
+	if($isUserAccountCreated == "Y"){
+		var $primaryEmail = $agent[0].primaryEmail;
+		$primaryEmail = $primaryEmail.toLowerCase();
+		$agentDB = accessAgentInformationWithUserAccountDB($primaryEmail);
+		$agentFederalEINDB = $agentDB[0][10];
+	}else{
+		$agentDB = accessAgentInformationDB($agent[0].firstName,$agent[0].lastName);
+		$agentFederalEINDB = $agentDB[0][14];
+	}
+	_assertTrue ($agentFederalEINDB == $agent[0].federalEINnum, "Agent Federal EIN should match in DB");
+	_assertTrue ($agentFederalEINDB.length == 9, "Agent Federal EIN length should be 9 digits in DB");
+	
+}
+
+function verifyAgencyFederalTaxIdToStartZerroDB($agency){
+	var $agencyDB = accessAgencyInformationDB($agency.agencyName);
+	var $agencyFederalTaxIdDB = $agencyDB[0][2];
+	_assertTrue ($agencyFederalTaxIdDB == $agency.federalTaxID, "Agency Federal Tax ID should match in DB");
+	_assertTrue ($agencyFederalTaxIdDB.length == 9, "Agency Federal Tax ID length should be 9 digits in DB");
+}
+
+function clickEditIfVisible(){
+	if(_isVisible (_link("Edit")) == true){
+		_click(_link("Edit"));
+	}
+}
+
+function brokerAdminEditAgentCorrespondenceAddress($agent){
+	
+	clickEditIfVisible();
+	var $address1=_getText(_textbox("address1_mailing"));
+	var $num = $address1.match(/\d+/)[0];
+	var $newNum = randomStringWithoutStartingZero($num.length,"N");
+	var $newAddress1 = $newNum +" "+ $address1.replace(/[0-9]/g, "");
+	_setValue(_textbox("address1_mailing"), $newAddress1);
+	
+	var $newCity = getRandomCity();
+	_setValue(_textbox("city_mailing"), $newCity);
+	
+	var $newState = getRandomState();
+	var $stateAbbr = abbrState($newState, 'abbr');
+	_setSelected(_select("state_mailing"), $newState);
+	
+	var $newZipcode = "940"+randomStringWithoutStartingZero(2,"N");
+	_setValue(_textbox("zip_mailing"), $newZipcode);
+	
+	_click($btnSaveOnAgentInfo);
+	
+	_wait(2000);
+	
+	if(_isVisible (_heading3("Address not found"))){
+		_setStrictVisibilityCheck(true);
+		_click(_submit("OK"));
+		_setStrictVisibilityCheck(false);
+	}
+	
+	$agent[0].correspAddressStreet = $newAddress1;
+	$agent[0].correspAddressState = $stateAbbr;
+	$agent[0].correspStateShort = $stateAbbr;
+	$agent[0].correspAddressCity = $newCity;
+	$agent[0].correspAddressZipcode = $newZipcode;
+	$agent[0].correspAddressFull = $newCity+", "+$stateAbbr+" "+$newZipcode;
+	return $agent;
+}
+
+function brokerNavigateToAgentProfile(){
+	_click(_link("Profile"));
+}
+
+function brokerAdminEditAgentProfile($agent){
+	clickEditIfVisible();
+	var $newEmail = randomString(5, "A").toLowerCase()+"public@yopmail.com";
+	_setValue(_textbox("email"), $newEmail);
+	
+	var $clientsServed = ["Individuals / Families","Employers"];
+	var $newClientsServed = "";
+	var $checkCount=0;
+	for(var $i=0;$i<$clientsServed.length;$i++){
+		_log("$clientsServed[$i]1: "+$clientsServed[$i]);
+		if(_checkbox($clientsServed[$i]).checked){
+			_log("$clientsServed[$i]2: "+$clientsServed[$i]);
+			_uncheck(_checkbox($clientsServed[$i]));
+			
+		}else{
+			_log("$clientsServed[$i]3: "+$clientsServed[$i]);
+			_check(_checkbox($clientsServed[$i]));
+			$newClientsServed = $newClientsServed +","+ $clientsServed[$i];
+			$checkCount++;
+		}
+	}
+	if($newClientsServed.substring(0,1) == ","){
+		$newClientsServed = $newClientsServed.substring(1,$newClientsServed.length);
+	}
+	if($checkCount == 0){
+		$newClientsServed = "null";
+	}
+	
+	var $languges = ["English","Hakka","Achinese","Chadic","African","Crow","Italian","Makah","Danish","German"];
+	
+	//cleare languages and set new
+	var $previousLang = _collect ("_link", "/search-choice-close/");
+	for(var $i=0;$i<$previousLang.length;$i++){
+		_click(_link("/search-choice-close/"));
+	}
+	var $newLanguages;
+	var $num = randomString(1, "N");
+	_click(_listItem($languges[$num]));
+	$newLanguages = $languges[$num];
+	
+	//clear all product expertise
+	var $productCheckboxes = _collect ("_checkbox", "/productExpertise/");
+	for(var $i=0;$i<$productCheckboxes.length;$i++){
+		if($productCheckboxes[$i].checked){
+			_uncheck($productCheckboxes[$i]);
+		}
+	}
+	
+	var $newProductExpertise="";
+	var $num = [];
+	// create num array and sort it
+	for(var $i=0;$i<4;$i++){
+		var $random = Math.floor(Math.random() * 7)+1;//randomStringWithoutStartingZero(1, "N");
+		$num[$i] = $random - 1;
+		_log("nums: "+$num[$i]);
+	}
+	$num = uniq($num); //function to sort and delete duplicates from array
+	_log("sort arr: "+$num);
+	// using sort array check product expertise
+	for(var $i=0;$i<$num.length;$i++){
+		_check(_checkbox($productExpertiseCommon[$num[$i]]));	
+		$newProductExpertise = $newProductExpertise+","+$productExpertiseCommon[$num[$i]];
+	}	
+	$newProductExpertise = $newProductExpertise.substring(1,$newProductExpertise.length);
+	
+	var $newWebsiteAddress = randomString(10, "A");
+	$newWebsiteAddress = "www."+$newWebsiteAddress+".com";
+	_setValue(_textbox("yourWebSite"), $newWebsiteAddress);
+
+	var $newAboutMe = randomString(10, "A");
+	_setValue(_textarea("aboutMe"), $newAboutMe);
+	
+	_click(_submit("saveAgentProfile"));
+	_assertVisible(_strong($newEmail, _rightOf(_cell("Email Address"))));
+	
+	$agent[0].clientsServed = $newClientsServed;
+	$agent[0].publicEmail = $newEmail;
+	$agent[0].language = $newLanguages;
+	$agent[0].productExpertise = $newProductExpertise;
+	$agent[0].webAddress = $newWebsiteAddress;
+	$agent[0].aboutMe = $newAboutMe;
+	return $agent;
+}
+
+function brokerEditAgentProfileOptional($agent){
+	_click(_link("Edit", _in(_div("Profile Edit"))));
+	var $originalIndividualsFamilies; //if those checkboxes have been previously checked
+	var $originalEmployers;
+	_log(_getAttribute(_checkbox("clientsServed"), "checked"));
+	if (_getAttribute(_checkbox("clientsServed"), "checked")) {
+		$originalIndividualsFamilies = true;
+		_log($originalIndividualsFamilies);
+		_uncheck(_checkbox("clientsServed"));
+	}
+	else{
+		$originalIndividualsFamilies = false;
+		_log($originalIndividualsFamilies);
+		_check(_checkbox("clientsServed"));
+	}
+	if (_getAttribute(_checkbox("clientsServed[1]"), "checked")) {
+		$originalEmployers = true;
+		_log($originalEmployers);
+		_uncheck(_checkbox("clientsServed[1]"));
+	}
+	else{
+		$originalEmployers = false;
+		_log($originalEmployers);
+		_check(_checkbox("clientsServed[1]"));
+	}
+	//need better way to edit languages and product expertise without knowing the values previously
+	_setValue(_textbox("yourWebSite"), $newWebsiteAddress);
+
+	//var $newAboutMe = _getText(_textarea("aboutMe")) + " EDIT";
+	var $newAboutMe = randomString(10, "A");
+	_setValue(_textarea("aboutMe"), $newAboutMe);
+	_click(_submit("Save & Continue"));
+	
+	//verify that the data has been saved correctly 
+	if (($originalIndividualsFamilies==true) && ($originalEmployers==true)){
+		_assertEqual("",_getText(_cell(0, _rightOf(_cell("Consumers Served")))),"If both the'clientsServed' checkboxes are unselected, the 'Clients Served' cell should be blank");
+	}
+	else if (($originalIndividualsFamilies==true) && ($originalEmployers==false)){
+		_assertEqual("Individuals / Families",_getText(_cell(0, _rightOf(_cell("Consumers Served")))),"If the Employers checkbox is unselected, but Individuals/Families is selected, then the cell should show Individuals / Families");
+	}
+	else if (($originalIndividualsFamilies==false) && ($originalEmployers==true)){
+		_assertEqual("Employers",_getText(_cell(0, _rightOf(_cell("Consumers Served")))),"If the Employers checkbox is selected, but Individuals/Families is unselected, then the cell should show Employers");
+	}
+	else if (($originalIndividualsFamilies==false) && ($originalEmployers==false)){
+		_assertEqual("Individuals / Families,Employers",_getText(_cell(0, _rightOf(_cell("Consumers Served")))),"If both the'clientsServed' checkboxes are selected, the 'Clients Served' cell should show Individuals / Families,Employers");
+	}
+
+	_assertEqual($newWebsiteAddress, _getText(_cell(0, _rightOf(_cell("Website address")))), "message");
+	_assertEqual($newAboutMe, _getText(_cell(0, _rightOf(_cell("About me")))), "message");
+}
+
+function brokerAdminEditAndVerifyAgentCertificationStatus($agent,$newStatus){
+	
+	clickEditIfVisible();
+	_setSelected(_select("certificationStatus"), $newStatus);
+	_setValue(_textarea("comments"), "changed by Sahi to :"+$newStatus);
+	if($newStatus == "Certified"){
+		var $certiDate = _getValue(_textbox("newStartDate"));
+		_set($certiDate, _call(window.moment($certiDate).format("MM-DD-YYYY")));
+		$agent[0].certiDate = $certiDate;
+		var $certiRenewDate = _getValue(_textbox("newEndDate"));
+		_set($certiRenewDate, _call(window.moment($certiRenewDate).format("MM-DD-YYYY")));
+		$agent[0].certiRenewDate = $certiRenewDate;
+	}
+//	brokerAdminVerifyAgentCertificationPageFileUpload();
+	_click(_button("updateCertStatus"));
+	_assertVisible(_strong($newStatus, _near(_cell("Certification Status"))));
+	_assertVisible(_strong($agent[0].agentNumber, _rightOf(_cell("/Agent Number/"))));
+	_assertVisible(_strong($agent[0].applicationDate, _near(_cell("Application Submission Date"))));
+	_assertVisible(_strong($agent[0].certificationNum, _rightOf(_cell("/Certification Number/"))));
+	_assertVisible(_strong($agent[0].certiDate, _rightOf(_cell("/Start Date/"))));
+	_assertVisible(_strong($agent[0].certiRenewDate, _rightOf(_cell("/End Date/"))));
+	var $date = _call(window.moment().format("MMM DD, YYYY"));
+	var $newStatusDate;
+	_set($newStatusDate, _call(window.moment().format("MM-DD-YYYY")));
+	_assertVisible(_cell($date, _near(_tableHeader("Date"))));
+	_assertVisible(_cell($agent[0].certiStatus, _near(_tableHeader("Previous Status"))));
+	_assertVisible(_cell($newStatus, _near(_tableHeader("New Status"))));
+	_assertVisible(_link("View Comment", _in(_row(1, _under(_heading4("Certification History"))))));
+	$agent[0].certiStatus = $newStatus;
+	$agent[0].statusDate = $newStatusDate;
+	$agent[0].delegationCode = _getText(_strong("", _rightOf(_cell("Delegation Code"))));
+	return $agent;
+}
+function verifyFileUploadSuccessfully(){
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_div("×"));
+	_assertVisible(_heading4("File uploaded Successfully."));
+	_assertVisible(_submit("Ok"));
+	_click(_submit("Ok"));
+	_setStrictVisibilityCheck(false);
+}
+
+function createCertifiedAgentIfNotExist($defaultAgentName){
+	var $agentPresent = getAgentfromDb($defaultAgentName);
+	if ($agentPresent.length == 0) {
+		createDefaultAgent($defaultAgentName);
+	}	
+}
+
+function createAgentAndAssociateToAgentWithAgency($AgentTobeAssociated, $companyName){
+	var $agentName = "AgentA" +randomString(5,"A");
+	createDefaultAgent($agentName);
+	associateAgentToAgentWithAgency($agentName, $AgentTobeAssociated.firstName, $companyName);
+	return $agentName;
+	
+}
+
+function createDefaultAgent($defaultAgentName){
+	
+	_click(_link("Health Insurance Agent/Broker"));
+	_assertVisible(_heading1("New Agent Account Set-Up"));
+	_setValue($tbAgentFirstName, $defaultAgentName);
+	_setValue($tbAgentLastName, $defaultAgentName);
+	_setValue(_emailbox("email"), $defaultAgentName+"@yopmail.com");
+	_setValue(_emailbox("confirmEmail"), $defaultAgentName+"@yopmail.com");
+	
+	_setValue(_textbox("phone1"), "408");
+	_setValue(_textbox("phone2"), "223");
+	_setValue(_textbox("phone3"), "2345");
+	
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	_setValue(_textbox("Security Answer"), "11");
+	_setValue(_password("password"), "ghix123#");
+	_setValue(_password("confirmPassword"), "ghix123#");
+	_click(_button("Submit"));
+	_assertVisible(_heading1("New Agent Registration"));
+	_setValue($tbLicenseNumber, "1234555");
+	_click(_italic("icon-calendar"));
+	_click(_tableHeader("datepicker-switch"));
+	_click(_tableHeader("»[1]"));
+	_click(_tableHeader("»[1]"));
+	_click(_span("Dec"));
+	_click(_cell("31"));
+	_setValue(_textbox("personalEmailAddress"), $defaultAgentName+"person@yopmail.com");
+	_setValue(_textbox("phone1"), "408");
+	_setValue(_textbox("phone2"), "223");
+	_setValue(_textbox("phone3"), "2345");
+	_setSelected(_select("communicationPreference"), "Email");
+	_setValue(_textbox("companyName"), $defaultAgentName);
+	_setValue($tbFederalEIN, "123456789");
+	_setValue(_textbox("address1_business"), "1330 Terra Bella Ave");
+	_setValue(_textbox("location.city"), "Mountain View");
+	_setSelected(_select("location.state"), "California");
+	_setValue(_textbox("location.zip"), "94043");
+//	_check(_checkbox("mailingAddressCheck"));
+	_setValue(_textbox("address1_mailing"), $correspAddressStreet);
+	_setValue(_textbox("city_mailing"), $correspAddressCity);
+	_setSelected(_select("state_mailing"), $correspAddressState);
+	_setValue(_textbox("zip_mailing"), $correspAddressZipcode);
+	_click(_button("Next"));
+	_click(_submit("Finish"));
+	_click(_submit("Exit"));
+	_assertVisible(_strong("Pending"));
+}
+
+function refineAgentsForBroker($firstName, $lastName, $businessName, $licenseNumber, $certificationStatus){
+	if ($firstName) {
+		_setValue(_textbox("user.firstName", _near(_label("First Name"))), $firstName);
+	}
+	if ($lastName) {
+		_setValue(_textbox("user.lastName", _near(_label("Last Name"))), $lastName);
+	}
+	if ($businessName) {
+		_setValue(_textbox("companyName", _near(_label("Business Name"))), $businessName);	
+	}
+	if ($licenseNumber) {
+		_setValue(_textbox("licenseNumber", _near(_label("License Number"))), $licenseNumber);
+	}
+	if ($certificationStatus) {
+		_setSelected(_select("certificationStatus", _near(_label("Certification Status"))), $certificationStatus);
+	}
+	
+	click(_submit("Go"));
+
+	var $tableContents = _getTableContents(_table("brokerlist"), ["/"+"Agent Name"+"/", "/"+"Business Name"+"/", "/"+"License Number"+"/", "/"+"Certification Status"+"/"]);
+	for (var $i = 1; $i < $tableContents.length; $i++) {
+		var $row = $tableContents[$i];
+		if ($firstName) {
+			_assert($row[0].indexOf($firstName) != -1, "Actual Agent Name: " + $row[0]);
+		}
+		if ($lastName) {
+			_assert($row[0].indexOf($lastName) != -1, "Actual Agent Name: " + $row[0]);
+		}
+		if ($businessName) {
+			_assert($row[1].indexOf($businessName) != -1, "Actual Business Name: " + $row[1]);
+		}
+		if ($licenseNumber) {
+			_assert($row[2].indexOf($licenseNumber) != -1, "Actual License Name: " + $row[2]);
+		}
+		if ($certificationStatus) {
+			_assert($row[3].indexOf($certificationStatus) != -1, "Actual Certification Status: " + $row[3]);
+		}
+	}
+}
+
+function goToManageAgents(){
+	click(_link("Agents"));
+	click(_link("Manage Agents"));
+	_assertVisible(_tableHeader("/"+"Agent Name"+"/"));
+	verifyURL("hix/admin/broker/manage");
+}
+
+function verifyStatusOfAllAgents($status, $licenseNumber){
+	_setValue(_textbox("License Number"), $licenseNumber);
+	_click(_submit("Go"));
+	var $statusOfAllAgent = _getTableContents(_table("brokerlist"),["/Certification Status/"]);
+	for(var $i =1; $i <$statusOfAllAgent.length ;$i++){
+		_assertEqual("Certified", $statusOfAllAgent[$i]," All Agents should be certified");
+	}
+		
+}
+
+function brokerAdminSwitchToAgency($agency,$agencyCertificationStatus,$brokerAdminEmail,$brokerAdminPassword,$isPopup){
+	loginAsBrokerAdmin($brokerAdminEmail,$brokerAdminPassword);
+	navigateToManageAgencies();
+	brokerSearchForAgency($agency,$agencyCertificationStatus);
+	clickAgencyName($agency);
+	clickAndNavigateViewAgencyAccount($isPopup);
+}
+
+function clickAgencyName($agency){
+	_click(_link($agency));
+	verifyExistingAgencyLeftNavigation();
+	var $expectedAgency = _getText(_cell(1, _near(_cell("Legal Business Name"))));
+	_assertEqual($agency,$expectedAgency," Expected Agency name did not match");
+
+}
+
+function clickAndNavigateViewAgencyAccount($isPopup){
+	_lockWindow();
+	_focusWindow();
+
+	if($isPopup == "Y") {
+		var $popupText = "Clicking on 'View Agency Account' will take you to Agency portal and will let you take actions on behalf of Agency Manager.";
+		_click(_link("View Agency Account"));
+		_assertVisible(_div("× View Agency Account"));
+		_assertVisible(_button("CANCEL"));
+		_assertVisible(_button("AGENCY VIEW"));
+		_assertEqual($popupText,_getText(_paragraph("ng-binding", _in(_div("modal-body")))),"Verify pop up text");
+		_assertVisible(_label("Don't show this message again.", _near(_checkbox("showMsgInFuture"))));
+		_click(_checkbox("showMsgInFuture"));
+		_click(_button("AGENCY VIEW"));
+	}else{
+		_click(_link("View Agency Account"));
+		_assertNotVisible(_div("× View Agency Account"));
+		_assertNotVisible(_button("AGENCY VIEW"));
+		_assertVisible(_link("My Account", _in(_div("/Viewing Agency Account/"))));
+	}
+	_unlockWindow();
+}
+
+function backToBrokerAdminAccountFromAgencyView(){
+	_click(_link("My Account", _in(_div("navtopview"))));
+	_assertVisible(_link("Agents", _in(_list("nav navPhixbar"))));
+	_assertVisible(_link("Agencies", _in(_list("nav navPhixbar"))));
+	_assertVisible(_link("Admin Staff", _in(_list("nav navPhixbar"))));
+}
+
+function verifyCertifiedAgencyAgencyDelegationsSubMenusEnabled(){
+_click(_link("Agency Delegations Dropdown Menu. Press enter to open it and tab through its options"));
+_assertNotEqual("disabled",_getAttribute(_link("/Pending Delegation Requests/", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in certified state, 'Pending Delegation Requests' link should not be disabled");
+_assertNotEqual("disabled",_getAttribute(_link("/Active Consumers/", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in certified state, 'Active Consumers' link should not be disabled");
+_assertNotEqual("disabled",_getAttribute(_link("/Transfer Consumers/", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in certified state, 'Transfer Consumers' link should not be disabled");
+}
+
+function verifyViewingAgencyAccountOnBrokerAdminTab($agencyName){
+	var $actualAgency = _getText(_cell(1, _near(_cell("Agency Name (Public Facing)"))));
+	var $agencyOnTab = _getText(_paragraph("",_in(_div("navtopview"))));
+	var $agencyNameOnTab=$agencyOnTab.substring(24,$agencyOnTab.length-1);
+	_assertEqual($actualAgency,$agencyNameOnTab, "Veriffy that agency on Admin view tab matching Agency Name (Public Facing) on Agency Information page");
+	_assertEqual($agencyName,$actualAgency,"Veriffy that agency name matching Agency Name (Public Facing) on Agency Information page")
+}
+  
+ function brokerAdminVerifyAgentCertificationPageFileUpload(){
+	if(_isVisible(_link("Edit"))){
+		_click(_link("Edit"));
+	}
+//	_setFile2(_file("fileInputEODeclPage"), $uploadFilePathDir+$fileName);
+	var $temp = getUpdatedBaseURL();
+	_set($tempUrl, $temp+"/hix/admin/broker/upload/");
+	
+	_setFile2(_file("fileInputEODeclPage"), $uploadFilePathDir+$fileName, $tempUrl);
+	_click(_button("btn_Upload_fileInputEODeclPage"));
+	verifyFileUploadSuccessfully();
+	
+	_setFile2(_file("fileInputContract"), $uploadFilePathDir+$fileName, $tempUrl);
+	_click(_button("btn_Upload_fileInputContract"));
+	verifyFileUploadSuccessfully();
+	
+	_setFile2(_file("fileInput"), $uploadFilePathDir+$fileName, $tempUrl);
+	_click(_button("btn_UploadDoc_fileInput"));
+	verifyFileUploadSuccessfully();
+ }
+  
+/**
+*Broker admin Admin Staff navigation
+*/
+/**
+*Broker searches for the created Admin Staff and certifies them
+*/
+
+function brokerSearchForAdminStaffApproveAdminStaff($staffNum,$currentApprovalStatus, $newApprovalStatus,$adminStaffInfo){
+	for ($i = 0; $i < $staffNum; $i++){ //searching for and certifying agents based on agentNum
+		brokerAdminSearchForAdminStaff(null,$adminStaffInfo[$i].firstName,$adminStaffInfo[$i].lastName,$adminStaffInfo[$i].businessName, null,null);
+
+		_click(_link("/dropdown/", _near(_tableHeader("Actions"))));
+		_click(_link("Edit", _near(_tableHeader("Actions"))));
+		
+		_click(_link("/Approval Status/"));
+		_assertVisible(_heading4("Approval Status"));
+		var $uiApprovalStatus = _getText(_strong("", _in(_row("/Approval Status/"))));
+		
+		// if current and new status is same, not change it
+		if($currentApprovalStatus != $newApprovalStatus && $newApprovalStatus != $uiApprovalStatus){
+			//certifying Admin Satff
+			_click(_submit("Edit"));
+			_setSelected(_select("aid-approvalStatus"), $newApprovalStatus);
+			_setValue(_textarea("comments"), $newApprovalStatus+" by Sahi script");
+			_click(_submit("Submit"));
+			_assertVisible(_strong($adminStaffInfo[$i].staffNumber, _in(_row("/Staff Number/"))));
+			var $date = _fetch(window.moment().format("MMM DD, YYYY"));
+			_assertEqual($date, _getText(_cell("", _near(_tableHeader("Date")))));
+			_assertVisible(_cell($date, _near(_tableHeader("Date"))));
+			_assertVisible(_cell($currentApprovalStatus, _near(_tableHeader("Previous Status"))));
+			_assertVisible(_cell($newApprovalStatus, _near(_tableHeader("New Status"))));
+			_assertVisible(_link("View Comments", _near(_tableHeader("Comment"))));
+			_click(_link("View Comments", _near(_tableHeader("Comment"))));
+
+			_lockWindow();
+			_focusWindow();
+			_setStrictVisibilityCheck(true);
+			_assertVisible(_div("viewCommentsModal"));
+			_assertVisible(_button("×", _in(_div("viewCommentsModal"))));
+			_assertVisible(_heading3("View Comments"));
+			_assertEqual($newApprovalStatus+" by Sahi script", _getText(_div("modal-body")));
+			_assertVisible(_submit("Close"));
+			_click(_submit("Close"));
+			_setStrictVisibilityCheck(false);
+			_unlockWindow();
+		}else{
+			_log("Admin Staff already in "+$newApprovalStatus+" status");
+				
+		}
+		
+		// get sertification info from UI
+	//	$adminStaffInfo[$i].staffNumber = _getText(_strong("", _in(_row("/Staff Number/"))));
+		$adminStaffInfo[$i].applicationSubmisDate = _getText(_strong("", _in(_row("/Application Submission Date/"))));
+		$adminStaffInfo[$i].approvalStatus = _getText(_strong("", _in(_row("/Approval Status/"))));
+		$adminStaffInfo[$i].approvalNumber = _getText(_strong("", _in(_row("/Approval Number/"))));
+		$adminStaffInfo[$i].approvalDate = _getText(_strong("", _in(_row("/Approval Date/"))));
+		$adminStaffInfo[$i].delegationCode = _getText(_strong("", _in(_row("/Delegation Code/"))));
+		
+				
+	}
+	return $adminStaffInfo;	
+}
+
+function brokerAdminNavigateToManageAdminStaff(){
+	_click(_link("Admin Staff"));
+	_click(_link("/Manage Admin Staff/"));
+	_assertVisible(_heading1("/Total Admin Staff/"));
+}
+
+function brokerAdminSearchForAdminStaff($adminStaff,$byFirstName,$byLastName,$byBusinessName,$byAdminStaffId,$byApprovalStatus){
+	brokerAdminNavigateToManageAdminStaff();
+	if($adminStaff){
+		_setValue(_textbox("first-name"), $adminStaff[0].firstName);
+		_setValue(_textbox("last-name"), $adminStaff[0].lastName);
+		_setValue(_textbox("business-name"), $adminStaff[0].businessName);
+		_setValue(_textbox("staff-id"), $adminStaff[0].staffNumber);
+		_setSelected(_select("", _near(_label("Approval Status"))), $adminStaff[0].approvalStatus);
+	}
+	if($byFirstName){ 
+		_setValue(_textbox("first-name"), $byFirstName);
+	}
+	if($byLastName){ 
+		_setValue(_textbox("last-name"), $byLastName);
+	}
+	if($byBusinessName){ 
+		_setValue(_textbox("business-name"), $byBusinessName);
+	}
+	if($byAdminStaffId){ 
+		_setValue(_textbox("staff-id"), $byAdminStaffId);
+	}
+	if($byApprovalStatus){ 
+		_setSelected(_select("", _near(_label("Approval Status"))), $byApprovalStatus);
+	}
+	_click(_submit("go-btn"));
+}
+
+function brokerAdminNavigateToEditAdminStaff($adminStaff,$firstName,$lastName){
+	var $staffName;
+	if($adminStaff){
+		$staffName = $adminStaff[0].firstName +" "+$adminStaff[0].lastName;
+	}
+	if($firstName && $lastName){
+		$staffName = $firstName +" "+ $lastName;
+	}
+	_click(_link("dropdown-toggle", _near(_cell($staffName))));
+	_click(_link("Edit", _near(_cell($staffName))));
+	
+	if($adminStaff){
+		_assertVisible(_strong($adminStaff[0].firstName, _near(_cell("First Name"))));
+		_assertVisible(_strong($adminStaff[0].lastName, _near(_cell("Last Name"))));
+	}
+	
+	if($firstName && $lastName){
+		_assertVisible(_strong($firstName, _near(_cell("First Name"))));
+		_assertVisible(_strong($lastName, _near(_cell("Last Name"))));
+	}
+	
+}
+
+function brokerAdminEditAdminStaffCorrespondenceAddress($adminStaff){
+	if(_isVisible (_submit("Edit")) == true){
+		_click(_submit("Edit"));
+	}
+	
+	var $address1=_getText(_textbox("aid-address_ln_1"));
+	var $num = $address1.match(/\d+/)[0];
+	var $newNum = randomStringWithoutStartingZero($num.length,"N");
+//	var $newAddress1 = $newNum +" "+ $address1.replace(/[0-9]/g, "");
+	var $newAddress1 = $newNum + $address1.replace(/[0-9]/g, "");
+	_setValue(_textbox("aid-address_ln_1"), $newAddress1);
+	
+	var $newCity = getRandomCity();
+	_setValue(_textbox("city"), $newCity);
+	
+	var $newState = getRandomState();
+	var $stateAbbr = abbrState($newState, 'abbr');
+	_setSelected(_select("state"), $newState);
+	
+	var $newZipcode = "940"+randomStringWithoutStartingZero(2,"N");
+	_setValue(_textbox("zipcode"), $newZipcode);
+	
+	_click(_submit("update"));
+	
+	_wait(2000);
+	
+
+	_lockWindow();
+	_focusWindow();
+	if(_isVisible (_heading3("Address not found"))){
+		_setStrictVisibilityCheck(true);
+		_click(_submit("OK"));
+		_setStrictVisibilityCheck(false);
+	}
+	_unlockWindow();
+	
+	$adminStaff[0].correspAddressStreet = $newAddress1;
+	$adminStaff[0].correspAddressState = $newState;
+	$adminStaff[0].correspStateShort = $stateAbbr;
+	$adminStaff[0].correspAddressCity = $newCity;
+	$adminStaff[0].correspAddressZipcode = $newZipcode;
+	return $adminStaff;
+}
+
+function  brokerSearchForIncompleteAgencyAndVerify($defaultAgencyName,$certificationStatus){
+	if ($defaultAgencyName) {
+		$agencyName = $defaultAgencyName;
+	}
+	_setValue(_textbox("Business Name"), $agencyName);
+	_setSelected(_select(0), $certificationStatus);
+	//filter by 'incomplete' certification status
+	_click(_submit("Go"));
+_assertNotVisible(_link($agencyName));
+_assertNotVisible(_link("dropdown-toggle", _near(_tableHeader("Actions"))));
+	
+}
+

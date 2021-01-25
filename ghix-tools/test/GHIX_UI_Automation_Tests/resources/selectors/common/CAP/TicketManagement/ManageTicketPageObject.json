@@ -1,0 +1,18 @@
+{
+        "membersHeading":"$('//h1[contains(text(),\"Members\")]')",
+        "btn_Tickets":"$$('//a[contains(text(),\"Tickets\")]')[0]",
+        "btn_ManageTickets":"$('//a[contains(text(),\"Manage Tickets\")]')",
+        "ticketsHeading":"$('//span[contains(text(),\"Tickets\")]')",
+        "btn_showTicketFilters":"$('#btnShowHide')",
+        "dd_ticketStatus":"$('#ticketStatus')",
+        "dd_createdForRole":"$('#userRole')",
+        "selectCreatedForRole":{
+            "opIndividual":"$('//select[@id=\"userRole\"]/option[@value=\"2025\"]')"
+        },
+        "tb_ticketNumber":"$('#ticketNumber')",
+        "btn_searchAllTickets":"$('//input[@value=\"Search All Tickets\"]')",
+        "lnk_ticketSubmission":"$('//a[contains(text(),\"Ticket submission\")]')",
+        "ticketSearchResults":{
+            "lk_ticketNumber":"$('a*=REPLACE_TICKET_NUMBER')"
+        }
+}

@@ -1,0 +1,294 @@
+var $AGENCY_DATA_ID_54_search1 = {
+	"staffFirstNameLone": "Staffonefivefouryy",
+	"staffFirstNameLtwo": "Staffonefivefouryy",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfivefouryy",
+	"agencyName": "Agencyfivefouryy",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "1",
+	"numOfAdminStaffL2": "1",
+	"numOfConsumers": "0",
+	"isNeedDental": true,
+	"eligibility1":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"eligibility2":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"isRenewalsAt": false,
+	"individuals":[
+			{
+				"firstName":"Anna",
+				"lastName":"Bowers",
+				"lastFourSsn":"1223",
+				"houseNumber":"1001 Moffett Blvd",
+				"dob":"1980-12-22",
+				"issuerHealth":"Anthem",
+				"issuerDental":"Anthem",
+				"caseId":null
+			},
+			{
+				"firstName":"Bill",
+				"lastName":"Bowersing",
+				"lastFourSsn":"1224",
+				"houseNumber":"1002 Moffett Blvd",
+				"dob":"1981-11-23",
+				"issuerHealth":"bcbs",
+				"issuerDental":"Anthem",
+				"caseId":null
+			},
+			{
+				"firstName":"Adam",
+				"lastName":"Valente",
+				"lastFourSsn":"1225",
+				"houseNumber":"1003 Moffett Blvd",
+				"dob":"1982-10-24",
+				"issuerHealth":"Kaiser permanente",
+				"issuerDental":"Delta dental",
+				"caseId":null
+			}
+	]
+}
+
+var $AGENCY_DATA_ID_54_search2 = {
+	"staffFirstNameLone": "Staffonefivefouryy",
+	"staffFirstNameLtwo": "Staffonefivefouryy",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfivefouryy",
+	"agencyName": "Agencyfivefouryy",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "1",
+	"numOfAdminStaffL2": "1",
+	"numOfConsumers": "0",
+	"isNeedDental": true,
+	"eligibility1":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"eligibility2":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"isRenewalsAt": false,
+	"individuals":[
+			{
+				"firstName":"Annabelle",
+				"lastName":"Ebner",
+				"lastFourSsn":"1226",
+				"houseNumber":"1 Moffett Blvd",
+				"dob":"1983-09-25",
+				"issuerHealth":"Anthem",
+				"issuerDental":"Anthem",
+				"caseId":null
+			},
+			{
+				"firstName":"Alex",
+				"lastName":"Vail",
+				"lastFourSsn":"1226",
+				"houseNumber":"12 Moffett Blvd",
+				"dob":"1984-08-26",
+				"issuerHealth":"bcbs",
+				"issuerDental":"Anthem",
+				"caseId":null
+			},
+			{
+				"firstName":"Chase",
+				"lastName":"Vogal",
+				"lastFourSsn":"1228",
+				"houseNumber":"123 Moffett Blvd",
+				"dob":"1980-12-22",
+				"issuerHealth":"Kaiser permanente",
+				"issuerDental":"Delta dental",
+				"caseId":null
+			}
+	]
+}
+
+var $AGENCY_DATA_ID_58 = {
+	"staffFirstNameLone": "Staffonefiveeightxx",
+	"staffFirstNameLtwo": "Staffonefiveeightxx",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfiveeightxx",
+	"agencyName": "Agencyfiveeightxx",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "1",
+	"numOfAdminStaffL2": "1",
+	"numOfConsumers": "0",
+	"isNeedDental": false,
+	"eligibility1":"0:elig-4,CS1,150.25,45.15;1:elig-4,CS1;2:elig-4,CS1;3:elig-4,CS1",
+	"eligibility2":"0:elig-4,CS1,150.25,45.15;1:elig-4,CS1;2:elig-4,CS1;3:elig-11,CS1",
+	"isRenewalsAt": false
+}
+
+var $AGENCY_DATA_ID_56 = {
+	"staffFirstNameLone": "Staffonefivethreee",
+	"staffFirstNameLtwo": "Staffonefivethreee",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfivethreeee",
+	"agencyName": "Agencyfivetthreeee",
+	"numOfAgents": "1",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "10",
+	"isNeedDental": true,
+	"eligibility1":"0:elig-4,CS1,150.25,45.15;1:elig-4,CS1;2:elig-4,CS1;3:elig-4,CS1",
+	"eligibility2":"0:elig-4,CS1,150.25,45.15;1:elig-4,CS1;2:elig-4,CS1;3:elig-11,CS1",
+	"isRenewalsAt": true
+}
+
+var $AGENCY_DATA_ID_55 = {
+	"staffFirstNameLone": "Staffonefivethreee",
+	"staffFirstNameLtwo": "Staffonefivethreee",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfivethreeee",
+	"agencyName": "Agencyfivetthreeee",
+	"numOfAgents": "1",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "10",
+	"isNeedDental": true,
+	"eligibility1":"0:elig-4,CS1,150.25,45.15;1:elig-4,CS1;2:elig-4,CS1;3:elig-10,CS1",
+	"eligibility2":"0:elig-4,CS1,150.25,45.15;1:elig-4,CS1;2:elig-4,CS1;3:elig-4,CS1",
+	"isRenewalsAt": true
+}
+var $AGENCY_DATA_ID_54 = {
+	"staffFirstNameLone": "Staffonefivethreee",
+	"staffFirstNameLtwo": "Staffonefivethreee",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfivethreeee",
+	"agencyName": "Agencyfivetthreeee",
+	"numOfAgents": "1",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "10",
+	"isNeedDental": true,
+	"eligibility1":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"eligibility2":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"isRenewalsAt": true
+}
+
+var $AGENCY_DATA_ID_53 = {
+	"staffFirstNameLone": "Staffonefivethreee",
+	"staffFirstNameLtwo": "Staffonefivethreee",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfivethreeee",
+	"agencyName": "Agencyfivetthreeee",
+	"numOfAgents": "1",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false,
+	"eligibility1":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"eligibility2":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"isRenewalsAt": true
+}
+
+var $AGENCY_DATA_ID_53_a = {
+	"staffFirstNameLone": "Staffonefiveathrrrr",
+	"staffFirstNameLtwo": "Staffonefiveathrrrr",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfiveathrerrr",
+	"agencyName": "Agencyfiveatthrerrr",
+	"numOfAgents": "1",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false,
+	"eligibility1":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"eligibility2":"0:elig-2,CS1,150.25,0.00;1:elig-2,CS1;2:elig-2,CS1;3:elig-2,CS1",
+	"isRenewalsAt": false
+}
+
+var $AGENCY_DATA_ID_52 = {
+	"staffFirstNameLone": "Staffonefivetwoww",
+	"staffFirstNameLtwo": "Stafftwofivetwoww",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfivetwoww",
+	"agencyName": "Agencyfivetwoww",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "1",
+	"numOfAdminStaffL2": "1",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}
+
+var $AGENCY_DATA_ID_51 = {
+	"staffFirstNameLone": "Staffonefiveoneww",
+	"staffFirstNameLtwo": "Stafftwofiveoneww",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agntfiveoneww",
+	"agencyName": "Agencyfiveoneww",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}
+
+var $AGENCY_ONE_ID_50 = {
+	"staffFirstNameLone": "Staffdelegzzrr",
+	"staffFirstNameLtwo": "Staffdelegzzrr",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agentdelgzzrr",
+	"agencyName": "Delegationzzrr",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}
+
+var $AGENCY_TWO_ID_50 = {
+	"staffFirstNameLone": "Staffdelegzztt",
+	"staffFirstNameLtwo": "Staffdelegzztt",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agentdelgzztt",
+	"agencyName": "Delegationzztt",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}
+
+var $AGENCY_DATA_ID_46 = {
+	"staffFirstNameLone": "Stffonefoursixee",
+	"staffFirstNameLtwo": "Stfftwofoursixee",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agnfoursixee",
+	"agencyName": "Agencyfoursixee",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "1",
+	"numOfAdminStaffL2": "1",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}
+
+var $AGENCY_DATA_ID_47 = {
+	"staffFirstNameLone": "Stffonefoursvnww",
+	"staffFirstNameLtwo": "Stfftwofoursvnww",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agnfoursvnww",
+	"agencyName": "Agencyfoursvnww",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}
+
+var $AGENCY_DATA_ID_49 = {
+	"staffFirstNameLone": "Staffdelegcsroneww",
+	"staffFirstNameLtwo": "Staffdelegcsrtwoww",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agentdelegcsrww",
+	"agencyName": "Delegationcsrqww",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}
+
+var $AGENCY_DATA_ID_48 = {
+	"staffFirstNameLone": "Staffdelegtroneww",
+	"staffFirstNameLtwo": "Staffdelegtrtwoww",
+	"staffLastName": "Staff",
+	"agentNameOne": "Agentdelegindww",
+	"agencyName": "Delegationindqww",
+	"numOfAgents": "2",
+	"numOfAdminStaffL1": "0",
+	"numOfAdminStaffL2": "0",
+	"numOfConsumers": "0",
+	"isNeedDental": false
+}

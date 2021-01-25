@@ -1,0 +1,97 @@
+_includeOnce("EntityCounselorInfo.sah");
+var $SearchForCounselor = true;
+
+var $searchForCounselorLocationHeader = _heading4("Search By Location");
+var $searchForCounselorZipCode = _textbox("zipCode");
+var $searchForCounselorDistance = _select("distance");
+var $searchForCounselorLanguage = _list("chzn-choices");
+var $searchForCounselorLocationSubmit = _button("Search");
+var $searchForCounselorNameHeader = _heading4("Search By Organization Name");
+var $searchForCounselorName = _textbox("entityName");
+var $searchForCounselorNameSubmit = _submit("Search");
+var $searchForCounselorResultsHeader = _heading1(0);
+var $searchForCounselorResultsBack = _link("Back");
+var $searchForCounselorNoCounselor = _cell("No Certified Enrollment Counselor found.");
+
+var $entityRecordedInfoTable = _table("display-info");
+var $entityRecordedInfoBackButton = _link("Back");
+var $entityRecordedInfoCounselors = _link("Show Certified Enrollment Counselors");
+var $entityRecordedInfo = [$entityRecordedInfoTable, $entityRecordedInfoBackButton, $entityRecordedInfoCounselors];
+var $entityRecordedInfoCounselorTable = _table("entitySearchResult");
+
+function verifyElementsForCounselorSearch() {
+	_assertVisible($searchForCounselorLocationHeader);
+	_assertVisible($searchForCounselorZipCode);
+	_assertVisible($searchForCounselorDistance);
+	_assertVisible($searchForCounselorLanguage);
+	_assertVisible($searchForCounselorLocationSubmit);
+	_assertVisible($searchForCounselorNameHeader);
+	_assertVisible($searchForCounselorName);
+	_assertVisible($searchForCounselorNameSubmit);
+}
+
+function clickSearchForCounselorByLocation($zip, $distance, $language) {
+	if ($distance === undefined) {
+		$distance = "5";
+	}
+	if ($language === undefined) {
+		$language = "English";
+	}
+	_setValue($searchForCounselorZipCode, $zip);
+	_setSelected($searchForCounselorDistance, $distance);
+	_click(_listItem($language));
+	_click($searchForCounselorLocationSubmit);
+	verifyResultsForCounselorSearch();
+}
+
+function clickSearchForCounselorByName($name) {
+	_setValue($searchForCounselorName, $name);
+	_click($searchForCounselorNameSubmit);
+	verifyResultsForCounselorSearch();
+}
+
+function verifyResultsForCounselorSearch() {
+	_assertVisible(_heading1("/.* organization.*/"));
+	//	_assertTrue(new RegExp("organization").test(_getText($searchForCounselorResultsHeader)));
+	_assertVisible($searchForCounselorResultsBack);
+}
+
+function verifyandClickEntityFound($entityName) {
+	var $entity = _link($entityName);
+	_assertVisible($entity);
+	_click($entity);
+}
+
+function verifyNoEntityFound() {
+	_assertNotVisible(_link($entityInfo.companyName));
+	clickBackForCounselorSearch();
+}
+
+function verifyNoCertifiedEnrollmentCounselors() {
+	_assertVisible($searchForCounselorNoCounselor);
+}
+function showCertifiedEnrollmentCounselors() {
+	_wait(1000);
+	_click($entityRecordedInfoCounselors);
+}
+
+function verifyCounselorInfoOnEntityPage($counselorName, $counselorEmail) {
+	var $counselorRecords = _getTableContents($entityRecordedInfoCounselorTable);
+	var $foundCounselor = false;
+	for (var $i = 0; $i < $counselorRecords.length; $i++) {
+		if ($counselorRecords[1][0] == $counselorName && $counselorRecords[1][1].split(' ')[8] == $counselorEmail) {
+			$foundCounselor = true;
+		}
+	}
+	_assertTrue($foundCounselor);
+}
+
+function clickBackForCounselorSearch() {
+	_click($searchForCounselorResultsBack);
+	verifyElementsForCounselorSearch();
+}
+
+function clickBackForEntitySearchResults() {
+	_click($searchForCounselorResultsBack);
+	verifyResultsForCounselorSearch();
+}

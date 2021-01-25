@@ -1,0 +1,191 @@
+_includeOnce("Login.sah");
+
+_resource("../scenariofiles/document.txt");
+_resource("../resources/data.csv");
+_resource("../resources/createTicketData.csv");
+
+var $homeIcon = _link("Home[1]");
+var $individualMenu = _link("Individuals Dropdown Menu. Press enter to open it and tab through its options");
+var $myInfo = _link("My Information Dropdown Menu. Press enter to open it and tab through its options");
+var $pendingIndividual = _link("Pending Individuals");
+var $myProfile = _link("My Profile");
+var $addIndividual =_link("Add New Individual");
+var $editBtnOnProfilePage =_link("Edit");
+var $cancelButtonOnProfilePage = _link("Cancel");
+var $saveButtonOnProfilePage = _link("Save");
+var $chooseFileOnProfilePage = _file("fileInputPhoto");
+var $uploadFileButton = _submit("btn_UploadPhoto");
+
+function verifyElementsOnAgentDashboard(){
+	_assertVisible($homeIcon, _in(_div("menu")));
+	_assertVisible($individualMenu, _in(_div("menu")));
+	_assertVisible($myInfo, _in(_div("menu")));
+	_assertVisible($pendingIndividual , _in(_list("nav nav-list")));
+	_assertVisible($myProfile , _in(_list("nav nav-list")));
+}
+
+function clickAgentProfile(){
+	_click($myProfile);
+	_assertVisible(_paragraph("Review and edit your public profile, which can be seen by YHI users looking for Agents. The more accurate the information you provide, the more likely it is that potential customers will contact you."));
+	_assertEqual("Agent Information Profile Certification Status", _getText(_list("nav nav-list")));
+	_assertVisible($editBtnOnProfilePage);
+}
+
+function clickEditButtonOnAgentProfile(){
+	_click($editBtnOnProfilePage);
+	_assertVisible($cancelButtonOnProfilePage);
+	_assertVisible($saveButtonOnProfilePage);
+	_assertVisible(_link("btn"));
+	_assertVisible(_submit("saveAgentProfile"));
+	_assertEqual("true",_getAttribute(_textbox("brkName"),"aria-disabled"));
+	_assertVisible($chooseFileOnProfilePage);
+	_assertVisible($uploadFileButton);
+	_assertVisible(_div("You can upload a JPG, GIF or PNG file (File size limit is 5 MB)."));
+}
+
+function clickSaveChanges(){
+	_click(_submit("saveAgentProfile"));
+}
+
+function clickRemoveAgentLanguages($lang){
+	_click(_link("/"+$lang+"/"));
+}
+
+function clickAgentAcceptPendingRequest(){
+	verifyElementsOnAgentDashboard();
+	_check(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_assertVisible(_link("Pending Requests", _in(_listItem("dropdown open"))));
+	_assertVisible(_link("Active Individuals", _in(_listItem("dropdown open"))));
+	_assertVisible(_link("/Inactive Individuals/", _in(_listItem("dropdown open"))));
+	_check(_link("Pending Requests", _in(_listItem("dropdown open"))));
+	_assertVisible(_table("indTablePending"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("submit"));
+	_click(_link("Request Sent Sortable Ascending")); // get the latest one
+	_click(_link(0, _in(_cell(0))));
+	//_assertVisible(_link("Accept[1]"));
+	_assertVisible(_link("btn btn-primary btn-small"));
+	_assertVisible(_link("Decline"));
+	_click(_link("btn btn-primary btn-small"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("submit"));
+	_assertVisible(_div("No matching records found."));
+}
+
+function clickAgentActiveIndividuals(){
+	_check(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_wait(500);
+	_click(_link("Active Individuals"));
+	_assertVisible(_heading4("Search"));
+	_assertVisible(_div("gridDataContainer"));
+	_click(_submit("+", _near(_heading4("Search"))));
+	_assertVisible(_div("searchPanelWrapper  ng-scope"));
+	_assertVisible(_label("Application Year", _near(_heading4("Search"))));
+	var $now=_call(window.moment());
+	$currentYear=parseInt(_fetch(window.moment($now).get('year')));
+	$lastYear=parseInt(_fetch(window.moment($now).get('year')))-1;
+	$nextYear=parseInt(_fetch(window.moment($now).get('year')))+1;
+	_assertEqual("Application Year Select Year "+$lastYear+" "+$currentYear+" "+$nextYear, _getText(_div("control-group[7]")));
+}
+
+function clickAgentSearchForIndividual(){
+	_check(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_wait(500);
+	_click(_link("Active Individuals"));
+	_assertVisible(_heading4("Search"));
+	_assertVisible(_div("gridDataContainer"));
+	_click(_submit("+", _near(_heading4("Search"))));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("Go"));
+	_assertVisible(_div("gridRow ng-scope"));
+	_click(_link("ng-binding", _in(_div("gridRow ng-scope"))));
+	_assertVisible(_div("modal-body"));
+	_assertVisible(_submit("Individual View"));
+	_click(_submit("Individual View"));
+	_assertVisible(_strong(0));
+}
+
+function clickAgentExportActiveIndividuals(){
+	_assertVisible(_link("exportCSVLink"));
+	_click(_link("exportCSVLink"));
+	_assertVisible(_heading3("Disclaimer"));
+	_assertVisible(_paragraph("You are about to download customer information. You must follow Your Health Idaho privacy and security standards. Click YES to agree and continue."));
+	_click(_submit("Yes"));
+	_wait(90000, _lastDownloadedFileName() != null);
+	_assertEqual("/Agent_Book_Of_Business.*/", _lastDownloadedFileName());
+	_log("Downloaded File"+ _lastDownloadedFileName());
+	var $userDataPath = _userDataDir();
+	var $csvPath ="C:/bookofbusiness/Agent_Book_Of_Business.csv";
+	_log("CSV Path" + $csvPath);
+	_saveDownloadedAs($csvPath);
+	_clearLastDownloadedFileName();
+	_assertNull(_lastDownloadedFileName());
+//	var $data = _readCSVFile($csvPath,{includeHeader:true}); for sahi V8
+	var $data = _readCSVFile($csvPath); 
+
+	var $header1=[];
+	$header1 = ["Number","First Name","Last Name","Phone Number","Email","Address","Application Date","Application Type","Current Status","Next Steps","Due Date","Carrier Name","Plan Name","Premium (monthly)","APTC (monthly)","Individual Contribution (monthly)","Office Visits","Generic Drugs","Deductible","Application Year"];
+	_assertEqual($header1[15],$data[0][15]);
+	_assertEqual($header1[13],$data[0][13]);
+	for($i=0;$i<$header1.length;$i++){
+		_assertEqual($header1[$i],$data[0][$i]);
+	}
+	_log("rowLength"+ $data.length);
+	_log("columnLength"+ $data[0].length);
+}
+
+function agentExportingBookOfBusinessExcel($firstname,$lastname){
+	clickLogin();
+	$url = getUpdatedBaseURL("").split("/");
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+//		$data= getAccountDetails("../opt/sahi/useraccounts.xls","Admin") ;
+		$data= getAccountDetails("Admin") ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+		$firstname =  "David";
+		$lastname="Parker";
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_admin@getinsured.com");
+		//_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		//_unmaskLogs("Information end");
+		$firstname =  "sahiagentaccount";
+		$lastname="sahiagentaccount";
+	}
+	loginClickLoginButton();
+	_click(_link("Agents", _in(_div("menu"))));
+	_assertVisible(_link("Manage Agents End of dropdown"));
+	_click(_link("Manage Agents", _in(_div("menu"))));
+	_assertVisible(_heading1("/Agent/"));
+	_setValue(_textbox("First	Name "), $firstname);
+	_setValue(_textbox("Last Name"), $lastname);
+	_click(_submit("Go"));
+	_assertVisible(_table("brokerlist"));
+	var $name =$firstname+" "+$lastname;
+	_click(_link($name, _in(_table("brokerlist"))));
+	_assertVisible(_heading4("Agent Information"));
+	_click(_link("View Agent Account"));
+	_assertVisible(_heading4("View Agent Account"));
+	_click(_submit("Agent View"));
+	_assertVisible(_heading4("Enrollment History"));
+	_click(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options", _in(_div("menu"))));
+	_click(_link("Active Individuals", _in(_div("menu"))));
+	var $textboxes = _collect("_div", "/span1 text-center ng-binding/", _in(_div("gridBody")));
+	var $pageSize=$textboxes.length;
+	clickAgentExportActiveIndividuals();
+	_call(window.scrollTo(0,document.body.scrollHeight));
+	waitForLoad();
+	$textboxes = _collect("_div", "/span1 text-center ng-binding/", _in(_div("gridBody")));
+	_assertNotEqual($pageSize,$textboxes.length);
+}
+
+function deleteBOBAndUserAccountFile(){
+	_execute("cmd /C C:\\deleteFiles\\deleteFile.bat");
+}

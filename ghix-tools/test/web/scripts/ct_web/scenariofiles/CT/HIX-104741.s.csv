@@ -1,0 +1,61 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify Search selection limit and Reset functionality for doctor facility and prescription","[Documentation]","1.Verify ""No result found"" message when user adding wrong name  for Doctor, facility
+2.Adding all 5 doctors/hospital to Provider Search Page. After 5 the text box gets disabled.
+3.On reset, all the selected preferences should go away and we should be able to add doctor/hospital again and complete the flow
+4. Verify ""Reset All my Responses"" functionality -   Reset all the searched results not the zipcode
+5.Water mark on search field should display ""Search by doctor name"" when user selects ""Doctor"" in search by dropdown
+6. Water mark on search field should display ""Search by hospital name"" when user selects ""Hospital"" in search by dropdown1.Verify ""No result found"" message when user adding wrong name  for  Prescription search
+2..Adding all 5 prescription (Nexplanon, Mirena, Lipitor, Crestor, Xiidra)  to Prescription Search Page. After 5 the text box gets disabled.
+3. Search functionality drop down does not return name after first drug name part
+Search Function stops recommending after ""Calcium "". If user continues to type ""Carbonate"" all drop list references are removed.
+4..On reset, all the selected preferences should go away and we should be able to add drugs again and proceed with plan selection."
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""10/25/1990""","FALSE","TRUE","TRUE","FALSE"
+,"enterHouseholdIncome","""25000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","It looks like you may qualify for financial help to pay for your healthcare coverage."
+,"validateSavingDetails","Y","Y","N","N"
+,"clickNextOnCheckSavingResults"
+,"selectMedicalServiceUse","3"
+,"clickNextPreferences"
+,"selectPrescriptionDrugUse","4"
+,"clickNextPreferences"
+,"searchNonExistantDoctor","zxc","""06001"""
+,"selectDoctor","Mofei Liu","""06001"""
+,"searchNonExistantHospital","qwe","""06001"""
+,"selectHospital","""Scott W. Lindsay, Dpm""","""06001"""
+,"selectDoctor","Katherine Colty","""06001"""
+,"selectDoctor","Mitchell Katz","""06001"""
+,"selectHospital","""Avon Simsbury Psychotherapy, Llc""","""06001"""
+,"verifyMaxedOutProviders"
+,"clickNextPreferences"
+,"searchNonExistantPrescription","zxc"
+,"selectPrescription","Lipitor","""Lipitor 80 Mg Tab (Oral Tablet)"""
+,"selectPrescription","Xiidra","""Xiidra 5% Sol (Ophthalmic Solution)"""
+,"selectPrescription","Nexplanon","""Nexplanon 68 Mg Drug Implant (Drug Implant)"""
+,"selectPrescription","Mirena","""Mirena 0.83 Mcg/Hr Device (Intrauterine System)"""
+,"selectPrescription","Crestor","""Crestor 40 Mg Tab (Oral Tablet)"""
+,"verifyDisabledPrescriptions"
+,"[Documentation]","Verify ""Reset All my Responses"" functionality -   Reset all the searched results not the zipcode"
+,"deleteResponses"
+,"goBackToFirstPreferencePage"
+,"validateDoctorFrequencyPreferencePage"
+,"clickNextPreferences"
+,"validatePrescriptionFrequencyPreferencePage"
+,"clickNextPreferences"
+,"[Documentation]","On reset, all the selected preferences should go away and we should be able to add doctor/hospital again."
+,"validateBlankProvidersInPreferences","""06001"""
+,"selectDoctor","Monique Marcelino","""06001"""
+,"selectHospital","""Services For The Elderly Of Farmington""","""06001"""
+,"clickNextPreferences"
+,"[Documentation]","On reset, all the selected preferences should go away and we should be able to add drugs again and proceed with plan selection."
+,"validateBlankPrescriptionsInPreferences"
+,"selectPrescription","""Calcium Carbonate""","""Calcium Carbonate 750 Mg Tab (Chewable Tablet)"""
+,"selectPrescription","Atorvastatin","""Atorvastatin 20 Mg Tab (Oral Tablet)"""
+,"clickViewPlans","Y"

@@ -1,0 +1,22 @@
+{   "pageHeader":"$$('h1')[1]",
+    "resultsHeader":"eval($('//*[@id=\"resultsTitles\"]')).$('h2')",
+    "btn_previous":"$('button=Previous')",
+    "btn_next":"$('button=Next')",
+    "lbl_esimatedTaxCredit": "eval($('//*[@id=\"container_resultDivs\"]')).$('//*[@class=\"subtitle\"]')",
+    "lbl_esimatedTaxCreditContent": "eval($('//*[@id=\"container_resultDivs\"]')).$('//div[contains(text(),\"Advanced Premium\")]')",
+    "lbl_noTaxCredit": "eval($('//*[@id=\"container_resultDivs\"]')).$('//*[@class=\"title\"]')",
+    "lbl_noTaxCreditContent": "eval($('//*[@id=\"container_resultDivs\"]')).$('//div[contains(text(),\"While you do not qualify\")]')",
+    "lbl_medicaid": "eval($('//*[@id=\"container_resultDivs\"]')).$('h3')",
+    "lbl_medcaidQualifyContent": "eval($('//*[@id=\"container_resultDivs\"]')).$('//p[contains(text(),\"coverage with Medicaid\")]')",
+    "lbl_inThisSection":"eval($('//*[@id=\"sidebar\"]')).$('h2')",
+    "lbl_requiredNotice":" $('//li[contains(text(),\"The cost of health and dental insurance\")]')",
+    "lbl_reultEstimateAlertText": "$('//div[contains(text(),\" are only an estimate\")]')",
+    "lbl_login":"$('//a[contains(@href,\"login\")]')",
+    "lbl_helpsupport":"$('//a[@class=\"dropdown-toggle\"]')",
+    "btn_startAppication":"$('//a[contains(text(),\"Start Application\")]')",
+    "lbl_childCoverage":"$('//span[contains(text(),\"Coverage for your child\")]')",
+    "lbl_childCoverageText":"$('//span[@class=\"results\"]')",
+    "span_aptcAmount":"$('//span[@class=\"maxAptc ng-binding\"]')",
+    "span_stateSubsidyAmount":"$('//span[@class=\"stateSubsidyAmount ng-binding\"]')"
+
+}

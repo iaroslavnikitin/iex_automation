@@ -1,0 +1,21 @@
+"Tags","TestCase","[Keyword]","Argument 1","Argument 2","Argument 3","Argument 4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"loadSahi","../pagemodels/capApplications.sah"
+,,"loadSahi","../resources/capHistoryEventArrays.sah"
+,,"loadSahi","../pagemodels/seedData_SSAP.sah"
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+
+"cap,all","Verify L1 CSR cannot change coverage start date Override Special Enrollment or Open Special Enrollment
+ in CAP","[Documentation]"
+
+,,"$member = createSSAPApplication","autocsr4_l1cs1@yopmail.com"
+,,"[Documentation]","Log in to CAP as L1 CSR - Verify Applications tab for a member"
+
+,,"[Documentation]","Email address - L1 CSR","Password"
+,,"capLogin","autocsr4_l1cs1@yopmail.com","ghix123#"
+,,"manageMembers","$member[0].email"
+,,"[Documentation]","App Type","App Status","Actions App Tab","Open Special Enrollment App Tab","Change Cov Start Date App Tab","Override Special Enrollment App Tab"
+,,"clickApplicationsTab","""FN""","""ER""","""N""","""N""","""N""","""N"""

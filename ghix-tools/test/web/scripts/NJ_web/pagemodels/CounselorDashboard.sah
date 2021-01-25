@@ -1,0 +1,75 @@
+_includeOnce("Utils.sah");
+
+var $counselorDashboardHeader = _heading1("Dashboard");
+var $counselorDashboardHome = _link("Home[1]");
+var $counselorDashboardQuickLinksHeader = _heading4("Quick Links");
+var $counselorDashboardQuickLinksProfile = _link("My Profile[1]");
+var $counselorDashboardQuickLinksAddIndividual = _link("Add New Individual");
+var $counselorDashboardQuickLinksPendingDelegationRequests = _link("Pending Delegation Requests");
+var $counselorDashboardPendingRequests = _link("Pending Requests");
+var $counselorDashboardActiveIndividuals = _link("Active Individuals");
+var $counselorDashboardInactiveIndividuals = _link("Inactive Individuals End of dropdown");
+var $counselorDashboardIndividuals = [$counselorDashboardPendingRequests, $counselorDashboardActiveIndividuals, $counselorDashboardInactiveIndividuals];
+var $counselorDashboardCounselorInformation = _link("Counselor Information");
+var $counselorDashboardProfile = _link("My Profile");
+var $counselorDashboardCertificationStatus = _link("Certification Status End of dropdown");
+var $counselorDashboardMyInformation = [$counselorDashboardCounselorInformation, $counselorDashboardProfile, $counselorDashboardCertificationStatus];
+var $counselorDashboardAccessCodeHeader = _heading4("Access Code");
+var $counselorDashboardAccessCodeBox =_textbox("accessCode");
+var $counselorDashboardAccessCodeSubmit = _submit("Submit");
+var $counselorDashboard = [$counselorDashboardHeader, $counselorDashboardHome, $counselorDashboardQuickLinksHeader, $counselorDashboardQuickLinksPendingDelegationRequests, $counselorDashboardQuickLinksAddIndividual, $counselorDashboardQuickLinksProfile,
+						  $counselorDashboardAccessCodeHeader, $counselorDashboardAccessCodeBox, $counselorDashboardAccessCodeSubmit];
+
+function verifyElementsOnCounselorDashboard() {
+	verifyArray($counselorDashboard);
+	verifyHiddenArray($counselorDashboardIndividuals);
+	verifyHiddenArray($counselorDashboardMyInformation);
+	_assertEqual(_getAttribute($counselorDashboardAccessCodeSubmit, "disabled"), true);
+}
+
+function clickHomeOnCounselorDashboard() {
+	_click($counselorDashboardHome);
+	verifyElementsOnCounselorDashboard();
+}
+function clickPendingDelegationRequestsOnCounselorDashboard() {
+	_click($counselorDashboardQuickLinksPendingDelegationRequests);
+}
+
+function clickMyProfileOnCounselorDashboard() {
+	_click($counselorDashboardQuickLinksProfile);
+}
+
+function clickAddNewIndividualOnCounselorDashboard() {
+	_click($counselorDashboardQuickLinksAddIndividual);
+}
+
+function clickPendingRequestsOnCounselorDashboard() {
+	_click($counselorDashboardPendingRequests);
+}
+
+function clickActiveIndividualsOnCounselorDashboard() {
+	_click($counselorDashboardActiveIndividuals);
+}
+
+function clickInactiveIndividualsOnCounselorDashboard() {
+	_click($counselorDashboardInactiveIndividuals);
+}
+
+function clickCounselorInformationOnCounselorDashboard() {
+	_click($counselorDashboardCounselorInformation);
+}
+
+function clickCertificationStatusOnCounselorDashboard() {
+	_click($counselorDashboardCertificationStatus);
+}
+
+function enterAccessCodeOnCounselorDashboard($code) {
+	if ($code == null) {
+		$code = randomString(10, true);
+	}
+	_setValue($counselorDashboardAccessCodeBox, $code);
+	_assertEqual(_getAttribute($counselorDashboardAccessCodeSubmit, "disabled"), false);
+	_click($counselorDashboardAccessCodeSubmit);
+}
+
+

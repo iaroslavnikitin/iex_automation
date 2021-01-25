@@ -1,0 +1,1028 @@
+_include("../lib/Utils.sah");
+
+function verifyAdminStaffRegistration(){
+	_assertVisible(_div("menu"),"Verify that top menu is visible");
+	_assertVisible(_div("sidebar"),"Verify that left navigation is visible");
+	_assertVisible(_heading4("Steps", _in(_div("sidebar"))),"Verify Steps header is visible");
+	_assertVisible(_link("Admin Staff Information", _in(_div("sidebar"))),"Verify that Staff information link is visible");
+	_assertVisible(_heading4("Admin Staff Information"));
+	
+	_assertVisible(_textbox("aid-first-name", _near(_label("First Name"))));
+	_assertEqual("", _getValue(_textbox("aid-first-name", _near(_label("Last Name")))));
+	_assertVisible(_image("Required!", _in(_label("First Name"))));
+	
+	_assertVisible(_textbox("aid-last-name", _near(_label("Last Name"))));
+	_assertEqual("", _getValue(_textbox("aid-last-name", _near(_label("Last Name")))));
+	_assertVisible(_image("Required!", _in(_label("Last Name"))));
+	
+	_assertVisible(_textbox("aid-primary-contact-1", _near(_label("Primary Contact Number"))));
+	_assertEqual("", _getValue(_textbox("aid-primary-contact-1", _near(_label("Primary Contact Number")))));	
+	_assertVisible(_textbox("aid-primary-contact-2", _near(_label("Primary Contact Number"))));
+	_assertEqual("", _getValue(_textbox("aid-primary-contact-2", _near(_label("Primary Contact Number")))));
+	_assertVisible(_textbox("aid-primary-contact-3", _near(_label("Primary Contact Number"))));
+	_assertEqual("", _getValue(_textbox("aid-primary-contact-3", _near(_label("Primary Contact Number")))));
+	
+	_assertVisible(_textbox("aid-business-contact-1", _near(_label("Business Contact Number"))));
+	_assertEqual("", _getValue(_textbox("aid-business-contact-1", _near(_label("Business Contact Number")))));
+	_assertVisible(_textbox("aid-business-contact-2", _near(_label("Business Contact Number"))));
+	_assertEqual("", _getValue(_textbox("aid-business-contact-2", _near(_label("Business Contact Number")))));
+	_assertVisible(_textbox("aid-business-contact-3", _near(_label("Business Contact Number"))));
+	_assertEqual("", _getValue(_textbox("aid-business-contact-3", _near(_label("Business Contact Number")))));
+	
+	_assertVisible(_emailbox("aid-personal-email", _near(_label("Email (Individual)"))));
+	_assertEqual("", _getText(_emailbox("aid-personal-email", _near(_label("Email (Individual)")))));
+	_assertVisible(_image("Required!", _in(_label("Email (Individual)"))));
+	_assertVisible(_link("ttclass", _in(_label("Email (Individual)"))));
+	var $popoverText = "This email will be used for sending training and other documents directly to the Admin Staff. Please enter the Admin Staff's individual email, not a shared email address.";
+	_assertEqual($popoverText, _getAttribute (_link("ttclass"),"popover-html"));
+	
+	_assertVisible(_emailbox("aid-business-email", _near(_label("Email (Business)"))));
+	_assertEqual("", _getText(_emailbox("aid-business-email", _near(_label("Email (Business)")))));
+	_assertVisible(_image("Required!", _in(_label("Email (Business)"))));
+	
+	_assertVisible(_select("aid-communication-preference", _near(_label("Preferred Method of Communication"))));
+	_assertEqual("Select", _getSelectedText(_select("aid-communication-preference")),"By default Select text should be selected");
+	
+	_assertVisible(_textbox("aid-business-name", _near(_label("Business Name"))));
+	_assertTrue(_getAttribute (_textbox("aid-business-name"), "disabled"),"Business name textbox should be disable");
+	
+	_assertVisible(_select("aid-admin-staff-level", _near(_label("Admin Staff Level"))));
+	_assertEqual("Level1", _getSelectedText(_select("aid-admin-staff-level")),"By default Level1 sould be selected");
+	var $options=_getOptions (_select("adminStaffLevel"));
+	_assertEqual("Level1", $options[0],"Assert that Level 1 option avaliable");
+	_assertEqual("Level2", $options[1],"Assert that Level 2 option avaliable");
+	
+	_assertVisible(_heading4("Business Address"));
+	_assertVisible(_select("aid-siteLocation", _near(_label("Select Agency Location"))));
+	_assertEqual("Select Location", _getSelectedText(_select("aid-siteLocation")),"By default Select Location should be selected");
+	_assertVisible(_heading4("Correspondence Address"));
+	
+	_assertVisible(_textbox("aid-address_ln_1", _near(_label("Address Line 1"))));
+	_assertEqual("", _getValue(_textbox("aid-address_ln_1", _near(_label("Address Line 1")))));
+	_assertVisible(_image("Required!", _in(_label("Address Line 1"))));
+	_assertVisible(_textbox("aid-address_ln_2", _near(_label("Address Line 2"))));
+	_assertVisible(_textbox("aid-city", _near(_label("City"))));
+	_assertEqual("", _getValue(_textbox("aid-city", _near(_label("City")))));
+	_assertVisible(_image("Required!", _in(_label("City"))));
+	_assertVisible(_select("aid-state", _near(_label("State"))));
+	_assertEqual("Select", _getSelectedText(_select("aid-state")));
+	_assertVisible(_textbox("aid-zipcode", _near(_label("Zip Code"))));
+	_assertEqual("", _getValue(_textbox("aid-zipcode", _near(_label("Zip Code")))));
+	_assertVisible(_image("Required!", _in(_label("Zip Code"))));
+	_assertTrue(_getAttribute (_submit("Finish"), "disabled"),"Finish button should be disable before filling required fields");
+	_assertNotVisible(_checkbox("mailingAddressCheck", _near(_label("Same as business address"))));
+}
+
+function createNewAdminStaff($communicationPreference, $adminStaffLevel, $selectAgencyLocation, $correspAddress1, $correspCity, $correspState, $correspStateShort, $zipCode,$staffName){
+	var $data=_fetch(window.moment().format("MMDDYY"));
+	var $adminStaffInfo = [];
+	var $adminStaffPhone1 = randomStringWithoutStartingZero(3,"N");
+	var $adminStaffPhone2 = randomString(3,"N");
+	var $adminStaffPhone3 = randomString(4,"N");
+	var $adminStaffPhone = $adminStaffPhone1+$adminStaffPhone2+$adminStaffPhone3;
+	var	$adminStaffBusinessPhone1 = randomStringWithoutStartingZero(3,"N");
+	var	$adminStaffBusinessPhone2 = randomString(3,"N");
+	var	$adminStaffBusinessPhone3 = randomString(4,"N");
+	var $businessPhone = $adminStaffBusinessPhone1+$adminStaffBusinessPhone2+$adminStaffBusinessPhone3;
+	
+	if($staffName){
+		$staffName = $staffName+randomString(6,"A");
+	}else{
+		$staffName = "Staff"+randomString(6,"A");
+	}
+		
+	var $staffLastName = "Staff"+randomString(7,"A");
+	var $personalEmail = $staffName.toLowerCase()+"per@yopmail.com";
+	var $businessEmail = $staffName.toLowerCase()+"bus@yopmail.com";	
+	var $businessName;
+	var $approvalStatus = "Pending";
+	var $activeStatus = "Active";
+	var $staffNumber;
+	var $applicationSubmisDate = _call(window.moment().format("MM-DD-YYYY"));;
+	var $approvalNumber;
+	var $approvalDate;
+	var $delegationCode;
+	var $staffID;
+	
+	_click(_link("Admin Staff"));
+	_click(_link("/Add a New Admin Staff/"));
+	_setValue(_textbox("aid-first-name"), $staffName);
+	_setValue(_textbox("aid-last-name"), $staffLastName);
+	
+	_setValue(_textbox("aid-primary-contact-1"), $adminStaffPhone1);
+	_setValue(_textbox("aid-primary-contact-2"), $adminStaffPhone2);
+	_setValue(_textbox("aid-primary-contact-3"), $adminStaffPhone3);
+	
+	_setValue(_textbox("aid-business-contact-1"), $adminStaffBusinessPhone1);
+	_setValue(_textbox("aid-business-contact-2"), $adminStaffBusinessPhone2);
+	_setValue(_textbox("aid-business-contact-3"), $adminStaffBusinessPhone3);
+	
+	_setValue(_emailbox("aid-personal-email"), $personalEmail);
+	_setValue(_emailbox("aid-business-email"), $businessEmail);
+	_setSelected(_select("communicationPreference"), $communicationPreference);
+	$businessName = _getText(_textbox("aid-business-name"));
+	if($adminStaffLevel)
+		_setSelected(_select("adminStaffLevel"), $adminStaffLevel);
+	else
+		$adminStaffLevel = "Level1";
+	_setSelected(_select("aid-siteLocation"), $selectAgencyLocation);
+	
+	$businessAddressStr =  _getText(_div("", _rightOf(_label("Current Location"))).firstChild);
+	$businessAddressFull = _getText(_div("", _rightOf(_label("Current Location"))));
+	$businessAddressFull = $businessAddressFull.replace($businessAddressStr,"");
+	$businessAddressFull = $businessAddressFull.trim();
+	$businessCity = $businessAddressFull.substring(0,$businessAddressFull.indexOf(","));
+	$businessCity = $businessCity.trim();
+	$businessState = $businessAddressFull.substring($businessAddressFull.indexOf(",")+2,$businessAddressFull.indexOf(",")+4);
+	$businessZipcode = $businessAddressFull.substring($businessAddressFull.length - 5,$businessAddressFull.length);	
+	
+	_setValue(_textbox("aid-address_ln_1"),$correspAddress1);
+	_setValue(_textbox("aid-city"), $correspCity);
+	_setSelected(_select("state"), $correspState);
+	_setValue(_textbox("aid-zipcode"), $zipCode);
+	_click(_submit("Finish"));
+	// pop up
+	_setStrictVisibilityCheck(true);
+	if(_isVisible(_heading3("Select your address"))){
+		_click(_radio("addressMatchSelected", _near(_heading4("You entered"))));
+		_click(_submit("OK"));
+	}
+	_assertVisible(_div("successfullyCompletedApplication"));
+	_assertVisible(_submit("OK"));
+	$expectedPopUpText = "Congratulations! You have successfully submitted the application for an Approved Admin Staff for your Agency. Once we have completed the review of your application, we will notify you with next steps.";
+	$actualPopUpText = _getText(_paragraph("", _in(_div("successfullyCompletedApplication"))));
+	_assertEqual($expectedPopUpText,$actualPopUpText);
+	_click(_submit("OK", _in(_div("successfullyCompletedApplication"))));
+	_setStrictVisibilityCheck(false);
+	
+	
+	var $date = _call(window.moment().format("MM-DD-YYYY"));
+	_assertEqual($date,_getText(_cell(1, _near(_cell("Application Submission Date")))));
+	_assertVisible(_strong("Pending", _near(_cell("Approval Status"))));
+	 
+	$adminStaffInfo.push({firstName:$staffName,
+						lastName:$staffLastName,
+						phone:$adminStaffPhone,
+						businessPhone:$businessPhone,
+						personalEmail:$personalEmail,
+						businessEmail:$businessEmail,
+						communicationpreference:$communicationPreference,
+						businessName:$businessName,
+						staffLevel:$adminStaffLevel,						
+						businessAddressFull:$businessAddressFull,
+						businessStreet:$businessAddressStr,
+						businessCity:$businessCity,
+						businessState:$businessState,
+						businessZipcode:$businessZipcode,
+						agencyLocation:$selectAgencyLocation,
+						
+						correspAddressStreet:$correspAddress1,
+						correspAddressState:$correspState,
+						correspStateShort:$correspStateShort,
+						correspAddressCity:$correspCity,
+						correspAddressZipcode:$zipCode,							
+						
+						staffNumber:$staffNumber,
+						applicationSubmisDate:$applicationSubmisDate,
+						approvalStatus:$approvalStatus,
+						approvalNumber:$approvalNumber,
+						approvalDate:$approvalDate,
+						delegationCode:$delegationCode,
+						
+						activeStatus:$activeStatus,
+						staffID:$staffID
+						});
+	_log(String($adminStaffInfo));
+	return $adminStaffInfo;
+}
+
+function createAdminStaffAccount($adminStaff){
+	if($adminStaff[0].staffLevel == "Level1"){
+		_click(_link("Admin Staff L1"));
+	}else{
+		_click(_link("Admin Staff L2"));
+	}
+	
+	var $phone = $adminStaff[0].phone;
+	var $phone1 = $phone.substring(0,3);
+	var $phone2 = $phone.substring(3,6);
+	var $phone3 = $phone.substring(6,$phone.length);
+	_setValue(_textbox("firstName"), $adminStaff[0].firstName);
+	_setValue(_textbox("lastName"), $adminStaff[0].lastName);
+	_setValue(_emailbox("email"), $adminStaff[0].personalEmail);
+	_setValue(_emailbox("confirmEmail"), $adminStaff[0].personalEmail);
+	_setValue(_textbox("phone1"),$phone1);
+	_setValue(_textbox("phone2"),$phone2);
+	_setValue(_textbox("phone3"),$phone3);
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	_setValue(_textbox("Security Answer"), "1");
+	_setValue(_password("password"), "ghix123");
+	_setValue(_password("confirmPassword"), "ghix123");
+	_click(_button("Submit"));
+}
+
+/*--Admin Staff navigation in Agency Portal--*/
+function navigateToViewAdminStaff(){
+	_click(_link("Admin Staff"));
+	_click(_link("View Admin Staff List"));
+	_assertVisible(_tableHeader("Admin Staff Name"));
+	_assertVisible(_tableHeader("Active/Inactive"), "Verify that Active/Inactive Header is visible");
+	_assertVisible(_tableHeader("Approval Status"), "Verify that Approval Status Header is visible");
+	_assertVisible(_tableHeader("Admin Staff Id #"), "Verify that Staff Id header is visible");
+	_assertVisible(_tableHeader("Level"), "Verify that Level Header is visible");
+	_assertVisible(_tableHeader("Actions"), "Verify that Actions Header is visible");
+}
+
+function navigateToEditAdminStaff($adminStaffInfo){
+	var $name = "/"+$adminStaffInfo[0].firstName+"/";
+	_click(_link("dropdown-toggle", _near(_cell($name))));
+	_click(_link("Edit", _near(_cell($name))));
+	_assertVisible(_heading4("Admin Staff Information"));
+}
+
+function clickStaffInformation(){
+	_click(_link("/Staff Information/"));
+	_assertVisible(_heading4("Admin Staff Information"));
+}
+
+function clickStaffStatus(){
+	if(_isVisible(_link("Status[1]", _in(_div("sidebar"))))){
+		_click(_link("Status[1]", _in(_div("sidebar"))));
+	}else{
+		_click(_link("Status", _in(_div("sidebar"))));
+	}
+	_assertVisible(_heading4("Status"));
+}
+
+function clickUpdate(){
+	_click(_submit("update"));
+	// assertion still pending////////////
+}
+
+/*--Verify Admin Staff in view mode from Agency Portal--*/
+function verifyAdminStaffInformationViewMode($adminStaffInfo,$role){
+	var $fullBusinessAddress = $adminStaffInfo[0].businessStreet+" "+$adminStaffInfo[0].businessAddressFull;
+	var $fullCorrespondenceAddress = $adminStaffInfo[0].correspAddressStreet+" "+$adminStaffInfo[0].correspAddressCity+", "+$adminStaffInfo[0].correspStateShort+" - "+$adminStaffInfo[0].correspAddressZipcode;
+	_assertVisible(_strong($adminStaffInfo[0].firstName, _rightOf(_cell("First Name"))),"Assert that first name is visible");
+	_assertVisible(_strong($adminStaffInfo[0].lastName, _rightOf(_cell("Last Name"))),"Assert that last name is visible");
+	_assertVisible(_strong($adminStaffInfo[0].phone, _rightOf(_cell("Primary Contact Number"))),"Assert that primary phone is visible");
+	_assertVisible(_strong($adminStaffInfo[0].businessPhone, _rightOf(_cell("Business Contact Number"))),"Assert that business phone is visible");
+	_assertVisible(_strong($adminStaffInfo[0].personalEmail, _rightOf(_cell("Email (Individual)"))),"Assert that Individual email is visible");
+	_assertVisible(_strong($adminStaffInfo[0].businessEmail, _rightOf(_cell("Email (Business)"))),"Assert that business email is visible");
+	_assertVisible(_strong($adminStaffInfo[0].communicationpreference, _rightOf(_cell("Preferred Method of Communication"))),"Assert that communication preference is visible");
+	_assertVisible(_strong($adminStaffInfo[0].businessName, _rightOf(_cell("Business Name"))),"Assert that business name is visible");
+	_assertVisible(_strong($adminStaffInfo[0].staffLevel, _rightOf(_cell("Admin Staff Level"))),"Assert that admin staff level is visible");
+	_assertVisible(_strong($fullBusinessAddress, _rightOf(_cell("Business Address"))),"Assert that business address is visible");
+	_assertVisible(_strong($fullCorrespondenceAddress, _near(_cell("Correspondence Address"))),"Assert that correspondence address is visible");
+//	if($adminStaffInfo[0].approvalStatus == "Pending" || $role == "Admin Staff"){
+//		_assertNotVisible(_submit("Edit"));
+//	}else{
+//		
+//	}
+	
+	if($role == "Admin Staff"){
+		_assertNotVisible(_submit("Edit"),"Edit button should be NOT visible to Admin Staff");
+	}
+	if($role == "Agency Manager" && $adminStaffInfo[0].approvalStatus == "Pending"){
+		_assertNotVisible(_submit("Edit"),"Edit button should be NOT visible to Agency Manager if Admin Staff is Pending");
+	}
+	if($role == "Agency Manager" && $adminStaffInfo[0].approvalStatus != "Pending"){
+		_assertVisible(_submit("Edit"),"Edit button should be visible to Agency Manager if Admin Staff not Pending");
+	}
+	if($role == "Broker Admin"){
+		_assertVisible(_submit("Edit"),"Edit button should be visible to Broker Admin");
+	}
+	
+}
+
+function verifyAdminStaffApprovalStatusViewMode($adminStaffInfo){
+	_click(_link("/Approval Status/", _in(_div("sidebar"))));
+	_assertVisible(_heading4("Approval Status"));
+	_assertVisible(_strong($adminStaffInfo[0].staffNumber, _rightOf(_cell("Admin Staff Number"))),"Verify that staff number is visible");
+	$st=_getText(_strong("", _rightOf(_cell("Admin Staff Number"))));
+	$st = $st.substring(0,2);
+	_assertEqual("ST", $st,"Assert that Admin Staff approval status starts from ST");
+	_assertVisible(_strong($adminStaffInfo[0].applicationSubmisDate, _rightOf(_cell("Application Submission Date"))),"Verify that application submission date is visible");
+	_assertVisible(_strong($adminStaffInfo[0].approvalStatus, _rightOf(_cell("Approval Status"))));
+	_assertNotVisible(_submit("Edit"));
+	if($adminStaffInfo[0].approvalStatus != "Pending"){
+		_assertVisible(_strong($adminStaffInfo[0].approvalNumber, _rightOf(_cell("Approval Number"))));
+		_assertVisible(_strong($adminStaffInfo[0].approvalDate, _rightOf(_cell("Approval Date"))));
+		_assertVisible(_strong($adminStaffInfo[0].delegationCode, _rightOf(_cell("Delegation Code"))));
+	}
+}
+
+function verifyAdminStaffStatusViewMode($adminStaffInfo,$role){
+	clickStaffStatus();
+	_assertVisible(_heading4("Status"));
+	_assertVisible(_strong($adminStaffInfo[0].activeStatus, _rightOf(_cell("Status"))));
+	_assertVisible(_tableHeader("Date"));
+	_assertVisible(_tableHeader("Previous Status"));
+	_assertVisible(_tableHeader("New Status"));
+	_assertVisible(_tableHeader("View Comment"));
+	if($role == "Admin Staff" || $role == "Broker Admin"){
+		_assertNotVisible(_submit("Edit"),"Edit button should NOT be visible to Admin Staff and Broker Admin");
+	}else{
+		_assertVisible(_submit("Edit"));
+	}
+}
+
+/*--Verify Admin Staff in edit mode from Agency Portal--*/
+
+function verifyAdminStaffInformationEditMode($adminStaffInfo,$role){
+
+	_assertEqual($adminStaffInfo[0].firstName, _getValue(_textbox("aid-first-name")));
+	_assertEqual($adminStaffInfo[0].lastName, _getValue(_textbox("aid-last-name")));
+	var $phone =_getText(_textbox("aid-primary-contact-1")) + _getText(_textbox("aid-primary-contact-2")) + _getText(_textbox("aid-primary-contact-3"));
+	_assertEqual($adminStaffInfo[0].phone, $phone);
+	var $businessPhone = _getText(_textbox("aid-business-contact-1"))+_getText(_textbox("aid-business-contact-2"))+_getText(_textbox("aid-business-contact-3"));
+	_assertEqual($adminStaffInfo[0].businessPhone, $businessPhone);
+	_assertEqual($adminStaffInfo[0].personalEmail, _getText(_emailbox("aid-personal-email")));
+	_assertEqual($adminStaffInfo[0].businessEmail, _getText(_emailbox("aid-business-email")));
+	_assertEqual($adminStaffInfo[0].communicationpreference, _getSelectedText(_select("aid-communication-preference")));
+	_assertEqual($adminStaffInfo[0].businessName, _getValue(_textbox("aid-business-name")));
+	_assertEqual(true, _getAttribute (_textbox("aid-business-name"), "disabled"));
+	_assertEqual($adminStaffInfo[0].staffLevel, _getSelectedText(_select("aid-admin-staff-level")));
+	_assertVisible(_heading4("Business Address"));
+	_assertEqual($adminStaffInfo[0].agencyLocation, _getSelectedText (_select("aid-siteLocation")));
+	var $fullBusinessAddress = $adminStaffInfo[0].businessStreet+" "+$adminStaffInfo[0].businessAddressFull;
+	_assertEqual($fullBusinessAddress, _getText(_div("controls ng-binding", _in(_div("location-details")))));
+	
+	
+	if($role == "Broker Admin"){
+		_assertVisible(_heading4("Correspondence Address"),"Correpondence address should be visible to Broker Admin");
+		_assertVisible(_textbox("aid-address_ln_1", _near(_label("Address Line 1"))),"Correpondence address should be visible to Broker Admin");
+		_assertVisible(_image("Required!", _in(_label("Address Line 1"))));
+		_assertEqual($adminStaffInfo[0].correspAddressStreet, _getValue(_textbox("aid-address_ln_1")));
+		
+		_assertVisible(_textbox("aid-address_ln_2", _near(_label("Address Line 2"))));
+		_assertNotVisible(_image("Required!", _in(_label("Address Line 2"))));
+		
+		_assertVisible(_textbox("aid-city", _near(_label("City"))));
+		_assertEqual($adminStaffInfo[0].correspAddressCity, _getValue(_textbox("aid-city", _near(_label("City")))));
+		_assertVisible(_image("Required!", _in(_label("City"))));
+		
+		_assertVisible(_select("aid-state", _near(_label("State"))));
+		_assertFalse("Select" == _getSelectedText(_select("aid-state", _near(_label("State")))),"State should be selected");
+		_assertVisible(_image("Required!", _in(_label("State"))));
+		
+		_assertVisible(_textbox("aid-zipcode", _near(_label("Zip Code"))));
+		_assertEqual($adminStaffInfo[0].correspAddressZipcode, _getValue(_textbox("aid-zipcode", _near(_label("Zip Code")))));
+		_assertVisible(_image("Required!", _in(_label("Zip Code"))));
+	
+	}else{
+		_assertNotVisible(_heading4("Correspondence Address"));
+	}
+	
+	_assertVisible(_submit("update"));
+	_assertVisible(_submit("Cancel"));
+	_assertNotVisible(_submit("Save"));
+}
+
+function verifyAdminStaffStatusEditMode($adminStaffInfo){
+	clickStaffStatus();
+	_assertVisible(_submit("Edit"));
+	_click(_submit("Edit"));
+	_assertVisible(_heading4("Status"));
+	_assertVisible(_strong($adminStaffInfo[0].activeStatus, _rightOf(_cell("Status"))));
+	_assertVisible(_heading4("Update Approval"),"Assert that Update Approval header is visible");
+	_assertVisible(_submit("Cancel"));
+	_assertVisible(_select("aid-status"),"Assert that select is visible");
+	_assertEqual("Select", _getSelectedText(_select("aid-status")),"Assert that Select option selected by default");
+	_assertVisible(_textarea("status", _rightOf(_label("Comment"))),"Assert that text area for comment is visible");
+	_assertEqual(true, _getAttribute (_submit("Submit"), "disabled"),"Assert that Submit button disabled before changes");
+	_assertVisible(_tableHeader("Date"));
+	_assertVisible(_tableHeader("Previous Status"));
+	_assertVisible(_tableHeader("New Status"));
+	_assertVisible(_tableHeader("View Comment"));
+	_click(_submit("Cancel"));
+}
+
+/*--Edit Admin Staff from Agency Portal--*/
+
+function editAdminStaffInformation($adminStaffInfo,$firstName,$lastName,$personalEmail,$businessEmail,$staffLevel,$role,$editAll,$verify){
+
+	_click(_submit("Edit"));
+	if($verify == "Y"){
+		verifyAdminStaffInformationEditMode($adminStaffInfo,$role);
+	}
+	
+	if($firstName){
+		_setValue(_textbox("aid-first-name"), $firstName);
+		$adminStaffInfo[0].firstName = $firstName;
+	}
+	if($lastName){
+		_setValue(_textbox("aid-last-name"), $lastName);
+		$adminStaffInfo[0].lastName = $lastName;
+	}
+	if($personalEmail){
+		_setValue(_emailbox("aid-personal-email"), $personalEmail);
+		$adminStaffInfo[0].personalEmail = $personalEmail;
+	}
+	if($businessEmail){
+		_setValue(_emailbox("aid-business-email"), $businessEmail);
+		$adminStaffInfo[0].businessEmail = $businessEmail;
+	}
+	if($staffLevel){
+		_setSelected(_select("aid-admin-staff-level"), $staffLevel);
+		$adminStaffInfo[0].staffLevel = $staffLevel;
+	}
+	
+	if($editAll == "Y"){
+		
+		// edit first name
+		var $currentName = $adminStaffInfo[0].firstName;
+		var $newName;
+		if($currentName.length == 16){
+			$newName = $currentName + randomString(4, "A");
+			$adminStaffInfo[0].firstName = $newName;
+		}else{
+			var $newStr = randomString(4, "A");
+			var $strToReplace = $currentName.substring($currentName.length-4);
+			$newName = $currentName.replace($strToReplace,$newStr);
+			$adminStaffInfo[0].firstName = $newName;
+		}
+		_setValue(_textbox("aid-first-name"), $newName);
+		
+		// edit last name
+		var $currentLastName = $adminStaffInfo[0].lastName;
+		var $newLastName;
+		if($currentLastName.length == 12){
+			$newLastName = $currentLastName + randomString(4, "A");
+			$adminStaffInfo[0].lastName = $newLastName;
+		}else{
+			var $newStr = randomString(4, "A");
+			var $strToReplace = $currentLastName.substring($currentLastName.length-4);
+			$newLastName = $currentLastName.replace($strToReplace,$newStr);
+			$adminStaffInfo[0].lastName = $newLastName;
+		}
+		_setValue(_textbox("aid-last-name"), $newLastName);
+		
+		// edit primary phone
+		var $phone1 = randomStringWithoutStartingZero(3, "N");
+		var $phone2 = randomStringWithoutStartingZero(3, "N");
+		var $phone3 = randomStringWithoutStartingZero(4, "N");
+		
+		var $phone = $phone1+$phone2+$phone3;
+		$adminStaffInfo[0].phone = $phone;
+		_setValue(_textbox("aid-primary-contact-1"), $phone1);
+		_setValue(_textbox("aid-primary-contact-2"), $phone2);
+		_setValue(_textbox("aid-primary-contact-3"), $phone3);
+		
+		//edit business phone
+		$phone1 = randomStringWithoutStartingZero(3, "N");
+		$phone2 = randomStringWithoutStartingZero(3, "N");
+		$phone3 = randomStringWithoutStartingZero(4, "N");
+		$phone = $phone1+$phone2+$phone3;
+		
+		_setValue(_textbox("aid-business-contact-1"), $phone1);
+		_setValue(_textbox("aid-business-contact-2"), $phone2);
+		_setValue(_textbox("aid-business-contact-3"), $phone3);
+		$adminStaffInfo[0].businessPhone = $phone;
+		
+		// edit persomal email
+//		var $newEmail=$adminStaffInfo[0].personalEmail;
+//		var $newStr = randomString(4, "A");
+//		var $strToReplace = $newEmail.substring($newEmail.indexOf("person")-4,$newEmail.indexOf("person"));
+//		$newEmail = $newEmail.replace($strToReplace, $newStr);
+//		$adminStaffInfo[0].personalEmail = $newEmail;
+//		_setValue(_emailbox("aid-personal-email"), $newEmail);
+		
+		// edit business email
+		var $newEmail=$adminStaffInfo[0].businessEmail;
+		var $newStr = randomString(4, "A");
+		var $strToReplace = $newEmail.substring($newEmail.indexOf("business")-4,$newEmail.indexOf("business"));
+		$newEmail = $newEmail.replace($strToReplace, $newStr);
+		$adminStaffInfo[0].businessEmail = $newEmail;
+		_setValue(_emailbox("aid-business-email"), $newEmail);
+		
+		// edit Preferred Method of Communication
+		var $flag=false;
+		var $newCommunicationPref;
+		var $options = _getOptions (_select("communicationPreference"));
+		var $value = _getValue (_select("communicationPreference"));
+		while($flag==false){	
+			var $i = Math.floor(Math.random() * 3) + 1;
+			if($options[$i] != $value){
+				_setSelected (_select("communicationPreference"),$options[$i]);
+				$newCommunicationPref = $options[$i];
+				$flag=true;
+			}
+		}
+		$adminStaffInfo[0].communicationpreference = $newCommunicationPref;
+	}
+	
+	_click(_submit("update"));
+	_wait(2000);
+
+	_lockWindow();
+	_focusWindow();
+
+	_setStrictVisibilityCheck(true);
+	if(_isVisible (_heading3("Address not found"))){
+		_click(_submit("OK"));
+	}	
+	_setStrictVisibilityCheck(false);
+
+	clickStaffInformation();
+	_unlockWindow();
+	return $adminStaffInfo;
+}
+
+function editAdminStaffBusinessAddress($adminStaff){
+	_click(_submit("Edit"));
+	var $oldLocation = _getSelectedText(_select("aid-siteLocation"));
+	_log("Old Location:" + $oldLocation);
+	var $locations = _getOptions(_select("aid-siteLocation"), "sahiText");
+	_log("Locations: "+ $locations);
+	var $locationNum = $locations.length;
+	
+	for ($i=0;$i<$locationNum;$i++){
+		if ($oldLocation==$locations[$i]){
+			$i++;
+			var $mod = $i%$locationNum;
+			if ($mod == 0){//select location
+				$mod++;
+				_setSelected(_select("aid-siteLocation"), $locations[$mod]);
+				}else{
+					_setSelected(_select("aid-siteLocation"), $locations[$mod]);
+				}
+			break;
+		}
+	}
+	
+	_wait(2000);
+
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	if(_isVisible (_heading3("Address not found"))){
+		_click(_submit("OK"));
+	}
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+	
+	var $newLocation = _getSelectedText(_select("aid-siteLocation"));
+	_log("New Location:" + $newLocation);
+	var $newAddress = _getText(_div("controls ng-binding", _near(_label("Current Location"))));
+	_log("New address: "+$newAddress);
+	
+	var $address1=_getText(_div("controls ng-binding").firstChild);
+	var $city=$newAddress.substring(0,$newAddress.indexOf(","));
+	$city=$city.replace($address1,"");
+	$city=$city.trim();
+	var $state=$newAddress.substring($newAddress.indexOf(", ")+2, $newAddress.indexOf(" - "));
+	_assertEqual (2, $state.length, "State is: "+$state);
+	var $zipCode = $newAddress.substring($newAddress.length-5,$newAddress.length);
+	_assertEqual (5, $zipCode.length, "State is: "+$zipCode);
+	
+	var $addressFull = $newAddress.replace($address1,"");
+	$addressFull = $addressFull.trim();
+	$adminStaff[0].businessAddressFull = $addressFull;
+	$adminStaff[0].businessStreet = $address1;
+	$adminStaff[0].businessCity = $city;
+	$adminStaff[0].businessState = $state;
+	$adminStaff[0].businessZipcode = $zipCode;
+	$adminStaff[0].agencyLocation = $newLocation;
+	
+	_click(_submit("update"));
+	
+	_wait(2000);
+
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	if(_isVisible (_heading3("Address not found"))){
+		_click(_submit("OK"));
+	}
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+	
+	return $adminStaff;
+}
+
+
+
+function editAdminStaffActiveStatus($adminStaffInfo,$newStatus,$comment){
+	clickStaffStatus();
+	var $date;// = _call(window.moment().format("MMM DD, YYYY"));
+	_set($date, _call(window.moment().format("MMM DD, YYYY")));
+	var $previousStatus = $adminStaffInfo[0].activeStatus;
+	verifyAdminStaffStatusEditMode($adminStaffInfo);
+	
+	_click(_submit("Edit"));
+	_setSelected(_select("status"), $newStatus);
+	_setValue(_textarea("status"), $comment);
+	_assertEqual($newStatus, _getSelectedText(_select("status")));
+	_assertEqual(false, _getAttribute (_submit("Submit"), "disabled"),"Assert that Submit button enabled after changes");
+	_click(_submit("Submit"));
+	$adminStaffInfo[0].activeStatus = $newStatus;
+	
+	
+	_assertVisible(_strong($newStatus, _near(_cell("Status"))));
+	_assertVisible(_cell($date, _near(_tableHeader("Date"))));
+	_assertVisible(_cell($previousStatus, _near(_tableHeader("Previous Status"))));
+	_assertVisible(_cell($newStatus, _near(_tableHeader("New Status"))));
+	_assertVisible(_link("View Comments", _near(_tableHeader("View Comment"))));
+	
+	_click(_link("View Comments"));
+
+	_lockWindow();
+	_focusWindow();
+
+	_setStrictVisibilityCheck(true);
+	_assertVisible(_div("viewCommentsModal"));
+	_assertVisible(_heading3("View Comments", _in(_div("viewCommentsModal"))));
+	_assertVisible(_button("×", _in(_div("viewCommentsModal"))));
+	_assertEqual($comment, _getText(_div("modal-body")));
+	_click(_submit("Close"));
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+	
+	return $adminStaffInfo;
+}
+
+/*--Admin Staff DB verification--*/
+
+function verifyAdminStaffInformationDB($adminStaffInfo,$createdByEmail){
+	var $adminStaffInfoDB = accessAdminStaffInformationDB($adminStaffInfo[0].firstName,$adminStaffInfo[0].lastName);
+	_assertEqual($adminStaffInfoDB[0][0],$adminStaffInfo[0].firstName,"Verify that first name match in DB");
+	_assertEqual($adminStaffInfoDB[0][1],$adminStaffInfo[0].lastName,"Verify that last name match in DB");
+	_assertEqual($adminStaffInfoDB[0][2],$adminStaffInfo[0].phone,"Verify that primary phone match in DB");
+	_assertEqual($adminStaffInfoDB[0][3],$adminStaffInfo[0].businessPhone,"Verify that business phone match in DB");
+	_assertEqual($adminStaffInfoDB[0][4],$adminStaffInfo[0].personalEmail,"Verify that personal email match in DB");
+	_assertEqual($adminStaffInfoDB[0][5],$adminStaffInfo[0].businessEmail,"Verify that business email match in DB");
+	_assertEqual($adminStaffInfoDB[0][6],$adminStaffInfo[0].communicationpreference,"Verify that communication preference match in DB");
+	_assertEqual($adminStaffInfoDB[0][7],$adminStaffInfo[0].businessName,"Verify that business name match in DB");
+	_assertEqual($adminStaffInfoDB[0][8],$adminStaffInfo[0].staffLevel,"Verify that staff level match in DB");
+	_assertEqual($adminStaffInfoDB[0][10],$adminStaffInfo[0].businessStreet,"Verify that business address match in DB");
+	_assertEqual($adminStaffInfoDB[0][11],$adminStaffInfo[0].businessCity,"Verify that business address match in DB");
+	_assertEqual($adminStaffInfoDB[0][12],$adminStaffInfo[0].businessState,"Verify that business address match in DB");
+	_assertEqual($adminStaffInfoDB[0][13],$adminStaffInfo[0].businessZipcode,"Verify that business address match in DB");
+	$adminStaffInfo[0].staffID = $adminStaffInfoDB[0][14];
+	$adminStaffInfo[0].staffNumber = $adminStaffInfoDB[0][15];
+	var $approvalStatus = $adminStaffInfo[0].approvalStatus;
+	$approvalStatus = $approvalStatus.toUpperCase();
+	_assertEqual($adminStaffInfoDB[0][16],$approvalStatus,"Verify that approval status match in DB");
+	
+	if($adminStaffInfo[0].approvalDate == null){
+		$adminStaffInfo[0].approvalDate = "null";
+		_assertEqual($adminStaffInfoDB[0][17],$adminStaffInfo[0].approvalDate,"Verify that approval date match in DB");
+	}else{
+		var $approvalDateDB = $adminStaffInfoDB[0][17];
+		$approvalDateDB = $approvalDateDB.substring(0,10);
+		var $approvalDate = $adminStaffInfo[0].approvalDate;
+		$approvalDate = $approvalDate.substring(6,10)+"-"+$approvalDate.substring(0,5);
+		_assertEqual($approvalDateDB,$approvalDate,"Verify that approval date match in DB");
+	}
+	
+	if($adminStaffInfo[0].approvalNumber == null){
+		$adminStaffInfo[0].approvalNumber = "null";
+		_assertEqual($adminStaffInfoDB[0][18],$adminStaffInfo[0].approvalNumber,"Verify that approval number match in DB");
+	}else{
+		_assertEqual($adminStaffInfoDB[0][18],$adminStaffInfo[0].approvalNumber,"Verify that approval number match in DB");
+	}
+	
+	if($adminStaffInfo[0].delegationCode == null){
+		$adminStaffInfo[0].delegationCode = "null";
+		_assertEqual($adminStaffInfoDB[0][19],$adminStaffInfo[0].delegationCode,"Verify that delegation code match in DB");
+	}else{
+		_assertEqual($adminStaffInfoDB[0][19],$adminStaffInfo[0].delegationCode,"Verify that delegation code match in DB");
+	}
+	
+	_assertEqual($adminStaffInfoDB[0][20],$adminStaffInfo[0].activeStatus,"Verify that active status match in DB");
+	
+	var $staffCorrespondenceAddressDB = getAdminStaffCorrespondenceAddressDB($adminStaffInfo[0].firstName,$adminStaffInfo[0].lastName);
+	_assertEqual($staffCorrespondenceAddressDB[0][0],$adminStaffInfo[0].correspAddressStreet,"Verify that correspondence address match in DB");
+	_assertEqual($staffCorrespondenceAddressDB[0][1],$adminStaffInfo[0].correspAddressCity,"Verify that correspondence address match in DB");
+	_assertEqual($staffCorrespondenceAddressDB[0][2],$adminStaffInfo[0].correspStateShort,"Verify that correspondence address match in DB");
+	_assertEqual($staffCorrespondenceAddressDB[0][3],$adminStaffInfo[0].correspAddressZipcode,"Verify that correspondence address match in DB");
+	
+	return $adminStaffInfo;
+}
+
+/*---------------------Admin Staff Portal Functions---------------------------------*/
+
+function verifyAdminStaffSubMenuAccess($agencyStatus,$adminStaffStatus,$activeStatus,$adminStaffLevel){
+	_log("Agency status: "+$agencyStatus);
+	_log("Admin Staff status: "+$adminStaffStatus);
+	if($adminStaffLevel == "Level 1"){
+		if($agencyStatus == "Certified" && $adminStaffStatus == "Certified" && $activeStatus == "Active"){		
+			//AgentsSubMenus
+			_click(_link("Agents"));
+			_assertNotEqual("disabled",_getAttribute(_link("View Agent List"),"className"),"'View Agent List' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("/Search an Agent/"),"className"),"If agency is in Certified state, link 'Search an Agent' should not be disabled");
+			_assertNotVisible(_link("/Add a New Agent/"));
+			//Agency Delegations
+			_click(_link("Agency Delegations"));
+			_assertNotEqual("disabled",_getAttribute(_link("Pending delegation requests", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Pending Delegation Requests' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Active Consumers", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Active Consumers' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("/Start A New Application/"),"className"),"If agency is in pending state, 'Transfer Consumers' link should not be disabled");
+			//My Agent Profile
+			_click(_link("My Profile"));
+			_assertNotEqual("disabled",_getAttribute(_link("Admin Staff Information"),"className"),"'Agent Information' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Approval Status"),"className"),"'Profile' link should not be disabled");
+			//for IE browser
+			if(_isIE()){
+				_assertNotEqual("disabled",_getAttribute(_link("StatusEnd of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("IE browser");
+			}else{
+				_assertNotEqual("disabled",_getAttribute(_link("Status End of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("Firefox and Chrome browser");
+			}
+		}else{
+			//AgentsSubMenus
+			_click(_link("Agents"));
+			_assertEqual("disabled",_getAttribute(_link("View Agent List"),"className"),"'View Agent List' link should be disabled");
+			_assertEqual("disabled",_getAttribute(_link("/Search an Agent/"),"className"),"If agency is in Certified state, link 'Search an Agent' should be disabled");
+			_assertNotVisible(_link("/Add a New Agent/"));
+			//Agency Delegations
+			_click(_link("Agency Delegations"));
+			_assertEqual("disabled",_getAttribute(_link("Pending delegation requests", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Pending Delegation Requests' link should be disabled");
+			_assertEqual("disabled",_getAttribute(_link("Active Consumers", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Active Consumers' link should be disabled");
+			_assertEqual("disabled",_getAttribute(_link("/Start A New Application/"),"className"),"If agency is in pending state, 'Transfer Consumers' link should be disabled");
+			//My Agent Profile
+			_click(_link("My Profile"));
+			_assertNotEqual("disabled",_getAttribute(_link("Admin Staff Information"),"className"),"'Agent Information' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Approval Status"),"className"),"'Profile' link should not be disabled");
+			//for IE browser
+			if(_isIE()){
+				_assertNotEqual("disabled",_getAttribute(_link("StatusEnd of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("IE browser");
+			}else{
+				_assertNotEqual("disabled",_getAttribute(_link("Status End of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("Firefox and Chrome browser");
+			}
+		
+		}
+	}
+	if($adminStaffLevel == "Level 2"){
+		if($agencyStatus == "Certified" && $adminStaffStatus == "Certified" && $activeStatus == "Active"){		
+			//AgentsSubMenus
+			_click(_link("Agents"));
+			_assertNotEqual("disabled",_getAttribute(_link("View Agent List"),"className"),"'View Agent List' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Search an Agent"),"className"),"If agency is in Certified state, link 'Search an Agent' should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("/Add a New Agent/"),"className"),"If agency is in pending state, link 'Add a New Agent' should be disabled");
+			//Agency Delegations
+			_click(_link("Agency Delegations"));
+			_assertNotEqual("disabled",_getAttribute(_link("Pending delegation requests", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Pending Delegation Requests' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Active Consumers", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Active Consumers' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Transfer Consumers", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Active Consumers' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("/Start A New Application/"),"className"),"If agency is in pending state, 'Transfer Consumers' link should not be disabled");
+			//Agency Account
+			verifyCertifiedAgencyAgencyAccountSubMenusEnabled();
+			//My Profile
+			_click(_link("My Profile"));
+			_assertNotEqual("disabled",_getAttribute(_link("Admin Staff Information"),"className"),"'Agent Information' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Approval Status"),"className"),"'Profile' link should not be disabled");			
+			//for IE browser
+			if(_isIE()){
+				_assertNotEqual("disabled",_getAttribute(_link("StatusEnd of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("IE browser");
+			}else{
+				_assertNotEqual("disabled",_getAttribute(_link("Status End of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("Firefox and Chrome browser");
+			}
+		}else{
+			//AgentsSubMenus
+			_click(_link("Agents"));
+			_assertEqual("disabled",_getAttribute(_link("View Agent List"),"className"),"'View Agent List' link should be disabled");
+			_assertEqual("disabled",_getAttribute(_link("Search an Agent"),"className"),"If agency is in Certified state, link 'Search an Agent' should be disabled");
+			_assertEqual("disabled",_getAttribute(_link("/Add a New Agent/"),"className"),"If agency is in pending state, link 'Add a New Agent' should be disabled");
+			//Agency Delegations
+			_click(_link("Agency Delegations"));
+			_assertEqual("disabled",_getAttribute(_link("Pending delegation requests", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Pending Delegation Requests' link should be disabled");
+			_assertEqual("disabled",_getAttribute(_link("Active Consumers", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Active Consumers' link should be disabled");
+			_assertEqual("disabled",_getAttribute(_link("Transfer Consumers", _near(_link("/Agency Delegations Dropdown Menu/"))),"className"),"If agency is in pending state, 'Active Consumers' link should not be disabled");
+			_assertEqual("disabled",_getAttribute(_link("/Start A New Application/"),"className"),"If agency is in pending state, 'Transfer Consumers' link should be disabled");
+			//Agency Account
+			_click(_link("Agency Account"));
+			_assertEqual("disabled",_getAttribute(_link("Agency Information"),"className"),"'Agency Information' link should not be disabled");
+			_assertEqual("disabled",_getAttribute(_link("Location and Hours"),"className"),"'Location and Hours' link should not be disabled");
+			_assertEqual("disabled",_getAttribute(_link("Document Upload"),"className"),"'Document Upload' link should not be disabled");
+			_assertEqual("disabled",_getAttribute(_link("/Agency Certification/"),"className"),"'Agency Certification' link should not be disabled");
+			//My Profile
+			_click(_link("My Profile"));
+			_assertNotEqual("disabled",_getAttribute(_link("Admin Staff Information"),"className"),"'Agent Information' link should not be disabled");
+			_assertNotEqual("disabled",_getAttribute(_link("Approval Status"),"className"),"'Profile' link should not be disabled");
+			//for IE browser
+			if(_isIE()){
+				_assertNotEqual("disabled",_getAttribute(_link("StatusEnd of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("IE browser");
+			}else{
+				_assertNotEqual("disabled",_getAttribute(_link("Status End of dropdown"),"className"),"'Certification Status' link should not be disabled");
+				_log("Firefox and Chrome browser");
+			}
+		}
+	
+	}
+}
+
+function verifyAdminStaffViewAgentList($agencyStatus,$adminStaffStatus,$activeStatus,$adminStaffLevel){
+	if($adminStaffLevel == "Level 1"){
+		_assertVisible(_link("Agent Name", _in(_tableHeader("Agent Name"))),"Agent Name should be as link in table header");
+		_assertVisible(_tableHeader("Active/Inactive"),"Active/Inactive table header should be visible");
+		_assertVisible(_tableHeader("Consumers"),"Consumers table header should be visible");
+		_assertVisible(_link("Agent License #", _in(_tableHeader("Agent License #"))),"Agent License table header should be visible and should be as link");
+		_assertVisible(_tableHeader("Certification Status"),"Certification status table header should be visible");
+		_assertNotVisible(_tableHeader("Actions"),"Actions table header should be not visible for Staff Level 1");
+		_assertNotVisible(_link("dropdown-toggle", _near(_tableHeader("Actions"))),"Gear link should be not visible for Staff Level 1");
+	}
+	if($adminStaffLevel == "Level 2" ){
+		if($agencyStatus == "Certified" && $adminStaffStatus == "Certified" && $activeStatus == "Active"){	
+			_assertVisible(_link("Agent Name", _in(_tableHeader("Agent Name"))),"Agent Name should be as link in table header");
+			_assertVisible(_tableHeader("Active/Inactive"),"Active/Inactive table header should be visible");
+			_assertVisible(_tableHeader("Consumers"),"Consumers table header should be visible");
+			_assertVisible(_link("Agent License #", _in(_tableHeader("Agent License #"))),"Agent License table header should be visible and should be as link");
+			_assertVisible(_tableHeader("Certification Status"),"Certification status table header should be visible");
+			_assertVisible(_tableHeader("Actions"),"Actions table header should be visible for Staff Level 2");
+			_assertVisible(_link("dropdown-toggle", _near(_tableHeader("Actions"))),"Gear link should be visible for Staff Level 2");
+			_click(_link("dropdown-toggle", _near(_tableHeader("Actions"))));
+			_assertVisible(_link("Edit", _near(_tableHeader("Actions"))),"Edit link from Gear icon should be visible for Staff Level 2");
+			
+			var $numOfConsumers = _getText(_cell(2, _in(_row(1, _in(_table("/table agent-list-table/"))))));
+			if ($numOfConsumers === "0") {
+				_assertNotVisible(_link("Transfer Consumer Delegations", _near(_tableHeader("Actions"))),"Transfer Consumer Delegations link from Gear icon should NOT be visible for Staff Level 2");
+			}else{
+				_assertVisible(_link("Transfer Consumer Delegations", _near(_tableHeader("Actions"))),"Transfer Consumer Delegations link from Gear icon should be visible for Staff Level 2");
+			}
+			
+		}else{
+			_assertVisible(_link("Agent Name", _in(_tableHeader("Agent Name"))),"Agent Name should be as link in table header");
+			_assertVisible(_tableHeader("Active/Inactive"),"Active/Inactive table header should be visible");
+			_assertVisible(_tableHeader("Consumers"),"Consumers table header should be visible");
+			_assertVisible(_link("Agent License #", _in(_tableHeader("Agent License #"))),"Agent License table header should be visible and should be as link");
+			_assertVisible(_tableHeader("Certification Status"),"Certification status table header should be visible");
+			_assertNotVisible(_tableHeader("Actions"),"Actions table header should be not visible for Staff Level 2 if staff not approved, not Active or Agency not Certified");
+			_assertNotVisible(_link("dropdown-toggle", _near(_tableHeader("Actions"))),"Gear link should be not visible for Staff Level 2 if staff not approved, not Active or Agency not Certified");
+		}	
+	}
+}
+
+function verifyLeftSearch(){
+	var $condition;
+	_assertVisible(_heading4("/Refine Results By/", _in(_div("sidebar"))));
+	_assertVisible(_link("Reset All", _in(_div("sidebar"))));
+	_assertVisible(_textbox(0, _near(_label("First Name"))));
+	_assertVisible(_textbox("last-name", _near(_label("Last Name"))));
+	_assertVisible(_radio("aid-ag-status-active", _in(_fieldset("Agent Status"))));
+	_assertVisible(_label("Active", _in(_fieldset("Agent Status"))));
+	_assertVisible(_radio("aid-ag-status-inactive", _in(_fieldset("Agent Status"))));
+	_assertVisible(_label("Inactive", _in(_fieldset("Agent Status"))));
+	$condition = _condition(_radio("aid-ag-status-active").checked);
+	_assertFalse($condition, "By default should be unchecked");
+	$condition = _condition(_radio("aid-ag-status-inactive").checked);
+	_assertFalse($condition, "By default should be unchecked");
+	_assertEqual("Select Certification Status", _getSelectedText(_select("certificationStatus")));
+	_assertVisible(_select("certificationStatus", _near(_label("Certification Status"))));
+	_assertVisible(_textbox("", _near(_label("License Number"))));
+	_assertVisible(_submit("go-btn"));
+}
+
+/*--Admin Staff Pending Delegation Request Page--*/
+
+function verifyPendingDelegationRequestPage(){
+	_assertVisible(_paragraph("No Records Found"));
+}
+
+/*--Admin Staff Start Consumer Application Page--*/
+
+function verifyStartConsumerApplicationPage(){
+	_assertVisible(_heading1("Start Consumer Application"),"Assert that Start Consumer Application header is visible");
+	_assertVisible(_heading2("Search for an Agent"),"Assert that Search for an Agent header is visible");
+	_assertVisible(_textbox("agentFirstName", _near(_label("Agent First Name"))),"Assert that textboks and lable Agent First Name are visible");
+	_assertEqual("", _getValue(_textbox("agentFirstName", _near(_label("Agent First Name")))),"Assert that textboks Agent First Name is empty");
+	_assertVisible(_textbox("agentLastName", _near(_label("Agent Last Name"))),"Assert that textboks and lable Agent Last Name are visible");
+	_assertEqual("", _getValue(_textbox("agentLastName", _near(_label("Agent Last Name")))),"Assert that textboks Agent Last Name is empty");
+	_assertVisible(_select("", _near(_label("Site"))),"Assert that select and lable Site are visible");
+	_assertEqual("Select One", _getSelectedText(_select("", _near(_label("Site")))),"Assert that by default Select One selected");
+	_assertVisible(_emailbox("agentEmail", _near(_label("Agent Email"))),"Assert that textbox and lable Agent Email are visible");
+	_assertEqual("", _getText(_emailbox("agentEmail", _near(_label("Agent Email")))),"Assert that textbox Agent Email is empty");
+	_assertVisible(_textbox("agentLicenseNo", _near(_label("Agent License No"))),"Assert that textbox and lable Agent License No are visible");
+	_assertEqual("", _getValue(_textbox("agentLicenseNo", _near(_label("Agent License No")))),"Assert that textbox Agent License No is empty");
+	_assertVisible(_submit("Search"),"Search button should be visible");
+	_assertVisible(_tableHeader("Pick Agent"),"Table header Pick Agent should be visible");
+	_assertVisible(_tableHeader("Agent Name"),"Table header Agent Name should be visible");
+	_assertVisible(_tableHeader("Email"),"Table header Email should be visible");
+	_assertVisible(_tableHeader("Primary Site"),"Table header Primary Site should be visible");
+	var $isDisable = _getAttribute (_submit("Start Consumer Application"), "disabled");
+	_assertTrue ($isDisable, "Button Start Consumer Application should be disable before search");
+	_assertVisible(_span("To see a list of agents, please enter information in the search box above."));
+}
+
+function adminStaffsearchForAgentToStartApplication($agentInfo){
+	_setValue(_textbox("agentFirstName"), $agentInfo[0].firstName);
+	_setValue(_textbox("agentLastName"), $agentInfo[0].lastName);
+	_setValue(_emailbox("agentEmail"), $agentInfo[0].accountEmail);
+	_setValue(_textbox("agentLicenseNo"), $agentInfo[0].licenseNumber);
+	_setSelected(_select("", _near(_label("Site"))), $agentInfo[0].siteLocationName);
+	_click(_submit("Search"));
+	_assertVisible(_radio("targetAgent"));
+	_assertVisible(_label($agentInfo[0].name));
+	_assertVisible(_label($agentInfo[0].accountEmail));
+	if($agentInfo[0].businessStreet2 != "null"){
+		$agentInfo[0].businessStreet = $agentInfo[0].businessStreet+" "+$agentInfo[0].businessStreet2;
+	}
+	var $fullAddress = $agentInfo[0].businessStreet+" "+$agentInfo[0].businessCity+", "+$agentInfo[0].businessState+" "+$agentInfo[0].businessZipcode;
+	_assertVisible(_label($fullAddress));
+	_click(_radio("targetAgent"));
+	var $isDisable = _getAttribute (_submit("Start Consumer Application"), "disabled");
+	_assertFalse($isDisable, "Button Start Consumer Application should be disable before search");
+	
+	
+}
+
+/*--Admin Staff Profile Page--*/
+function getAdminStaffObjectFromDB($firstName,$lastName){
+	var $adminStaff=[];
+	var $adminStaffDB = accessAdminStaffInformationDB($firstName,$lastName);
+	var $correspAddressDB = getAdminStaffCorrespondenceAddressDB($firstName,$lastName);
+	var $businessAddressFull;
+	
+//	var $abbrState = abbrState($correspAddressDB[0][2], 'abbr');
+	var $abbrState = abbrState($correspAddressDB[0][2], 'name');
+	if($adminStaffDB[0][22] != "null"){
+		$adminStaffDB[0][10] = $adminStaffDB[0][10]+","+$adminStaffDB[0][22];
+	}
+	_log($adminStaffDB[0][10]);
+	$businessAddressFull = $adminStaffDB[0][11]+", "+$adminStaffDB[0][12]+" - "+$adminStaffDB[0][13];
+	_log($businessAddressFull);
+	
+	var $applicationSubmisDate = $adminStaffDB[0][21];
+	$applicationSubmisDate = $applicationSubmisDate.substring(0,10);
+	_log($applicationSubmisDate);
+	_set($applicationSubmisDate, _call(window.moment($applicationSubmisDate).format("MM-DD-YYYY")));
+	_log($applicationSubmisDate);
+	
+	var $approvalDate = $adminStaffDB[0][17];
+	$approvalDate = $approvalDate.substring(0,10);
+	_log($approvalDate);
+	_set($approvalDate, _call(window.moment($approvalDate).format("MM-DD-YYYY")));
+	
+	var $approvalStatus = $adminStaffDB[0][16];
+	$approvalStatus = $approvalStatus.toLowerCase();
+	$approvalStatus = $approvalStatus.charAt(0).toUpperCase()+$approvalStatus.substr(1);
+	if($approvalStatus == "Terminatedforcause"){
+		$approvalStatus = "Terminated-For-Cause";
+	}
+	
+	$adminStaff.push({firstName:$adminStaffDB[0][0],
+						lastName:$adminStaffDB[0][1],
+						phone:$adminStaffDB[0][2],
+						businessPhone:$adminStaffDB[0][3],
+						personalEmail:$adminStaffDB[0][4],
+						businessEmail:$adminStaffDB[0][5],
+						communicationpreference:$adminStaffDB[0][6],
+						businessName:$adminStaffDB[0][7],
+						staffLevel:$adminStaffDB[0][8],	
+						
+						agencyLocation:$adminStaffDB[0][23],
+						businessAddressFull:$businessAddressFull,
+						businessStreet:$adminStaffDB[0][10],
+						businessCity:$adminStaffDB[0][11],
+						businessState:$adminStaffDB[0][12],
+						businessZipcode:$adminStaffDB[0][13],
+						
+						correspAddressStreet:$correspAddressDB[0][0],
+//						correspAddressState:$correspAddressDB[0][2],
+						correspAddressState:$abbrState,
+						correspStateShort:$correspAddressDB[0][2],
+						correspAddressCity:$correspAddressDB[0][1],
+						correspAddressZipcode:$correspAddressDB[0][3],							
+						
+						staffNumber:$adminStaffDB[0][15],
+						applicationSubmisDate:$applicationSubmisDate,
+						approvalStatus:$approvalStatus,
+						approvalNumber:$adminStaffDB[0][18],
+						approvalDate:$approvalDate,
+						delegationCode:$adminStaffDB[0][19],
+						
+						activeStatus:$adminStaffDB[0][20]
+//						staffID:$staffID
+						});
+	return $adminStaff;
+}
+
+/*--Admin Staff Portal Navigation--*/
+function staffNavigateToMyProfile(){
+	_click(_link("My Profile", _in(_list("nav navPhixbar"))));
+	_click(_link("Admin Staff Information", _in(_list("nav navPhixbar"))));
+	_assertVisible(_heading4("Admin Staff Information"));
+}
+
+function staffNavigateToPendingDelegationRequest(){
+	_click(_link("/Agency Delegations/"));
+	_click(_link("Pending delegation requests"));
+	_assertVisible(_fieldset("Request Sent"));
+}
+
+function staffNavigateToActiveConsumers(){
+	_click(_link("Active Consumers"));
+	_assertVisible(_heading1("Active Consumers"));
+}
+
+function staffNavigateToStartNewApplication(){
+	_click(_link("/Agency Delegations/", _in(_list("nav navPhixbar"))));
+	_click(_link("Start A New Application", _in(_list("nav navPhixbar"))));
+	_assertVisible(_heading1("Start Consumer Application"),"Assert that Start Consumer Application is visible");
+}

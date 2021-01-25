@@ -1,0 +1,19 @@
+{
+    "description": "2adults/2Kids household CS4 ",
+    "hhFamily": {"size": 4, "singleParent": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "csrLevel": "CS4"
+        },
+        {
+           "csrLevel": "CS4"
+        },
+        {
+            "csrLevel": "CS4"
+        },
+        {
+            "csrLevel": "CS4"
+        }
+    ]
+}

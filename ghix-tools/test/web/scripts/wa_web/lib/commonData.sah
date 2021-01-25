@@ -1,0 +1,72 @@
+var $suiteInfo = _suiteInfo();
+//svar $domainAPI = $suiteInfo["baseURL"] + "/";
+var $domainAPI = $suiteInfo["baseURL"].split(".")[0];
+
+var $saveHouseholdDataAPI = $domainAPI +".ghixqa.com"+ "/ghix-plandisplay/api/dst/household";
+var $saveProviderPreferencesAPI = $domainAPI+".ghixqa.com"+ "/ghix-plandisplay/api/dst/saveProviderPreferences";
+var $smartPlanFinderURL = $domainAPI+".ghixqa.com"+"/hix/dst/index";
+
+var $getHouseholdDataURL = $domainAPI +".ghixqa.com"+ "/hix/private/getHouseholdDataByShoppingId/";
+
+var $doctorNames = ["Kai Wilhelm", "Kaira Jorgensen", ""];
+
+var $hospitalNames = ["Herman, Linda M, M Ed Lmhc "];
+
+// Un-Comment the below section before check-in to the repository (To enable Jenkins job execution) 
+//-- 1 -- Starting Here
+/*
+var $database, $driver, $server, $port, $username, $password;
+
+var $suiteInfo = _suiteInfo();
+$database = $suiteInfo["databaseType"];
+$port = $suiteInfo["databasePort"];
+$server = $suiteInfo["databaseServer"];
+$username  = $suiteInfo["databaseUsername"];
+$password = $suiteInfo["databasePassword"];
+$SID = "ghixdb"	
+
+_log("dataBaseType: "+ $database);
+_log("UserName  : "+ $username);
+_log("PassWord  :"+$password);
+_log("port  :"+$port);
+_log("Server  :"+$server);
+
+if($database == "POSTGRESQL"){
+	$db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+}
+else if ($database == "ORACLE") {
+	$db = _getDB("oracle.jdbc.driver.OracleDriver","jdbc:oracle:thin:@"+$server+":"+$port+":"+$SID,$username,$password);
+}
+
+// -- 1 -- Ending Here
+*/
+// Un-Comment the below section to execute it on local (To Enable local execution) 
+// -- 2 -- Starting Here
+if($domainAPI == "https://wauat"){
+//sif ($domainAPI =="https://wauat.ghixqa.com/hix/dst/index/"){
+//if ($domainAPI =="https://wauat.ghixqa.com/"){
+	$database = "POSTGRESQL";
+	$driver = "org.postgresql.Driver";
+	$server = "sjc-edbqa1.eng.vimo.com";
+	$port = "5444";
+	$username = "wauat";
+	$password = "MmQzNWVhNGNkMmE1";
+}
+else if ($domainAPI =="https://wa1dev"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pgdev1.ghixqa.com";
+	$port = "5444";
+	$username = "wa1dev";
+	$password = "MjE2YjJmMDM2Zjdk";
+}
+else if ($domainAPI =="https://waqa"){
+	$database = "POSTGRESQL";
+	$server = "sfo-pg4.ghixqa.com";
+	$port = "5444";
+	$username = "waqa";
+	$password = "YmRiODMxZDdiNmZl";
+}
+
+var $db = _getDB("org.postgresql.Driver","jdbc:postgresql://"+$server+":"+$port+"/"+$username,$username,$password);
+
+// --2 -- Ending Here

@@ -1,0 +1,199 @@
+
+_include("../lib/common.sah");
+_include("../lib/util.sah");
+
+
+function clickOnBrowseHealthAndDentalPlans(){
+	_click(_div("Browse for health & dental plans"));
+	_assertVisible(_link("Start Application"));
+}
+
+function clickOnStartApplication(){
+	_click(_link("Start Application"));
+	_assertVisible(_textbox("First Name Required "));
+}
+
+function fillIndividualDetailsSignUpPage($firstName,$lastName,$emailPrefix, $dob) {
+	var $individualData = [];
+	//Input field - First Name
+	if(!$firstName){
+		$firstName = randomFirstName();
+	}
+	_setValue(_textbox("First Name Required "), $firstName);
+
+	//Input field - Last Name
+	if(!$lastName)
+	{
+		$lastName = randomLastName();
+	}
+	_setValue(_textbox("Last Name Required "), $lastName);
+
+	//Input field - Email Address
+	if ($emailPrefix) {
+		$email = $emailPrefix + randomString(2, true) + "@yopmail.com";
+	}
+	else {
+		var $currentTime = new Date().getTime();
+		$email = $firstName+"_"+$currentTime+"@yopmail.com";
+	}
+	_setValue(_emailbox("email"), $email);
+	_setValue(_emailbox("confirmEmail"), $email);
+
+	//Input field - Phone Number
+	var $digits = phoneGen();
+	for (var $i = 0; $i < $digits.length; $i++) {
+		_setValue(_textbox("phone"+[$i+1]+""), $digits[$i]);
+	}
+
+	//Input field - Date of Birth
+	if(!$dob){
+		$dateOfBirth = getRandomDOB();
+	}
+	_setValue(_textbox("birthDate"), $dateOfBirth);
+
+	//Security Question
+	_setSelected(_select("securityQuestion1"), "What was your childhood nickname?");
+	$answer = randomString(7);
+	_setValue(_textbox("Security Answer"), $answer);
+
+	//Set password
+	var $password = "ghix123#";
+	_setValue(_password("password"), $password);
+	_setValue(_password("confirmPassword"), $password);
+
+	// Privacy policy
+	_click(_checkbox("terms"));
+
+	$individualData=[{
+		"$firstName":$firstName,
+		"$lastName":$lastName,
+		"$email":$email,
+		"$password":$password,
+		"$dob":$dateOfBirth,
+		"$phoneNumber":$digits
+	}
+					];
+
+	_log("Individual info "+JSON.stringify($individualData));
+	return $individualData;
+
+}
+
+function clickSubmitOnIndividualSignUpPage() {
+	//Submit button 
+	_click(_button("Submit"));
+	_wait(5000, _isVisible(_heading3("Update Mailing Address")));
+	_assertVisible(_heading3("Update Mailing Address"));
+}
+
+function fillMailingAddressForm($address1, $address2, $city, $zip, $state, $county, $individualAccountDetails){
+	_setValue(_textbox("streetAddress1"), $address1);
+	_setValue(_textbox("streetAddress2"), $address2);
+	_setValue(_textbox("city"), $city);
+	_setValue(_textbox("postalCode"), $zip);
+	_setSelected(_select("state"), $state);
+	_setSelected(_select("countyCode"), $county);
+	$individualAccountDetails[0].$address1 = $address1;
+	$individualAccountDetails[0].$address2 = $address2;
+	$individualAccountDetails[0].$city = $city;
+	$individualAccountDetails[0].$zip = $zip;
+	$individualAccountDetails[0].$state = $state;
+	$individualAccountDetails[0].$county = $county;
+	_log("Individual info with address "+JSON.stringify($individualAccountDetails));
+	return $individualAccountDetails;
+}
+
+function clickOnSaveMailingAddress(){
+	_click(_button("Save Mailing Address"));
+	if(_isVisible(_heading3("Address not found"))){
+		if(_isVisible(_heading3("You Entered"))){
+			_click(_label("checkbox_page_00_isUserInputChecked_label"));
+		}
+		else{
+			//Suggested Input
+			_assertVisible(_heading3("We Found"));
+			_click(_label("checkbox_page_00_isSuggestion0Checked_label"));
+		}
+		_click(_button("Ok"));
+	}
+	_assertVisible(_paragraph("Your contact information has been updated successfully."));
+	_click(_button("Ok"));
+	_assertVisible(_heading3("Communication Preferences"));
+	_assertVisible(_label("Mailing Address"));
+	_assertVisible(_paragraph("Notices"));
+	_assertVisible(_paragraph("1095-A Tax Form"));
+	_assertVisible(_paragraph("Language"));
+
+}
+
+function clickOnSavePreferences(){
+	_click(_button("Save Preferences"));
+	_assertVisible(_paragraph("Your preferred method of communication has been updated successfully."));
+	_click(_button("Ok"));
+	_wait(5000, _isVisible(_button("START NEW APPLICATION")));
+}
+
+function completeRidpVerificationByAdmin($individualDetails){
+	_click(_submit("My Account"));
+	_click(_link("Logout"));
+	_assertVisible(_paragraph("Let's get started"));
+	
+	_click(_link("Log In"));
+	_assertVisible(_heading1("Log In"));
+	
+	_setValue(_textbox("Email Address"),"exadmin@ghix.com");
+	_setValue(_password("Password"), "ghix123");
+	_click(_submit("Log In"));
+	_assertVisible(_heading1("Members"));
+
+	_setValue(_textbox(" Sample text.  Email"), $individualDetails[0].$email);
+	_click(_submit("Go"));
+	
+	_click(_link($individualDetails[0].$firstName+" "+$individualDetails[0].$lastName));
+	_assertVisible(_heading4("Basic Information"));
+	
+	_click(_button("Marked As Verified"));
+	_assertVisible(_row("Remote Identity Verification Status: Verified Account"));
+	
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Logout End of dropdown"));
+	_assertVisible(_paragraph("Let's get started"));
+	
+	_click(_link("Log In"));
+	_assertVisible(_heading1("Log In"));
+	
+	_setValue(_textbox("Email Address"), $individualDetails[0].$email);
+	_setValue(_password("Password"),  $individualDetails[0].$password);
+	_click(_submit("Log In"));
+	_wait(5000, _isVisible(_button("START NEW APPLICATION")));
+	_assertVisible(_heading4("NEXT STEPS"));
+	_assertVisible(_submit("Help & Support"));
+}
+
+function clickOnStartNewApplication(){
+	_click(_button("START NEW APPLICATION"));
+	_assertVisible(_heading1("Before We Begin"));
+}
+
+function getRandomDOB(){
+	var $month = Math.floor(Math.random() * 12) + 1;
+	if ($month < 10) {
+		$month = "0" + $month;
+	}
+		
+	var $day = Math.floor(Math.random() * 28) + 1;
+	if ($day < 10) {
+		$day = "0" + $day;
+	}
+	
+	var $year = Math.floor(Math.random() * 50);
+	var $year = 1940 + $year;
+	
+	var $dob = $month+"/"+$day+"/"+$year;
+	_log("Random date of birth generated is " +$dob);
+	return $dob;
+
+}
+
+
+

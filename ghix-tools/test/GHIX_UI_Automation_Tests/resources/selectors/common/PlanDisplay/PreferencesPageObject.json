@@ -1,0 +1,108 @@
+{
+    "pageHeader":"$('h1')",
+    "btn_skipToViewPlan":"$('#skipButton')",
+    "btn_next":"$('#medicalUsageNext')",
+    "btn_pnext":"$('#prescriptionNext')",
+    "druglipitor_click":"$('//a[contains(@id ,\"ui-id-\")]')",
+    "drugAtorvastatin1_click":"$('//ul[@id=\"ui-id-1\"]/li[1]')",
+    "drugAtorvastatin2_click":"$('//ul[@id=\"ui-id-1\"]/li[2]')",
+    "drugAtorvastatin3_click":"$('//ul[@id=\"ui-id-1\"]/li[3]')",
+    "UtaCapsule":"$('//ul[@id=\"ui-id-1\"]/li[1]')",
+
+    "rb_doctorVisit":"$$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div/label/input')[index]",
+    "rb_monthlySubscription":"$$('//div[@class=\"item active\"]/div/fieldset/div/div/div/label/input')[index2]",
+
+    "doctorVisits":{
+
+        "doctorVisits":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/legend')",
+        "1_2times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[1]/label')",
+        "3_4times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[2]/label')",
+        "5_11times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[3]/label')",
+        "gt12times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[4]/label')"
+
+    },
+
+    "monthlySubscription":{
+
+        "monthlysub":"$('//div[@class=\"item active\"]/div/fieldset/legend')",
+        "0_2":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[1]/label')",
+        "3_4":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[2]/label')",
+        "5_11":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[3]/label')",
+        "gt12":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[4]/label')"
+
+    },
+
+    "add5Drugs":"$('//div[@class=\"control-group\"]/label')",
+    "tb_drug":"$('#drugName')",
+    "label_1drug":"$$('//div[@class=\"gutter10\"]/label')[index]",
+    "rb_1drug":"$$('//div[@class=\"gutter10\"]/label/input')[index]",
+    "selectDosage":"$('#dosageSelection')",
+    "important":"$('//p[@class=\"alert alert-info\"]')",
+    "btn_subscriptionNxt":"$('#prescriptionSearchNext')",
+    "btn_prescriptionSubmit":"$('#prescriptionSearchSubmit')",
+    "btn_prescSubmit":"$('#prescriptionSubmit')",
+
+    "optionalBenefit":"$('//legend[contains(text(),\"Are any\")]')",
+    "note":"$('//span[@class=\"alert alert-info margin10-t block\"]')",
+    "cb_childDental":"$('//input[@id=\"pediatric\"]')",
+    "cb_acupuncture":"$('#acupuncture')",
+    "viewPlans":"$('#benefitSubmit')",
+
+    "Reset_DV":"$('//div[@id=\"medicalServiceItem\"]/div[2]/button')",
+    "Reset_MS":"$('//div[@class=\"item active\"]/div[2]/button[1]')",
+    "Reset_drug":"$('//div[@class=\"item active\"]/div[2]/button[1]')",
+    "Reset_benefit":"$('//div[@id=\"benefitQuestionsItem\"]/div[2]/button[1]')",
+
+    "rb_doctorVisits":{
+
+        "rb_1_2times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[1]/label')",
+        "rb_3_4times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[2]/label')",
+        "rb_5_11times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[3]/label')",
+        "rb_gt12times":"$('//div[@id=\"medicalServiceItem\"]/div/fieldset/div/div/div[4]/label')"
+
+    },
+
+    "rb_monthlySubscriptions":{
+
+        "rb_0_2":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[1]/label')",
+        "rb_3_4":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[2]/label')",
+        "rb_5_11":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[3]/label')",
+        "rb_gt12":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[4]/label')"
+
+    },
+
+    "next_btn":"$('*=Next')",
+    "btn_psNext":"$('#providerSearchNext')",
+    "back_btn":"$('*=Back')",
+    "next_button":"$('//button[@class=\"btn btn-primary pull-right gtm_estimate_next col-xs-12 ng-scope\"]')",
+
+    "docSearch":"$('#providerTypeId')",
+    "docdrop":"$('//ul[@id=\"providerTypeDropdown\"]/li[1]/a')",
+    "facilitydrop":"$('//ul[@id=\"providerTypeDropdown\"]/li[2]/a')",
+    "childHospitaldrop":"$('//ul[@id=\"providerTypeDropdown\"]/li[2]/a')",
+    "tb_doctor":"$('#providerName')",
+    "sb_providerDistance":"$('#providerDistance')",
+    "preferDoc":"$('.chzn-details').$('.txt-capitalize')",
+
+    
+    "drop_list":"$$('//ul[@id=\"ui-id-1\"]/li/a/span')[index]",
+    "doctor_visits":{
+
+        "doctorVisits":"$('//*[@id=\"medicalServiceItem\"]/div[1]/fieldset/legend')",
+        "1_2times":"$('//*[@id=\"medicalServiceItem\"]/div[1]/fieldset/div/div/div[1]/label')",
+        "3_4times":"$('//*[@id=\"medicalServiceItem\"]/div[1]/fieldset/div/div/div[2]/label')",
+        "5_11times":"$('//*[@id=\"medicalServiceItem\"]/div[1]/fieldset/div/div/div[3]/label')",
+        "gt12times":"$('//*[@id=\"medicalServiceItem\"]/div[1]/fieldset/div/div/div[4]/label')"
+
+    },
+
+    "monthly_subscription":{
+
+        "monthlysub":"$('//div[@class=\"item active\"]/div/fieldset/legend')",
+        "0_2":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[1]/label')",
+        "3_4":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[2]/label')",
+        "5_11":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[3]/label')",
+        "gt12":"$('//div[@class=\"item active\"]/div/fieldset/div/div/div[4]/label')"
+
+    }
+}

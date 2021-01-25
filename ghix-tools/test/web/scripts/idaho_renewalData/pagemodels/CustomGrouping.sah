@@ -1,0 +1,64 @@
+_includeOnce("Indportal.sah");
+
+var $customGroupingShopHealthPlans = _link("Shop Health Plans");
+var $customGroupingShopDentalPlans = _link("Shop Dental Plans");
+var $customGroupingShopHealthPlansButton = _link("/Shop Health Plans/", _in(_div("healthGroups")));
+
+
+function verifyCustomGroupingPage(){
+//	verifySideBarLinksOnIndDashboard(); 
+	
+	_assertVisible($customGroupingShopHealthPlans,"Verify if Shop Health Plans link is displayed on custom grouping page");
+	_assertVisible($customGroupingShopDentalPlans,"Verify if Shop Dental Plans link is displayed on custom grouping page");
+/*
+	if($notEnrolledGroups == "Y"){
+		if($landingTab == "Dental"){
+			verifyNavigationTabOnCustomGrouping("Dental");
+			verifyNotEnrolledDentalGroup($groups);
+		}else{
+			verifyNavigationTabOnCustomGrouping("Health");
+			verifyNotEnrolledGroup($groups);	
+		}
+	}else{
+		_assertNotVisible(_div("Whom are you shopping health plans for?"));
+		_assertNotVisible(_span("/Based on your family members eligibility, we recommend that you shop in the groups shown./"));
+		_assertNotVisible(_label("Shop for these members"));
+		if(!$newMembersCount){
+			_assertNotVisible(_link("/Shop for Health Plans/[1]"));	
+		}
+		
+	}
+	
+	if($enrolledGroups == "Y"){
+		if($landingTab == "Dental"){
+			//add function
+		}else{
+			// assertion will failed if user landed on Dental tab but test will keep runing and user clicking on health plans tab
+			if(_getAttribute(_link("/Health/"),"className") != "active"){
+				_assertEqual(_getAttribute(_link("/Health/"),"className"),"active","User should be landed on Health plans tab");
+				_click(_link("tab-0"));
+			}
+
+			verifyEnrolledGroup($groups,$isSEP);	
+		}
+		
+	}else{
+		_assertNotVisible(_div("/Enrolled/"));
+		_assertNotVisible(_div("You have successfully enrolled the following family members."));
+		_assertNotVisible(_link("Cancel Coverage"));
+		_assertNotVisible(_link("Change Plan"));
+	}
+	if($newMembersCount){
+		verifySelectOptionSection($household,$groups,$newMembersCount);
+	}
+*/
+}
+
+function clickShopHealthPlan(){
+	_click($customGroupingShopHealthPlansButton);
+	/*
+	var $zip = $household.people[0].homeAddress.zipcode;
+	$prefPageIndex = 0;
+	verifyElementsOfPreferencePage($zip);
+	*/
+}

@@ -1,0 +1,150 @@
+{
+  "applicationYear": "",
+  "applicationStatus": "ER",
+  "applicationType": "",
+  "caseNumber": "",
+  "aptc": null,
+  "password": "ghix123#",
+  "isFinancial": true,
+  "coverageDate": "",
+  "qualifyingEvent": "Marriage",
+  "eventType":3,
+  "primaryAddress": {
+    "home": {
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "county": "",
+      "zip": ""
+    },
+    "mailing": {
+      "mailingAddSameAsHomeIndicator": true,
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "county": "",
+      "zip": ""
+    }
+  },
+  "primaryContactPref": {
+    "spokenLang": "English",
+    "writtenLang": "English",
+    "prefMethodOfComm": "Email"
+  },
+  "primaryContactPhone": {
+    "mobile": "",
+    "home": "408-622-1001",
+    "ext": "5443"
+  },
+  "startYourApplication": {
+    "getHelpApplyingIndicator": false
+  },
+  "plan": {
+    "HealthPlan": "",
+    "DentalPlan": ""
+  },
+  "applicants": [
+    {
+      "memberId": "3819",
+      "guid": "1000005824",
+      "firstName": "",
+      "lastName": "",
+      "gender": "Female",
+      "ssn": "",
+      "sameNameOnSSN": true,
+      "suffix": "",
+      "relation": "SELF",
+      "dateOfBirth": "01/01/1967",
+      "email": "",
+      "isNative": false,
+      "isDisabled": false,
+      "helpWithActivities": false,
+      "isPregnant": false,
+      "noOfBabies": 0,
+      "seekingCoverage": true,
+      "seeksQHP": true,
+      "tobaccoUse":"yes",
+      "exchangeEligible": true,
+      "aptcEligible": true,
+      "stateSubsidyEligible": true,
+      "csrEligible": false,
+      "assessedMedicaidMAGIEligibile":false,
+      "assessedChipEligible": false,
+      "assessedMedicaidnonMAGIEligibile":false,
+      "assessedCHIPnonMAGIEligibile":false,
+      "medicaidMAGIEligibile":false,
+      "medicaidNonMAGIEligibile":false,
+      "chipEligible": false,
+      "nativeAmerican": false,
+      "csrLevel": null,
+      "middleName": "",
+      "nameSuffix": "",
+      "fosterCareIndicator": false,
+      "isStudent": false,
+      "isDeniedMedicaid": false,
+      "relationship": [
+        {
+          "guid": "",
+          "relation": "Spouse"
+        }
+      ],
+      "sameAsApplicantAddress": true,
+      "address": {
+        "addressLine1": "",
+        "addressLine2": "",
+        "city": "",
+        "state": "",
+        "county": "",
+        "zip": ""
+      },
+      "immigration": {
+        "isCitizen": true,
+        "isNaturalizedCitizen": false
+      },
+      "ethnicityRace": {
+        "isHispanic": false,
+        "race": ""
+      },
+      "income": {
+        "isGettingIncome": true,
+        "sourceOfIncome": "Job",
+        "nameOfEmployer": "StarShip",
+        "amount": 45000,
+        "frequency": "Yearly",
+        "deductionSources": {
+          "sourceOfIncome": "Job",
+          "nameOfEmployer": "StarShip",
+          "amount": 45000,
+          "frequency": "Yearly"
+        },
+        "payingDeductions": "no",
+        "expectedIncomeInNextYear": {
+          "expectingSameIncome": "Yes",
+          "unknownIncome": true,
+          "totalExpectedYearlyAmount": 45000
+        }
+      },
+      "hasOtherHealthCoverage": false,
+      "hasReconciledAptc": true,
+      "hasStateHealthBenifit":false,
+      "hasESI": false,
+      "hasNonESI": false,
+      "helpPayingMedicalBills": false
+    }
+  ],
+  "incomeTax": {
+    "taxFilers": [
+      0
+    ],
+    "jointFilingIndicator": true,
+    "primaryTaxFilerPersonId": 0,
+    "dependentToTaxFilers": []
+  },
+  "militaryService":[],
+  "AmericanIndianOrAlaskaNative":[],
+  "ssapApplicationId": 2408,
+  "financial": true,
+  "grouping": []
+}

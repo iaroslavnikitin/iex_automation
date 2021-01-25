@@ -1,0 +1,88 @@
+_includeOnce("Signup.sah");
+
+var $secureInboxMessageIcon = _italic("icon-envelope");
+var $secureInboxNoticeLink = _link("Your Health Idaho Account Update");
+var $secureInboxNotice = _cell("Your Health Idaho Account Update");
+var $secureInboxPdf = _cell(7);
+var $secureInboxTable = _table("inbox");
+var $secureInboxSearch = _textbox("searchText");
+var $secureInboxSearchButton= _click(_submit("search"));;
+
+function verifySecureInboxAccountUpdate(){
+	_assertVisible($secureInboxNoticeLink);
+	_assertVisible($secureInboxTable);
+}
+
+function clickSecureInbox(){
+	_click($secureInboxMessageIcon);
+}
+
+function clickSearchInboxByEmail($str){
+	clickSecureInbox();
+	_wait(1000);
+	clickSecureInbox();
+	_setValue($secureInboxSearch, $str);
+	_click($secureInboxSearchButton);
+	var $emailClass="";
+	if($str == "Action Required: Special Enrollment Period"){
+		_click(_link("Action Required: Special Enrollment Period", _in(_table("inbox"))));
+		_assertEqual("/EE028NonFinancialQEPGrantNotice/i", _getText(_table(1)));
+		$emailClass="EE028NonFinancialQEPGrantNotice";
+	}
+
+	if($str == "Your Health Idaho Account Update"){
+		verifySecureInboxAccountUpdate();
+		_click($secureInboxNoticeLink);
+		_assertVisible($secureInboxPdf);
+	}
+
+	if($str == "Additional Information Required"){
+		_click(_link("Additional Information Required", _in(_table("inbox"))));
+		_assertEqual("/AdditionalInformationForNonFinancialApp/i", _getText(_table(1)));
+		$emailClass = "AdditionalInformationForNonFinancialApp";
+	}
+
+	if($str == "Your Health Idaho Eligibility Information"){
+		_click(_link("Your Health Idaho Eligibility Information", _in(_table("inbox"))));
+		_assertEqual("/ApplicationEligibilityResults/i", _getText(_table(1)));
+		$emailClass = "ApplicationEligibilityResults";
+	}
+
+	if($str == "Action Required: You qualify for a Special Enrollment Period"){
+		_click(_link("Action Required: You qualify for a Special Enrollment Period", _in(_table("inbox"))));
+		_assertEqual("/lceSepNotification/i", _getText(_table(1)));
+		$emailClass = "lceSepNotification";
+	}
+
+	if($str == "Important Account Information: Special Enrollment Period Denied"){
+		_click(_link("Important Account Information: Special Enrollment Period Denied", _in(_table("inbox"))));
+		_assertEqual("/lceSepDenialNotification/i", _getText(_table(1)));
+		$emailClass = "lceSepDenialNotification";
+	}
+
+	if($str == "Action Required: You must disenroll from your plan"){
+		_click(_link("Action Required: You must disenroll from your plan", _in(_table("inbox"))));
+		_assertEqual("/lceDisenrollNotification/i", _getText(_table(1)));
+		$emailClass = "lceDisenrollNotification";
+	}
+
+	if($str == "Action Required: Account Changes"){
+		_click(_link("Action Required: Account Changes", _in(_table("inbox"))));
+		_assertEqual("/lceEE030NFDemographicChangesNotification/i", _getText(_table(1)));
+		$emailClass = "lceDobChangeNotification";
+	}
+
+	if($str == "Your Health Idaho Eligibility Update"){
+		_click(_link("Your Health Idaho Eligibility Update", _in(_table("inbox"))));
+		_assertEqual("/ApplicationEligibilityResultsUpdated/i", _getText(_table(1)));
+		$emailClass = "ApplicationEligibilityResultsUpdated";
+	}
+
+	if($str == "ReviewSummary"){
+		_click(_link("ReviewSummary PDF", _in(_table("inbox"))));
+		_assertEqual("/ReviewSummary/i", _getText(_table(1)));
+		$emailClass="ReviewSummary";
+	}
+
+	NoticeDBVerify($emailClass);
+}

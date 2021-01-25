@@ -1,0 +1,181 @@
+_includeOnce("../lib/Utils.sah");
+_includeOnce("../lib/CommonFunctions.sah");
+_includeOnce("../lib/DB.sah");
+
+var $homeLinkOnAgentPortal = _link("Home");
+
+function clickHomeOnAgentPortal(){
+	_click($homeLinkOnAgentPortal);
+}
+
+function editAgentStatus($newStatus,$verificationFlag){
+	click(_link("Edit"));
+	_setSelected(_select("activityStatus"), $newStatus);
+	var $time = _fetch(window.moment().format("MM-DD-YYYY HH:MM:SS"));
+	var $comment = "Status changed to " + $newStatus + " by Sahi at " + $time;
+	_setValue(_textarea("comment"), $comment);
+	click(_submit("Submit"));
+	if ($verificationFlag !='N') {
+		verifyStatusViewPage($newStatus, "Y", $comment);
+	}
+}
+
+function verifyStatusViewPage($statuses, $editable, $comment){
+	_assertVisible(_heading4("Status"));
+	verifyURL("hix/admin/broker/activitystatus");
+	_assertEqual("active", _getAttribute(_listItem("Status"), "className"));
+	$editable = isTrue($editable);
+	_assertEqual($editable, _isVisible(_link("Edit")));
+
+	$statuses = $statuses.split(",");
+	var $isStatusValid = false;
+	for (var $i = 0; $i < $statuses.length; $i++) {
+		$isStatusValid = $isStatusValid || _getText(_cell(0, _rightOf(_cell("Status")))) == $statuses[$i];
+	}
+	//_assert($isStatusValid, "Actual Status: " + _getText(_cell(0, _rightOf(_cell("Status")))));
+	_assert($isStatusValid, _getText(_cell(0, _rightOf(_cell("Status")))));
+	if ($comment) {
+		_setStrictVisibilityCheck(true);
+		_lockWindow();
+		_focusWindow();
+		//_assertEqual($comment, _getText(_cell(0, _under(_tableHeader("View Comment")), _in(_row(1, _in(_table("brokerStatusHistory")))))));
+		_assertEqual("View Comment", _getText(_cell(0, _under(_tableHeader("View Comment")), _in(_row(1, _in(_table("brokerStatusHistory")))))));
+		_click(_link(0, _under(_tableHeader("View Comment")), _in(_row(1, _in(_table("brokerStatusHistory"))))));
+		_assertVisible(_heading3("View Comment"));
+		_assertContainsText($comment, _label("commentlbl"));
+		_click(_link("Close"));
+		_setStrictVisibilityCheck(false);
+		_unlockWindow();
+	}
+}
+
+function clickStatus($statuses, $editable){
+	click(_link("Status"));
+	verifyStatusViewPage($statuses, $editable);
+}
+
+function goToStatus($statuses, $editable){
+	click(_link("Account"));
+	
+	if(_isIE()){
+		click(_link("/"+"Status"+"End of dropdown/"));
+		_log("IE browser");
+	}else{
+		click(_link("/"+"Status"+" End of dropdown/"));
+		_log("Firefox and Chrome browser");
+	}
+	
+	
+	verifyStatusViewPage($statuses, $editable);
+}
+
+function goToEditAgentPageAsAgency($firstName, $lastName){
+	click(_link(0, _rightOf(_cell($firstName + " "+ $lastName))));
+	click(_link("/"+"Edit"+"/"));
+}
+
+
+function getAgentObjectFromDB($userEmail){
+	$userEmail=$userEmail.toLowerCase();
+	var $agentObject = [];
+	var $agentFromDB = accessAgentInformationWithUserAccountDB($userEmail);
+	var $name = $agentFromDB[0][0] +" "+ $agentFromDB[0][1];
+	var $role = $agentFromDB[0][11];
+	if($role == "AGENCY_MANAGER"){
+		$role="Agency Manager";
+	}
+	if($role == "BROKER"){
+		$role="Agent";
+	}	
+	var $originalRole = "Agent";
+	var $recordType = "Agent";	
+	var $licenseRenewalDate = $agentFromDB[0][32];
+	
+	_set($licenseRenewalDate, _call(window.moment($licenseRenewalDate).format("MM-DD-YYYY")));
+	_log("Licence renweval date: "+$licenseRenewalDate);
+	
+	var $correspAddressDB = getAgentCorrespondenceAddressDB($userEmail);
+	var $businessAddressFull = $agentFromDB[0][14]+", "+$agentFromDB[0][15]+" "+$agentFromDB[0][16];
+	var $correspAddressFull = $correspAddressDB[0][2]+", "+$correspAddressDB[0][3]+" "+$correspAddressDB[0][4];
+	var $applicationDate = $agentFromDB[0][37];
+	_set($applicationDate, _call(window.moment($applicationDate).format("MM-DD-YYYY")));
+	var $certiDate = $agentFromDB[0][27];
+	_set($certiDate, _call(window.moment($certiDate).format("MM-DD-YYYY")));
+	var $certiRenewDate = $agentFromDB[0][28];
+	_set($certiRenewDate, _call(window.moment($certiRenewDate).format("MM-DD-YYYY")));
+	var $statusDate = $agentFromDB[0][31];
+	_set($statusDate, _call(window.moment($statusDate).format("MM-DD-YYYY")));
+	$agentObject.push({firstName:$agentFromDB[0][0],
+						lastName:$agentFromDB[0][1],
+						phone:$agentFromDB[0][3],
+						buisnessPhone:$agentFromDB[0][4],
+						altPhone:$agentFromDB[0][5],
+						fax:$agentFromDB[0][36],
+						communicationpreference:$agentFromDB[0][6],
+						accountEmail:$agentFromDB[0][35],
+						personalEmail:$agentFromDB[0][7],
+						publicEmail:$agentFromDB[0][8],
+						businessName:$agentFromDB[0][9],
+						federalEINnum:$agentFromDB[0][10],
+						role:$role,
+						originalRole:$originalRole,
+						activeStatus:$agentFromDB[0][12],
+						businessAddressFull:$businessAddressFull,
+						businessStreet:$agentFromDB[0][13],
+						businessStreet2:$agentFromDB[0][34],
+						businessCity:$agentFromDB[0][14],
+						businessState:$agentFromDB[0][15],
+						businessZipcode:$agentFromDB[0][16],
+						correspAddressState:$correspAddressDB[0][3],
+						correspAddressStreet:$correspAddressDB[0][0],
+						correspAddressStreet2:$correspAddressDB[0][1],
+						correspAddressCity:$correspAddressDB[0][2],
+						correspAddressZipcode:$correspAddressDB[0][4],
+						correspAddressFull:$correspAddressFull,
+//						certiStartDate:$certiStartDate,
+						licenseNumber:$agentFromDB[0][17],
+						recordType:$recordType,
+						recordID:$agentFromDB[0][2],
+						language:$agentFromDB[0][19],
+						productExpertise:$agentFromDB[0][20],
+						education:$agentFromDB[0][21],
+						clientsServed:$agentFromDB[0][22],
+						webAddress:$agentFromDB[0][23],
+						aboutMe:$agentFromDB[0][24],
+							
+						certificationNum:$agentFromDB[0][25],
+						agentNumber:$agentFromDB[0][26],
+						certiDate:$certiDate,
+						applicationDate:$applicationDate,
+						certiRenewDate:$certiRenewDate,
+						certiStatus:$agentFromDB[0][29],
+						delegationCode:$agentFromDB[0][30],
+						statusDate:$statusDate,
+						licenseRenewalDate:$licenseRenewalDate,
+						siteLocationName:$agentFromDB[0][33],
+						name:$name
+						});
+	return $agentObject;
+}
+
+function verifyAgentObjectInfoInDB($expectedAgent,$actualAgent){	
+	var $i=0;
+	var $keys=Object.keys($expectedAgent[0]);
+	for (var $key in $expectedAgent[0]) {
+	
+		var $expectedValue = $expectedAgent[0][$key];
+		_log("Expected Agent "+$keys[$i]+": "+$expectedValue);
+		var $actualValue = $actualAgent[0][$key];
+		_log("Actual Agent "+$keys[$i]+": "+$actualValue);
+		
+		//skip object keys that not present in DB
+		if($keys[$i] == "correspStateShort" || $keys[$i] == "correspAddressFull"){
+			$i++;
+			continue;
+		}
+		
+		_assertEqual ($expectedValue, $actualValue, "Assert that expected "+$keys[$i]+" and actual match");
+		$i++;
+	}
+	
+}

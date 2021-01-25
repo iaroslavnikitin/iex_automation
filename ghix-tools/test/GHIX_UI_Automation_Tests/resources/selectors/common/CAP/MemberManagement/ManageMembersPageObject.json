@@ -1,0 +1,14 @@
+{
+    "pageHeader":"$('h1')",
+    "tb_member_firstName": "$('#firstName')",
+    "tb_member_lastName": "$('#lastName')",
+    "tb_member_email": "$('#householdEmail')",
+    "tb_member_Phone": "$('#contactNumber')",
+    "tb_member_ZipCode": "$('#zipCode')",
+    "tb_member_Dob": "$('#dateOfBirth')",
+    "btn_member_submit": "$('button*=Go')",
+    "lk_viewMember":"$('//a[contains(@href,\"viewmember\")]')",
+    "lk_resetAll": "$('a*=Reset all')"
+    
+  }
+  

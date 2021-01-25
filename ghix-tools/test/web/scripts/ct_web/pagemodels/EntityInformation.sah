@@ -1,0 +1,148 @@
+_includeOnce("GetPopulationServed.sah");
+_includeOnce("Utils.sah");
+
+var $ENTITY_INFORMATION_COMMUNICATION_PREFERENCE_LENGTH = 4;
+var $ENTITY_INFORMATION_ORG_TYPE_MENU_LENGTH = 7;
+
+var $EntityInformation = true;
+var $recievedGrant;
+
+var $entityInformationHeader = _heading4("Step 1: Entity Information");
+var $entityInformationEntityTypeLabel = _fieldset("Entity Type required");
+var $entityInformationEntityNameLabel = _label("Entity Name");
+var $entityInformationEntityName = _textbox("entityName");
+var $entityInformationBusinessNameLabel = _label("Business Name (Legal)");
+var $entityInformationBusinessName = _textbox("businessLegalName");
+var $entityInformationPrimaryEmailLabel = _label("Primary Email Address");
+var $entityInformationPrimaryEmail = _textbox("primaryEmailAddress");
+var $entityInformationPrimaryPhoneLabel = _label("Primary Phone Number first three digits");
+var $entityInformationPrimaryPhone = [_textbox("primaryPhone1"), _textbox("primaryPhone2"), _textbox("primaryPhone3")];
+var $entityInformationSecondaryPhoneLabel = _label("Secondary Phone Number first three digits");
+var $entityInformationSecondaryPhone = [_textbox("secondaryPhone1"), _textbox("secondaryPhone2"), _textbox("secondaryPhone3")];
+var $entityInformationContactLabel = _fieldset("How would you like for us to contact you?");
+var $entityInformationFaxLabel = _label("Fax first three digits");
+var $entityInformationFax = [_textbox("faxNumber1"), _textbox("faxNumber2"), _textbox("faxNumber3")];
+var $entityInformationFederalTaxIDLabel = _label("Federal Tax ID");
+var $entityInformationFederalTaxID = _textbox("federalTaxID");
+var $entityInformationStateTaxIDLabel = _label("State Tax ID");
+var $entityInformationStateTaxID = _textbox("stateTaxID");
+var $entityInformationOrganizationTypeLabel = _label("Organization Type");
+var $entityInformationOrganizationType = _select("orgType");
+var $entityInformationCountiesLabel = _label("Counties Served");
+var $entityInformationCounties = _textbox(14);
+var $entityInformationOutreachLabel = _fieldset("Did your organization receive an Outreach and Education Grant?");
+var $entityInformationGotGrant = _radio("educationGrant1");
+var $entityInformationNoGrant = _radio("educationGrant2");
+var $entityInformationNext = _submit("SaveEntityInfo");
+
+var $entityInformationGrantHeader = _heading4("Tell us about the grant:");
+var $entityInformationGrantNumberLabel = _label("Grant Contract Number");
+var $entityInformationGrantNumber = _textbox("grantContractNo");
+var $entityInformationGrantAmountLabel = _label("Grant Award Amount");
+var $entityInformationGrantAmount = _textbox("Grant Award Amount ");
+
+function verifyElementsOnEntityInformationPage() {
+	_assertVisible($entityInformationHeader);
+	_assertVisible($entityInformationEntityTypeLabel);
+	_assertVisible($entityInformationEntityNameLabel);
+	_assertVisible($entityInformationEntityName);
+	_assertVisible($entityInformationBusinessNameLabel);
+	_assertVisible($entityInformationBusinessName);
+	_assertVisible($entityInformationPrimaryEmailLabel);
+	_assertVisible($entityInformationPrimaryEmail);
+
+	_assertVisible($entityInformationPrimaryPhoneLabel);
+	for (var $i = 0; $i < $entityInformationPrimaryPhone.length; $i++) {
+		_assertVisible($entityInformationPrimaryPhone[$i]);
+	}
+
+	_assertVisible($entityInformationSecondaryPhoneLabel);
+	for (var $i = 0; $i < $entityInformationSecondaryPhone.length; $i++) {
+		_assertVisible($entityInformationSecondaryPhone[$i]);
+	}
+
+	_assertVisible($entityInformationContactLabel);
+	_assertVisible($entityInformationFaxLabel);
+	for (var $i = 0; $i < $entityInformationFax.length; $i++) {
+		_assertVisible($entityInformationFax[$i]);
+	}
+
+	_assertVisible($entityInformationFederalTaxIDLabel);
+	_assertVisible($entityInformationFederalTaxID);
+	_assertVisible($entityInformationStateTaxIDLabel);
+	_assertVisible($entityInformationStateTaxID);
+	_assertVisible($entityInformationOrganizationTypeLabel);
+	_assertVisible($entityInformationOrganizationType);
+	_assertVisible($entityInformationCountiesLabel);
+	_assertVisible($entityInformationCounties);
+	_assertVisible($entityInformationOutreachLabel);
+	_assertVisible($entityInformationGotGrant);
+	_assertVisible($entityInformationNoGrant);
+	_assertVisible($entityInformationNext);
+}
+
+function enterEntityInformation($county) {
+	var $val;
+	$val = randomString($FIELD_LENGTH);
+	_setValue($entityInformationEntityName, $val);
+
+	$val = randomString($FIELD_LENGTH);
+	_setValue($entityInformationBusinessName, $val);
+
+	$val = randomString($FIELD_LENGTH);
+	_setValue($entityInformationPrimaryEmail, $val + "@example.com");
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityInformationPrimaryPhone[$i], $val[$i]);
+	}
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityInformationSecondaryPhone[$i], $val[$i]);
+	}
+
+	$val = Math.floor(Math.random() * $ENTITY_INFORMATION_COMMUNICATION_PREFERENCE_LENGTH);
+	_click(_radio("communicationPreference[" + $val + "]"));
+
+	$val = phoneGen();
+	for (var $i = 0; $i < $val.length; $i++) {
+		_setValue($entityInformationFax[$i], $val[$i]);
+	}
+
+	$val = randomString(9, true);
+	_setValue($entityInformationFederalTaxID, $val);
+
+	$val = randomString(12, true);
+	_setValue($entityInformationStateTaxID, $val);
+
+	$val = Math.floor(Math.random() * ($ENTITY_INFORMATION_ORG_TYPE_MENU_LENGTH - 1)) + 1;
+	_setSelected($entityInformationOrganizationType, $val);
+
+	_click(_listItem($county));
+
+	$val = Math.floor(Math.random() * 2);
+	if ($val > 0) {
+		$recievedGrant = true;
+		_click($entityInformationGotGrant);
+
+		_assertVisible($entityInformationGrantHeader);
+		_assertVisible($entityInformationGrantNumberLabel);
+		_assertVisible($entityInformationGrantNumber);
+		_assertVisible($entityInformationGrantAmountLabel);
+		_assertVisible($entityInformationGrantAmount);
+
+		$val = randomString($FIELD_LENGTH, true);
+		_setValue($entityInformationGrantNumber, $val);
+
+		var $numDigits = Math.floor(Math.random() * 9) + 1;
+		$val = randomString($numDigits, true);
+		_setValue($entityInformationGrantAmount, $val);
+	}
+	else {
+		_click($entityInformationNoGrant);
+	}
+
+	_click($entityInformationNext);
+	verifyElementsOnPopulationServedPage();
+}

@@ -1,0 +1,188 @@
+{
+  "applicationYear": "",
+  "applicationStatus": "ER",
+  "applicationType": "",
+  "caseNumber": "",
+  "aptc": null,
+  "password": "ghix123#",
+  "isFinancial": true,
+  "coverageDate": "",
+  "qualifyingEvent": "Marriage",
+  "eventType":3,
+  "primaryAddress": {
+    "home": {
+      "addressLine1": "",
+      "addressLine2": "",
+      "city": "",
+      "state": "",
+      "county": "",
+      "zip": ""
+    },
+    "mailing": {
+      "mailingAddSameAsHomeIndicator": true,
+      "addressLine1": "83 Spring St",
+      "addressLine2": "",
+      "city": "Newton",
+      "state": "NJ",
+      "county": "037",
+      "zip": "07860"
+    }
+  },
+  "primaryContactPref": {
+    "spokenLang": "English",
+    "writtenLang": "English",
+    "prefMethodOfComm": "Email"
+  },
+  "primaryContactPhone": {
+    "mobile": "",
+    "home": "",
+    "ext": ""
+  },
+  "startYourApplication": {
+    "getHelpApplyingIndicator": false
+  },
+  "plan": {
+    "HealthPlan": "",
+    "DentalPlan": ""
+  },
+  "applicants": [
+    {
+      "memberId": "",
+      "guid": "",
+      "firstName": "",
+      "lastName": "",
+      "gender": "Male",
+      "ssn": "",
+      "sameNameOnSSN": true,
+      "suffix": "",
+      "relation": "SELF",
+      "dateOfBirth": "01/01/1967",
+      "email": "",
+      "isNative": false,
+      "isDisabled": false,
+      "helpWithActivities": false,
+      "isPregnant": false,
+      "noOfBabies": 0,
+      "seekingCoverage": true,
+      "seeksQHP": true,
+      "exchangeEligible": true,
+      "aptcEligible": true,
+      "at_aptcEligibilityStartDate": "",
+      "at_aptcEligibilityEndDate": "",
+      "at_aptcEligibilityReasonText": "999",
+      "stateSubsidyEligible": true,
+      "csrEligible": false,
+      "at_csrEligibilityReasonText": "999",
+      "at_csrCategoryAlphaCode": "73PercentActuarialVarianceLevelSilverPlanCSR",
+      "at_csrEligibilityStartDate": "",
+      "at_csrEligibilityEndDate": "",
+      "at_exchangeEligibilityIndicator": true,
+      "at_exchangeEligibilityReasonText": "999",
+      "at_exchangeEligibilityStartDate": "",
+      "at_exchangeEligibilityEndDate": "",
+      "at_stateSubsidyEligibilityIndicator": true,
+      "at_stateSubsidyEligibilityReasonText": "999",
+      "at_stateSubsidyEligibilityStartDate": "",
+      "at_stateSubsidyEligibilityEndDate": "",
+      "at_stateSubsidyEligibilityAmount": 60.25,
+      "at_chipEligibilityIndicator": true,
+      "at_chipEligibilityReasonText": "999",
+      "at_chipEligibilityStartDate": "",
+      "at_chipEligibilityEndDate": "",
+      "at_magiEligibilityIndicator": true,
+      "at_magiEligibilityReasonText": "999",
+      "at_magiEligibilityStartDate": "",
+      "at_magiEligibilityEndDate": "",
+      "assessedMedicaidMAGIEligibile":false,
+      "assessedChipEligible": false,
+      "assessedMedicaidnonMAGIEligibile":false,
+      "assessedCHIPnonMAGIEligibile":false,
+      "medicaidMAGIEligibile":false,
+      "medicaidNonMAGIEligibile":false,
+      "chipEligible": false,
+      "nativeAmerican": false,
+      "csrLevel": null,
+      "middleName": "",
+      "nameSuffix": "",
+      "fosterCareIndicator": false,
+      "isStudent": false,
+      "isDeniedMedicaid": false,
+      "relationship": [
+        {
+          "guid": "",
+          "relation": "Spouse"
+        }
+      ],
+      "sameAsApplicantAddress": true,
+      "address": {
+        "addressLine1": "",
+        "addressLine2": "",
+        "city": "",
+        "state": "",
+        "county": "",
+        "zip": ""
+      },
+      "immigration": {
+        "isCitizen": true,
+        "isNaturalizedCitizen": false
+      },
+      "ethnicityRace": {
+        "isHispanic": false,
+        "race": "white"
+      },
+      "income": {
+        "isGettingIncome": true,
+        "sourceOfIncome": "Job",
+        "nameOfEmployer": "StarShip",
+        "amount": 2116.03,
+        "frequency": "Monthly",
+        "deductionSources": {
+          "sourceOfIncome": "Job",
+          "nameOfEmployer": "StarShip",
+          "amount": 2116.03,
+          "frequency": "Monthly"
+        },
+        "payingDeductions": "no",
+        "expectedIncomeInNextYear": {
+          "expectingSameIncome": "Yes",
+          "unknownIncome": false,
+          "totalExpectedYearlyAmount": 25392.36
+        }
+      },
+      "hasOtherHealthCoverage": false,
+      "hasReconciledAptc": true,
+      "hasESI": false,
+      "hasNonESI": false,
+      "helpPayingMedicalBills": false,
+      "at_personMedicaidIdentification": "",
+      "at_personMarriedIndicator": false,
+      "at_isPrimaryContact": true,
+      "at_isPrimaryTaxFiler": true,
+      "at_isSSFSigner": true,
+      "at_isHouseholdMemberReference": true,
+      "at_insurancePremiumAmount": 215.1,
+      "at_aptcMaximumAmount": 240,
+      "at_AmericanIndianIndicator": false
+    }
+  ],
+  "incomeTax": {
+    "taxFilers": [
+      0
+    ],
+    "jointFilingIndicator": true,
+    "primaryTaxFilerPersonId": 0,
+    "dependentToTaxFilers": []
+  },
+  "militaryService":[],
+  "AmericanIndianOrAlaskaNative":[],
+  "at_AmericanIndianIndicator": false,
+  "ssapApplicationId": null,
+  "financial": true,
+  "at_insuranceApplicationRequestingFinancialAssistanceIndicator": true,
+  "at_assisterBrokerId": null,
+  "at_assisterExternalId": "",
+  "at_assisterBrokerNPN": null,
+  "at_CurrentEligibilitySpan": 1,
+  "at_TotalEligibilitySpan": 1,
+  "at_IncomeFederalPovertyLevelPercent": 367
+}

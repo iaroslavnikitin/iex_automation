@@ -1,0 +1,27 @@
+{
+    "description": "2 adults household CS4 with APTC=true",
+    "hhFamily": {"size": 2, "singleParent": false},
+    "hhLastName": true,
+    "address": {
+        "ns2:LocationStreet": {
+            "ns2:StreetFullText": "6179 Bluehill Ave"
+        },
+        "ns2:LocationCityName": "Las Vegas",
+        "ns2:LocationCountyCode": "003",
+        "ns2:LocationStateUSPostalServiceCode": "NV",
+        "StateSelection": [
+            "Nevada",
+            "28",
+            "NV"
+        ],
+        "ns2:LocationPostalCode": "89156"
+    },
+    "people": [
+        {
+            "dob": "1996-03-22"
+        },
+        {
+            "dob": "1999-02-15"
+        }
+    ]
+}

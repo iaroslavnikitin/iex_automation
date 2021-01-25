@@ -1,0 +1,42 @@
+All file names SHOULD start with UPPERCASE
+
+**********************************************
+*********** SELECTORS ************************
+**********************************************
+
+>> File Name should end with 'object.json'
+>> DO NOT dump all selectors in a Page ( Block wise organization is required )
+
+*******NAMING PREFIXES FOR SELECTORS ***********
+
+TextBox     = tb_
+DropDown    = dd_
+Anchor/Link = lk_
+Button      = btn_
+Label       = lbl_
+Checkbox    = cb_
+RadioButton = rb_
+Header      = hd_
+Image       = img_
+Icon        = icn_
+
+
+**********************************************
+*********** STEP DEFINITION ******************
+**********************************************
+
+>> File Name should end with 'steps.js'
+
+>> First Letter of each word should be capitalized.
+    Example: Then Verify I Am On Admin Dashboard <role>   
+    Wrong --> Then verify I am on Admin dashboard <role>
+
+
+**********************************************
+*********** PAGE MODEL ***********************
+**********************************************
+
+>> File Name should end with 'Page.js'
+
+
+

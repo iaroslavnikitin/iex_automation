@@ -1,0 +1,185 @@
+_includeOnce("Utils.sah");
+_includeOnce("global_include.sah");
+_includeOnce("EntityCounselorInfo.sah");
+
+var $counselorPageStatusHeader = _heading4("Certification Status");
+var $counselorPageStatusTable = _table("table table-border-none table-condensed");
+var $counselorPageHistoryHeader = _heading4("Certified Enrollment Counselor History");
+var $counselorPageEmptyHistory = _div("Nothing found to display.");
+var $counselorPageInfo = _link("Certified Enrollment Counselor Information");
+var $counselorPageProfile = _link("Profile");
+var $counselorPageCertificationStatus = _link("Certification Status");
+var $counselorPageStatus = _link("Status");
+var $counselorPageEditButton = _link("Edit");
+var $counselorPage =  [$counselorPageHistoryHeader, $counselorPageStatusTable, $counselorPageHistoryHeader, $counselorPageEditButton, $enrollmentEntitiesCounselors, $enrollmentEntitiesDropdown];
+
+var $counselorPageSideBar = [ $counselorPageInfo, $counselorPageProfile, $counselorPageCertificationStatus, $counselorPageStatus];
+
+var $counselorCertificationHeader = _heading4("Certification Status");
+var $counselorCertificationStatusTable = _table("table table-border-none table-condensed");
+var $counselorCertificationHistoryHeader = _heading4("Certified Enrollment Counselor History");
+var $counselorCertificationHistoryTable = _table("assisterRegisterStatusHistory");
+var $counselorCertification = [$counselorCertificationHeader, $counselorPageEditButton, $counselorCertificationStatusTable, $counselorCertificationHistoryHeader,
+							   $counselorCertificationHistoryTable];
+
+var $counselorEditStatusHeader = _heading4("Certification Status");
+var $counselorEditCancelButton = _link("Cancel");
+
+var $counselorEditStatusTable = _table("table table-border-none table-condensed table-auto");
+var $counselorEditNewStatus = _select("certificationStatus");
+var $counselorEditComment = _textarea("comments");
+var $counselorEditFileInput = _file("fileInput");
+var $counselorEditUploadButton = _button("Upload");
+var $counselorEditSubmitButton = _button("Submit");
+var $counselorEditHistoryHeader = _heading4("Certified Enrollment Counselor History");
+var $counselorEditEmptyHistory = _div("Nothing found to display.");
+var $counselorEdit = [$counselorEditStatusHeader, $counselorEditCancelButton, $counselorEditStatusTable, $counselorEditNewStatus, $counselorEditComment, $counselorEditFileInput, 
+					  $counselorEditUploadButton, $counselorEditSubmitButton, $counselorEditHistoryHeader, $counselorEditEmptyHistory];
+
+var $activateCounselorStatusHeader = _heading4("Status");
+var $activateCounselorStatusTable = _table("table table-border-none table-condensed");
+var $activateCounselorHistoryHeader = _heading4("Certified Enrollment Counselor History");
+var $activateCounselorHistoryTable = _table("assisterActivityStatusHistory");
+var $activateCounselor = [$activateCounselorStatusHeader, $counselorPageEditButton, $activateCounselorStatusTable, $activateCounselorHistoryHeader, $activateCounselorStatusTable];
+
+var $updateStatusHeader = _heading4("Status");
+var $updateStatusCancelButton = _link("Cancel");
+var $updateStatusTable = _table("table table-border-none table-condensed table-auto");
+var $updateStatusNewStatus = _select("status");
+var $updateStatusComment = _textarea("activityComments", _near(_label("Comment")));
+var $updateStatusSubmitButton = _submit("Save");
+var $updateStatusHistoryTable = _table("assisterActivityStatusHistory");
+var $updateStatus = [$updateStatusHeader, $updateStatusCancelButton, $updateStatusTable, $updateStatusNewStatus, $updateStatusComment, $updateStatusSubmitButton, $updateStatusHistoryTable];
+
+function verifyCounselorPage($counselorName) {
+	$counselorInfo.name = $counselorName;
+	verifyArray($counselorPage);
+	_assertVisible(_heading1($counselorName));
+	_assertVisible($counselorCertificationHeader);
+	verifyArray($counselorPageSideBar);
+	var $counselorStatus = _getTableContents($counselorPageStatusTable);
+	_assertEqual($counselorStatus[1][1], "Pending"); // Status = Pending
+	_assertEqual($counselorStatus[2][1], "N/A"); // All Certification Info should be N/A now
+	_assertEqual($counselorStatus[3][1], "N/A");
+	_assertEqual($counselorStatus[4][1], "N/A");
+	$counselorInfo.number = $counselorStatus[0][1];
+	
+	return $counselorStatus[0][1]; // returns counselor number
+}
+
+function clickEditOnCounselorPage() {
+	_click($counselorPageEditButton);
+}
+
+function verifyEditCounselorCertificationStatusPage() {
+	$counselorEdit.push(_heading1($counselorInfo.name));
+	verifyArray($counselorEdit);
+	verifyArray($counselorPageSideBar);
+	var $counselorCertificationStatus = _getTableContents($counselorEditStatusTable);
+	_assertEqual($counselorCertificationStatus[0][1], $counselorInfo.number);
+	_assertEqual($counselorCertificationStatus[1][1], "Pending");
+}
+
+function selectNewStatusOnEditCounselorCertificationPage($status) {
+	if ($status == null) {
+		$status = "Certified";
+	}
+	_setSelected($counselorEditNewStatus, $status);
+	$counselorInfo.newCertificationStatus = $status;
+}
+
+function enterCommentOnEditCounselorCertificationPage($comment) {
+	_setValue($counselorEditComment, $comment);
+	$counselorInfo.comment = $comment;
+}
+
+function uploadSupportingDocumentOnEditCounselorCertificationPage() {
+	_setFile($counselorEditFileInput, $PIC_PATH);
+	$counselorInfo.attachment = $PIC_PATH;
+	_click($counselorEditUploadButton);
+}
+
+function clickSubmitOnEditCounselorCertificationPage() {
+	_click($counselorEditSubmitButton);
+	verifyCertifiedCounselor();
+}
+
+function clickCancelOnEditCounselorCertificationPage() {
+	_click($counselorEditCancelButton);
+	verifyCounselorPage($counselorInfo.name);
+}
+
+function verifyCertifiedCounselor() {
+	var $date = getTodaysDate();
+	verifyArray($counselorCertification);
+	_assertVisible(_heading1($counselorInfo.name));
+	verifyArray($counselorPageSideBar);
+	var $certificationStatus = _getTableContents($counselorCertificationStatusTable);
+	_assertEqual($certificationStatus[0][1], $counselorInfo.number);
+	_assertEqual($certificationStatus[1][1], "Certified");
+	_assertEqual($certificationStatus[3][1], $date);
+	$counselorInfo.certificationNumber = $certificationStatus[2][1];
+	
+	return $counselorInfo.certificationNumber; // returns certification number
+}
+
+function goToCounselorStatusPage() {
+	_click($counselorPageStatus);
+	$counselorInfo.prevStatus = "InActive";
+	$counselorInfo.status = "InActive";
+	$counselorInfo.statusComment = "No Comments";
+	verifyCounselorStatusPage();
+	
+}
+
+function verifyCounselorStatusPage() {
+	var $date = getTodaysDate();
+	verifyArray($counselorPageSideBar);
+	verifyArray($activateCounselor);
+	_assertVisible(_heading1($counselorInfo.name));
+	var $counselorStatus =_getTableContents($activateCounselorStatusTable);
+	_assertEqual($counselorStatus[0][1], $counselorInfo.status);
+	var $counselorHist = _getTableContents($activateCounselorHistoryTable);
+	var $expectedHist = [$date, $counselorInfo.prevStatus, $counselorInfo.status, $counselorInfo.statusComment].join(',');
+	_assertEqual($counselorHist[1], $expectedHist);
+}
+
+function clickEditOnCounselorStatusPage() {
+	_click($counselorPageEditButton);
+	verifyEditCounselorStatusPage();
+}
+
+function verifyEditCounselorStatusPage() {
+	_assertVisible(_heading1($counselorInfo.name));
+	verifyArray($counselorPageSideBar);
+	verifyArray($updateStatus);
+	var $counselorStatus =_getTableContents($updateStatusTable);
+	_assertEqual($counselorStatus[0][1], $counselorInfo.status);
+	var $counselorHist = _getTableContents($updateStatusHistoryTable);
+	var $expectedHist = [$date, $counselorInfo.prevStatus, $counselorInfo.status, $counselorInfo.statusComment].join(',');
+	_assertEqual($counselorHist[1], $expectedHist);
+}
+
+function selectNewStatusOnEditCounselorStatusPage($status) {
+	if ($status == null) {
+		$status = "Active";
+	}
+	_setSelected($updateStatusNewStatus, $status);
+	$counselorInfo.prevStatus = $counselorInfo.status;
+	$counselorInfo.status = $status;
+}
+
+function enterCommentOnEditCounselorStatusPage($comment) {
+	_setValue($updateStatusComment, $comment);
+	$counselorInfo.statusComment = $comment;
+}
+
+function clickSaveOnEditCounselorStatusPage() {
+	_click($updateStatusSubmitButton);
+	verifyCounselorStatusPage();
+}
+
+function clickCancelOnEditCounselorStatusPage() {
+	_click($updateStatusCancelButton);
+	verifyCounselorStatusPage();
+}

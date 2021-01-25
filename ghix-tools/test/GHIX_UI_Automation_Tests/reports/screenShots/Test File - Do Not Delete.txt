@@ -1,0 +1,3 @@
+This file is added to keep the Screen Shots folder in the directory structure. 
+If you remove it, the Screenshot folder will be deleted 
+and while running tests you will encounter an error if your test needs to capture screenshots 

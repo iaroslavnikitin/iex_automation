@@ -1,0 +1,9 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2","Argument 3","Argument 4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+
+
+"all,Security,account_validation","CSR Supervisor - Create individual account without SSN from add user page","[Documentation]"
+
+,,"[Documentation]","Email address - Supervisor CSR","Password","Permission","SSN Required","User First Name","User Last Name","Role"
+,,"csrCreateAndManageIndividual","gismoketest_supervisor@getinsured.com","ghix123#","""Y""","""N""","""gismoketest""","""supervisor""","""gismoketest supervisor (l3 customer support)"""

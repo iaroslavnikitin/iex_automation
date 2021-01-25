@@ -1,0 +1,76 @@
+_includeOnce("EntityCommonElements.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $manageCounselorsElements = {
+	"header_hd":{
+		"element": _heading1("/Certified Enrollment Counselors/"),
+		"label": null
+	},
+	"refineResultsBy":{
+		"firstName_tb":{
+			"element": _textbox("firstName", _in(_div("sidebar"))),
+			"label": _label("Certified Enrollment Counselor First Name", _in(_div("sidebar")))
+		},
+		"lastName_tb":{
+			"element": _textbox("lastName", _in(_div("sidebar"))),
+			"label": _label("Certified Enrollment Counselor Last Name", _in(_div("sidebar")))
+		},
+		"counselorNumber_tb":{
+			"element": _textbox("assisterNumber", _in(_div("sidebar"))),
+			"label": _label("Certified Enrollment Counselor Number", _in(_div("sidebar")))
+		},
+		"status_dd":{
+			"element": _select("certificationStatus", _in(_div("sidebar"))),
+			"label": _label("Certification Status", _in(_div("sidebar")))
+		},
+		"go_btn":{
+			"element": _submit("submit", _in(_div("sidebar"))),
+			"label": _submit("Go", _in(_div("sidebar")))
+		}
+
+	},
+	"resultsTable":{
+		"table_div":{
+			"element": _table("assisterlist"),
+			"label": null
+		},
+		"action_th":{
+			"element": _tableHeader("Action", _in(_table("assisterlist"))),
+			"label": null
+		},
+		"gearIcon_ln":{
+			"element": _link("/Dropdown Menu/", _in(_table("assisterlist"))),
+			"label": null
+		},
+		"edit_ln":{
+			"element": _link("/Edit/", _in(_table("assisterlist"))),
+			"label": null
+		}
+
+	}
+};
+
+function searchByCounselorFirstName($counselor){
+	setValue($manageCounselorsElements.refineResultsBy.firstName_tb.element, $counselor.firstName);
+	click($manageCounselorsElements.refineResultsBy.go_btn.element);
+}
+
+function searchByCounselorLastName($counselor){
+	setValue($manageCounselorsElements.refineResultsBy.lastName_tb.element, $counselor.lastName);
+	click($manageCounselorsElements.refineResultsBy.go_btn.element);
+}
+
+function searchByCounselorNumber($counselor){
+	setValue($manageCounselorsElements.refineResultsBy.counselorNumber_tb.element, $counselor.counselorNumber);
+	click($manageCounselorsElements.refineResultsBy.go_btn.element);
+}
+
+function clickEditUnderActionsInCecList(){
+	click($manageCounselorsElements.resultsTable.gearIcon_ln.element);
+	click($manageCounselorsElements.resultsTable.edit_ln.element);
+}
+
+function navigateToManageCounselors(){
+	click($ENTITY_ADMIN_TOP_MENU.enrollmentCounselors_ln.element);
+	click($ENTITY_ADMIN_TOP_MENU.enrollmentCounselors.manageEnrCounselors_ln.element);
+}

@@ -1,0 +1,560 @@
+_includeOnce("../lib/DB.sah");
+_include("../lib/CommonFunctions.sah");
+
+var $capAboutConsumerHeader = _heading4("About Consumer");
+var $capBasicInformationLink = _link("Basic Information");
+var $capEnrollmentsLink = _link("Enrollments");
+var $capHistoryLink = _link("History");
+var $capActionsHeader = _heading4("Actions");
+var $capAdminSearchLink = _link("Admin Search");
+var $capViewCaseLink = _link("View Case");
+var $capViewMemberAccountLink = _link("View Member Account");
+
+var $viewAgentCecDelegationHistoryLink = _link("View Agent/CEC Delegation History");
+
+function navigateToDelegationHistoryOnCapPortal(){
+	_click($viewAgentCecDelegationHistoryLink);
+}
+
+
+function clickManageMember(){
+	_click(_link("Members"));
+	_click(_link("Manage Members"));
+	verifyManageMembersPage();
+}
+
+function verifyManageMembersPage(){
+
+	_assertVisible(_heading1("Members"));
+	_assertVisible(_heading4("Refine Results"));
+	_assertVisible(_textbox("firstName"));
+	_assertVisible(_textbox("lastName"));
+	_assertVisible(_textbox("contactNumber"));
+	_assertVisible(_textbox("householdEmail"));
+	_assertVisible(_textbox("zipCode"));
+	_assertVisible(_textbox("dateOfBirth"));
+	_assertVisible(_link("Reset all"));
+	_assertVisible(_submit("Go"));
+	
+
+}
+// @field = "First Name", "Last Name", "Phone Number", "Email"
+//Isaiah_1547059262135@yopmail.com")-auto, 
+function searchMemberOnManageMember($field, $value){
+
+	_setValue(_textbox(0, _under(_label($field))), $value);
+	_click(_submit("Go"));
+	_assertVisible(_row(1));
+	//$value = $value.toLowerCase();
+	//_assertEqual("/"+$value+"/", _getText(_row(1)));
+	
+}
+
+function clickMemberOnManageMember($household,$role){
+	_click(_link("/"+$household.people[0].firstName+"/", _in(_row(1))));
+	verifyViewMemberPage($household,$role);
+}
+
+function verifyViewMemberPage($household,$role){
+	verifyLeftNavigationOnViewMember($household,$role);
+	verifyBasicInformationOnViewMember($household,$role);
+}
+
+function verifyLeftNavigationOnViewMember($household,$role){
+	var $CMRHouseholdDataDB = getCMRHouseholdData($household.people[0].email);
+	_assertVisible(_heading1($household.people[0].firstName+" " + $household.people[0].lastName+" (ID: "+$CMRHouseholdDataDB.ID+")"));
+	_assertVisible($capAboutConsumerHeader,"Verify that header is visible");
+	
+	_assertVisible($capBasicInformationLink,"Verify that link is visible");
+	_assertVisible($capEnrollmentsLink,"Verify that link is visible");
+	
+	if($role != "agent"){
+		_assertVisible($capHistoryLink,"Verify that link is visible to "+$role);
+		_assertVisible($capActionsHeader,"Verify that header is visible to "+$role);
+		_assertVisible($capAdminSearchLink,"Verify that link is visible to "+$role);
+		_assertVisible($capViewCaseLink,"Verify that link is visible to "+$role);
+	}else{
+		_assertNotVisible($capHistoryLink,"Verify that link is not visible to "+$role);
+		_assertNotVisible($capActionsHeader,"Verify that header is not visible to "+$role);
+		_assertNotVisible($capAdminSearchLink,"Verify that link is not visible to "+$role);
+		_assertNotVisible($capViewCaseLink,"Verify that link is not visible to "+$role);
+	}
+	
+	if($role == "L0" || $role == "agent"){
+		_assertNotVisible($capViewMemberAccountLink,"Verify that link is not visible to "+$role);
+	}else{
+		_assertVisible($capViewMemberAccountLink,"Verify that link is visible to "+$role);
+	}
+
+}
+
+
+function verifyBasicInformationOnViewMember($household,$role){
+	
+	_assertVisible(_heading4("Basic Information"));
+	_assertVisible(_cell($household.people[0].firstName+" "+$household.people[0].lastName, _rightOf(_cell("Name:"))));
+	var $formatedDOb = _fetch(window.moment($household.people[0].dob).format("MM/DD/YYYY")); 
+	_assertVisible(_cell($formatedDOb, _rightOf(_cell("Date Of Birth:"))));
+	_assertVisible(_paragraph($household.people[0].mailingAddress.street+" "+$household.people[0].mailingAddress.city+" , "+$household.people[0].mailingAddress.state, _rightOf(_cell("Address:"))));
+	
+	_assertVisible(_cell($household.people[0].mailingAddress.zipcode, _rightOf(_cell("Zip :"))));
+	_assertVisible(_cell($household.people[0].email.toLowerCase(), _rightOf(_cell("Email Address:"))));
+	
+	_assertVisible(_cell($household.people[0].phoneNumber, _rightOf(_cell("Phone Number:"))));
+	var $ssn = $household.people[0].SSN.substring(5,9);
+	_assertVisible(_cell("*****"+ $ssn, _rightOf(_cell("SSN:"))));
+	if ($role != "agent") {
+		_assertVisible(_cell($household.externalHouseholdCaseId, _rightOf(_cell("Case ID:"))),"Verfiy Case ID is displayed for "+$role);
+	}else{
+		_assertNotVisible(_cell($household.externalHouseholdCaseId, _rightOf(_cell("Case ID:"))),"Verfiy Case ID is not displayed for "+$role);
+	}
+}
+
+function clickEnrollmentsfromLeftNavigation($household,$status,$role,$groups){
+	_click(_link("Enrollments"));
+	var $houseHoldCaseId =  _getText(_heading1("householdInfo")).split(": ")[1].replace(")", "");
+	verifyMemberEnrollmentPage($household,$status,$houseHoldCaseId,$role,$groups);
+
+}
+
+function verifyMemberEnrollmentPage($household,$status,$houseHoldCaseId,$role,$groups){
+	
+	verifyLeftNavigationOnViewMember($household,$role);
+	_assertVisible(_heading4("/Enrollment/"));
+	_assertVisible(_span("Coverage Year"));
+	_setSelected(_select(0), $household.coverageYear);
+	verifyHealthEnrollmentOnViewMember($household, $status, $houseHoldCaseId,$role,$groups);
+	//verifyDentalEnrollmentOnViewMember($household, $status, $houseHoldCaseId);
+
+}
+
+
+
+function verifyHealthEnrollmentOnViewMember($household, $status, $houseHoldCaseId, $role, $groups){
+	
+	for (var $i = 0; $i < $groups.length; $i++) {
+		if ($groups[$i].healthPlan != "null") {	
+			
+			var $healthPlan = $groups[$i].healthPlan;
+			_assertVisible(_heading5("/"+$healthPlan.name+"/i"));
+			var $healthDetail = $healthPlan.issuerName.toUpperCase()+" "+$healthPlan.name.toUpperCase();
+			var $enrollmentTile = _parentNode(_div($healthDetail),2);
+			
+			_assertVisible(_cell($status, _in($enrollmentTile)));
+			_assertVisible(_cell($groups[$i].coverageStartDate+"	 - "+$groups[$i].coverageEndDate, _rightOf(_tableHeader("Effective Date:", _in($enrollmentTile)))));
+				
+			var $totalPremium = $healthPlan.totalPayment;
+			var $formatedTotalPremium = $totalPremium.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")///currency formatting
+			
+			_assertVisible(_cell("$"+$formatedTotalPremium, _rightOf(_tableHeader("Premium Amount", _in($enrollmentTile)))),"Verify Health Premium Amount");
+			
+			if(!$groups[$i].aptc){
+				_assertVisible(_cell("$0", _near(_tableHeader("Elected Federal APTC Amount", _in($enrollmentTile)))),"Verify APTC amount on member enrollment page");
+			}else{
+				_assertVisible(_cell("$"+$groups[$i].healthPlan.aptc, _near(_tableHeader("Elected Federal APTC Amount", _in($enrollmentTile)))),"Verify APTC amount on member enrollment page");
+			}
+
+			if(!$groups[$i].stateSubsidy){
+				_assertNotVisible(_tableHeader("CA Premium Subsidy", _in($enrollmentTile)),"Verify SS amount on member enrollment page");
+			}else{
+				_assertVisible(_cell("$"+$groups[$i].healthPlan.stateSubsidy, _near(_tableHeader("CA Premium Subsidy", _in($enrollmentTile)))),"Verify ss amount on member enrollment page");
+			}
+
+			var $netPremium = $healthPlan.numPremium;
+			var $formatedNetPremium = $netPremium.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")///currency formatting
+
+			_assertVisible(_cell("$"+$formatedNetPremium, _rightOf(_tableHeader("Net Premium", _in($enrollmentTile)))),"Verify net premium on member enrollment page");
+			
+			var $varCMSPlanId =  getCMSPlanId("health", $houseHoldCaseId)
+			var $exchangeAssignedPolicyId = getExchangeAssignedPolicyId("health", $houseHoldCaseId);	
+			_assertVisible(_cell($varCMSPlanId, _rightOf(_tableHeader("CMS Plan ID", _in($enrollmentTile)))),"Verify CMS plan ID on member enrollment page");
+			_assertVisible(_cell($exchangeAssignedPolicyId, _rightOf(_tableHeader("Exchange Assigned Policy ID", _in($enrollmentTile)))),"Verify Exchange Assigned Policy ID on member enrollment page");
+			_assertVisible(_cell("", _rightOf(_tableHeader("Transaction ID", _in($enrollmentTile)))),"Verify Transaction ID on member enrollment page");
+			var $today = getCurrentDate('MM/DD/YYYY');//_fetch(window.moment().format('MM/DD/YYYY'));
+			//_assertVisible(_cell($today, _rightOf(_tableHeader("Submitted Date:", _in($enrollmentTile)))),"Verify Submitted date on member enrollment page");
+			
+			//_assertVisible(_cell($today, _rightOf(_tableHeader("Last Update Date:", _in($enrollmentTile)))),"Verify Last updated on member enrollment page");
+			//_assertVisible(_cell("/"+$household.people[0].firstName+" "+$household.people[0].lastName+"/", _rightOf(_tableHeader("Submitted by:", _in($enrollmentTile)))),"Verify member name on member enrollment page");
+			//_assertVisible(_cell("/"+$groups[$i].lastUpdatedBy+"/", _rightOf(_tableHeader("Last Update By:", _in($enrollmentTile)))),"Verify last updated by on member enrollment page");
+			
+			_assertVisible(_link("SHOW PREMIUM HISTORY", _in($enrollmentTile)));
+			_assertVisible(_link("Additional Information", _in($enrollmentTile)));	
+
+			verifyButtonsOnEnrollmentBasedOnRole($role,$household,$groups[$i],$enrollmentTile);
+		}
+	}
+	
+}
+
+function verifyButtonsOnEnrollmentBasedOnRole ($role,$household,$group,$enrollmentTile) {
+	_log("$role: "+$role);
+	_log("$enrollmentStatus: "+$group.healthPlan.enrollmentStatus);
+
+	if($role == "supervisor"){
+		_assertVisible(_link("RESEND LATEST 834 TRANSACTION", _in($enrollmentTile)));
+		if($group.healthPlan.enrollmentStatus == "Pending"){
+			_assertVisible(_link("Actions", _in($enrollmentTile)));
+			_assertVisible(_italic("icon-gear csrActionGear", _in($enrollmentTile)));
+			_click(_link("Actions", _in($enrollmentTile)));
+			_assertVisible(_link("Override Enrollment Status", _in(_div("csrButtonDiv", _in($enrollmentTile)))));
+		}
+		if($group.healthPlan.enrollmentStatus == "Enrolled"){
+			_assertNotVisible(_link("Actions", _in($enrollmentTile)));
+			_assertNotVisible(_link("Override Enrollment Status", _in(_div("csrButtonDiv", _in($enrollmentTile)))));
+		}
+		
+	}else{
+		_assertNotVisible(_link("RESEND LATEST 834 TRANSACTION", _in($enrollmentTile)));
+		_assertNotVisible(_link("Actions", _in($enrollmentTile)));
+		//_assertNotVisible(_italic("icon-gear csrActionGear", _in($enrollmentTile)));
+	}
+}
+
+function verifyDentalEnrollmentOnViewMember($household, $status, $houseHoldCaseId){
+	
+	var $dentalPlan = $household.customGroup[0].dentalPlan;
+	_assertVisible(_heading5("/"+$dentalPlan.name+"/i"));
+	var $issuerName = $dentalPlan.issuerName.replace("...","")
+	var $healthDetail = $issuerName.toUpperCase()+" "+$dentalPlan.name.toUpperCase();
+	var $enrollmentTile = _parentNode(_div($healthDetail));
+	
+	_assertVisible(_cell($status, _in(_div($enrollmentTile))));
+	
+	//_assertVisible(_image($dentalPlan.issuerName, _in(_div("well-step enrollment-history[1]"))));
+	//_assertVisible(_heading5($dentalPlan.name, _in(_div("well-step enrollment-history[1]"))),"Verify Plan name is displayed on UI");
+	//_assertVisible(_cell($status, _rightOf(_tableHeader("Enrollment Status:", _in(_div("well-step enrollment-history[1]"))))),"Verify enrollment status");
+	
+	_assertVisible(_cell($household.coverageStartDate+" - "+$household.coverageEndDate, _rightOf(_tableHeader("Effective Date:", _in($enrollmentTile)))));
+	var $premium = parseFloat($dentalPlan.premium.replace("$",""));
+	$premium = $premium.toFixed(2);
+	$premium = $premium.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,")///currency formatting
+	_assertVisible(_cell("/"+$premium+"/", _rightOf(_tableHeader("Premium Amount", _in($enrollmentTile)))),"Verify Health Premium Amount");
+	_assertVisible(_cell("$0", _near(_tableHeader("Elected APTC Amount", _in($enrollmentTile)))),"Verify APTC amount on member enrollment page");
+	_assertVisible(_cell("$"+$premium, _near(_tableHeader("Net Premium", _in($enrollmentTile)))),"Verify net premium on member enrollment page");
+	
+	
+	var $varCMSPlanId =  getCMSPlanId("dental", $houseHoldCaseId)
+	var $exchangeAssignedPolicyId = getExchangeAssignedPolicyId("dental", $houseHoldCaseId);	
+	_assertVisible(_cell($varCMSPlanId, _rightOf(_tableHeader("CMS Plan ID", _in($enrollmentTile)))),"Verify CMS plan ID on member enrollment page");
+	_assertVisible(_cell($exchangeAssignedPolicyId, _rightOf(_tableHeader("Exchange Assigned Policy ID", _in($enrollmentTile)))),"Verify Exchange Assigned Policy ID on member enrollment page");
+	_assertVisible(_cell("", _rightOf(_tableHeader("Transaction ID", _in($enrollmentTile)))),"Verify Transaction ID on member enrollment page");
+	var $today = _fetch(window.moment().format('MM/DD/YYYY'));
+	_assertVisible(_cell($today, _rightOf(_tableHeader("Submitted Date:", _in($enrollmentTile)))),"Verify Submitted date on member enrollment page");
+	
+	_assertVisible(_cell($today, _rightOf(_tableHeader("Last Update Date:", _in($enrollmentTile)))),"Verify Last updated on member enrollment page");
+	_assertVisible(_cell("/"+$household.people[0].firstName+" "+$household.people[0].lastName+"/", _rightOf(_tableHeader("Submitted by:", _in($enrollmentTile)))),"Verify member name on member enrollment page");
+	_assertVisible(_cell("/"+$household.people[0].firstName+" "+$household.people[0].lastName+"/", _rightOf(_tableHeader("Last Update By:", _in($enrollmentTile)))),"Verify last updated by on member enrollment page");
+	_assertVisible(_link("SHOW PREMIUM HISTORY", _in($enrollmentTile)));	
+	_assertVisible(_link("RESEND LATEST 834 TRANSACTION", _in($enrollmentTile)));
+	
+
+}
+
+function clickShowPremiumHistory($household,$group,$role,$option,$verificationFlag){
+	var $healthDetail = $group.healthPlan.issuerName.toUpperCase()+" "+$group.healthPlan.name.toUpperCase();
+	var $enrollmentTile = _parentNode(_div($healthDetail));
+	_click(_link("SHOW PREMIUM HISTORY", _in($enrollmentTile)));
+	if ($verificationFlag != "N") {
+		verifyPremiumHistoryPage($household,$group,$role,$option);
+	}
+}
+
+
+function clickHistoryFromViewMember($household){
+	_click(_link("History"));
+	verifyLeftNavigationOnViewMember($household);
+	_assertVisible(_heading4("Consumer History"));
+	
+	_assertVisible(_select(0, _near(_label("Category"))));
+	_assertEqual("All", _getSelectedText(_select(0, _near(_label("Category")))));
+	
+	_assertVisible(_select(0, _near(_label("Event Type"))));
+	_assertEqual("All", _getSelectedText(_select(0, _near(_label("Event Type")))));
+	
+	
+	_assertVisible(_select(0, _near(_label("Created By Role"))));
+	_assertEqual("All", _getSelectedText(_select(0, _near(_label("Created By Role")))));
+	
+	_assertVisible(_div("All", _near(_label("Date Range"))));
+	_assertEqual("All", _getText(_div("All", _near(_label("Date Range")))));
+	
+	
+	_assertVisible(_span("Enrollments - Enrollment Submitted", _in(_div("box_0"))));
+	var $today = _fetch(window.moment().format('M/D/YYYY'));
+	_assertContainsText("on "+$today, _span("eventTime ng-binding", _in(_div("box_0"))));
+	_assertContainsText($household.people[0].firstName+" "+$household.people[0].lastName, _span("eventTime ng-binding", _in(_div("box_0"))));
+
+
+}
+
+
+function loginAsCapAdmin($adminEmail, $password,$household,$url,$role){
+	
+	var $urlToGo = "https://"+getBaseDomain();
+	var $capURL;
+	_navigateTo($urlToGo,true);
+
+	_setValue(_textbox("Email Address"), $adminEmail);
+	_setValue(_password("j_password"), $password);
+	_click(_submit("Log In"));
+	_navigateTo($url);
+	_assertVisible(_heading4("Basic Information"));
+	verifyViewMemberPage($household,$role);
+
+}
+
+function loginAsExadminAndSearchForIndividual($username,$password,$household){
+	var $urlToGo = "https://"+getBaseDomain();
+	var $capURL;
+	_navigateTo($urlToGo,true);
+	if($username && $password){
+
+	}else{
+		$username = "exadmin@ghix.com";
+		$password = "ghix123";
+	}
+
+	Login($username,$password);
+	navigateToExadminUrl();
+	searchMemberOnManageMember("Email", $household.people[0].email);
+	clickMemberOnManageMember($household);
+	_set($capURL,window.document.location.href); // this will get url of current page 
+	return $capURL;
+}
+
+function navigateToExadminUrl(){
+	var $exadminUrl = "https://"+getBaseDomain()+"/hix/crm/member/managemembers";
+	_log("$exadminUrl: "+$exadminUrl);
+	_navigateTo($exadminUrl,true);
+	_assertVisible(_heading1("Members"));
+	_assertVisible(_heading4("Refine Results"));
+}
+
+function overrideEnrollmentStatus($household,$group,$role){
+	var $healthDetail = $group.healthPlan.issuerName.toUpperCase()+" "+$group.healthPlan.name.toUpperCase();
+	var $enrollmentTile = _parentNode(_div($healthDetail),2);
+	if(_isVisible(_link("Override Enrollment Status", _in(_div("csrButtonDiv", _in($enrollmentTile)))))){
+		_click(_link("Override Enrollment Status", _in(_div("csrButtonDiv", _in($enrollmentTile)))));
+	}else{
+		_click(_link("Actions", _in($enrollmentTile)));
+		_click(_link("Override Enrollment Status", _in(_div("csrButtonDiv", _in($enrollmentTile)))));
+	}
+	
+	verifyOverrideEnrollmentStatusPopup($household,$group);
+	writeReasonForOverride();
+
+	_click(_submit("Override Status to Confirmed", _in(_div("overrideEnrollmentModal"))))
+
+	verifyOverrideEnrolmentsStatusSuccessPopup();
+
+	_click(_link("OK", _in(_div("overrideEnrollmentModal"))));
+	$group.healthPlan.enrollmentStatus = "Enrolled";
+	$group.lastUpdatedBy = "SUPERVISOR"
+	return $group;
+}
+
+function verifyOverrideEnrollmentStatusPopup($household,$group){
+	_setStrictVisibilityCheck(true);
+	var $overrideEnrollmentModal = _div("overrideEnrollmentModal");
+	_assertVisible($overrideEnrollmentModal);
+	_assertVisible(_heading3("Override Enrollment Status", _in($overrideEnrollmentModal)));
+	_assertVisible(_paragraph("Please specify the reason for overriding enrollment status for this customer. This will help keep track of updates to the customer's record.", _in($overrideEnrollmentModal)));
+	_assertVisible(_div("Specify the reason for override. 4000 characters left", _in($overrideEnrollmentModal)));
+	_assertVisible(_textarea("/overrideText/", _in($overrideEnrollmentModal)));
+	_assertEqual("Note: The fields given below are typically provided by the carrier in the 834 effectuation file and these fields are required for record keeping. Although these fields are optional, it is highly advised to get these values from the carrier before overriding.", _getText(_paragraph("alert alert-info", _in($overrideEnrollmentModal))));
+	_assertVisible(_label("Issuer Assigned Policy ID:", _in($overrideEnrollmentModal)));
+	_assertVisible(_textbox("issuerAssignedPolicy", _near(_label("Issuer Assigned Policy ID:"))));
+	_assertVisible(_label("Issuer Assigned Policy ID:", _in($overrideEnrollmentModal)));
+
+	verifyCoveredFamilyMembersTableInOverrideEnrollmentPopup($group);
+
+	_assertEqual(true, _getAttribute (_submit("Override Status to Confirmed"), "disabled"));
+	_assertVisible(_link("Cancel", _in($overrideEnrollmentModal)));
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyCoveredFamilyMembersTableInOverrideEnrollmentPopup($group){
+	_assertEqual("Member", _getText(_tableHeader(0, _in(_row(0, _in(_table("table table-condensed csrOverrideMemberTable")))))));
+	_assertEqual("Subscriber", _getText(_tableHeader(1, _in(_row(0, _in(_table("table table-condensed csrOverrideMemberTable")))))));
+	_assertEqual("Issuer Assigned Member ID", _getText(_tableHeader(2, _in(_row(0, _in(_table("table table-condensed csrOverrideMemberTable")))))));
+
+	for (var $i = 0; $i < $group.member.length; $i++) {
+		_log("###### verify member "+($i+1)+" ######");
+		var $fullName = $group.member[$i].firstName+" "+$group.member[$i].lastName;
+		_assertVisible(_row($fullName, _in(_table("table table-condensed csrOverrideMemberTable"))));
+		if($group.member[$i].isSubscriber){
+			_assertVisible(_italic("icon-ok ng-scope",_in(_row($fullName, _in(_table("table table-condensed csrOverrideMemberTable"))))));
+		}else{
+			_assertNotVisible(_italic("icon-ok ng-scope",_in(_row($fullName, _in(_table("table table-condensed csrOverrideMemberTable"))))));
+		}
+		_assertEqual("",_getValue(_textbox("/input-medium ng-pristine/",_in(_row($fullName, _in(_table("table table-condensed csrOverrideMemberTable")))))));
+	}										
+}
+
+function writeReasonForOverride(){
+	var $overrideEnrollmentModal = _div("overrideEnrollmentModal");
+	_setValue(_textarea("/overrideText/", _in($overrideEnrollmentModal)), "to confirmed");
+
+	_assertEqual(false, _getAttribute (_submit("Override Status to Confirmed"), "disabled"));
+	_assertVisible(_submit("Override Status to Confirmed", _in($overrideEnrollmentModal)));
+}
+
+function verifyOverrideEnrolmentsStatusSuccessPopup(){
+	_assertVisible(_heading3("Override Enrollment Status", _in(_div("overrideEnrollmentModal"))));
+	_assertVisible(_heading3("Submission Successful!", _in(_div("overrideEnrollmentModal"))));
+	_assertVisible(_paragraph("Press the 'OK' button to go back to dashboard.", _in(_div("overrideEnrollmentModal"))));
+	_assertVisible(_link("OK", _in(_div("overrideEnrollmentModal"))));
+
+}
+
+function capViewMemberAccount($household){
+	_click(_link("View Member Account", _in(_div("sidebar"))));
+	verifyViewMemberPopupCap($household);
+	_click(_submit("Member View", _in(_div("markCompleteDialog"))));
+}
+
+function verifyViewMemberPopupCap($household){
+	_lockWindow();
+	_focusWindow();
+	var $modalContainer = _div("markCompleteDialog");
+	var $consumerName = $household.people[0].firstName+" "+$household.people[0].lastName;
+	_assertVisible(_heading4("View Member Account", _in($modalContainer)));
+	_assertVisible(_div('Clicking "Member View" will take you to the'+" Member's portal for "+$consumerName+". Through this portal you will be able to take actions on behalf of the member. Proceed to Member view?", _in($modalContainer)));
+	_assertVisible(_checkbox("checkConsumerView", _in($modalContainer)));
+	_assertVisible(_div("Don't show this message again.", _in($modalContainer)));
+	_assertVisible(_submit("Cancel", _in($modalContainer)));
+	_assertVisible(_submit("Member View", _in($modalContainer)));
+	_unlockWindow();
+}
+
+function returnToCapFromMemberPortal(){
+
+	if (_isVisible(_link("My Account", _in(_div("impersonation"))))) {
+		_click(_link("My Account", _in(_div("impersonation"))));
+	}else{
+		_click(_link("My Account", _in(_div("navtopview"))));
+	}
+		
+	_assertVisible(_heading4("About Consumer"));
+}
+
+function createCsrUserIfNotExist($username,$role){
+
+	var $capUsername = getUserWithUsername($username);
+
+	if($capUsername[0] == null){
+		_log("user not exist!!! creating user")
+		createNewCrsUser($username,$role);
+		_wait(5000);
+		$capUsername = getUserWithUsername($username);
+	}
+	_log("$capUsername: "+$capUsername);
+}
+
+
+/*------verify additional information-----------*/
+
+var $enrollmentHistoryTableCAP = _table("/table/[2]", _in(_div("enrollee0")));
+
+function getEnrollmentTileOnCAP($group){
+	var $healthPlan = $group.healthPlan;
+	var $healthDetail = $healthPlan.issuerName.toUpperCase()+" "+$healthPlan.name.toUpperCase();
+	var $enrollmentTile = _parentNode(_div($healthDetail),2);
+
+	return $enrollmentTile;
+}
+
+function clickAdditionalInformationLinkCAP($group){
+	var $enrollmentTile = getEnrollmentTileOnCAP($group)
+	click(_link("Additional Information", _in($enrollmentTile)));
+}
+
+function verifyEnrollmentHistoryTableUICAP(){
+	_assertVisible(_heading5("Enrollment History"));
+	var $headers = ["Time","Event","Maintenance Reason","Created By"];
+	for (var $i = 0; $i < $headers.length; $i++) {
+		_assertVisible(_tableHeader($headers[$i], _in($enrollmentHistoryTableCAP)));
+	}
+}
+
+function verifyDataInEnrollmentHistoryCAP($events,$role){
+
+
+	for (var $i = 0; $i < $events.length; $i++) {
+
+		var $row = _row($i+1, _in($enrollmentHistoryTableCAP));
+		var $keys = Object.keys($events[$i]);
+
+		for (var $j = 0; $j < $keys.length; $j++) {
+			if ($j == 0) {
+
+				var $time = $events[$i][$keys[$j]];
+				_assertVisible(_cell("/"+$time+"/",_in($row)));
+				_assertContainsText($time, _cell($j+1,_in($row)));
+
+			}else{
+
+				if ($role != "agent" && $keys[$j] === "event") {
+					_assertVisible(_link($events[$i][$keys[$j]],_in($row)));
+				}else if($keys[$j] === "event"){
+					_assertNotVisible(_link($events[$i][$keys[$j]],_in($row)));
+				}
+
+				_assertVisible(_cell($events[$i][$keys[$j]],_in($row)));
+				_assertEqual($events[$i][$keys[$j]], _getText(_cell($j+1,_in($row))));
+			}
+			
+		}
+	}
+}
+
+function createEnrollmentEvent($case,$createdBy){
+	var $event = {};
+	var $date = getCurrentDate("MM-DD-YYYY");
+
+	switch ($case) {
+	  case 1:
+	    $event = {	
+	    			time:$date, 
+		    		event:'Addition (Initial Enrollment)',
+		    		maintananceReason:'Member Benefit Selection',
+		    		createdBy:$createdBy
+	    		};
+	    break;
+	  case 2:
+		//to add
+	    $event = {};
+	}
+
+	return $event;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,14 @@
+{
+    "txt_heading":"$('h1')",
+    "sb_qualifyingEvent":"$('#qualifyEvent')",
+    "tb_qualifyingEventDate":"$('#qualifyEventDate')",
+    "lbl_termsErrorMessage":"$('#check-attestation_error_label')",
+    "cb_acceptTerms":"$('#terms')",
+    "btn_backToDashboard":"$('#backToDashboard')",
+    "btn_continue":"$('#continueBtn')",
+    "confirmEventPopup":{ 
+        "txt_confirmMessage":"$('#futureDateModalConfirm').$('#future_date_modal_body')",
+        "btn_changeEventDate":"$('#futureDateModalConfirm').$('#modalBtnOk')",
+        "btn_confirm":"$('#futureDateModalConfirm').$('#changeEventDateSubmit')"
+    }
+}

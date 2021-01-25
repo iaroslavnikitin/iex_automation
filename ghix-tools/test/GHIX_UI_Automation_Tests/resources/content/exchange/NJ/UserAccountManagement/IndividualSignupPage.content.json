@@ -1,0 +1,33 @@
+{
+        "header": "Set Up Your Individual Account on   GetCoveredNJ",
+         "mandatoryFields":{
+             "firstName":"Please enter your first name.",
+             "lastName":"Please enter your last name.",
+             "email":"Please enter your email.",
+             "confirmEmail":"Email and confirm email don't match.",
+             "phoneNumber":"Please enter a valid telephone number.",
+             "ssn":"Enter a valid Social Security Number or contact Support for assistance.|You can Browse Health Plans without an account. ",
+             "confirmSsn":"SSN and confirm SSN don't match",
+             "dateOfBirth":"Please enter date of birth",
+             "securityQuestion":"Please select your security question.",
+             "securityAnswer":"Please provide your security answer.",
+             "password":"Please enter valid password.",
+             "confirmPassword":"Please confirm your password."
+         },
+         "invalidFields":{
+             "firstName":"Please enter valid first name.",
+             "lastName":"Please enter valid last name.",
+             "email":"Please enter a valid email address.",
+             "confirmEmail":"Please enter a valid email address.",
+             "phoneNumber":"Please enter a valid telephone number.",
+             "ssn":"Enter a valid Social Security Number or contact Support for assistance. You can Browse Health Plans without an account. ",
+             "confirmSsn":"SSN and confirm SSN don't match",
+             "dateOfBirth":"Please enter a valid date of birth",
+             "securityQuestion":"Please select your security question.",
+             "securityAnswer":"Please provide your security answer.",
+             "password":"Please enter valid password.|Your password needs to be between 8 and 20 characters.|It should contain at least 3 of the following:|Upper-case letter|Lower-case letter|Number Special character (e.g., ?, #, @, $, ^)",
+             "confirmPassword":"Please confirm your password."
+         }
+         
+         
+         }

@@ -1,0 +1,15 @@
+{
+  "leftNav":
+  {
+    "tb_firstName": "$('#first-name')",
+    "tb_lastName": "$('#last-name')",
+    "tb_businessName": "$('#business-name')",
+    "tb_staffId": "$('#staff-id')",
+    "sb_approvalStatus": "$('#aid-view-agentlist-search > div:nth-child(5) > div > select')",
+    "btn_go": "$('#go-btn')"
+  },
+  "actions": {
+    "dd_Action": "$('//i[@class=\"icon-cog\"]')",
+    "lk_Edit": "$('*=Edit')"
+  }
+}

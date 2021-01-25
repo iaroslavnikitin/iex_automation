@@ -1,0 +1,70 @@
+{
+  "CA": {
+    "supervisor": {
+      "applications": {
+        "CHANGE COVERAGE START DATE": "",
+        "EDIT APPLICATION": "",
+        "Override Program Eligibility": ""
+      },
+      "enrollments": ["SHOW PREMIUM HISTORY","RESEND 834 HISTORY","RESEND LATEST 834 TRANSACTION"],
+      "topNavLinks": ["Members","Users","Reports","Tickets","Enrollment","Agents","Enrollment Counselors","Entities"]
+      
+
+    }
+  },
+  "PA": {
+    "supervisor": {
+      "applications": {
+        "CHANGE COVERAGE START DATE": "",
+        "EDIT APPLICATION": "",
+        "Override Program Eligibility": ""
+      },
+      "enrollments": ["SHOW PREMIUM HISTORY","RESEND 834 HISTORY","RESEND LATEST 834 TRANSACTION"],
+      "topNavLinks": ["Members","Users","Reports","Tickets","Enrollment","Agents","Enrollment Counselors","Entities"]
+    }
+  },
+  "NV": {
+    "supervisor": {
+      "applications": {
+        "CHANGE COVERAGE START DATE": "",
+        "EDIT APPLICATION": "",
+        "Override Program Eligibility": ""
+      },
+      "enrollments": ["SHOW PREMIUM HISTORY","RESEND 834 HISTORY","RESEND LATEST 834 TRANSACTION"],
+      "topNavLinks": ["Members","Users","Reports","Tickets","Enrollment","Agents","Enrollment Counselors","Entities"]
+    }
+  },
+  "MN": {
+    "supervisor": {
+      "applications": {
+        "CHANGE COVERAGE START DATE": "",
+        "EDIT APPLICATION": "",
+        "Override Program Eligibility": ""
+      },
+      "enrollments": ["SHOW PREMIUM HISTORY","RESEND 834 HISTORY","RESEND LATEST 834 TRANSACTION"],
+      "topNavLinks": ["Members","Users","Reports","Tickets","Enrollment","Agents","Enrollment Counselors","Entities"]
+    }
+  },
+  "ID": {
+    "supervisor": {
+      "applications": {
+        "CHANGE COVERAGE START DATE": "",
+        "EDIT APPLICATION": "",
+        "Override Program Eligibility": ""
+      },
+      "enrollments": ["SHOW PREMIUM HISTORY","RESEND 834 HISTORY","RESEND LATEST 834 TRANSACTION"],
+      "topNavLinks": ["Members","Users","Reports","Tickets","Enrollment","Agents","Enrollment Counselors","Entities"]
+    }
+  },
+  "NJ": {
+    "supervisor": {
+      "applications": {
+        "CHANGE COVERAGE START DATE": "YES",
+        "EDIT APPLICATION": "YES",
+        "Override Program Eligibility": "YES"
+      },
+        "enrollments": ["SHOW PREMIUM HISTORY","RESEND 834 HISTORY","RESEND LATEST 834 TRANSACTION"],
+        "topNavLinks": ["Members","Users","Reports","Tickets","Enrollment","Agents","Enrollment Counselors","Entities"]
+    }
+  }
+}

@@ -1,0 +1,81 @@
+_include("EmailVerification.sah");
+_includeOnce("AgentIcon.sah");
+_includeOnce("Utils.sah");
+
+var $Inbox = true;
+
+var $inboxHeader = _heading3(0, _in(_div("notificationMessages")));
+var $inboxSearchHeader = _heading4("Search");
+var $inboxSearchBox = _textbox("searchText");
+var $inboxSearchButton = _italic("icon-search");
+var $inboxFoldersHeader = _heading4("Folders");
+var $inboxEmails = _div("rightpanel");
+var $inboxAccessors = [$inboxHeader, $inboxSearchHeader, $inboxSearchBox, $inboxSearchButton, $inboxFoldersHeader, $inboxEmails];
+
+function inboxVerify() {
+	if(_isVisible(_strong(0))){
+		_log("CSR View,Agent Icon will not be visible");
+	}
+	else {
+		verifyAgentIcon();
+	}
+	verifyArray($inboxAccessors);
+}
+
+function inboxSearch($query) {
+	_setValue($inboxSearchBox, $query);
+	_click($inboxSearchButton);
+}
+
+
+function clickMailIcon($total, $read, $unread){
+	_wait(30000, _isVisible(_link("Inbox " +  $unread)));
+	_click(_link("Inbox " +  $unread));
+	//verify Notification page
+	_assertVisible(_paragraph($total+" items in Inbox; "+$unread+" unread"));
+	//_assertVisible(_heading3("Notifications "+$total+" items in Inbox; "+$unread+" unread"));
+	
+	_assertVisible(_div("Inbox"+$unread, _in(_div("usa-sidenav gi-sidenav"))));
+	//_assertVisible(_link("Inbox " + $unread, _in(_div("sidebar"))));
+	_assertEqual($read, _count("_row", "read", _in(_table("inbox"))));
+	
+	_assertVisible(_tableHeader("/From/"));
+	_assertVisible(_tableHeader("/Subject/"));
+	_assertVisible(_tableHeader("/Date/"));
+	//_assertVisible(_italic("icon-attachment"));
+}
+
+
+function clickMailSubjectAndVerifyMail($statuses){
+	for (var $i = 0; $i <= $statuses.length - 2; $i++) {
+		_click(_cell("Your Get Covered New Jersey certification status has changed["+$i+"]"));
+		//_click(_link("Your Get Covered New Jersey certification status has been changed["+$i+"]"));
+		var $total = $statuses.length - 1;
+		var $read = $i + 1;
+		var $unread = $statuses.length - 2 - $i;
+		//_assertVisible(_heading3("Notifications "+$total+" items in Inbox; "+$unread+" unread"));
+		_assertVisible(_paragraph($total+" items in Inbox; "+$unread+" unread"));
+		_assertVisible(_div("Inbox"+$unread, _in(_div("usa-sidenav gi-sidenav"))));
+		var $previousStatus = $statuses[$i+1];
+		var $newStatus = $statuses[$i];
+		clickAttachments($previousStatus, $newStatus);
+		clickMailIcon($total, $read, $unread);
+	}
+}
+
+
+function clickAttachments($previousStatus, $newStatus){
+	var $data = downloadAttachment(_link("/brokerCertificationNotification_/", _rightOf(_paragraph("Attachments:"))));
+	_assertNotNull($data);
+	var $fileName = $data['fileName'];
+	var $refNum = $data['refNum'];
+	var $fileContent = getPDFText($fileName);
+	_log($fileContent);
+	var $previousStatusMessage = "Prior to this change, your certification status was: ." + $previousStatus;
+	_assertTrue($fileContent.indexOf($previousStatusMessage) != -1, "Did not find '"+$previousStatusMessage+"' in the PDF file.");
+	var $newStatusMessage = "Your new certification status is: . You now have access to the Get Covered New Jersey broker admin portal at:"+$newStatus;
+	_assertTrue($fileContent.indexOf($newStatusMessage) != -1, "Did not find '"+$newStatusMessage+"' in the PDF file.");
+	var $referenceMessage = $refNum;
+	_assertTrue($fileContent.indexOf($referenceMessage) != -1, "Did not find '"+$referenceMessage+"' in the PDF file.");
+}
+

@@ -1,0 +1,24 @@
+_includeOnce("SearchForAgent.sah");
+_includeOnce("SearchForCounselor.sah");
+
+var $FindLocalAssistance = true;
+
+var $findLocalAssistanceHeader = _heading1("Find Local Assistance at No Cost to You");
+var $findLocalAssistanceBroker = _link("FIND A YHI CERTIFIED AGENT OR BROKER NEAR YOU");
+var $findLocalAssistanceCounselor = _link("FIND A YHI CERTIFIED ENROLLMENT COUNSELOR NEAR YOU");
+
+function verifyElementsOfLocalAssistance() {
+	_assertVisible($findLocalAssistanceHeader);
+	_assertVisible($findLocalAssistanceBroker);
+	_assertVisible($findLocalAssistanceCounselor);
+}
+
+function clickFindBrokerForLocalAssistance() {
+	_click($findLocalAssistanceBroker);
+	verifyElemenstForAgentSearch();
+}
+
+function clickFindCounselorForLocalAssistance() {
+	_click($findLocalAssistanceCounselor);
+	verifyElementsForCounselorSearch();
+}

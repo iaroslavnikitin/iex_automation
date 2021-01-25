@@ -1,0 +1,74 @@
+_includeOnce("../../lib/Utils.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+_includeOnce("EntityCommonElements.sah");
+
+var $COUNSELOR_ACTIVITY_STATUSES = ["Select",
+	"Active",
+	"Inactive",
+];
+
+var $counselorActivityStatusElements = {
+	"header_hd":{
+		"element": _heading4("Status"),
+		"label": null
+	},
+	"viewMode":{
+		"edit_btn":{
+			"element": _link("Edit"),
+			"label": null
+		}
+	},
+	"editMode":{
+		"save_btn":{
+			"element": _submit("save"),
+			"label": _submit("Save")
+		},
+		"activityStatus_dd":{
+			"element": _select("status"),
+			"label": _label("New Status")
+		}
+	}
+}
+
+function activateAllCounselors($entity){
+
+	for (var $i = 0; $i < $entity.counselors.length; $i++) {
+		$entity.counselors[$i] = activateCounselor($entity.counselors[$i]);
+	}
+
+	return $entity;
+}
+
+function activateCounselor($counselor){
+	navigateToManageCounselors();
+	searchByCounselorFirstName($counselor);
+	searchByCounselorLastName($counselor);
+	searchByCounselorNumber($counselor);
+	clickEditUnderActionsInCecList();
+	clickStatusInCecLeftNavigation();
+	$counselor = editCounselorActivityStatus($counselor,$COUNSELOR_ACTIVITY_STATUSES[1]);
+
+	return $counselor;
+}
+
+function clickEditOnCounselorActivityStatus(){
+	click($counselorActivityStatusElements.viewMode.edit_btn.element);
+}
+
+function editCounselorActivityStatus($counselor,$newStatus){
+	clickEditOnCounselorActivityStatus()
+	if (!$newStatus) $newStatus = $COUNSELOR_ACTIVITY_STATUSES[1];
+	_setSelected($counselorActivityStatusElements.editMode.activityStatus_dd.element, $newStatus);
+	click($counselorActivityStatusElements.editMode.save_btn.element);
+
+	$counselor.activityStatus.status = $newStatus;
+	
+	var $allHistoryRecords = JSON.parse(JSON.stringify($counselor.activityStatus.activityHistory));
+	var $newRecord = $allHistoryRecords[$allHistoryRecords.length-1];
+	$newRecord.date = getCurrentDate("MM/DD/YYYY");
+	$newRecord.previousStatus = $allHistoryRecords[$allHistoryRecords.length-1].newStatus;
+	$newRecord.newStatus = $newStatus;
+	$counselor.activityStatus.activityHistory.push($newRecord);
+
+	return $counselor;
+}

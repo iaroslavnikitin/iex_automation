@@ -1,0 +1,30 @@
+{
+  "houseHold": {
+    "zip": "",
+    "year": 2020,
+    "income": 35000,
+    "eligibility": "APTC",
+    "applicants": [
+      {
+        "relation": "SELF",
+        "dateOfBirth": "01/01/1992",
+        "tobaccoUse": false,
+        "nativeAmerican": true,
+        "pregnant": false,
+        "seekingCoverage": true
+      },
+      {
+        "relation": "SPOUSE",
+        "dateOfBirth": "01/01/1992",
+        "tobaccoUse": false,
+        "nativeAmerican": true,
+        "pregnant": true,
+        "seekingCoverage": true
+      }
+    ],
+    "selectDoctorVisits": "Medium Use: 3-5 doctor visits and lab tests with an x-ray each year; one or more small treatments done in doctor’s office; often the care is for an ongoing health problem.",
+    "selectMonthlyPrescriptions": "High Use: 2 prescriptions each month for health problems; often higher cost medications.",
+    "drug": "Lipitor 80 Mg Tab (Oral Tablet)",
+    "Lipitor": "Lipitor"
+  }
+}

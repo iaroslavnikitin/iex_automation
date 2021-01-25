@@ -1,0 +1,204 @@
+_includeOnce("CAP.sah");
+_includeOnce("capHistory.sah");
+
+//Accessors
+var $ratingAreaEffDateAddInfo = _cell(0, _rightOf(_tableHeader("Rating Area Effective Date:")));
+var $ratingArea = _cell(0, _rightOf(_tableHeader("Rating Area:")));
+var $homeAddressAdditionalInfo = _cell(0, _rightOf(_tableHeader("Home Address:")));
+var $mailingAddressAddInfo = _cell(0, _rightOf(_tableHeader("Mailing Address:")));
+var $primaryTaxFilerAddInfo = _cell(0, _rightOf(_tableHeader("Primary Tax Filer:")));
+var $tobaccoEnrolleAddInfo = _cell(0, _under(_tableHeader("Tobacco")));
+var $enrollmentHistoryHeader = _heading5("Enrollment History");
+var $timeEnrollHistoryAddInfo = _cell(0, _under(_tableHeader("Time")));
+var $enrollmentSnapshotHeader = _heading4("/Enrollment Snapshot/");
+var $dateEnrollSnapshot = _div(0, _rightOf(_div("Date")));
+var $exchangePolicyIdEnrollSnapshot = _div(0, _rightOf(_div("Exchange Policy Id")));
+var $cmsPlanIdEnrollSnapshot = _div(0, _rightOf(_div("CMS Plan Id")));
+var $planNameEnrollSnapshot = _div(0, _rightOf(_div("Plan Name")));
+var $coverageTierEnrollSnapshot =_div(1, _near(_div("Coverage Tier")));
+var $grossPremiumAmountEnrollSnapshot = _div(0, _rightOf(_div("Gross Premium Amount")));
+var $electedAPTCAmtEnrollSnapshot = _div(0, _rightOf(_div("Elected APTC Amount")));
+var $netPremiumAmtEnrollSnapshot = _div(0, _rightOf(_div("Net Premium")));
+var $aboutHouseholdHeaderEnrollSnapshot = _div("About this Household");
+var $HouseholdDetailsRowOne = _div("ng-scope[4]");
+var $HouseholdDetailsRowTwo = _div("ng-scope[5]");
+var $enrollmentSnapshotDialog = _div("enrollmentSnapshotDialog");
+
+function clickAdditionalInfo($eventEnrollmentHistory,$maintenanceReason,$numOfEntriesEnrollHistory,$event,$eventArrayCapHistory,$userFirstName,$userLastName,$role, $people){
+	_click($additionalInfoLink);
+	_assertEqual("/"+$people[0].mailingAddr+", "+$people[0].city+", "+$people[0].state+", "+$people[0].zipcode+"/", _getText($homeAddressAdditionalInfo));
+	
+	//_assertEqual("/"+$houseHold.people[0].homeAddress.street+", "+$houseHold.people[0].homeAddress.city+", "+$houseHold.people[0].homeAddress.state+", "+$houseHold.people[0].homeAddress.zipcode+"/",_getText($mailingAddressAddInfo));
+	
+	_assertEqual($people[0].firstName+" "+$people[0].lastName, _getText($primaryTaxFilerAddInfo));
+	var $enrollmentId = getEnrollmentIdFromCapEnrollments();
+	var $cmsPlanId = _getText($cmsPlanIdCell);	
+	verifyEnrolleeAdditionalInfo($enrollmentId,$event, $people);
+	verifyEnrollmentHistory($eventEnrollmentHistory,$maintenanceReason,$numOfEntriesEnrollHistory,$enrollmentId,$cmsPlanId,$eventArrayCapHistory,$userFirstName,$userLastName,$role);
+	
+}
+
+
+
+function verifyEnrolleeAdditionalInfo($enrollmentId,$event, $people){
+	var $dbEnrolleDetails = getEnrolleeDetailsFromEnrollee($enrollmentId);
+	var $ratingAreaEffDateDb  = getDateInMmDdYyyyFormat($dbEnrolleDetails[0][9]);
+	_assertEqual($ratingAreaEffDateDb,_getText($ratingAreaEffDateAddInfo),"Verify if Rating Area Effective Date in UI is same as in DB");	
+	_assertEqual("R-NV00"+$dbEnrolleDetails[0][8],_getText($ratingArea),"Verify if Rating Area is correct");
+
+	for (var $i=0; $i<$people.length; $i++){
+		if($i==0){
+			_assertEqual("/Self/",	_getText(_cell(_table("table table-condensed"), $i+1, "Type")),"Verify enrollee type in Addtional Info");
+			_assertEqual($dbEnrolleDetails[1][7],_getText(_cell(_table("table table-condensed"), $i+1, "Member ID")),"Verify Member ID in Additional Info");
+		}
+		else if ($i==1){
+			_assertEqual("/Spouse/", _getText(_cell(_table("table table-condensed"), $i+1, "Type")),"Verify enrollee type in Addtional Info");
+			_assertEqual($dbEnrolleDetails[0][7],_getText(_cell(_table("table table-condensed"), $i+1, "Member ID")),"Verify Member ID in Additional Info");
+		}
+	  _assertEqual($people[$i].firstName+" "+$people[$i].lastName,	_getText(_cell(_table("table table-condensed"), $i+1, "Name")),"Verify enrollee name in Addtional Info");	
+	  _assertEqual($people[$i].personSex,_getText(_cell(_table("table table-condensed"), $i+1, "Gender")),"Verify gender in Addtional Info");
+	 
+      //var $dob = _fetch(window.moment($people[$i].dob).format('MM/DD/YYYY'));
+	  var $expectedDob = _getText(_cell(_table("table table-condensed"), $i+1, "DOB")).replace(/[/]/g, "")
+	  _assertEqual($people[$i].dob,$expectedDob,"Verify DOB in Additional Info");
+	  _assertEqual(113,$dbEnrolleDetails[$i][4],"Verify Tobacco in Additional Info");
+	  if($i== 0){
+		var $lastFourDigitsSSN = $people[$i].SSN[2]///.substring(5,9);
+	  }
+	  else{
+		var $lastFourDigitsSSN = $people[$i].SSN.substring(5,9);
+	  }
+	  _assertEqual("***"+$lastFourDigitsSSN,	_getText(_cell(_table("table table-condensed"), $i+1, "SSN")),"Verify SSN in Additional Info");
+	  if(($event == "Terminating Enrollee Enrollment") && ($i == $people.length - 1)){
+		_assertEqual($houseHold.coverageStartDate+" - "+$people[$i].coverageEndDate,_getText(_cell(_table("table table-condensed"), $i+1, "Coverage Dates")),"Verify Coverage Dates in Additional Info");
+	  }
+	  else {
+		_assertEqual($houseHold.coverageStartDate+" - "+$houseHold.coverageEndDate,_getText(_cell(_table("table table-condensed"), $i+1, "Coverage Dates")),"Verify Coverage Dates in Additional Info");
+	  }
+	  //_assertEqual($dbEnrolleDetails[$i][7],_getText(_cell(_table("table table-condensed"), $i+1, "Member ID")),"Verify Member ID in Additional Info");
+	}
+}
+
+function verifyEnrollmentHistory($eventEnrollmentHistory,$maintenanceReason,$numOfEntriesEnrollHistory,$enrollmentId,$cmsPlanId,$eventArrayCapHistory,$userFirstName,$userLastName,$role){
+	var $todaysDate = getTodaysDate();
+	$todaysDate = _fetch(window.moment($todaysDate).format('MM-DD-YYYY'));
+	$numOfEntriesEnrollHistory=$numOfEntriesEnrollHistory-1;
+	
+	var $collectEventTextEnrollHistory =  _collect("_link", "ng-binding", _in(_table("table table-condensed[2]")));
+	_log("Collected: "+_getText($collectEventTextEnrollHistory[0]));
+	
+	_assertEqual("/"+$todaysDate+"/",_getText(_row("ng-scope["+$numOfEntriesEnrollHistory+"]", _under(_heading5("Enrollment History")))),"Verify time in Enrollment History");
+	_assertEqual($eventEnrollmentHistory,_getText(_link($eventEnrollmentHistory, _leftOf(_cell($maintenanceReason)))),"Verify event in Enrollment History");	
+//	_assertEqual("/"+$maintenanceReason+"/",_getText(_row("ng-scope["+$numOfEntriesEnrollHistory+"]", _under(_heading5("Enrollment History")))),"Verify event in Enrollment History");	
+	_assertEqual("/"+$maintenanceReason+"/",_getText(_row("ng-scope[0]", _under(_heading5("Enrollment History")))),"Verify event in Enrollment History");	
+	verifyEnrollmentSnapshot($eventEnrollmentHistory,$maintenanceReason,$numOfEntriesEnrollHistory,$enrollmentId,$cmsPlanId);
+	verifyDuplicatesInCap($eventArrayCapHistory,$collectEventTextEnrollHistory);
+	verifyEventTextCapHistory($eventArrayCapHistory,$collectEventTextEnrollHistory,"Y");
+	verifyEventDoneByCapEnrollHistory($numOfEntriesEnrollHistory,$userFirstName,$userLastName,$role);
+}
+
+
+function verifyEnrollmentSnapshot($eventEnrollmentHistory,$maintenanceReason,$numOfEntriesEnrollHistory,$enrollmentId,$cmsPlanId){
+	_windowAction("maximize");
+	var $todaysDate = _fetch(window.moment().format('MMM D, YYYY'));
+	var $endDateOfCurrentMonth=getEndDateOfCurrentMonth();
+	_click(_link($eventEnrollmentHistory, _leftOf(_cell($maintenanceReason))));
+	_assertVisible($enrollmentSnapshotHeader,"Verify if Enrollment Snapshot header is displayed");
+	_assertEqual($eventEnrollmentHistory, _getText(_div($eventEnrollmentHistory, _rightOf(_div("Subscriber Event")))),"Verify Subscriber Event in Enrollment Snapshot");
+	_assertEqual($maintenanceReason, _getText(_div($maintenanceReason, _rightOf(_div("Subscriber Maintenance Reason")))),"Verify Subscriber Maintenance Reason in Enrollment Snapshot");
+	_assertEqual($enrollmentId,_getText($exchangePolicyIdEnrollSnapshot),"Verify Exchange Policy Id in Enrollment Snapshot");
+	_assertEqual($cmsPlanId,_getText($cmsPlanIdEnrollSnapshot),"Verify CMS Plan Id in Enrollment Snapshot");
+	_assertEqual("/"+$healthPlan.issuerName+"/",_getText(_div("/"+$healthPlan.issuerName+"/", _rightOf(_div("Carrier")))),"Verify Carrier in Enrollment Snapshot");
+	_assertEqual("/"+$healthPlan.name+"/",_getText(_div("/"+$healthPlan.name+"/", _rightOf(_div("Plan Name")))),"Verify Plan name in Enrollment Snapshot");
+	_assertEqual($houseHold.coverageStartDate+" - "+$houseHold.coverageEndDate,_getText(_div($houseHold.coverageStartDate+" - "+$houseHold.coverageEndDate, _rightOf(_div("Effective Dates")))),"Verify effective dates in Enrollment Snapshot");
+	var $coverageTierText =_getText($coverageTierEnrollSnapshot);
+	if ($coverageTierText == "EXPANDEDBRONZE")
+	{
+		$coverageTierText ="BRONZE";
+	}
+	_assertTrue(($healthPlan.tierAndType.toLowerCase().indexOf($coverageTierText.toLowerCase()) !=-1),"Verify Coverage Tier in Enrollment Snapshot");
+
+	if(($eventEnrollmentHistory =="Addition (Initial Enrollment)") && ($maintenanceReason == "Member Benefit Selection")){
+		var $grossPremiumNumEnrollSnapshot = parseFloat(_getText($grossPremiumAmountEnrollSnapshot)).toFixed(2);
+		_assertEqual($healthPlan.totalPayment,$grossPremiumNumEnrollSnapshot,"Verify gross premium amount in Enrollment Snapshot");
+		var $electedAPTCNumEnrollSnapshot =parseFloat(_getText($electedAPTCAmtEnrollSnapshot)).toFixed(2);
+		//_assertEqual($healthPlan.aptc,$electedAPTCNumEnrollSnapshot,"Verify elected APTC amount in Enrollment Snapshot");
+	}
+	verifyDbMonthlyPaymentEnrollSnapshot($enrollmentId);
+	for (var $i=0; $i<$houseHold.people.length; $i++){
+		var $enrolleeDependentNum = $houseHold.people.length -1;
+		if($houseHold.coverageEndDate == $endDateOfCurrentMonth){
+			$houseHold.people.length = 1;
+			_assertEqual("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/",_getText(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/", _near(_div("Name")))),"Verify household details in Enrollment Snapshot");
+			_assertEqual($houseHold.coverageStartDate+" - "+$houseHold.coverageEndDate,_getText(_div($houseHold.coverageStartDate+" - "+$houseHold.coverageEndDate, _rightOf(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/", _near(_div("Name")))))),"Verify household details in Enrollment Snapshot");
+			_assertEqual($eventEnrollmentHistory,_getText(_div($eventEnrollmentHistory, _rightOf(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/", _near(_div("Name")))))),"Verify household details in Enrollment Snapshot");
+			_assertEqual("/"+$maintenanceReason+"/",_getText(_div($maintenanceReason, _rightOf(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/", _near(_div("Name")))))),"Verify household details in Enrollment Snapshot");
+		}
+		else{
+			_assertEqual("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/",_getText(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/", _near(_div("Name")))),"Verify household details in Enrollment Snapshot");
+			if ($houseHold.people[$enrolleeDependentNum].coverageEndDate == $endDateOfCurrentMonth){
+				_assertVisible(_div($houseHold.coverageStartDate+" - "+$houseHold.people[$enrolleeDependentNum].coverageEndDate, _rightOf(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/",_near(_div("Name"))))));
+			}
+			else{
+				_assertVisible(_div($houseHold.coverageStartDate+" - "+$houseHold.coverageEndDate, _rightOf(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/",_near(_div("Name"))))));
+			}
+			_assertEqual($eventEnrollmentHistory,_getText(_div($eventEnrollmentHistory, _rightOf(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/",_near(_div("Name")))))),"Verify household details in Enrollment Snapshot");
+			_assertEqual("/"+$maintenanceReason+"/",_getText(_div($maintenanceReason, _rightOf(_div("/"+$houseHold.people[$i].firstName+" "+$houseHold.people[$i].lastName+"/", _near(_div("Name")))))),"Verify household details in Enrollment Snapshot");
+		}
+	}
+}
+
+
+function verifyDbEnrollmentEvent($enrollmentId,$txnIdentifier,$maintenanceReason){
+	var $dbEnrollmentEventDetails = getEnrollDetailsFromEnrollmentEvent($enrollmentId);
+	if($txnIdentifier == "INITIAL_ENROLLMENT"){
+		_assertEqual(31,$dbEnrollmentEventDetails[0][0],"Verify that event type in DB is Addition (Initial Enrollment)");
+		_assertEqual(80,$dbEnrollmentEventDetails[0][1],"Verify that event reason in DB is Member Benefit Selection");
+		
+	}
+	else if($txnIdentifier == "EDIT_TOOL"){
+		_assertEqual(32,$dbEnrollmentEventDetails[0][0],"Verify that event type in DB is Cancellation or Termination");
+		if($maintenanceReason == "Non Payment"){
+			_assertEqual(68,$dbEnrollmentEventDetails[0][1],"Verify that event reason in DB is Non Payment");
+		}
+		else if($maintenanceReason == "No Reason Given"){
+			_assertEqual(77,$dbEnrollmentEventDetails[0][1],"Verify that event reason in DB is No Reason Given");
+		}
+		else if($maintenanceReason == "Voluntary Withdrawal"){
+			_assertEqual(46,$dbEnrollmentEventDetails[0][1],"Verify that event reason in DB is No Reason Given");
+		}
+	}
+	else if($txnIdentifier == "ENROLLMENT_EFFECTUATION"){
+		_assertEqual(31,$dbEnrollmentEventDetails[0][0],"Verify that event type in DB is Addition (Initial Enrollment)");
+		_assertEqual(57,$dbEnrollmentEventDetails[0][1],"Verify that event reason in DB is Initial Enrollment");
+	}
+	else if($txnIdentifier == "REINSTATEMENT"){
+		_assertEqual(33,$dbEnrollmentEventDetails[0][0],"Verify that event type in DB is Reinstatement");
+		_assertEqual(66,$dbEnrollmentEventDetails[0][1],"Verify that event reason in DB is Re-enrollment");
+	}
+	_assertEqual($txnIdentifier,$dbEnrollmentEventDetails[0][2],"Verify that txn_Identifier in DB");
+}
+
+function verifyDbMonthlyPaymentEnrollSnapshot($enrollmentId){
+	var $enrollmentDbDetails = getEnrollmentDetailsFromEnrollment($enrollmentId);	
+	_assertEqual(parseFloat($enrollmentDbDetails [0][5]).toFixed(2),parseFloat(_getText($grossPremiumAmountEnrollSnapshot)).toFixed(2),"Verify if Gross Premium Amount in UI is same as in DB");
+	_assertEqual(parseFloat($enrollmentDbDetails [0][6]).toFixed(2),parseFloat(_getText($electedAPTCAmtEnrollSnapshot)).toFixed(2),"Verify if Elected APTC Amount in UI is same as in DB");
+	if(parseFloat($enrollmentDbDetails [0][8]).toFixed(2) == 0.00){
+		_assertEqual("",_getText($netPremiumAmtEnrollSnapshot),"Verify if Net Premium in UI is same as in DB");
+	} else{
+		_assertEqual(parseFloat($enrollmentDbDetails [0][8]).toFixed(2),parseFloat(_getText($netPremiumAmtEnrollSnapshot)).toFixed(2),"Verify if Net Premium in UI is same as in DB");
+	}
+}
+
+function verifyEventDoneByCapEnrollHistory($numOfEntriesCapEnrollHistory,$userFirstName,$userLastName,$role){
+		_assertEqual("/ " + $userFirstName.toLowerCase() + " " + $userLastName.toLowerCase() + "/", _getText(_row(0,_in( _table("table table-condensed[2]")))).toLowerCase(), "Verify that the user's name is correctly displayed");
+		_assertEqual("/"+$role.toLowerCase()+"/", _getText(_row(0,_in( _table("table table-condensed[2]")))).toLowerCase(),"Verify that the event is performed by "+$role);
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,60 @@
+_includeOnce("CAP.sah");
+_includeOnce("capEnrollmentsAdditionalInfo.sah");
+
+
+// Accessors
+var $appLinkedHistory = _span("Application - Application Linked", _in(_div("row-fluid boxcontainer")));
+var $enrollmentSubmittedHistory = _span("Enrollments - Enrollment Submitted", _in(_div("row-fluid boxcontainer")));
+var $consumerHistoryHeader = _heading4("Consumer History");
+var $submitBtnEnrollmentSubmitted = _submit("btn smallBtn", _rightOf(_span("Enrollments - Enrollment Submitted")));
+
+
+
+function clickHistoryInCap($eventArrayCapHistory,$userFirstName,$userLastName,$role,$comments,$numOfEntriesCapHistory,$permissions){
+	_click($historyLink);
+	_assertVisible($consumerHistoryHeader,"Verify that Consumer History Header is displayed");
+	/*
+	var $collectEventTextHistory = _collect("_span", "eventText ng-binding", _in(_div("row-fluid boxcontainer")));
+	if($permissions != "N"){
+		verifyDuplicatesInCap($eventArrayCapHistory,$collectEventTextHistory,$permissions);
+	}
+	verifyEventTextCapHistory($eventArrayCapHistory,$collectEventTextHistory,$permissions);
+	if($numOfEntriesCapHistory){
+		//verifyEventDoneByCapHistory($numOfEntriesCapHistory,$userFirstName,$userLastName,$role);
+		showCommentsCapHistory($numOfEntriesCapHistory,$comments);
+	}
+*/
+}
+
+function verifyDuplicatesInCap($eventArrayCapHistory,$collectEventTextHistory){
+	_assertTrue($eventArrayCapHistory.length == $collectEventTextHistory.length, "Verify if there are duplicates");
+}
+
+function verifyEventTextCapHistory($eventArrayCapHistory,$collectEventTextHistory,$permissions){
+	
+	for (var $i=0; $i<$collectEventTextHistory.length; $i++){
+		if($permissions != "N"){
+			_assertEqual($eventArrayCapHistory[$i],_getText($collectEventTextHistory[$i]),"Verify that event is correctly displayed in CAP history");
+		}
+		else {
+			_assertNotVisible(_span($eventArrayCapHistory[$i], _in(_div("row-fluid boxcontainer"))),"Verify that events are not visible if user does not have permissions to perform them");
+		}
+	}
+}
+
+function verifyEventDoneByCapHistory($numOfEntriesCapHistory,$userFirstName,$userLastName,$role){
+	for (var $i=0; $i<$numOfEntriesCapHistory; $i++){
+		_assertEqual("/by " + $userFirstName.toLowerCase() + " " + $userLastName.toLowerCase() + "/", _getText(_div("row-fluid ["+$i+"]")).toLowerCase(), "Verify that the user's name is correctly displayed");
+		_assertEqual("/"+$role.toLowerCase()+"/", _getText(_div("row-fluid ["+$i+"]")).toLowerCase(),"Verify that the event is performed by "+$role);
+	}
+}
+	
+function showCommentsCapHistory($numOfEntriesCapHistory,$comments){
+	
+	for (var $i=0; $i<$numOfEntriesCapHistory; $i++){
+		_click(_submit("btn smallBtn["+$i+"]"));
+		_click(_link("Show Comments["+$i+"]"));
+		_assertEqual($comments[$i], _getText(_div($comments[$i], _near(_div("Comments["+$i+"]")))));
+	}
+}	
+

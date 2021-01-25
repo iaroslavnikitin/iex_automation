@@ -1,0 +1,31 @@
+{
+    "welcomeHeading":"$('h1')",
+    "uppernavigationBar":"$('div#menu > .navbar-inner')",
+    "btn_eligibilityDetailsGoTo":"$('#eligibilityDetailsGoTo')",
+    "summary":{
+        "ul_eligibilityOverview":"$('.eligibility-overview').$('ul').$$('li')",
+        "p_chipContent":"$('.eligibility-overview').$('p*=Medicaid')"
+    },
+    "eligibilityResults":{
+        "hd_eligibilityHeader":"$('h2')",
+        "td_memberArray":"$('#eligibilityResults').$('tbody').$$('tr')",
+        "td_memberText":"$('tbody').$$('tr')[j].$$('td')[0]",
+        "ul_eligibilityResult":"$('tbody').$$('tr')[j].$$('td')[1].$('ul').$$('li')"
+    },
+    "optionalActions":{
+        "btn_eligibilitySave":"$('a*=eligibilitySave')",
+        "hd_medicaidOptionsHeader":"$('h3*=Other Options for Medicaid')",
+        "p_member":"$('p*=memberName')",
+        "hd_otherOptions":"$('h3*=Other Options')",
+        "p_chipEligible":"$('p*=Potentially CHIP Eligible')",
+        "p_medicaidEligible":"$('p*=P_MEDICAID_CONTENT')",
+        "hd_optionsHeader":"$('h3*=Other Options for Medicaid Assessed Individuals')",
+        "p_optionsContent":"$('p*=The initial evaluation')"
+    }
+     
+
+}
+
+
+
+

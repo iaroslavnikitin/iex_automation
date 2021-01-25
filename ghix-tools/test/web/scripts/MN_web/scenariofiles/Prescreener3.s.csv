@@ -1,0 +1,16 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/global_include_Mn.sah"
+,,"loadSahi","../pagemodels/Preeligibility.sah"
+
+
+"TC#3","HIX-107118- Medicare household","[Documentation]","This test case is to verify the Medicare scenario"
+,,"MNsurePlanComparisonTool"
+,,"verifyElementsOnPreeligibility"
+,,"selectCoverageYear","""Current"""
+,,"enterZipCode","""55120""","Dakota"
+,,"enterPrimaryInformation","""01/01/1950""","FALSE","FALSE","TRUE","FALSE"
+,,"clickAddSpouse","""02/02/1952""","FALSE","FALSE","TRUE","FALSE"
+,,"enterHouseholdIncome","""$45000"""
+,,"$type=","_toJSON({'LowerMonthlyPayment': true, 'LowerOutOfPocketCosts': true})"
+,,"clickCheckForSavings","$type"
+,,"verifyEligibilityOnResults","""Medicare"""

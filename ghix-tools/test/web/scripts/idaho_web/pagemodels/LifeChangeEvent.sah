@@ -1,0 +1,195 @@
+_includeOnce("Ssap.sah");
+_includeOnce("ReportChange.sah");
+
+var $lifeChangeEventApplicantUpdate=_link("Update");
+var $lifeChangeEventHeader=_heading4("Life Change Event: Change in Basic Information");
+var $lifeChangeEventSubHeader=_heading4("Family and Household Summary");
+var $globalmember;
+var $lifeChangeEventNext=_link("Next");
+var $lifeChangeEventBack=_link("Back");
+var $lifeChangeEventSave=_link("Save");
+var $lifeChangeEventAgreeFutureApplications=_radio("futureApplication");
+var $lifeChangeEventDisAgreeFutureApplications=_radio("futureApplication[1]");
+var $lifeChangeEventDisAgreeRenewal=_radio("renewalPeriod1");
+var $lifeChangeEventDisAgreeRenewal2=_radio("renewalPeriod2");
+var $lifeChangeEventDisAgreeRenewal3=_radio("renewalPeriod3");
+var $lifeChangeEventDisAgreeRenewal4=_radio("renewalPeriod4");
+var $lifeChangeEventDisAgreeRenewal5=_radio("renewalPeriod5");
+var $lifeChangeEventESign=_textbox("eSignName");
+var $Signature;
+
+var $mailingAddress1  = _textbox("home_addressLine1");
+var $mailingAddress2 = _textbox("home_addressLine2");
+var $mailingCity = _textbox("home_primary_city");
+var $mailingState = _select("home_primary_state");
+var $mailingZip = _textbox("home_primary_zip");
+var $mailingCounty = _select("home_primary_county");
+
+function verifyElementsOnLifeChangeEventPage(){
+	_assertVisible($lifeChangeEventHeader);
+	_assertVisible($lifeChangeEventSubHeader);
+	_assertVisible($lifeChangeEventApplicantUpdate);
+}
+
+function clickUpdateButtonToChangeMemberDetails($memberName){
+	if(_isVisible(_link("Next : Change in Basic Information"))){
+		_click(_link("Next : Change in Basic Information"));
+	}
+	$globalMember=$memberName;
+	_click(_link("Update", _near(_cell($globalMember))));
+}
+
+function clickNextToReportLifeChangeEvent(){
+	_click($lifeChangeEventNext);
+	_wait(5000);
+	_log("$ssapPeople --"+$ssapPeople);
+	_log("$ssapPeople updated --"+$ssapPeople.length-1);
+	if(_isVisible(_heading3("Final Review and Confirmation Print Download"))){
+		for (var $i = 0; $i <= $ssapPeople.length; $i++) {
+			_print($i);
+			//verifyPersonOnSSAPPage15($i);
+			//verifyNativeOnSSAPPage15($i);
+		}
+	}
+}
+
+function clickBackButtonForLifeChangeEvent(){
+	_click($lifeChangeEventBack);
+}
+
+function clickSaveButtonToReportLifeChangeEvent(){
+	_click($lifeChangeEventSave);
+	_wait(3000);
+	if(_isVisible(_div("navtopview"))){
+		_click(_link("My Dashboard"));
+	}
+	else{
+		_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+		_click(_link("Dashboard"));
+	}	
+	selectApplicationYear();
+	if(_isVisible(_heading4("Life Change Event: Special Enrollment Period Not Granted"))){
+		$sepDenied = true;
+		_click(_link("Continue"));
+		$ssapPeople.splice($ssapPeople.length-1, 1);
+	}
+	
+
+	_assertTrue(_isVisible($indportalViewYourApplication) || _isVisible($indportalViewYourApplication2));
+
+	if($outsideIdaho == "Yes"){
+		$ssapPeople[$numberOutside].$applying="No";
+	}
+	if($primaryOutsideIdaho=="Yes"){
+		for (var $i = 0; $i < $ssapPeople.length; $i++) {
+			$ssapPeople[$i].$applying = "No";
+		}
+	}
+	if($removeHH == "true"){
+		Array.prototype.move = function ($from, $to) {
+			this.splice($to, 0, this.splice($from, 1)[0]);
+		};
+		$ssapPeople.move($ssapPeople.length-1,1);
+	}
+}
+
+function selectFutureApplicationsForLifeChangeEvent($agree){
+	if($agree=="true"){
+		_setValue($lifeChangeEventDisAgreeFutureApplications, "");
+		_setValue($lifeChangeEventAgreeFutureApplications, "true");
+	}
+	else {
+		_setValue($lifeChangeEventAgreeFutureApplications, "");
+		_setValue($lifeChangeEventDisAgreeFutureApplications, "true");
+		_setValue($lifeChangeEventDisAgreeRenewal, "true");
+	}
+}
+
+function enterSignForLifeChangeEvents(){
+	if($removePrimary=="true"){
+		_setValue($lifeChangeEventESign, $sign);
+	}
+	else {
+		_setValue($lifeChangeEventESign, $ssapPeople[0].fullName());
+	}
+}
+
+function verifyElemenstOnChangeOfAddress() {
+	_assertVisible(_radio("newOptionst", _in(_label("Change of home address"))));
+	_assertVisible(_radio("newOptionsf", _in(_label("Change of mailing address"))));
+}
+
+function clickChangeOfMailingAddress($days, $address1, $address2, $city, $zip, $state, $county){
+	verifyElemenstOnChangeOfAddress();
+	_check(_radio("newOptionsf"));
+	_assertVisible(_heading4("Please update the primary contact's mailing address."));
+	$eventDate = calculateEventDate($days);
+	_setValue(_textbox("mailingAddressChange"), $eventDate);
+	for(i=0;i<$ssapPeople.length;i++){
+		$ssapPeople[i].$mailingAddress1 = $address1;
+		//_alert("Mailaing Address 1" + $ssapPeople[0].$mailingAddress1);
+		$ssapPeople[i].$mailingAddress2 = $address2;
+		$ssapPeople[i].$mailingCity = $city;
+		$ssapPeople[i].$mailingZip = $zip;
+	}
+
+	_setValue($mailingAddress1, $address1);
+	_setValue($mailingAddress2, $address2);
+	_setValue($mailingCity, $city);
+	_setValue($mailingState, "");
+	_wait(1000);
+	_setSelected($mailingState, $state);
+	_setValue($mailingZip, $zip);
+	_setSelected($mailingCounty, $county);
+}
+
+function clickNextForChangeOfMailingAddressAndBasicInfo(){
+	_click(_link("Next"));
+	_assertVisible(_link("Next : Change in Basic Information"));
+}
+
+function clickNextForFinalReview(){
+	_click(_link("Next"));
+	_assertVisible(_heading4("Life Change Event: Final Review and Confirmation"));
+}
+
+function clickNextForSignAndSubmit(){
+	_click(_link("Next"));
+	_assertVisible(_heading4("Life Change Event: Sign & Submit"));
+}
+
+function clickChangeOfMailingAddressAndBasicInfo(){
+	_click(_link("Next : Change in Basic Information"));
+	verifyElementsOnLifeChangeEventPage();
+}
+
+function clickChangeOfAddress(){
+	//_assertVisible(_link("Next : Change of Address"));
+	_assertVisible(_link("Next : Change of Address"));
+//	_assertVisible(_link("Change of Address"));
+//	_click(_link("Change of Address"));
+	_click(_link("Next : Change of Address"));
+	_assertVisible(_radio("newOptionst"));
+	_assertVisible(_radio("newOptionsf"));
+}
+
+function selectHomeAddress(){
+	_click(_radio("newOptionst"));
+	_assertVisible(_table("table table-striped ng-scope"));
+}
+
+function enterEventDetails($eventDetails){
+	_check(_radio(0, _in(_label($eventDetails))))
+}
+
+function verifyBackNextButtons(){
+	_assertVisible(_link("Back"));
+	_assertVisible(_link("Next"));
+}
+
+function signAndSubmitChange(){
+	_check(_checkbox(0, _in(_label("If any of the information in this application changes during the course of the year, you will have 60 days to notify Your Health Idaho. Changes to your household size, address or other details might affect your eligibility for specific benefits. I understand and will notify Your Health Idaho if my application information changes."))));
+	_check(_checkbox(0, _in(_label("I am signing this application under penalty of perjury. This means I have provided true answers to all the questions on this form to the best of my knowledge. I know that if I am not truthful, I may be subject to a penalty."))));
+	enterSignForLifeChangeEvents();
+	_click(_link("Save"));
+}

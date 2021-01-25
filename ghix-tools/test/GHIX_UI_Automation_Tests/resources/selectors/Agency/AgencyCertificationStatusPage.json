@@ -1,0 +1,24 @@
+{
+    "pageURLId":"certificationstatus",
+    "headerRightPanel":
+    {
+       "label":"Agency Certification Status",
+       "fieldType":"staticText",
+       "selectors":
+       {
+         "common":"$('#rightpanel .header')",
+         "PA":"$('#rightpanel .header')"
+       },
+       "headerText":"Agency Certification Status"
+       
+    },
+    "certificationStatus":
+    {
+      "label":"Certification Status",
+      "selectors":
+      {
+        "common":"$('tbody > tr:nth-child(2) > td:nth-child(2)')"
+      },
+      "matchingDataProperty":"certificationStatus"
+    }
+}

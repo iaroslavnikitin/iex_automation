@@ -1,0 +1,8 @@
+{
+    "cb_marketPlaceAgreement": "$('#ind-terms')", 
+    "cb_taxFiler_esign": "$('#taxFiler_esign')",
+    "tb_applicant_esign": "$('#applicant_esig')", 
+    "cb_submitButton": "$('#submitButton')",
+     "hd_esignHeader": "$('h1*=Electronic Signature for Your Enrollment')",
+     "cb_taxFiler_agreement": "$('#taxFiler_agreement')"
+}

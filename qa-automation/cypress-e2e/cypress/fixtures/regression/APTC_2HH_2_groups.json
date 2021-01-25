@@ -1,0 +1,17 @@
+{
+    "description": "2adults household CS4 ",
+    "hhFamily": {"size": 2, "singleParent": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "personSex": "Male",
+            "dob": "1980-01-01",
+            "csrLevel": "CS4"
+        },
+        {
+            "personSex": "Female",
+            "dob": "1985-10-10",
+            "csrEligibilityIndicator": false
+        }
+        ]
+}

@@ -1,0 +1,84 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("AgentIcon.sah");
+//_includeOnce("Ssap.sah");
+_includeOnce("Utils.sah");
+
+function goToOtherHealthCoverageEdit(){
+	if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Other Health Coverage"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToReconcilationOfAPTCEdit(){
+	if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Reconciliation of APTC"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToEmployerCoverageDetailEdit(){
+	if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Employer Coverage Detail"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToStateEmployeeHealthBenefitEdit(){
+	if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("State Employee Health Benefit"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+function goToAdditionalInformationPageEdit(){
+	if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Additional Information"));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+
+}
+
+function goToAddtionalInformationSummaryEdit($indexes){
+	if(_isVisible(_button("Save & Continue"))){
+		_click(_button("Save & Continue"));
+	}
+	else{
+		_click(_button("Continue"));
+	}
+	_assertVisible(_heading1("Summary"));
+	_assertVisible(_heading3("Review and Confirm"));
+	_assertVisible(_paragraph("Here is the information you provided about everyone who is part of your household. Please take a moment to review and double-check the information. If you see any mistakes, please edit them now.", _in(_div("subsection"))));
+	_assertVisible(_button("Back"));
+	_assertVisible(_button("Save & Continue"));
+}
+
+
+
+
+

@@ -1,0 +1,24 @@
+{ "pageHeader": "$('h1')",
+  "btn_startShopping":"$('*=START SHOPPING')",
+  "lk_login":"$('//a[contains(@href,\"login\")]')",
+  "lk_enrollmentEntities":"$('*=Enrollment Entities')",
+  "btn_accessCode": "$('//p[@data-automation-id=\"access_code\"]')",
+  "txt_accessCode": "$('#accessCode')",
+  "lk_agentBroker": "$('*=Agent')",
+
+  "agencyLink":
+    {
+      "label":"Agencies",
+      "selectors":
+      {
+        "common":"$('*=Agencies')",
+        "PA":"$('*=Agencies')",
+        "ID":"$('*=Agency')",
+        "CA":"$('*=Agency')"
+    
+    }
+
+  }
+
+}
+

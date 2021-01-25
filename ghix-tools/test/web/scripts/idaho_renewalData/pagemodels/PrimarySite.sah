@@ -1,0 +1,73 @@
+_includeOnce("GetPopulationServed.sah");
+_includeOnce("Site.sah");
+_includeOnce("SubSite.sah");
+_includeOnce("Utils.sah");
+
+var $siteForm = new Site();
+var $PrimarySite = true;
+var $primarySiteHeader = _heading4("Step 3: Locations and Hours");
+var $primarySiteBack = _button("primarySiteBack");
+var $primarySiteNext = _submit("save");
+
+function verifyElementsOfPrimarySite() {
+	_assertVisible($primarySiteHeader);
+	$siteForm.verify();
+	_assertVisible($primarySiteBack);
+	_assertVisible($primarySiteNext);
+}
+
+function enterPrimarySiteLocation($location) {
+	if ($location === undefined) {
+		$location = randomString($FIELD_LENGTH);
+	}
+	$siteForm.setName($location);
+}
+
+function enterPrimaryEmailAddress($email) {
+	if ($email === undefined) {
+		$email = randomString($FIELD_LENGTH) + "@example.com";
+	}
+	$siteForm.setPrimaryEmailAddress($email);
+}
+
+function enterPrimaryPhoneNumber() {
+	$siteForm.setPrimaryPhoneNumber();
+}
+
+function enterSecondaryPhoneNumber() {
+	$siteForm.setSecondaryPhoneNumber();
+}
+
+function enterHours($day, $start, $end) {
+	$siteForm.setHours($day, $start, $end);
+}
+
+function enterEntityMailingInformation($address1, $address2, $city, $state, $zip) {
+	$siteForm.setMailingInformation($address1, $address2, $city, $state, $zip);
+}
+
+function selectSameAsMailingAddress($bool) {
+	$siteForm.setSameAsMailingAddress($bool);
+}
+
+function enterPhysicalAddress($address1, $address2, $city, $state, $zip) {
+	$siteForm.setPhysicalInformation($address1, $address2, $city, $state, $zip);
+}
+
+function selectSpokenLanguage($language) {
+	$siteForm.addSpokenLanguage($language);
+}
+
+function selectWrittenLanguage($language) {
+	$siteForm.addWrittenLanguage($language);
+}
+
+function clickBackFromLocationPage() {
+	_click($primarySiteBack);
+	verifyElementsOnPopulationServedPage();
+}
+
+function clickNextFromLocationPage() {
+	_click($primarySiteNext);
+	verifyElementsForSubsite();
+}

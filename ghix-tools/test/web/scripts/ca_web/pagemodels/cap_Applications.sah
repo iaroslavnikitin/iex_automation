@@ -1,0 +1,205 @@
+_includeOnce("../lib/DB.sah");
+_include("../lib/Utils.sah");
+
+//locators
+//var $actions = _link("Actions");
+var $changeCovStartDateButton= _link("Change Coverage Start Date", _near(_link("csrActionButton")));
+var $overrideSpecialEnrollmentButton= _link("Override Special Enrollment", _near(_link("csrActionButton")));
+var $changeCoverageStartDateHeader = _span("Change coverage start date");
+var $changeCoverageDialog = _div("modal fade in");
+var $changeCovStartDateReasonTextbox = _textarea(0, _in(_div("/Specify the reason for override/")));
+var $changeCovStartDateContinueLink = _link("Continue", _in(_div("/Specify the reason for override/")));
+var $newCoverageStartDateTextbox  = _textbox("cov");
+var $newCovStartDateContinueLink = _link("Continue", _in(_div("Continue Cancel")));
+var $submissionSuccessfulHeading = _heading3("Submission Successful!");
+var $submissionSuccessfulOkLink = _link("OK", _near(_div("/Submission Successful/")));
+
+function getActionsElement($inElement) {
+	if($inElement){
+		return _link("Actions", _in($inElement));
+	}else{
+		return _link("Actions");
+	}
+}
+
+function capApplicationsPage(){
+	this.actionButton = _span("Actions", _near(_div("currentAppStatus")));
+	this.changeCoverageStartDateButton = _link("Change Coverage Start Date", _in(_div("csrMenu_0")));
+}
+
+function clickApplicationsLinkCap(){
+	_click(_link("Applications", _in(_div("sidebar"))));
+	verifyApplicationsHeader();
+}
+
+function verifyApplicationsPageCap($household,$appStatus,$appType){
+
+
+
+}
+
+function verifyApplicationsHeader(){
+	var $header = _heading4("/Current Application/");
+	_assertVisible($header);
+	_assertVisible(_label("Application Year", _in(_parentNode($header,1))));
+	
+}
+
+function verifyApplicationsTileOnViewMember($household,$role,$caseNumber,$appStatus,$appType){
+	var $primaryPersonNum = $household.primaryTaxFiler;
+	var $currentApp = _parentNode(_div("Case Number: "+$caseNumber),3);
+	_setSelected(_select(0), $household.coverageYear);
+	_assertVisible(_strong($household.coverageYear+" Coverage"), _in($currentApp));
+	_assertVisible(_div("Primary Tax Filer:"+ $household.people[$primaryPersonNum].firstName + " " + $household.people[$primaryPersonNum].lastName), _in($currentApp));
+	_assertVisible(_div("Federal APTC: $"+ $household.people[$primaryPersonNum].maxAPTC), _in($currentApp));
+	
+
+	if ($appStatus == 'ER') {
+		_assertVisible(_div("Application Status: Eligibility Received"), _in($currentApp));
+	} else if ($appStatus == 'EN')  {
+		_assertVisible(_div("Application Status: Enrolled (Or Active)"), _in($currentApp));
+	}
+	if ($appType == 'QEP') {
+		_assertVisible(_div("Type: Initial Enrollment"), _in($currentApp));
+	} else {
+		_assertVisible(_div("Type: Special Enrollment"), _in($currentApp));
+	}
+	verifyActionsOnApplicationsBasedOnRole($household,$role,$caseNumber,$appStatus,$appType);
+}
+
+function verifyActionsOnApplicationsBasedOnRole($household,$role,$caseNumber,$appStatus,$appType) {
+	
+	_log("Role: "+$role);	
+	_log("Application Status: "+$appStatus);
+	_setSelected(_select("application_year"), $household.coverageYear);
+	var $currentApp = _parentNode(_div("Case Number: "+$caseNumber),4);
+	var $actions = getActionsElement($currentApp);
+
+    if ($appType == "QEP" || $appType == "SEP") {
+		if($appStatus == "ER")  {
+			if ($role == "supervisor" || $role == "L2") {
+				_assertVisible($actions, "Verify Actions button is displayed");
+				_click($actions);
+				_assertVisible($changeCovStartDateButton, "Verify that Change Coverage Start Date button is displayed");
+				_assertVisible($overrideSpecialEnrollmentButton, "Verify that Override Special Enrollment button is displayed");
+			} else if ($role == "L1") {	
+				_assertVisible($actions, "Verify Actions button is displayed");
+				_click($actions);
+				_assertNotVisible($changeCovStartDateButton, "Verify that Change Coverage Start Date button is not displayed");
+				_assertVisible($overrideSpecialEnrollmentButton, "Verify that Override Special Enrollment button is displayed");
+			} else {
+				_assertNotVisible($actions, "Verify Actions button is not displayed");
+			}
+		} else if ($appStatus == "EN")  {
+			if ($role == "supervisor" || $role == "L2") {
+				_assertVisible($actions, "Verify Actions button is displayed");
+				_click($actions);
+				_assertVisible($changeCovStartDateButton, "Verify that Change Coverage Start Date button is displayed");
+				_assertNotVisible($overrideSpecialEnrollmentButton, "Verify that Override Special Enrollment button is not displayed");
+			} else {
+				_assertNotVisible($actions, "Verify Actions button is not displayed");
+			}
+		}
+	}
+}
+
+
+function changeCoverageStartDate($household,$newDate,$caseNumber,$personToUpdateCovDt,$verificationFlag){
+
+	if($newDate){
+		$newDate = getChangeCoverageDate($household,$newDate);
+	}else{
+		var $currentMonth = getCurrentDate("MM");
+		var $currentYear = getCurrentDate("YYYY");
+		$newDate = $currentMonth+"/15/"+$currentYear;
+	}
+
+	_click($changeCovStartDateButton);
+	if ($verificationFlag) {
+	 	verifychangeCoverageDatePopup()
+	}
+	_setValue($changeCovStartDateReasonTextbox, "Changing coverage start date");
+	_click($changeCovStartDateContinueLink);
+	if ($verificationFlag) {
+		verifychangeCoverageDateText()
+	}
+	_setValue($newCoverageStartDateTextbox, $newDate); 
+	_click($newCovStartDateContinueLink);
+	if ($verificationFlag) {
+		verifychangeCoverageDateSubmission();
+	}
+	_click($submissionSuccessfulOkLink);
+	verifyOverridenCovStartDateDB($newDate,$caseNumber);
+	$household = changeCoverageStartDateInHousehold($household,$newDate,$personToUpdateCovDt);
+	return $household;
+}
+	
+
+function verifychangeCoverageDatePopup(){
+	_lockWindow();
+	_focusWindow();
+	_setStrictVisibilityCheck(true);
+	_assertVisible($changeCoverageDialog,"Verify if Change coverage dialog is displayed");
+	_assertVisible($changeCoverageStartDateHeader,"Verify if Change coverage start date header is displayed");
+	_setStrictVisibilityCheck(false);
+	_unlockWindow();
+}
+
+function verifychangeCoverageDateText(){
+	 verifychangeCoverageDatePopup();
+	_assertVisible($newCoverageStartDateTextbox,"Verify if textbox to enter new converage start date is displayed");
+}
+
+function verifychangeCoverageDateSubmission(){
+	 _assertVisible($submissionSuccessfulHeading,"Verify if Submission Successful message is displayed");
+}
+
+
+/*function enterNewCoverageStartDate($household,$appStatus,$newDate){
+	_setStrictVisibilityCheck(true);
+	var $modalContainer = _div("modal fade in");
+	_assertVisible(_heading3("Change coverage start date", _in($modalContainer)));
+	_setValue(_textbox("cov", _in($modalContainer)), $newDate);
+	_click(_link("Continue", _in($modalContainer)));
+	_assertVisible(_heading3("Submission Successful!", _in($modalContainer)));
+	_click(_link("OK", _in($modalContainer)));
+	_setStrictVisibilityCheck(false);
+}*/
+
+function changeCoverageStartDateInHousehold($household,$newDate,$personToUpdateCovDt){
+
+	if ($personToUpdateCovDt == "all") {
+		for (var $i = 0; $i < $household.people.length; $i++) {
+			$household.people[$i].coverageStartDate = $newDate;
+		}
+	
+		
+	} else {
+		$household.people[$personToUpdateCovDt].coverageStartDate = $newDate;
+	}
+
+	$household.coverageStartDate = $newDate;
+	_log("new coverage start date: "+$newDate);
+
+	return $household;
+}
+
+function verifyOverridenCovStartDateDB($overrideCoverageStartDate,$caseNumber){
+	var $dboverridenCoverageDate = getOverridenCovStartDateFromDb($caseNumber);
+	$dboverridenCoverageDate =  _call(window.moment($dboverridenCoverageDate[0][1]).format("MM/DD/YYYY"));
+	_assertEqual($overrideCoverageStartDate, $dboverridenCoverageDate, "Verify Overriden coverage start date in UI is same as in DB");
+}
+
+function getChangeCoverageDate($household,$newDate){
+
+    var $coverageDate;
+    if ($newDate == "begOfNextMonth") {
+        $coverageDate = _fetch(window.moment(getCurrentDate("MM/DD/YYYY")).startOf('month').add(1, 'M').format('MM/DD/YYYY'));
+    } else if ($newDate == "begOfYear") {
+        $coverageDate =  _fetch(window.moment($household.coverageYear,'YYYY').startOf('year').format('MM/DD/YYYY'));
+    } else if ($newDate == "midMonth") {
+          $coverageDate =  _fetch(window.moment($household.coverageYear,'YYYY').startOf('year').add(2, 'd').format('MM/DD/YYYY'));
+    }
+    _log("cov date" +$coverageDate);
+    return $coverageDate;
+}

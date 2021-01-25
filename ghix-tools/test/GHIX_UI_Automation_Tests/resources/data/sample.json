@@ -1,0 +1,21 @@
+
+{
+   "firstName":"FIRSTNAME;10",
+    "lastName":"LASTNAME;10",    
+    "email": "EMAIL;0",
+    "zip": "DEFAULT;17026",
+    "phone1":"408",
+    "phone2": "666",
+    "phone3": "6858",
+    "ssn1": "244",
+    "ssn2": "19",
+    "ssn3": "2346",
+    "dob": "01011990",
+    "securityQuestion": "abc",
+    "password": "ghix123#",
+    "mailingAddress1":"4510 Marketplace Way",
+    "city":"Enola",
+    "state":"Pennsylvania",
+    "prefSpokenLangSelectBox": "English",
+    "prefWrittenLangSelectBox": "English"
+}

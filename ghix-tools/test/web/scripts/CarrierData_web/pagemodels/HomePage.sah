@@ -1,0 +1,70 @@
+_includeOnce("HeaderFooter.sah");
+_includeOnce("Preeligibility.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("Signup.sah");
+
+var $WelcomeText = _div("Welcome to Get Covered NJ.")
+var $FamilyIcon =  _div("icons-family");
+var $StartShopping = _link("START SHOPPINGIndividual");
+var $IndAndFamilyHeading = _heading2("Individuals & Families");
+var $AccessCodeText = _paragraph("Enter the access code from your notification to get started with claiming your account, designating a broker, or opting in to auto-renewal."+
+" If you have questions or need assistance please contact us.")
+var $AccessCodeQuestion = _paragraph("Do you have an access code?");
+var $AccessCodeTextBox = _textbox("accessCode");
+var $LoginButton = _link("Log In", _in(_div("register-signin")));
+
+var $headerLogIn = _link("Log In");
+
+var $Individual = _link("START SHOPPINGIndividual");
+var $Broker = _link("Health Insurance Agent/Broker");
+var $Entities = _link("Enrollment Entities");
+
+
+
+var $homepageAccessors = [$WelcomeText,$FamilyIcon,$StartShopping,$IndAndFamilyHeading,$AccessCodeText, $AccessCodeQuestion, $AccessCodeTextBox, $LoginButton]
+var $loggedIn ;
+
+function verifyElementsOfHomePage() {
+	verifyArray($homepageAccessors);
+	verifyNJHeader();
+	if (_isVisible($headerLogIn)) {
+		$loggedIn = false;
+	}
+	else {
+		$loggedIn = true;
+	}
+	
+}
+
+function clickStartShopping($coverageYear) {
+	if($isNewJersey){
+		_click(_div("Browse for health & dental plans"));
+	}
+	else if($isPennsylvania){
+		_click(_submit("VIEW PLANS"));
+		_assertVisible(_heading1("Pennie Plan Comparison Tool"));
+		_click(_link("Continue"));
+	}
+	else{
+		_click($StartShopping);
+	}
+	$signupMode = "Individual";
+	verifyElementsOnPreeligibility("",$coverageYear);
+}
+
+function clickHealthInsuranceAgentOrBroker () {
+	_click($Broker);
+	$signupMode = "Agent";
+	verifyElementsOnSignUpPage();
+}
+
+function clickEnrollmentEntities() {
+	_click($Entities);
+	$signupMode = "Entity";
+	verifyElementsOnSignUpPage();
+}
+
+function clickLogin() {
+	if (!_isVisible(_textbox("Email Address"))) _click($Login);
+	loginVerify();
+}

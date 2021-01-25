@@ -1,0 +1,15 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../../pagemodels/Preeligibility.sah"
+
+"[Global]","[SetUp]"
+,"agreeDisclaimerforCT"
+
+"Verify household is qualify for Medicare and Next button is disable on preference","[Documentation]","The family of 2 with age >65 income: 45,000 should get Medicare and should not see the next button to proceed with preferences"
+,"verifyElementsOnPreeligibility"
+,"enterZipCode","""06001""","Hartford"
+,"enterPrimaryInformation","""10/25/1950""","FALSE","FALSE","TRUE","FALSE"
+,"clickAddSpouse","""01/01/1950""","FALSE","FALSE","TRUE","FALSE"
+,"enterHouseholdIncome","""45000"""
+,"clickCheckForSavings"
+,"validateResultsTitle","It looks like you and your household may qualify for financial help to pay for your healthcare coverage."
+,"validateSavingDetails","N","N","Y","N"

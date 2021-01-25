@@ -1,0 +1,16 @@
+_includeOnce("Indportal.sah");
+
+var $QEPNotEligible = true;
+
+var $qepNotEligibleBoldText = _strong("You probably don't qualify for a Special Enrollment Period.");
+var $qepNotEligibleReturn = _link("RETURN TO DASHBOARD");
+
+function qepNotEligibleVerify() {
+	_assertVisible($qepNotEligibleBoldText);
+	_assertVisible($qepNotEligibleReturn);
+}
+
+function qepNotEligibleClickReturnToDashboard() {
+	_click($qepNotEligibleReturn);
+	verifyElementsOfIndividualDashboard();
+}

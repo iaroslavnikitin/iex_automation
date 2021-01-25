@@ -1,0 +1,78 @@
+{
+  "pageHeader": "$('h4*=Enrollment')",
+  "sb_coverageYear": "$('//select')",
+  "img_healthPlan":"$$('#enrollmentimage > img')[0]",
+  "healthPlanName":"$$('div.span7 > h5')[0]",
+  "td_enrollmentStatusHealth":"$$('//th[contains(text(),\"Enrollment Status\")]/ancestor::tr/td')[0]",
+  "td_enrollmentStatusDental":"$$('//th[contains(text(),\"Enrollment Status\")]/ancestor::tr/td')[1]",
+  "td_effectiveDateHealth":"$$('//th[text()=\"Effective Date:\"]/ancestor::tr/td')[0]",
+  "td_effectiveDateDental":"$$('//th[text()=\"Effective Date:\"]/ancestor::tr/td')[1]",
+  "td_enrollmentID":"$$('//th[text()=\"Exchange Assigned Policy ID\"]/ancestor::tr/td')[0]",
+  "td_netPremium":"$$('//th[text()=\"Net Premium\"]/ancestor::tr/td')[0]",
+  "td_grossPremium":"$$('//th[text()=\"Premium Amount\"]/ancestor::tr/td')[0]",
+  "td_aptc":"$$('//th[text()=\"Elected Federal APTC Amount\"]/ancestor::tr/td')[0]",
+  "td_stateSubsidy":"$$('//th[text()=\"NJHPS\"]/ancestor::tr/td')[0]",
+  "td_cmsPlanId":"$$('//th[text()=\"CMS Plan ID\"]/ancestor::tr/td')[0]",
+  "td_txnId":"$$('//th[text()=\"Transaction ID\"]/ancestor::tr/td')[0]",
+
+
+
+  "lk_actions_health": "$$('//i[contains(@class,\"icon-gear\")]')[0]",
+  "lk_actions_dental": "$$('//i[contains(@class,\"icon-gear\")]')[1]",
+  "lk_OverrideEnrollStatus_health": "$$('//*[@id=\"OverrideEnrollStatus\"]')[0]",
+  "lk_OverrideEnrollStatus_dental": "$$('//*[@id=\"OverrideEnrollStatus\"]')[1]",
+  "popUpHeader_oes": "$('//span[contains(text(),\"Override Enrollment Status\")]')",
+  "lk_popUp_Cancel": "$('//div[@class=\"modal-footer\"]//a[@class=\"btn btn-secondary pull-right\"][contains(text(),\"Cancel\")]')",
+  "lk_additionalInfo_health": "$$('a*=Additional Information')[0]",
+  "lk_additionalInfo_dental": "$$('a*=Additional Information')[1]",
+  "lk_showPremiumHistory_health": "$$('a*=SHOW PREMIUM HISTORY')[0]",
+  "lk_showPremiumHistory_dental": "$$('a*=SHOW PREMIUM HISTORY')[1]",
+  "lk_resend834History_health": "$$('a*=RESEND 834 HISTORY')[0]",
+  "lk_resend834History_dental": "$$('a*=RESEND 834 HISTORY')[1]",
+  "lk_resendLatest834Transaction_health": "$$('a*=RESEND LATEST 834 TRANSACTION')[0]",
+  "lk_resendLatest834Transaction_dental": "$$('a*=RESEND LATEST 834 TRANSACTION')[1]",
+  "pageHeader_premiumHistory":"$('//h4[contains(text(),\"Enrollment - Premium History\")]')",
+  "btn_back":"$('//button[contains(text(),\"Back\")]')",
+  "lk_actions":"$('span*=Actions')",
+  "btn_change":"$('.editToolButtonDiv').$('button*=Change')",
+  "btn_cancel":"$('.editToolButtonDiv').$('button*=Cancel')",
+  "cancelPopup":
+  {
+  "hd_cancelEnrollmentModalHeader":"$('#cancelEnrollmentModalHeader')",
+  "sb_reasonForCancel":"$('select[name=\"vm.cancelEnrollmentReason\"]')",
+  "tb_commment":"$('#cancelEnrollmentModal').$('textarea')",
+  "btn_submit":"$('button*=Submit')"
+  },
+  "successPopup":
+  {
+    "hd_successPopup":"$('span*=Success')",
+    "btn_close":"$('#premiumOverrideResultModal').$('button*=Close')"
+  },
+  "td_enrollmentStartDate":"$('//th[contains(text(),\"Enrollment Start Date\")]/ancestor::tr/td')",
+  "td_enrollmentEndDate":"$('//th[contains(text(),\"Enrollment End Date\")]/ancestor::tr/td')",
+  "memberDetailsTable":
+  {
+    "type":"$('//div[@class=\"enrollment-history\"]/div[1]/table[1]/tbody/tr/td[1]')",
+    "name":"$('//div[@class=\"enrollment-history\"]/div[1]/table[1]/tbody/tr/td[2]')",
+    "gender":"$('//div[@class=\"enrollment-history\"]/div[1]/table[1]/tbody/tr/td[3]')",
+    "ssn":"$('//div[@class=\"enrollment-history\"]/div[1]/table[1]/tbody/tr/td[4]')",
+    "benefitEffectiveDate":"$('//div[@class=\"enrollment-history\"]/div[1]/table[1]/tbody/tr/td[5]')",
+    "memberID":"$('//div[@class=\"enrollment-history\"]/div[1]/table[1]/tbody/tr/td[6]')"
+  },
+  "premiumHistoryTable":
+  {
+    "noOfRows":"$$('//table[@id=\"premium-history-table\"]/tbody/tr')",
+    "month":"$('//table[@id=\"premium-history-table\"]/tbody/tr[index]/td[1]')",
+    "grossPremium":"$('//table[@id=\"premium-history-table\"]/tbody/tr[index]/td[2]')",
+    "netPremium":"$('//table[@id=\"premium-history-table\"]/tbody/tr[index]/td[5]')",
+    "premiumEHB":"$('//table[@id=\"premium-history-table\"]/tbody/tr[index]/td[7]')"
+  },
+  "popUpHeader_834History":"$('//span[contains(text(),\"Resend 834 History\")]')",
+  "popUpHeader_834Transaction":"$('//span[contains(text(),\"Resend latest 834 transaction\")]')",
+  "lk_Cancel_834": "$('//form[@name=\"overrideRecentHistoryModalForm\"]//a[contains(@class,\"btn btn-secondary pull-right\")][contains(text(),\"CANCEL\")]')",
+  "lk_Cancel_834_Trans": "$('//a[@class=\"btn btn-secondary pull-right\"][contains(text(),\"CANCEL\")]')",
+  "lbl_enrollees_health": "$$('//h5[contains(text(),\"Enrollees\")]')[0]",
+  "lbl_enrollees_dental": "$$('//h5[contains(text(),\"Enrollees\")]')[1]",
+  "lbl_enrollmentHistory_health": "$$('//h5[contains(text(),\"Enrollment History\")]')[0]",
+  "lbl_enrollmentHistory_dental": "$$('//h5[contains(text(),\"Enrollment History\")]')[1]"
+}

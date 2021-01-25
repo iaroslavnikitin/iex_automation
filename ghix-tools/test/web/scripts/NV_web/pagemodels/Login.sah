@@ -1,0 +1,688 @@
+_includeOnce("ForgotPassword.sah");
+_includeOnce("HeaderFooter.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("../lib/DB.sah");
+_resource("/opt/sahi/useraccounts.xls");
+
+// Variables
+var $tabDate;
+var $announceName;
+var $announcement = [];
+var $totalAnnouncement = 0;
+var $status;
+var $editFlag = "NO";
+var signedEmail;
+
+var $loginEmail = _textbox("Email Address");
+var $loginPassword = _password("/password/i");
+var $loginRememberMe = _checkbox("_spring_security_remember_me");
+var $loginSubmit =_submit("submit");
+var $loginForgotPassword = _link("/Forgot password?/i");
+var $loginIssuerLink = _link("Issuers");
+var $loginPlanLinks = _link("Plans");
+var $loginAgentLinks = _link("Agents");
+var $loginMemberlink = _link("Members");
+var $loginUsersLink = _link("Users");
+var $loginReportsLink = _link("Reports");
+var $loginTicketsLink = _link("Tickets");
+var $loginAnnouncementsLink = _link("Announcements");
+var $loginManageAnnouncementsLink = _link("Manage Announcements");
+var $loginAddNewAnnouncementbutton = _link("ADD NEW ANNOUNCEMENT");
+var $loginAddNewAnnouncementHeading1 = _heading1("ng-scope");
+var $loginAddNewAnnouncementModule = _textbox("Module");
+var $loginAddNewAnnouncementName = _textbox("Announcement Name");
+var $loginAddNewAnnouncementStartDate = _textbox("Effective Start Date");
+var $loginAddNewAnnouncementEndDate = _textbox("Effective End Date");
+var $loginAddNewAnnouncementTextHeading = _heading5("Enter Text for the Announcement");
+var $loginAnnouncementStartDateCalendarIcon = _italic("icon-calendar");
+var $loginAnnouncementEndDateCalendarIcon =_italic("icon-calendar[1]");
+var $loginAnnouncementPublishButton =  _link("PUBLISH");
+var $loginAnnouncementCancelButton = _link("CANCEL");
+var $loginAnnouncementOKbutton = _link("OK");
+var $loginAnnouncementTextBox = _paragraph(4);
+var $loginAnnouncementSubmissionHeading = _heading3("Submission Successful!");
+var $loginMembersLink = _link("Members");
+var $loginManageApplicantLink = _link("Manage Applicants");
+var $loginSearchApplicantApplicantHeading = _heading1("Applicants");
+var $loginSearchApplicantGoButton = _submit("Go");
+var $loginSearchApplicantFilterHeader = _row("graydrkbg  header");
+var $loginViewMemberAccountLink = _link("View Member Account");
+var $loginMemberViewButton = _submit("Member View");
+var $loginIndportalAnnouncementBlock = _div("announcements alert alert-block");
+var $loginIndportalMyAccountButton = _link("My Account");
+var $loginUsersLink = _link("Users");
+var $loginManageUsers = _link("Manage Users");
+var $loginUsersList = _div("rightpanel");
+var $loginManageUsersNameFilter = _textbox("User Name");
+var $loginManageUsersSaveAndSendButton = _submit("Save and Send");
+var $loginManageUsersRolesLink = _link("User Roles");
+var $loginManageUsersRolesAdminCheckBox = _checkbox("Administrator");
+var $loginManageUsersRolesSaveButton = _submit("Save");
+var $loginChageUserRoleToExadmin = _link("dropdown-toggle");
+var $loginChageUserRoleAdminLink = _link("/Administrator/");
+
+function loginVerify() {
+	_assertVisible($loginEmail);
+	_assertVisible($loginPassword);
+	_assertVisible($loginSubmit);
+	_assertVisible($loginForgotPassword);
+}
+
+function loginSubmit($email, $password, $fName, $lName) {
+	$firstName = $fName;
+	$lastName = $lName;
+	_setValue($loginEmail, $email);
+	//_maskLogs("Sensitive Data");
+	_setValue($loginPassword, $password);
+	//_unmaskLogs("Information start");
+	loginClickLoginButton();
+	verifyHeaderAndFooter();
+	verifyElementsOfIndividualDashboard();
+}
+
+function loginUser($email, $password) {
+	_setValue($loginEmail, $email);
+	_setValue($loginPassword, $password);
+	$signedEmail = $email;
+	loginClickLoginButton();
+	
+}
+
+function loginAdminAndVerifyIdentity() {
+	//verifyIdentityfromDb();
+	
+	var $query ="update cmr_household set ridp_verified ='Y' where email_address = '"+$signupEmail.toLowerCase()+"'";
+	_log($query);
+	$db.update($query);
+	
+	
+	/*
+	logOut();
+	var $url;
+	_set($url, window.document.location.href);
+	_navigateTo($url);
+	_click(_link("Log In"));
+	$url = getUpdatedBaseURL("").split("/");
+
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+//		$data= getAccountDetails($ExcelPath,"L2_CS2");
+		$data= getAccountDetails("L2_CS2");
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		_setValue($loginEmail, "auto_admin@yopmail.com");
+		//_setValue($loginEmail,"autocsr_l2cs2@yopmail.com");	
+		_setValue($loginPassword, "ghix123#");
+	}
+	loginClickLoginButton();
+	_click(_link("Members Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Manage Members"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+
+	_setValue(_textbox("householdEmail"), $signupEmail);
+
+	_click(_submit("Go"));
+	_click(_link(0, _in(_cell(2))));
+	_click(_button("mark_verified"));
+	_expectPrompt("Please provide reason for overriding RIDP verification", "UI testing");
+
+	// Verify that actions succeeded
+	_assertVisible(_strong("Verified Account"));
+
+	logOut();
+
+	loginEnterEmailAddress($signupEmail);
+	_maskLogs("Sensitive Data");
+	loginEnterPassword("ghix123#");
+	_unmaskLogs("Information end");
+	loginClickLoginButton();
+	*/
+}
+
+function loginSetTabDate($date) {
+	if ($date === undefined) {
+		$date = "08/29/2015";
+	}
+
+	var $url;
+	_set($url, window.document.location.href);
+
+	var $id = _launchNewBrowser();
+	_wait(5000);
+	_selectBrowser($id);
+	_navigateTo($url);
+
+	_setValue($loginEmail, "auto_operations@yopmail.com");
+	_setValue($loginPassword, "ghix123#");
+
+	loginClickLoginButton();
+
+	_click(_link("Application Configuration"));
+	_click(_link("IEX Configuration"));
+
+	$tabDate = _getText(_textbox("propertyValue[10]"));
+
+	_setValue(_textbox("propertyValue[10]"), $date);
+	_click(_button("Save[10]"));
+	_click(_button("Ok"));
+
+	_assertVisible(_span("Value successfully updated"));
+	_click(_button("Ok"));
+
+	_selectBrowser();
+}
+
+function loginResetTabDate() {
+	var $url;
+	_set($url, window.document.location.href);
+
+	var $id = _launchNewBrowser();
+	_wait(5000);
+	_selectBrowser($id);
+	_navigateTo($url);
+
+	_setValue($loginEmail, "auto_operations@yopmail.com");
+	_setValue($loginPassword, "ghix123#");
+
+	loginClickLoginButton();
+
+	_click(_link("Application Configuration"));
+	_click(_link("IEX Configuration"));
+
+	$tabDate = _getText(_textbox("propertyValue[10]"));
+
+	_setValue(_textbox("propertyValue[10]"), $tabDate);
+	_click(_button("Save[10]"));
+	_click(_button("Ok"));
+
+	_assertVisible(_span("Value successfully updated"));
+	_click(_button("Ok"));
+
+	_selectBrowser();
+}
+
+function loginCheckRememberMe() {
+	_check($loginRememberMe);
+}
+
+function loginUncheckRememberMe() {
+	_uncheck($loginRememberMe);
+}
+
+function loginClickForgotPassword() {
+	_click($loginForgotPassword);
+	forgotPasswordVerify();
+}
+
+var $overrideCoverage="";
+function loginChangeCoverageDateAsAdmin($days) {
+	$overrideCoverage = calculateEventDate($days);
+	_click(_link("Members"));
+	_click(_link("Manage Members"));
+	_setValue(_textbox("householdEmail"), $signupEmail);
+
+	_click(_submit("Go"));
+	_click(_link(0, _in(_cell(2))));
+	_click(_link("View Member Account", _in(_list("nav nav-list[1]"))));
+	_assertVisible(_heading4("View Member Account"));
+	_assertVisible(_submit("Member View"));
+	_click(_submit("Member View"));
+
+	_assertVisible(_div(9));
+	_click(_link("My Applications"));
+	if(_isVisible(_div("opencsrMenu"))){
+		_assertVisible(_div("opencsrMenu", _near(_div("currentAppStatus"))));
+		_click(_span("csrActionButton"));
+		_click(_link("CHANGE COVERAGE START DATE"));
+		_assertVisible(_span("Change coverage start date"));
+		_setValue(_textarea(0), "Change Coverage Date");
+		_click(_link("Continue"));
+		_assertVisible(_span("Enter new coverage start date:"));
+		_assertVisible(_textbox("cov"));
+		_setValue(_textbox("cov"), $overrideCoverage);
+	}
+	else {
+		_assertVisible(_link("Override SEP/QEP Denial",(_div("pastAppStatus", _near(_div("Past Applications"))))));
+		_click(_link("Override SEP/QEP Denial", _near(_div("/Past Application/"))));
+
+		_assertVisible(_heading3("Reversal of SEP/QEP Denial"));
+		_assertVisible(_div("Please specify the reason for overriding the denied Special Enrollment Period for this customer. This will help keep track of updates to the customer's record."));
+		_setValue(_textarea(0), "Change Coverage Date");
+		_click(_link("Continue"));
+		_assertVisible(_span("Enter new special enrollment period end date:"));
+		_assertVisible(_textbox("newSEPEndDate"));
+		_call(_textbox("newSEPEndDate").value= $overrideCoverage);
+	}
+
+	_click(_link("Continue[1]"));
+	_assertEqual("Submission Successful!", _getText(_heading3("Submission Successful!")));
+	_click(_link("OK[3]"));
+}
+
+var $loginRole;
+
+function loginClickloginlink(){
+	_click(_link("Log In"));
+}
+
+function loginEnterEmailAddress($email, $role){
+	if(!_isVisible($loginEmail))
+		loginClickloginlink();
+
+	$loginRole =$role;
+	if($loginRole == "Agent")
+		var $email = $signupEmail;
+
+	if(!$email){
+		$signedEmail = $signupEmail;
+	}
+	else{
+		$signedEmail =$email;
+	}
+	_setValue($loginEmail, $signedEmail);
+	return $signedEmail;
+}
+
+function loginEnterPassword($password){
+	_setValue($loginPassword, $password);
+}
+
+function loginClickLoginButton(){
+	_click($loginSubmit);
+	$loggedIn=true;
+	if(_isVisible(_heading3("Your Password has expired! Please change your password to continue"))||_isVisible(_submit("Log In"))){
+			activateUserfromDb($signedEmail);
+			loginClickloginlink();
+			loginEnterEmailAddress($signedEmail);
+			loginEnterPassword("ghix123#");
+			_click($loginSubmit);
+			//loginClickLoginButton();		
+		}
+	if(_isVisible(_submit("Log In"))){
+		_fail(["User was not able to login"]);
+	}
+	if($loginRole =="exadmin")
+		loginVerifyExadminDashboard();
+}
+
+function loginVerifyExadminDashboard(){
+	_assertVisible($loginIssuerLink);
+	_assertVisible($loginPlanLinks);
+	_assertVisible($loginAgentLinks);
+	_assertVisible($loginMemberlink);
+	_assertVisible($loginUsersLink);
+	_assertVisible($loginReportsLink);
+	_assertVisible($loginTicketsLink);
+	_assertVisible($loginAnnouncementsLink);
+}
+
+function loginClickAnnouncements(){
+	_click($loginAnnouncementsLink);
+	_click($loginManageAnnouncementsLink);
+	_assertVisible($loginAddNewAnnouncementbutton);
+}
+
+function loginClickAddNewAnnouncement(){
+	_click($loginAddNewAnnouncementbutton);
+	_assertVisible(_heading1("Create Announcement"));
+	_assertEqual("Create Announcement", _getText($loginAddNewAnnouncementHeading1));
+	_assertEqual("Individual Portal", _getValue($loginAddNewAnnouncementModule));
+	_assertVisible($loginAddNewAnnouncementName);
+	_assertVisible($loginAddNewAnnouncementEndDate);
+	_assertVisible($loginAddNewAnnouncementStartDate);
+	_assertVisible($loginAddNewAnnouncementTextHeading);
+}
+
+function loginEnterAnnouncementName($announcementName){
+	$announceName = $announcementName
+		if($announceName == null)
+			$announceName = "Auto_Announcement"+ randomString(4, true);
+	_setValue($loginAddNewAnnouncementName,$announceName);
+
+}
+
+function loginEnterAnnouncementStartDate($date, $announcementStatus){
+	$status = $announcementStatus ;
+	var $day = loginGetCurrentDate();
+	if($date == null){
+		$status = "active";
+		_click($loginAnnouncementStartDateCalendarIcon);
+		_click(_cell("/active/"));
+	}
+	else 
+		_setValue($loginAddNewAnnouncementStartDate, $date);
+}
+
+function loginGetCurrentDate(){
+	var $currentDate = new Date();
+	var $day = $currentDate.getDate().toString();
+	return $day;
+}
+
+function loginEnterEffectiveEndDate($date){
+	var $day = loginGetCurrentDate();
+	if($date == null){
+		_click($loginAnnouncementEndDateCalendarIcon);
+		_click(_cell("/active/"));
+	}
+	else
+		_setValue($loginAddNewAnnouncementEndDate, $date);
+}
+
+function loginClickPublish(){
+	var $dbData;
+	if($editFlag =="YES"){
+		$announcement[0].AnnouncementName=$announceName;
+		$announcement[0].StartDate = _getText($loginAddNewAnnouncementStartDate);
+		$announcement[0].EndDate = _getText($loginAddNewAnnouncementEndDate);
+		$announcement[0].Text = _getText($loginAnnouncementTextBox);
+		$editFlag = "NO";
+	}
+	else{
+		$announcement.push({
+			AnnouncementName:$announceName}
+						  );
+		$announcement[$totalAnnouncement].StartDate = _getText($loginAddNewAnnouncementStartDate);
+		$announcement[$totalAnnouncement].EndDate = _getText($loginAddNewAnnouncementEndDate);
+		$announcement[$totalAnnouncement].Text = _getText($loginAnnouncementTextBox);
+		$totalAnnouncement = $totalAnnouncement+1;
+	}
+	_click($loginAnnouncementPublishButton);
+	_assertVisible($loginAnnouncementSubmissionHeading);
+	_assertVisible($loginAnnouncementOKbutton);
+	_click($loginAnnouncementOKbutton);
+	_assertVisible($loginAddNewAnnouncementbutton);
+
+	for(var $i =0; $i<$announcement.length;$i++){
+		loginGetAnnouncementPage($announcement[$i].AnnouncementName);
+		_assertEqual("/"+$announcement[$i].AnnouncementName+"/", _getText(_div("/ng-scope/")));
+		if (_isIE()) {
+			var $announcentDetails = _getText(_row("/"+$announcement[$i].AnnouncementName+"/")).replace(/\//g,"");
+			var $date = $announcement[$i].StartDate.replace(/\//g,"");
+			_assertEqual("/" + $date + "/", $announcentDetails);
+			var $date = $announcement[$i].EndDate.replace(/\//g,"");
+			_assertEqual("/" + $date + "/", $announcentDetails);
+		}
+		else{
+			var $announcentDetails = _getText(_row("/"+$announcement[$i].AnnouncementName+"/")).split(" ");
+			_assertEqual($announcement[$i].StartDate, $announcentDetails[2]);
+			_assertEqual($announcement[$i].EndDate,$announcentDetails[3]);
+		}
+		_assertVisible(_link("Edit", _near(_cell($announcement[$i].AnnouncementName))));
+		_assertVisible(_div("/Announcement Text/", _near(_cell($announcement[$i].AnnouncementName))));
+		_click(_italic("/icon-plus-sign ng-scope/", _near(_cell($announcement[$i].AnnouncementName))));
+		_assertEqual("/"+$announcement[$i].Text+"/",_getText(_div("/announcement-text-container/", _near(_cell($announcement[$i].AnnouncementName)))));
+		if($status =="inactive")
+			_assertEqual("/Inactive/", _getText(_row("/"+$announcement[$i].AnnouncementName+"/")));
+		else
+			_assertEqual("/Active/", _getText(_row("/"+$announcement[$i].AnnouncementName+"/")));
+	}
+	$dbData = verifyAnnouncementCreation();
+
+	for(var $i=0; $i< $dbData.length; $i++){
+		if($dbData[$i][0] == $announcement[0].AnnouncementName){
+			//_assertEqual($announcement[0].Text, $dbData[$i][1]);/////text are stored in html format in db, so not possible to automate
+			var $date = $dbData[$i][2].match(/^\s*([0-9]+)\s*-\s*([0-9]+)\s*-\s*([0-9]+)(.*)$/);
+			/// change to MM-DD-YYYY format
+			$startDateFromDb = ($date[2]+"/"+$date[3]+"/"+$date[1]+$date[4]).split(" ");
+			var $date =  $dbData[$i][3].match(/^\s*([0-9]+)\s*-\s*([0-9]+)\s*-\s*([0-9]+)(.*)$/);
+			/// change to MM-DD-YYYY format
+			$endDateFromDb = ($date[2]+"/"+$date[3]+"/"+$date[1]+$date[4]).split(" ");
+			_assertEqual($announcement[0].StartDate, $startDateFromDb[0]);
+			_assertEqual($announcement[0].EndDate, $endDateFromDb[0]);
+		}
+	}
+}
+
+function loginClickCancel(){
+	_click($loginAnnouncementCancelButton);
+	_assertVisible($loginAddNewAnnouncementButton);
+	if($announceName !=null)
+		_assertNotEqual("/"+$announceName+"/", _getText(_div("ng-scope[1]")));
+}
+//http://www.java-forums.org/new-java/1077-creating-random-sentences.html
+
+function loginEnterTextForTheAnnouncement($announcementText){
+	var $str = $announcementText;
+	if($announcementText== null){
+		var $article = [ "The", "Main", "Your", "Important", "This"];
+		var $word1=  ["announcement", "message", "information", "bulletin", "broadcasting is"];
+		var $word2 = ["regarding", "in connection to", "respect to", "regarding", "regarding"];
+		var  $word3= ["Health plan", "Dental plan", "Health and dental plan", "vison", "Dental and Vision"];
+		var  $word4 = ["Coverage", "Insurance", "Benefits", "Plans", "Benefits and Plans"];
+		var $index = Math.floor(Math.random() * $article.length);
+
+		for (i=1; i<=10; i++){
+			$str= $article[$index] +" "+ $word1[$index]+" "+ $word2[$index] +"  "+ $word3[$index]+" " +$word4[$index]+$announceName;
+		}
+
+		$announcementText = $str;
+	}
+	_setValue(_paragraph(4), $announcementText);
+}
+//@param $field = Text, StartDate, EndDate, Name
+//edits first announcement created
+
+function loginClickEdit($data, $field){
+	$editFlag = "YES";
+	loginGetAnnouncementPage($announcement[0].AnnouncementName);
+	_click(_link("Edit", _near(_cell($announcement[0].AnnouncementName))));
+	_assertVisible($loginAnnouncementPublishButton);
+	_assertVisible($loginAnnouncementCancelButton);
+	if($field == "Name"){
+		$announceName =$data;
+		loginEnterAnnouncementName($announceName);
+	}
+	else if($field == "Text"){
+		loginEnterTextForTheAnnouncement("The Volunteer Plan would give a voucher to people who can’t afford an employer-sponsored plan to offset the cost of the monthly premium.\n ");
+		loginEnterTextForTheAnnouncement(" Patients and family members are no longer tied to specific areas of the facility, waiting for their name to be called. ");
+	}
+	else if($data =="previousYear"){
+		loginEnterEffectiveEndDate("03/15/2015", "inactive");
+		loginEnterAnnouncementStartDate("03/15/2015","inactive");
+	}
+}
+
+function logOut(){
+	_click(_link("/Logout/"));
+	$loggedIn=false;
+	_assertNotVisible(_link("/Logout/"));
+}
+
+function loginGetAnnouncementPage($announcement){
+	_click(_link("Announcements Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Manage Announcements End of dropdown"));
+	var $found = "false";
+	var $announce = $announcement;
+	while($found =="false"){
+		var $getAnnouncementName = _collect("_row","/ng-scope/","sahiText", _in(_table("table ng-scope")));
+		for(var $i =0; $i<$getAnnouncementName.length;$i++){
+			var $annName = _getText($getAnnouncementName[$i]);
+			if($annName.indexOf($announce)!=-1)
+				$found = "true";
+		}
+		if($found =="false"){
+			var $nextButtonStatus = _getAttribute(_listItem("Next"),"className");
+			if ($nextButtonStatus =="ng-scope disabled")
+				break;
+			else
+				_click(_link("Next"));
+		}
+	}
+}
+
+function loginClickMembersManageApplicant(){
+	_click($loginMembersLink);
+	_click($loginManageApplicantLink);
+	_assertVisible($loginSearchApplicantApplicantHeading);
+	_assertVisible($loginSearchApplicantGoButton);
+}
+
+function loginClickGo(){
+	_click($loginSearchApplicantGoButton);
+	_assertVisible($loginSearchApplicantFilterHeader);
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		if($caseNumber ==""|| $caseNumber == null){
+			_log("Stopping test case here as case Number is Empty")
+				_stop();
+		}
+		else{
+			var $caseNum = $caseNumber.toString();
+			_assertVisible(_cell($caseNum));
+		}
+	}
+}
+
+function loginClickIndividualUnderPrimaryContact($firstname, $lastname){
+	if ($firstname && $lastname) {
+		_click(_link($firstname + " " + $lastname, _near(_tableHeader("Primary Contact"))));
+	} else {
+		if (isProductionEnvironment()) {
+			_fail("Firstname and Lastname not available at this step. This is production environment.");
+		}
+		_click(_link(1, _near(_tableHeader("Primary Contact"))));
+	}
+	_assertVisible($loginViewMemberAccountLink);
+}
+
+function loginClickViewMemberAccount(){
+	_click($loginViewMemberAccountLink);
+	_click($loginMemberViewButton);
+	if($status == "inactive"){
+		_assertNotEqual("/"+ $announcement[0].Text+"/", _getText($loginIndportalAnnouncementBlock));
+	}
+	else{
+		for(var $i =0; $i<$announcement.length;$i++){
+			_assertEqual("/"+ $announcement[$i].Text+"/", _getText($loginIndportalAnnouncementBlock));
+		}
+	}
+}
+
+function loginIndportalClickMyAccount(){
+	_click($loginIndportalMyAccountButton);
+	_assertVisible($loginAnnouncementsLink);
+}
+
+//@param $grant = "Yes"
+function loginUserExadminRole($user,$grant){
+	_click($loginUsersLink);
+	_click($loginManageUsers);
+	_assertVisible($loginUsersList);
+	_setValue($loginManageUsersNameFilter, $user);
+	_click($loginSearchApplicantGoButton);
+	_assertVisible(_div("rightpanel"));
+	_click(_link($user));
+	_assertVisible($loginManageUsersSaveAndSendButton);
+	_click($loginManageUsersRolesLink);
+	if($grant=="Yes"){
+		if(_call(_checkbox("Administrator").checked))
+			_check(_checkbox("Administrator"));
+	}
+	else{
+		_uncheck(_checkbox("Administrator"));
+	}
+	_click($loginManageUsersRolesSaveButton);
+}
+
+function loginChangeUserRoleToExadmin(){
+	_click($loginChageUserRoleToExadmin);
+	_click($loginChageUserRoleAdminLink);
+	_assertVisible($loginAnnouncementsLink);
+}
+
+function loginCertifyAgent(){
+	_click(_link("Agents"));
+	_click(_link("Manage Agents"));
+	_setValue(_textbox("First	Name "), $firstName);
+	_click(_submit("submit"));
+	_click(_link("dropdown"));
+	_click(_italic("icon-pencil"));
+	_setSelected(_select("certificationStatus"), "Certified");
+	_click(_submit("Submit"));
+	_assertEqual("/Certified/", _getText(_table("table table-border-none table-condensed verticalThead")));
+}
+
+function verifyAnnouncementTabNotDisplayed($email, $password){
+	loginClickloginlink();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	_log("User email "+$email+"  and password = "+$password);
+	loginClickLoginButton();
+	if(_isVisible(_link("Logout")))
+		clickLogout();
+	else
+		clickLogout();
+}
+
+//function created for data driven test case
+function verifyAnnouncementCreatedByUserGrantedAdminRole($email, $password){
+	setDB();
+	openBrowser();
+	loginClickloginlink();
+	loginEnterEmailAddress("auto_admin@yopmail.com","exadmin");
+	loginEnterPassword("ghix123#");
+	loginClickLoginButton();
+	loginUserExadminRole($email,"Yes");
+	clickLogout();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	loginChangeUserRoleToExadmin();
+	loginClickAnnouncements();
+	loginClickAddNewAnnouncement();
+	loginEnterAnnouncementName();
+	loginEnterAnnouncementStartDate();
+	loginEnterEffectiveEndDate();
+	loginEnterEffectiveEndDate();
+	loginEnterTextForTheAnnouncement();
+	loginClickPublish();
+	loginClickEdit("Text");
+	loginClickPublish();
+	loginClickMembersManageApplicant();
+	loginClickGo();
+	loginClickIndividualUnderPrimaryContact();
+	loginClickViewMemberAccount();
+	loginIndportalClickMyAccount();
+	loginClickAnnouncements();
+	loginClickEdit("previousYear","EndDate");
+	loginClickPublish();
+	loginClickMembersManageApplicant();
+	loginClickGo();
+	loginClickIndividualUnderPrimaryContact();
+	loginClickViewMemberAccount();
+	loginIndportalClickMyAccount();
+	clickLogout();
+	loginEnterEmailAddress("auto_admin@yopmail.com","exadmin");
+	loginEnterPassword("ghix123#");
+	loginClickLoginButton();
+	loginUserExadminRole($email,"No");
+	clickLogout();
+	loginEnterEmailAddress($email);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	closeBrowser();
+}
+
+function goToApplicationConfiguration(){
+	_click(_link("Application Configuration"));
+}
+
+function goToSecurityConfig(){
+	_click(_link("Security Config"));
+}
+
+
+function clickMyAccountAndLogOut(){
+
+	_click(_span("My Account"));
+	_click(_link("Logout"));
+	_assertVisible(_label("Email Address"));
+
+}

@@ -1,0 +1,96 @@
+_includeOnce("Signup.sah");
+_includeOnce("Ssap.sah");
+
+// Constants
+var $APPLY_COST_SAVINGS_URL = "https://idalink.idaho.gov/";
+
+// Variables
+var $Apply = true;
+var $clickNextCount = 0;
+var $frmQEP;
+
+// Accessors
+var $applyHeader;
+var $applyCancel;
+var $applyCostSavings;
+var $applyNoCostSavings;
+
+function verifyElementsOfApplyPopUp($fromQEP) {
+	if ($fromQEP === undefined) {
+		$fromQEP = false;
+	}
+	$frmQEP = $fromQEP;
+	if ($fromQEP) {
+		$clickNextCount = 0;
+	}
+	var $btnIndex = "";
+	if ($clickNextCount > 0) {
+		$btnIndex = "[" + $clickNextCount + "]";
+	}
+	$applyHeader = _heading3("financialHelpModal" + $btnIndex);
+	$applyCancel = _submit("Cancel" + $btnIndex);
+	if ($fromQEP) {
+		$ssapPageIndex = 0;
+		$currentPerson = 0;
+		$ssapPeople.length = 0;
+		$sepDenied =false;
+		$CostSavings = _link("Apply for Cost-Savings");
+		$NoCostSavings = _submit("Apply without Cost-Savings");
+	}
+	else {
+		$ssapPageIndex = 0;
+		$currentPerson = 0;
+		$ssapPeople.length = 0;
+		$sepDenied =false;
+		$CostSavings = _link("Apply for Cost-Savings");
+		$NoCostSavings = _submit("Apply without Cost-Savings");
+	}
+
+	_assertVisible($applyHeader);
+	_assertVisible($applyCancel);
+	_assertVisible($NoCostSavings);
+	if(_getText(_div("modal-body[1]")) == "You are currently logged in as an Agent/Broker, Enrollment Counselor, or Customer Service Representative. You cannot complete your client's application for cost-savings. If your client is interested in applying for cost-savings, please ask them to go to https://idalink.idaho.gov. to complete an application. Your client will need to set up a new account or log in to an existing account in order to create an application from there. You may assist the client in this process, but the client must be logged in to his/her own individual account."){
+		_assertNotVisible($CostSavings);
+	}
+	else {
+		_assertVisible($CostSavings);
+	}
+}
+
+function clickCancelOnApplyPopUp() {
+	_click($applyCancel);
+}
+
+function clickCostSavings() {
+	_click($CostSavings);
+
+	_wait(2000);
+	_selectWindow(_getRecentWindow().sahiWinId);
+	var $currentUrl = window.location.href;
+	_assertEqual($APPLY_COST_SAVINGS_URL, $currentUrl);
+}
+
+function clickNoCostSavings() {
+	var $url;
+	_set($url,window.document.location.href);
+	var $flow = $url.split("/");
+
+	if($flow[5] == "qephome"){
+		qepHomeClickAddress();
+		qepHomeClickContinue();
+		qepEligibleClickStartApplication();
+	}
+
+	if(_getText(_div("modal-body[1]")) == "You are currently logged in as an Agent/Broker, Enrollment Counselor, or Customer Service Representative. You cannot complete your client's application for cost-savings. If your client is interested in applying for cost-savings, please ask them to go to https://idalink.idaho.gov. to complete an application. Your client will need to set up a new account or log in to an existing account in order to create an application from there. You may assist the client in this process, but the client must be logged in to his/her own individual account."){
+		_click(_submit("Apply without Cost-Savings"));
+	}
+	else {
+		_click(_submit("Apply without Cost-Savings"));
+	}
+
+	$ssapPageIndex = 0;
+	$currentPerson = 0;
+	$ssapPeople.length = 0;
+	$sepDenied =false;
+	verifySSAPPage();
+}

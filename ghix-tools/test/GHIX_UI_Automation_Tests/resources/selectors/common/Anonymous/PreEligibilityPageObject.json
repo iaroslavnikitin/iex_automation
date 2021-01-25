@@ -1,0 +1,42 @@
+{   "pageHeader":"$$('h1')[1]",
+    "sb_coverageYear":"$('#coverageYear')",
+    "tb_zipCode":"$('#zipCode')",
+    "tb_birthdate":"$('#birthdate'+index)",
+	"cb_tobaccoUse":"$('#tobacco'+index)",
+    "cb_nativeAmerican":"$('#nativeAmerican'+index)",
+    "cb_seekingCoverage":"$('#coverage'+index)",
+    "tb_houseHoldIncome":"$('#incomeValue')",
+	"btn_checkForSavings":"$('#check-for-savings')",
+    "btn_browsePlans":"$('#check-for-plans')",
+    "btn_skipAndSignUp":"$('#skip-sign-up')",
+    "btn_spouse":"$('#addSpouse')",
+    "btn_dependent":"$('#addChild')",
+    "lk_remove":"$$('*=Remove')[row]",
+    "limitOnNumberOfDependentPopUpHeader": "$('#openDependLimit')",
+    "btn_limitOnNumberOfDependentPopUpClose":"$$('button=Close')[1]",
+    
+    "cb_pregnant":"$('#pregnant'+index)",
+    "sb_county":"$('#countyname')",
+    "rightPanel":
+    {
+        "lbl_whichCoverageYear":"$('h2*=Which coverage year?')",
+        "lbl_whereDoYouLive":"$('h2*=Where do you live?')",
+        "lbl_householdNeedCoverage":"$('h2*=Who is in your household and do they need coverage?')",
+        "lbl_members":"$('//div[contains(text(),\"Members\")]')",
+        "lbl_birthdate":"$('//div[contains(text(),\"Birthdate\")]')",
+        "lbl_tobaccoUse":"$('a*=Tobacco')",
+        "lbl_nativeAmerican":"$('span*=Native American')",
+        "lbl_seekingCoverage":"$('a*=Seeking Coverage')",
+        "lbl_pregnant":"$('//div[contains(text(),\"Pregnant?\")]')",
+        "lbl_houseHoldQualifiesLowerCost":"$('h2*=Check to see if your household income qualifies')",
+        "lbl_incomeAlertText":"$('p*=Enter the approximate annual income for your tax household')"
+
+    },
+    "invalidDataLabels":
+    {
+        "lbl_zipCodeError": "$('#ariaZipCodeError')",
+        "lbl_ageGreaterThan120Error": "$('//div[contains(text(),\"Please enter an age below 120\")]')",
+        "lbl_invalidDateError": "$('//div[contains(text(),\"Please enter valid date\")]')",
+        "lbl_childAgeGreaterThan26Error": "$('//div[contains(text(),\"Children must be under age 26\")]')"
+    }
+}

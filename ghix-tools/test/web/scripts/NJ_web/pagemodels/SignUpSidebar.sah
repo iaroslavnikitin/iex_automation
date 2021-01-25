@@ -1,0 +1,91 @@
+_includeOnce("Utils.sah");
+
+/* Enrollment Steps */
+var $steps = _div("Steps");
+var $entityInformationLink = _link("1. Entity Information");
+var $populationsServedLink = _link("2. Populations Served");
+var $locationsAndHoursLink = _link("3. Locations and Hours");
+var $contactInformationLink = _link("4. Contact Information");
+var $enrollmentCounselorsLink = _link("5. Certified Assisters")
+var $documentUploadLink = _link("6. Document Upload");
+var $paymentInformationLink = _link("7. Payment Information");
+var $entityInfoEnrollmentSteps = [$steps, $entityInformationLink, $populationsServedLink, $locationsAndHoursLink, $contactInformationLink, $enrollmentCounselorsLink,
+						$documentUploadLink, $paymentInformationLink];
+
+// After Entity Info Finished
+var $finishedEntityInformationLink =  _link("YesEntity Information", _under(_div("Steps")));
+var $populationsServedEnrollmentSteps = [$steps, $finishedEntityInformationLink, $populationsServedLink, $locationsAndHoursLink, $contactInformationLink, $enrollmentCounselorsLink,
+						$documentUploadLink, $paymentInformationLink];
+
+// After Populations Served Finished
+var $finishedPopulationsServedLink = _link("YesPopulations Served");
+var $locationsAndHoursEnrollmentSteps = [$steps, $finishedEntityInformationLink, $finishedPopulationsServedLink, $locationsAndHoursLink, $contactInformationLink, $enrollmentCounselorsLink,
+						$documentUploadLink, $paymentInformationLink];
+
+// After Locations and Hours Finished
+var $finishedLocationsAndHoursLink = _link("YesLocations and Hours");
+var $contactInformationEnrollmentSteps = [$steps, $finishedEntityInformationLink, $finishedPopulationsServedLink, $finishedLocationsAndHoursLink, $contactInformationLink, $enrollmentCounselorsLink,
+						$documentUploadLink, $paymentInformationLink];
+
+// After Contact Info Finished
+var $finishedContactInformationLink = _link("YesContact Information");
+var $enrollmentCounselorsEnrollmentSteps = [$steps, $finishedEntityInformationLink, $finishedPopulationsServedLink, $finishedLocationsAndHoursLink, $finishedContactInformationLink, $enrollmentCounselorsLink,
+						$documentUploadLink, $paymentInformationLink];
+
+// After Certified Enrollment Counselors Finished
+var $finishedEnrollmentCounselorsLink = _link("YesCertified Assisters")
+var $documentUploadEnrollmentSteps = [$steps, $finishedEntityInformationLink, $finishedPopulationsServedLink, $finishedLocationsAndHoursLink, $finishedContactInformationLink, $finishedEnrollmentCounselorsLink,
+						$documentUploadLink, $paymentInformationLink];
+
+var $finishedDocumentUploadLink = _link("YesDocument Upload");
+var $paymentInfoEnrollmentSteps = [$steps, $finishedEntityInformationLink, $finishedPopulationsServedLink, $finishedLocationsAndHoursLink, $finishedContactInformationLink, $finishedEnrollmentCounselorsLink,
+						$finishedDocumentUploadLink, $paymentInformationLink];
+
+// Registration Status Enrollment Steps
+var $registrationStatusLink = _link("Registration Status");
+var $registrationStatusEnrollmentSteps = [];
+
+/* Creates EnrollmentSteps for Registration Status Tab
+*  This array is different from the other EnrollmentSteps because the link text is different
+*/
+function setupRegistrationEnrollmentSteps() {
+	for (var $i = 0; $i < $entityInfoEnrollmentSteps.length; $i++) {
+		var $editedLink = _getText($entityInfoEnrollmentSteps[$i]).split(' ').splice(1).join(' ');
+		$registrationStatusEnrollmentSteps.push(_link($editedLink));
+	}
+	$registrationStatusEnrollmentSteps.push($registrationStatusLink);
+	_log("$registrationStatusEnrollmentSteps " +$registrationStatusEnrollmentSteps);
+}
+
+function verifyEntityInfoSidebar() {
+	verifyArray($entityInfoEnrollmentSteps);
+}
+
+function verifyPopulationsServedSidebar() {
+	verifyArray($populationsServedEnrollmentSteps);
+}
+
+function verifyLocationsAndHoursSidebar() {
+	verifyArray($locationsAndHoursEnrollmentSteps);
+}
+
+function verifyContactInformationSidebar() {
+	verifyArray($contactInformationEnrollmentSteps);
+}
+
+function verifyEnrollmentCounselorsSidebar() {
+	verifyArray($enrollmentCounselorsEnrollmentSteps);
+}
+
+function verifyDocumentUploadSidebar() {
+	verifyArray($documentUploadEnrollmentSteps);
+}
+
+function verifyPaymentInfoSidebar() {
+//	verifyArray($paymentInfoEnrollmentSteps);
+	verifyArray($documentUploadEnrollmentSteps);
+}
+
+function verifyRegistrationStatusSidebar() {
+	verifyArray($registrationStatusEnrollmentSteps);
+}

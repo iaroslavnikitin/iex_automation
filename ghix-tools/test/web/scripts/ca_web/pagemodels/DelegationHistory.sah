@@ -1,0 +1,508 @@
+_includeOnce("../pagemodels/DelegationHistoryElements.sah");
+
+
+/********************Actions and navigations***********************/
+
+function clickHouseholdPrimaryNameLink($primaryName){
+	$primaryName = $primaryName.toLowerCase();
+	_click(_link($primaryName));
+}
+
+function navigateToViewAgentListReact(){
+	_click($agencyTopNavBarElements.agentsTab);
+	_click($agentsTab.viewAgentList);
+}
+
+function navigateToAgencyActiveConsumersReact(){
+	_click($agencyTopNavBarElements.agencyDelegationsTab);
+	_click($agencyDelegationsTab.activeConsumers);
+}
+
+function navigateToMyDashboardReact(){
+	_click($agencyTopNavBarElements.myDelegationsTab);
+	_click($myDelegationsTab.myDashboard);
+}
+
+function getDelegationHistoryInformation($role){
+
+	var $rowsCount = _collect ("_row", "", _in($delegationHistoryTable)).length;
+	_log("$rowsCount: "+$rowsCount);
+	var $delegationHistoryInformation = [];
+	
+	var $tableHeadersToUse;
+
+	if($role === "agency"){
+		$tableHeadersToUse = $agencyDelegationTableHeadersText.length;
+		_log("$tableHeadersToUse: "+$tableHeadersToUse);
+	}
+		
+	for (var $i = 1; $i < $rowsCount; $i++) {
+		var $delegationHistoryInformationRow = [];
+
+		for (var $j = 0; $j < $tableHeadersToUse; $j++) {
+			$delegationHistoryInformationRow[$j] = _getText (_cell($j,_in(_row($i))));
+		}
+		_log("$delegationHistoryInformationRow: "+$delegationHistoryInformationRow);
+		$delegationHistoryInformation[$i-1] = $delegationHistoryInformationRow;
+	}
+	
+	_log("$delegationHistoryInformation: "+$delegationHistoryInformation);
+	return $delegationHistoryInformation;
+}
+
+function createDelegationHistoryRecord($agents,$counselors,$agentOrCecNameToDelegate,$consumerData){
+	var $delegationHistoryRecord = {};
+	var $delegationHistoryRecords = [];
+
+
+	for (var $j = 0; $j < $consumerData.length; $j++) {
+	
+		if ($agents) {
+			var $type="Agent";
+
+			for (var $i = 0; $i < $agents.length; $i++) {
+				if ($agentOrCecNameToDelegate.toLowerCase() === $agents[$i].name.toLowerCase()) {
+					$delegationHistoryRecord = {
+						"householdPrimary": $consumerData[$j].consumerName.toLowerCase(),
+						"caseId": $consumerData[$j].caseId,
+						"agentCecName": $agentOrCecNameToDelegate.toLowerCase(),
+						"type": $type,
+						"agentLicenseNumber": $agents[$i].licenseNumber,
+						"businessName": $agents[$i].businessName,
+						"delegationStart": getCurrentDate("MM/DD/YYYY"),
+						"delegationEnd": "Present",
+						"reasonToEnd": "-"
+					};
+				}
+			}
+		}
+		$delegationHistoryRecords[$j] = $delegationHistoryRecord;
+	}
+
+	var $str = JSON.stringify($delegationHistoryRecords);
+  	_log("$delegationHistoryRecord: "+$str);
+
+	return $delegationHistoryRecords;
+}
+
+function updateDelegationHistoryRecords($delegationHistoryRecords,$newRecords,$reason,$option){
+
+	for (var $i = 0; $i < $delegationHistoryRecords.length; $i++) {
+		if ($delegationHistoryRecords[$i].caseId == $newRecords[$i].caseId && $delegationHistoryRecords[$i].delegationEnd == "Present") {
+			//$delegationHistoryRecords[$i].delegationEnd = getCurrentDate("MM/DD/YYYY");
+			Object.defineProperty($delegationHistoryRecords[$i], "delegationEnd", {value : getCurrentDate("MM/DD/YYYY")});
+			Object.defineProperty($delegationHistoryRecords[$i], "reasonToEnd", {value : $reason});
+		}
+	}
+
+	if ($option != "same records") {
+		for (var $i = 0; $i < $newRecords.length; $i++) {
+			$delegationHistoryRecords.unshift($newRecords[$i]);
+		}
+	}
+	
+	var $str = JSON.stringify($delegationHistoryRecords);
+  	_log("$delegationHistoryRecords: "+$str);
+
+  	return $delegationHistoryRecords;
+}
+
+function navigateToDelegationHistoryFromAgentDashboard(){
+	_click($myDelegationHistoryLinkOnLeftNav);
+}
+
+function getConsumerData($household,$option){
+
+	var $caseId;
+	if ($option === "before AT") {
+		$caseId = "-";
+	}else{
+		$caseId = $household.externalHouseholdCaseId;
+	}
+ 
+	var $consumerName = $household.people[0].firstName+" "+$household.people[0].lastName;
+
+	return {"caseId":$caseId, "consumerName":$consumerName};
+}
+
+function searchOnDelegationHistory($caseId,$agentFirstName,$agentLastName,$agentLicenseNum,$cecFirstName,$cecLastName){
+	
+	if($caseId) _setValue($householdCaseIdFilter,$caseId);
+	if($agentFirstName) _setValue($agentFirstNameFilter,$agentFirstName);
+	if($agentLastName) _setValue($agentLastNameFilter,$agentLastName);
+	if($agentLicenseNum) _setValue($agentLicenseNumberFilter,$agentLicenseNum);
+	if($cecFirstName) _setValue($cecFirstNameFilter,$cecFirstName);
+	if($cecLastName) _setValue($cecLastNameFilter,$cecLastName);
+	
+	_click($applyButton);
+	waitUntilElementInvisible($loadingData,5);
+}
+
+function clickResetAllButton($records,$option){
+
+	_click($resetAllButton);
+	waitUntilElementInvisible($loadingData,5);
+	if($records) verifyRecordsAfterResetAll($records,$option);
+
+}
+
+function verifyRecordsAfterResetAll($records,$option){
+	var $rowsCountOnUI = _collect ("_row", "", _in($delegationHistoryTable)).length-1;
+	if ($option === "same") {
+		_assertEqual ($records.length, $rowsCountOnUI, "records count should match after reset filters");
+	}else{
+		_assertTrue ($rowsCountOnUI > $records.length, "there should be more records displayed after reset filters");
+	}
+	
+}
+
+function navigateToDelegationHistoryURL(){
+	var $delegationHistoryUrl = "https://"+getBaseDomain()+"/hix/delegation";
+	_navigateTo($delegationHistoryUrl,true);
+}
+
+function createSelfDelegation($fromEnroller,$toEnroller,$household){
+
+	var $requestBody = {};
+	if ($fromEnroller && $fromEnroller.role && $fromEnroller.role == "Agent") $requestBody.currentRecordId = $fromEnroller.recordID;
+	if ($fromEnroller && $fromEnroller.role && $fromEnroller.role == "Agent") $requestBody.currentRecordType = "broker";
+
+	if ($toEnroller.role == "Agent") $requestBody.targetRecordId = $toEnroller.recordID;
+	if ($toEnroller.role == "Agent") $requestBody.targetRecordType = "broker";
+
+	$requestBody.individualId = $household.people[0].personMedicaidIdentification;
+
+	if (!$fromEnroller) {
+		$requestBody.primaryContactInfo={};
+		$requestBody.primaryContactInfo.firstName = $household.people[0].firstName;
+		$requestBody.primaryContactInfo.lastName = $household.people[0].lastName;
+		$requestBody.primaryContactInfo.dateOfBirth = _fetch(window.moment($household.people[0].dob).format("MMDDYYYY"));
+		$requestBody.primaryContactInfo.ssn = $household.people[0].SSN;
+		$requestBody.primaryContactInfo.individualID = $household.people[0].personMedicaidIdentification;
+		$requestBody.primaryContactInfo.caseStartDate = getCurrentDate("MMDDYYYY");
+		$requestBody.primaryContactInfo.citizen = ($household.people[0].USCitizenIndicator=="true") ? "Y":"N";
+		$requestBody.primaryContactInfo.contactAddressCity = $household.people[0].homeAddress.city;
+		$requestBody.primaryContactInfo.contactAddressFirstLine = $household.people[0].homeAddress.street;
+		$requestBody.primaryContactInfo.contactAddressState = $household.people[0].homeAddress.state;
+		$requestBody.primaryContactInfo.contactAddressZipCode = $household.people[0].homeAddress.zipcode;
+		$requestBody.primaryContactInfo.gender = ($household.people[0].personSex=="Male") ? "M":"F";
+		_log("$household.people[0].email: "+$household.people[0].email);
+		if ($household.people[0].email) $requestBody.primaryContactInfo.emailID = $household.people[0].email;
+		_log("$household.people[0].phoneNumber: "+$household.people[0].phoneNumber);
+		if ($household.people[0].phoneNumber) $requestBody.primaryContactInfo.primaryPhoneNumber = $household.people[0].phoneNumber;
+		$requestBody.primaryContactInfo.numberOfHouseholdMembers = $household.people.length;
+		//$requestBody.primaryContactInfo.prefferedCommunicationMethod = $household.people.length;
+		if ($household.people[0].personSpeaksLanguage) $requestBody.primaryContactInfo.prefferedSpokenLanguage = $household.people[0].personSpeaksLanguage;
+		if ($household.people[0].personWritesLanguage) $requestBody.primaryContactInfo.prefferedWrittenLanguage = $household.people[0].personWritesLanguage;
+	}	
+
+	var $str = JSON.stringify($requestBody);
+    _log("JSON: "+$str);
+        
+    var $request = new RESTRequest();
+    var $serverUrl = (getBaseDomain().indexOf("ghixqa") != -1) ? getBaseDomain().replace("ghixqa","eng.vimo"):getBaseDomain();
+    $request.setHeader("Content-Type", "application/json");
+    $request.setURL("https://"+$serverUrl+"/ghix-broker/selfdelegation");
+    $request.setBody($str);
+
+    var $response = $request.submit("post");
+    var $statusCode = $response.getResponseCode();
+    var $responseBody = $response.getBodyAsString();
+    _log("response code: "+$statusCode);
+    _log("response body: "+$responseBody);
+
+    var $delegationHistoryRecords;
+    var $consumerName = $household.people[0].firstName+" "+$household.people[0].lastName;
+    var $consumerData = [
+    	{
+    		"caseId":$household.externalHouseholdCaseId,
+    	 	"consumerName":$consumerName
+    	}
+    ];
+    
+    if ($toEnroller.role == "Agent"){
+    	var $agents = [];
+    	$agents.push($toEnroller);
+    	$delegationHistoryRecords = createDelegationHistoryRecord($agents,null,$agents[0].name,$consumerData);	
+    } 
+
+    return $delegationHistoryRecords;
+}
+
+
+/******************Verification functions*****************************/
+
+function verifyDelegationHistoryUI($role){
+	verifyBackToAdminSearchLink($role)
+	verifyHeadersOnDelegationHistory($role)
+	verifyFiltersOnDelegationHistory($role);
+	verifyTableHeadersOnDelegationHistory($role);
+	verifyButtonsOnDelegationHistory();
+}
+
+function verifyBackToAdminSearchLink($role){
+
+	if ($role == "supervisor") {
+		var $redurectionUrl = _getAttribute ($backToAdminSearchLink,"href");
+		_assertVisible($backToAdminSearchLink);
+		_assertTrue ($redurectionUrl.indexOf("/apspahbx/ahbxadmin.portal") != -1, "url should redirect to AHBX admin portal");
+	}else{
+		_assertNotVisible($backToAdminSearchLink);
+	}
+
+}
+
+function verifyNoSearchResultsMessage(){
+	_assertVisible($noSearchResultsMessage);
+	_assertEqual("Your search criteria did not return any results. Please make sure you have entered the correct value in your filters or if you are using more than one filter, please try to expand your search criteria by using fewer filters.", _getText($noSearchResultsMessage));
+}
+
+function verifyHeadersOnDelegationHistory($role){
+
+	var $headingToVerify;
+	if ($role === "agent") {
+		$headingToVerify = $myDelegationHistoryHeading;
+	}else if($role === "individual"){
+		$headingToVerify = $myDelegatesHeading;
+	}else{
+		$headingToVerify = $delegationHistoryHeading;
+	}
+
+	if ($role === "individual" || $role === "supervisor") {
+		_assertVisible($noteForSearch);
+	}else{
+		_assertNotVisible($noteForSearch);
+	}
+
+	_assertVisible($headingToVerify);
+	_assertVisible($filtersHeading);
+}
+
+function verifyFiltersOnDelegationHistory($role){
+
+	var $allKeys = Object.keys($delegationFilterLabelsElementsAll);
+	_log("$allKeys: "+$allKeys);
+	var $expectedKeys;
+
+	if ($role === "agency") {
+		$expectedKeys = Object.keys($agencyDelegationFilterLabelsElements);
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	if ($role === "agent") {
+		$expectedKeys = Object.keys($agentDelegationFilterLabelsElements);
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	if ($role === "individual") {
+		$expectedKeys = Object.keys($individualDelegationFilterLabelsElements);
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	if ($role === "supervisor") {
+		$expectedKeys = Object.keys($csrDelegationFilterLabelsElements);
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	for (var $i = 0; $i < $allKeys.length; $i++) {
+		if ($expectedKeys.indexOf($allKeys[$i]) != -1) {
+			_assertVisible($delegationFilterLabelsElementsAll[$allKeys[$i]], "label should be displayed");
+			_assertVisible($delegationTextboxElementsAll[$allKeys[$i]], "textbox should be displayed");
+		}else{
+			_assertNotVisible($delegationFilterLabelsElementsAll[$allKeys[$i]], "label should NOT be displayed");
+			_assertNotVisible($delegationTextboxElementsAll[$allKeys[$i]], "textbox should NOT be displayed");
+		}
+	}
+}
+
+function verifyTableHeadersOnDelegationHistory($role){
+
+	var $allKeys = Object.keys($delegationTableHeadersElementsAll);
+	_log("$allKeys: "+$allKeys);
+	var $expectedKeys;
+	var $expectedElements;
+
+	if ($role === "agency") {
+		$expectedKeys = Object.keys($agencyDelegationTableHeadersElements);
+		$expectedElements = $agencyDelegationTableHeadersElements;
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	if ($role === "agent") {
+		$expectedKeys = Object.keys($agentDelegationTableHeadersElements);
+		$expectedElements = $agentDelegationTableHeadersElements;
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	if ($role === "individual") {
+		$expectedKeys = Object.keys($individualDelegationTableHeadersElements);
+		$expectedElements = $individualDelegationTableHeadersElements;
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	if ($role === "supervisor") {
+		$expectedKeys = Object.keys($csrDelegationTableHeadersElements);
+		$expectedElements = $csrDelegationTableHeadersElements;
+		_log("$expectedKeys: "+$expectedKeys);
+	}
+
+	var $columnsCount = 0;
+	for (var $i = 0; $i < $allKeys.length; $i++) {
+		if ($expectedKeys.indexOf($allKeys[$i]) != -1) {
+			var $expectedlValue=_getText($expectedElements[$expectedKeys[$columnsCount]]);
+			var $actualValue=getTableHeaderInPosition($columnsCount);
+			$actualValue = _getText($actualValue);
+			_assertVisible($expectedElements[$expectedKeys[$columnsCount]], "label should be displayed");
+			_assertEqual($expectedlValue,$actualValue, "verify that header in correct column");
+			$columnsCount++;
+		}else{
+			_assertNotVisible($delegationTableHeadersElementsAll[$allKeys[$i]], "label should NOT be displayed");
+		}
+	}
+}
+
+function verifyButtonsOnDelegationHistory(){
+	_assertVisible($resetAllButton);
+	_assertVisible($applyButton);
+}
+
+function verifyDataInDelegationHistory($role,$delegationHistoryRecords,$option){
+
+	var $rowsCountOnUI = _collect ("_row", "", _in($delegationHistoryTable)).length-1;
+	var $expectedRowsCount = $delegationHistoryRecords.length;
+
+	if($option === "latest record"){
+		$expectedRowsCount = $rowsCountOnUI;
+	}
+
+	for (var $i = 0; $i < $delegationHistoryRecords.length; $i++) {
+		var $rowToVerify = $i+1;
+		_log("---------------verify record "+$rowToVerify+" ---------------");
+
+	
+		var $columnsKeys = Object.keys($delegationHistoryRecords[$i]);
+		var $agencyColumnsCount = 0;
+
+		if ($role !== 'individual') {
+			if (($delegationHistoryRecords[$i].delegationEnd == "Present" && $delegationHistoryRecords[$i].caseId != "-" ) || ($role == "supervisor" && $delegationHistoryRecords[$i].caseId != "-")) {
+				_assertVisible(_link($delegationHistoryRecords[$i].householdPrimary, _in(_row($rowToVerify))),"verify that "+$columnsKeys[0]+" is link");
+			}else{
+				_assertNotVisible(_link($delegationHistoryRecords[$i].householdPrimary, _in(_row($rowToVerify))),"verify that "+$columnsKeys[0]+" is NOT link");
+				_assertVisible(_span($delegationHistoryRecords[$i].householdPrimary, _in(_row($rowToVerify))),"verify that "+$columnsKeys[0]+" is NOT link");
+			}
+		}
+			
+		for (var $j = 0; $j < $columnsKeys.length; $j++) {
+			
+			if ($role === 'agency') {
+				if ($columnsKeys[$j] != "type" && $columnsKeys[$j] != "businessName") {
+					var $actualValue=_getText(_cell($agencyColumnsCount, _in(_row($rowToVerify))));
+					_assertEqual($delegationHistoryRecords[$i][$columnsKeys[$j]],$actualValue, "verify that "+$columnsKeys[$j]+" is in correct column");
+					_assertVisible(_cell($delegationHistoryRecords[$i][$columnsKeys[$j]], _in(_row($rowToVerify))), "verify that "+$columnsKeys[$j]+" is displayed in table for agency");
+					$agencyColumnsCount++;
+				}else{
+					_assertNotVisible(_cell($delegationHistoryRecords[$i][$columnsKeys[$j]], _in(_row($rowToVerify))), "verify that "+$columnsKeys[$j]+" is NOT displayed in table for agency");
+				}
+			}
+
+			if ($role === 'agent') {
+				if ($columnsKeys[$j] != "type" && $columnsKeys[$j] != "businessName" && $columnsKeys[$j] != "agentCecName" && $columnsKeys[$j] != "agentLicenseNumber") {
+					var $actualValue=_getText(_cell($agencyColumnsCount, _in(_row($rowToVerify))));
+					_assertEqual($delegationHistoryRecords[$i][$columnsKeys[$j]],$actualValue, "verify that "+$columnsKeys[$j]+" is in correct column");
+					_assertVisible(_cell($delegationHistoryRecords[$i][$columnsKeys[$j]], _in(_row($rowToVerify))), "verify that "+$columnsKeys[$j]+" is displayed in table for agency");
+					$agencyColumnsCount++;
+				}else{
+					_assertNotVisible(_cell($delegationHistoryRecords[$i][$columnsKeys[$j]], _in(_row($rowToVerify))), "verify that "+$columnsKeys[$j]+" is NOT displayed in table for agency");
+				}
+			}
+
+			if ($role === 'individual') {
+				if ($columnsKeys[$j] != "householdPrimary" && $columnsKeys[$j] != "caseId") {
+					var $actualValue=_getText(_cell($agencyColumnsCount, _in(_row($rowToVerify))));
+					_assertEqual($delegationHistoryRecords[$i][$columnsKeys[$j]],$actualValue, "verify that "+$columnsKeys[$j]+" is in correct column");
+					_assertVisible(_cell($delegationHistoryRecords[$i][$columnsKeys[$j]], _in(_row($rowToVerify))), "verify that "+$columnsKeys[$j]+" is displayed in table for agency");
+					$agencyColumnsCount++;
+				}else{
+					_assertNotVisible(_cell($delegationHistoryRecords[$i][$columnsKeys[$j]], _in(_row($rowToVerify))), "verify that "+$columnsKeys[$j]+" is NOT displayed in table for agency");
+				}
+			}
+
+			if ($role === 'supervisor') {
+				var $actualValue=_getText(_cell($agencyColumnsCount, _in(_row($rowToVerify))));
+				_assertEqual($delegationHistoryRecords[$i][$columnsKeys[$j]],$actualValue, "verify that "+$columnsKeys[$j]+" is in correct column");
+				_assertVisible(_cell($delegationHistoryRecords[$i][$columnsKeys[$j]], _in(_row($rowToVerify))), "verify that "+$columnsKeys[$j]+" is displayed in table for agency");
+				$agencyColumnsCount++;
+			}
+		}
+	}
+
+	_assertEqual($expectedRowsCount,$rowsCountOnUI, "rows count should match and there should be no duplicates");
+
+}
+
+function verifyAgencyPortalSubMenuReact($listOfTabs){
+	_setStrictVisibilityCheck(true);
+	var $tabElementToCollect = "_button";
+	var $tabElementToCollectAttribute = "/dropdown/";
+	var $tabs = _collect($tabElementToCollect, $tabElementToCollectAttribute, _in($agencyTopNavBar));
+	_assertEqual($listOfTabs.length,$tabs.length,"Verify that number of tabs is 2");
+
+	for (var $i = 0; $i < $tabs.length; $i++) {	
+		var $tab = _getText(_button($listOfTabs[$i],_in($agencyTopNavBar))).trim();
+		_assertEqual($listOfTabs[$i],$tab,"Verify actual and expected tabs");
+		_assertVisible($tabs[$i],"Verify that tab is visible");
+	}  
+
+	_setStrictVisibilityCheck(false);
+}
+
+function verifyAgencySubMenusAccessReact($agencyStatus,$managerStatus,$activityStatus){
+_log("Agency status: "+$agencyStatus);
+_log("Agency Manager status: "+$managerStatus);
+_setStrictVisibilityCheck(true);
+if($agencyStatus == "Certified"){
+
+	//loop through each top menu tab
+	var $topMenuKeys = Object.keys($agencyTopMenu.agencyTopMenu);
+	for (var $j = 0; $j < $topMenuKeys.length; $j++) {
+		_log("$topMenuKeys: "+$topMenuKeys[$j]);
+		_click($agencyTopMenu.agencyTopMenu[$topMenuKeys[$j]]);
+
+		//loop through each item under top menu tab
+		var $subMenuKeys = Object.keys($agencyTopMenu.agencyTopSubMenu[$topMenuKeys[$j]]);
+		for (var $i = 0; $i < $subMenuKeys.length; $i++) {
+			//_log("$subMenuKeys: "+$subMenuKeys[$i]);
+
+			//if agency is certified and agency manager certified and active all menu items should be enabled
+			if($managerStatus == "Certified"){
+				if($activityStatus !="InActive") {
+					_assertNotEqual("/disabled/",_getAttribute($agencyTopMenu.agencyTopSubMenu[$topMenuKeys[$j]][$subMenuKeys[$i]],"class"), "link should not be disabled");
+				}else{
+					if($topMenuKeys[$j] != "myDelegationsTab"){
+						_assertNotEqual("/disabled/",_getAttribute($agencyTopMenu.agencyTopSubMenu[$topMenuKeys[$j]][$subMenuKeys[$i]],"class"), "link should not be disabled");
+					}else{
+						if ($subMenuKeys[$i] == "myDashboard") {
+							_assertNotEqual("/disabled/",_getAttribute($agencyTopMenu.agencyTopSubMenu[$topMenuKeys[$j]][$subMenuKeys[$i]],"class"), "link should not be disabled");
+						}else{
+							_assertEqual("/disabled/",_getAttribute($agencyTopMenu.agencyTopSubMenu[$topMenuKeys[$j]][$subMenuKeys[$i]],"class"), "link should be disabled");
+						}
+						
+					}
+				}
+			}else{
+				//if agency manager is NOT certified all menu items under My Delegations should be disabled
+				if($topMenuKeys[$j] == "myDelegationsTab"){
+					_assertEqual("/disabled/",_getAttribute($agencyTopMenu.agencyTopSubMenu[$topMenuKeys[$j]][$subMenuKeys[$i]],"class"), "link should be disabled");
+				}else{
+					_assertNotEqual("/disabled/",_getAttribute($agencyTopMenu.agencyTopSubMenu[$topMenuKeys[$j]][$subMenuKeys[$i]],"class"), "link should not be disabled");
+				}
+			}
+		}
+	}
+	
+	}else if($agencyStatus != "Certified"){
+		_assertEqual("", "no such scenarios", "no such scenarios for delegation history, assertions needs to be added")
+	} 
+
+	_setStrictVisibilityCheck(false);
+}

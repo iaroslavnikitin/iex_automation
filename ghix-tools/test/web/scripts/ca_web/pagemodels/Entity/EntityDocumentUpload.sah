@@ -1,0 +1,76 @@
+_includeOnce("../../lib/Utils.sah");
+_includeOnce("EntityRegistrationStatus.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+
+
+var  $entityDocUploadElements = {
+	"header_hd":{
+		"element": _heading4("Step 6: Document Upload"),
+		"label": null
+	},
+	"chooseFile_btn":{
+		"element": _file("fileInput"),
+		"label": _label("Upload document")
+	},
+	"submit_btn":{
+		"element": _submit("save"),
+		"label": _submit("Submit")
+	},
+	"fileUploadSuccessPopup":{
+		"fileUploadSuccess_div":{
+			"element": _div("fileUoload"),
+			"label": _heading4("File uploaded successfully.")
+		},
+		"ok_btn":{
+			"element": _submit("OK", _in(_div("fileUoload"))),
+			"label": null
+		}
+	},
+	"congratulationsPopup":{
+		"congratulationsPopup_div":{
+			"element": _div("reviewapp"),
+			"label": _heading3("Congratulations!")
+		},
+		"close_btn":{
+			"element": _submit("Close", _in(_div("reviewapp"))),
+			"label": null
+		}
+	}
+}
+
+function entityUploadDocumentAndSubmit($entity){
+	entityUploadDocument();
+	clickSubmitOnEntityDocUpload();
+	closeEntityCongratulationsPopup();
+	$entity = updateEntityRegistrationInfoAfterCreation($entity)
+
+	//_log("$entity: "+JSON.stringify($entity));
+	
+	return $entity;
+}
+
+function entityUploadDocument(){
+	var $entityDocFilePath;
+
+	if (_resolvePath("../../resources/mini.jpg", "\\").indexOf('userdata\\scripts\\ca_web') !=-1) {
+		$entityDocFilePath = _resolvePath("../../resources/mini.jpg", "\\");
+		_setFile3($entityDocUploadElements.chooseFile_btn.element, $entityDocFilePath);
+	}else{
+		$entityDocFilePath = _resolvePath("../resources/mini.jpg", "\\");
+		_setFile3($entityDocUploadElements.chooseFile_btn.element, $entityDocFilePath);
+	}
+
+	
+	
+	waitUntilElementVisible($entityDocUploadElements.fileUploadSuccessPopup.fileUploadSuccess_div.element,10)
+	click($entityDocUploadElements.fileUploadSuccessPopup.ok_btn.element);
+	
+}
+
+function clickSubmitOnEntityDocUpload(){
+	click($entityDocUploadElements.submit_btn.element)
+}
+
+function closeEntityCongratulationsPopup(){
+	click($entityDocUploadElements.congratulationsPopup.close_btn.element)
+}

@@ -1,0 +1,16 @@
+{
+    "leftNav":
+    {
+        "sortBy":
+        {
+        "rb_provider":"$('#coveredProvidersCount')"
+        }
+    },
+    "planTiles":
+    {
+        "totalExpEst":"$$('//table/tbody/tr[4]/td/a')[index]",
+        "qualityRating":"$$('//table/tbody/tr[5]/td')[index]"
+
+    }
+}
+

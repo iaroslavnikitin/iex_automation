@@ -1,0 +1,926 @@
+_includeOnce("Tickets.sah");
+_includeOnce("Applications.sah");
+_includeOnce("EligibilityResults.sah");
+_includeOnce("MyStuffMenu.sah");
+_includeOnce("AccountSettings.sah");
+_includeOnce("Utils.sah");
+_includeOnce("readFile.sah");
+_includeOnce("Signup.sah");
+_includeOnce("JenkinsAndDBSetUp.sah");
+_includeOnce("CAP.sah");
+
+var $qleTicket=[];
+var $qleTicketCount="";
+var $individualTktSubject="";
+var $SSNNotReqdReasons = ["Select Reason", "Religious Exception", "Just Applied", "Citizen Exception", "Other"];
+var $ssnNotReqdReason;
+var $indvidualPhoneNumber;
+
+//Accessors
+
+
+
+function clickSearchByApplicationId($cNumber){
+	_assertVisible(_textbox("appId"));
+	if($cNumber==null || $cNumber==""){
+		_setValue(_textbox("appId"), $caseNumber);
+	}
+	else {
+		_setValue(_textbox("appId"), $cNumber);
+	}
+}
+
+function clickViewMemberAccount($firstName, $lastName){
+	_click($viewMemberAccountLink);
+	_wait(6000,_isVisible($viewMemberAccountHeader));
+	_assertVisible($viewMemberAccountHeader,"Verify if View Member Account heading is displayed");
+	_assertVisible($memberViewButton,"Verify if Member View button is displayed");
+	_click($memberViewButton);
+	_wait(5000,_isVisible(_heading3("Application is in progress...")));
+	_wait(60000, !_isVisible(_heading3("Application is in progress...")));
+	_assertVisible($viewingIndividualAccountParagraph,"Verify if Viewing Individual Account ");
+}
+
+function clickManageMember(){
+	_click(_link("Members Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Manage Members"));
+	_wait(5000, _getText(_heading1("Members")) != "");
+	_assertVisible(_heading1("Members"));
+}
+
+function rolesAndPermission($Role,$user,$password,$actionTabPermission,$eligibility,$viewResult,$viewResultEvent,$override,$overrideEvent,$secureInbox,$editNonFinancialApplication,$appealPermission){
+	loginEnterEmailAddress($user);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	loginClickMembersManageApplicant();
+	clickSearchByApplicationId();
+	loginClickGo();
+	loginClickIndividualUnderPrimaryContact();
+	clickViewMemberAccount();
+	clickMyApplications($actionTabPermission,$Role);
+	clickViewResults($viewResult, $viewResultEvent);
+	clickOverride($override, $overrideEvent);
+	_click(_link("/Dashboard/"));
+	clickMyApplications($actionTabPermission);
+	clickEligibilityResults($eligibility);
+	clickMyApplications($actionTabPermission);
+	clickEditNonFinancialApplication($editNonFinancialApplication);
+	myAppeals($appealPermission);
+	myStuffClickMyInbox($secureInbox);
+	logOut();
+}
+
+function clickSearchByZipcode($zipcode){
+	_assertVisible(_textbox("zipCode"));
+	_setValue(_textbox("zipCode"), $zipcode);
+	_click(_submit("Go"));
+	_assertTrue(_isVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable")))));
+}
+
+function clickSearchByFirstName($firstName){
+	_assertVisible(_textbox("firstName"));
+	_setValue(_textbox("firstName"), $firstName);
+	_click(_submit("Go"));
+	_assertTrue(_isVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable")))));
+}
+
+function clickSearchByLastName($lastName){
+	_assertVisible(_textbox("firstName"));
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("Go"));
+	_assertTrue(_isVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable")))));
+}
+
+function searchMemberByEmail($email){
+	_setValue(_textbox("householdEmail"), $email);
+	_click(_submit("Go"));
+	_assertVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable"))));
+}
+
+function EnrollmentEditTool($editToolPermission,$resend){
+	_assertVisible(_link("SHOW PREMIUM HISTORY", _in(_div("well-step enrollment-history"))));
+	if($resend == "Y"){
+		_assertVisible(_link("RESEND 834 HISTORY", _in(_div("well-step enrollment-history"))));
+		_click(_link("RESEND 834 HISTORY", _in(_div("well-step enrollment-history"))));
+		_assertVisible(_heading3("Resend 834 History"));
+		_setValue(_textarea("overrideText ng-pristine ng-invalid ng-invalid-required"), "Resend 834");
+		_click(_link("CONTINUE"));
+		_assertVisible(_heading3("Submission Successful!"));
+		_click(_link("OK"));
+	}
+	else {
+		_assertNotVisible(_link("RESEND 834 HISTORY", _in(_div("well-step enrollment-history"))));
+	}
+	_click(_link("SHOW PREMIUM HISTORY", _in(_div("well-step enrollment-history"))));
+	if($editToolPermission == "Y"){
+		_assertVisible(_submit("Edit"));
+		_click(_submit("Edit"));
+		_assertVisible(_heading4("Enrollment - Premium History Save Cancel"));
+		_assertVisible(_tableHeader("Enrollment Start Date"));
+		_assertVisible(_tableHeader("Enrollment End Date"));
+		_setSelected(_select("application-type ng-pristine ng-valid", _in(_table("table table-condensed premium-editable-table"))), "Financial");
+		_click(_submit("Save[1]"));
+		_assertVisible(_heading3("Premium history override"));
+		_setValue(_textarea("overrideTextarea margin10-t ng-pristine ng-invalid ng-invalid-required"), "Premium Override");
+		_click(_submit("Save[2]"));
+		_assertVisible(_div("Your change has been successfully updated."));
+		_click(_submit("Close"));
+	}
+	else {
+		_assertNotVisible(_submit("Edit"));
+	}
+}
+
+function RelinkAccounts($permission){
+	if($permission == "Y"){
+		_assertVisible(_checkbox("chkRelink", _in(_table("table table-striped jsMemberSearchResultTable"))));
+		_assertVisible(_button("btnRelinkAccount"));
+		var $accountName = _getValue(_textbox("firstName"));
+		var $actualAccountId = _getText(_cell("jsDynamicEmailId"));
+		var $relinkAccountId = _getText(_cell("jsDynamicEmailId[1]"));
+		var $actualAccountEmail = _getText(_cell("breakword"));
+		var $relinkAccountEmail = _getText(_cell("breakword[1]"));
+		///////////////@Perform Action//////////////
+		_check(_checkbox("jsRelinkCheckbox", _in(_table("table table-striped jsMemberSearchResultTable"))));
+		_check(_checkbox("jsRelinkCheckbox[1]", _in(_table("table table-striped jsMemberSearchResultTable"))));
+		_click(_button("btnRelinkAccount"));
+		_assertVisible(_div("relinkAccountModal"));
+		_assertVisible(_submit("btnSaveRelink"));
+		_check(_radio("rdoRelinkNameBtn[1]"));
+		_check(_radio("rdoRelinkEmailBtn"));
+		_click(_submit("btnSaveRelink"));
+		_assertEqual("Relink successful", _getText(_paragraph("Relink successful")));
+		clickSearchByFirstName($accountName);
+		var $relinkAccountId = _getText(_cell("jsDynamicEmailId[1]"));
+		var $relinkAccountEmail = _getText(_cell("breakword[1]"));
+		_assertEqual($actualAccountId, $relinkAccountId);
+		_assertEqual($actualAccountEmail,$relinkAccountEmail);
+	}
+	else if($permission == "N"){
+		_assertNotVisible(_checkbox("chkRelink", _in(_table("table table-striped jsMemberSearchResultTable"))));
+		_assertNotVisible(_button("btnRelinkAccount"));
+	}
+}
+
+function Relink($Role,$user,$password,$relink){
+	///Add permission, if no then do not create account.
+	if($relink == "N"){
+		clickLogin();
+		loginEnterEmailAddress($user);
+		loginEnterPassword($password);
+		loginClickLoginButton();
+		clickManageMember();
+		clickSearchByZipcode("83702");
+		RelinkAccounts($relink);
+		logOut();
+		_navigateTo("https://"+$url[2]+"/hix/");
+	}
+	else {
+		verifyHeaderAndFooter();
+		clickStartShopping();
+		clickSkipAndSignUp();
+		clickSubmitOnSignUpPage();
+		logOut();
+		_navigateTo("https://"+$url[2]+"/hix/");
+		verifyHeaderAndFooter();
+		clickStartShopping();
+		clickSkipAndSignUp();
+		clickSubmitOnSignUpPage("",$firstName,$lastName);
+		logOut();
+		loginEnterEmailAddress($user);
+		loginEnterPassword($password);
+		loginClickLoginButton();
+		clickManageMember();
+		clickSearchByFirstName($firstName);
+		RelinkAccounts($relink);
+		logOut();
+		_navigateTo("https://"+$url[2]+"/hix/");
+	}
+}
+
+function csrCreatingIndividual($first,$last,$dob,$zipcode,$phoneNumber, $emailPrefix, $SSNRequired){
+	
+	
+//	$coverageYear = getCoverageYear()[0];
+	$coverageYear= _fetch(window.moment().format('YYYY'));
+	var $PhoneNumberTextbox = [_textbox("phoneNumber1"), _textbox("phoneNumber2"), _textbox("phoneNumber3")];
+	if(!$first){
+		$firstName = randomString($FIELD_LENGTH);
+	}
+	else {
+		$firstName = $first;
+	}
+	_setValue($signupFirstNameTextbox, $firstName);
+	if(!$last)  {
+		$lastName = randomString($FIELD_LENGTH);
+	}
+	else {
+		$lastName = $last;
+	}
+
+	_setValue($signupLastNameTextbox, $lastName);
+	_setValue(_textbox("dob"), $dob);
+	_setValue(_textbox("zipcode"), $zipcode);
+	$familyZipCode=$zipcode;
+	var $email;
+	if ($emailPrefix) {
+		$email = $emailPrefix + randomString(8, true) + "@yopmail.com";
+	}
+	else {
+		$email = randomString($FIELD_LENGTH) + "@yopmail.com";
+	}
+
+	$signupEmail = $email;
+	_setValue(_textbox("email"), $email);
+	var $digits = phoneGen();
+	_setValue(_textbox("phoneNumber1"), "650");
+	_setValue(_textbox("phoneNumber2"), "773");
+	for (var $i = 2; $i < $digits.length; $i++) 
+	{
+		_setValue($PhoneNumberTextbox[$i], $digits[$i]);
+	}
+	$indvidualPhoneNumber=_getValue(_textbox("phoneNumber1"))+_getValue(_textbox("phoneNumber2"))+_getValue(_textbox("phoneNumber3"));
+		
+	// SSN required/not required options
+	if($SSNRequired == "N")
+	{
+		verifyClickSSNNotRequiredReason();
+		//Check for SSN Not Required reasons
+		var $list = _getOptions(_select("ssnNotReqdReasons"));
+		_assertEqual($SSNNotReqdReasons, $list, "Verify the SSN not required options")
+		//Generate a random SSN Not Required reason
+		generateSetRandomSSNNotReqdReason();
+	}
+	else{
+		_assert(_radio("ssnRequiredYes").checked,"SSN is required radio button is not selected by default");
+	}
+	_click(_submit("Start"))
+		
+	$planName="";
+	$onDentalPage = false;
+	$disenrollHealth ="false";
+	$dentalPlanName="";
+	_assertVisible(_submit("Individual View"));
+	_click(_submit("Individual View"));
+	verifyElementsOfIndividualDashboard();
+}
+
+function verifyClickSSNNotRequiredReason(){
+	_assertVisible(_radio("ssnRequiredNo"),"SSN is not required radio button is not displayed");
+	_click(_radio("ssnRequiredNo"));
+	_assertVisible(_select("ssnNotReqdReasons"),"SSN is not required reasons field is not displayed");
+	_click(_select("ssnNotReqdReasons"));
+	
+}
+function generateSetRandomSSNNotReqdReason(){
+	var $randomNumber = getRandomInt(1, 5);
+	_setSelected(_select("ssnNotReqdReasons"), $SSNNotReqdReasons[$randomNumber] );
+	_assertEqual($SSNNotReqdReasons[$randomNumber], _getSelectedText(_select("ssnNotReqdReasons")));
+	$ssnNotReqdReason = _getSelectedText(_select("ssnNotReqdReasons"));
+}
+
+
+function csrCreatingAndVerifyingIndividualAccount($Role,$createPermission,$ridpPermission,$user,$password,$first,$last,$dob,$zipcode,$phoneNumber,$emailPrefix,$isCSREnabled,$aptcAmount,$noOfAdults,$noOfChildren,$showCatastrophic){
+	clickLogin();
+	loginEnterEmailAddress($user);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	setDB();
+	_click(_link("Members", _in(_div("menu"))));
+	if($createPermission =='Y'){
+		_assertVisible(_link("Create New Individual"));
+		_click(_link("Create New Individual"));
+		_assertVisible(_heading1("Create Individual Record"));
+		csrCreatingIndividual($first,$last,$dob,$zipcode,$phoneNumber, $emailPrefix);
+		clickStartApplication();
+		csrRIDP($ridpPermission);
+		_click(_link("My Account"));
+		clickManageMember();
+		_setValue(_textbox("householdEmail"), $signupEmail);
+		_click(_submit("Go"));
+		_assertTrue(_isVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable")))));
+		_click(_link(0, _in(_cell(2))));
+		_click(_button("mark_verified"));
+		_expectPrompt("Please provide reason for overriding RIDP verification", "UI testing");
+		_assertVisible(_strong("Verified Account"));
+		clickViewMemberAccount();
+	}
+	else {
+		_assertNotVisible(_link("Create New Individual"));
+	}
+	clickStartApplication();
+	clickNoCostSavings();
+	selectPrivacyCheckboxForSSAP();
+	clickContinueButton();
+	clickContinueButton();
+	enterContactNameForPrimary("Tedd","","Brown","","10/25/1990");
+	enterContactHomeAddress("417 S 6th St","","Boise","83702","Idaho","Boise");
+	enterContactMailingAddress("TRUE");
+	enterContactPhone("(461) 237-8416","(680) 957-6589","5443");
+	enterContactPreferences("English","English","Email");
+	clickContinueButton();
+	clickHelpingMyself();
+	clickContinueButton();
+	selectMeOnly();
+	clickContinueButton();
+	enterInformation(0,"Tedd","","Brown","","10/25/1990","true");
+	clickContinueButton();
+	clickContinueButton();
+	clickContinueButton();
+	selectGender("Male");
+	selectHasSSN("Yes");
+	enterSSN();
+	enterSameSSNName("Yes");
+	clickContinueButton();
+	selectCitizen("Yes");
+	clickContinueButton();
+	selectHispanic("No");
+	selectRace("Other");
+	clickContinueButton();
+	selectAndEnterNativeInfo(0,"Yes");
+	clickContinueButton();
+	clickContinueButton();
+	clickContinueButton();
+	clickContinueButton();
+	selectNobodyIncarcerated();
+	selectFutureApplications();
+	selectSixtyDays("TRUE");
+	selectPerjury("TRUE");
+	enterSignOnSSAPPage18();
+	ssapSubmissionByCSR();
+	clickBackToDashboardFromSSAPPage19();
+
+	clickUploadDocumentsForIndividual();
+	individualUploadQLEDocument();
+	_click(_link("My Account"));
+	CSRSearchForIndividualQLETicket();
+	CSRApprovesQLETicket();
+	clickManageMember();
+
+	_setValue(_textbox("householdEmail"), $signupEmail);
+	_click(_submit("Go"));
+	_assertTrue(_isVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable")))));
+	_click(_link(0, _in(_cell(2))));
+	clickViewMemberAccount();
+
+	clickFinalizeYourPlan();
+	clickSaveAndContinue();
+	clickViewPlans($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+	clickHealthInsurance($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+	selectRandomPlan();
+	clickShopForDental();
+	clickDentalInsurance($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+	selectRandomPlan();
+	clickContinueToCart();
+	clickSignApplication();
+	clickReadytoEnroll();
+	selectEsignAcceptAgrrement();
+	enterEsignSignature("Tedd brown");
+	clickSignAndEnroll();
+	clickBackToDashboardFromSSAPPage19();
+	logOut();
+}
+
+function csrRIDP($permission){
+	var $url;
+	_set($url,window.document.location.href);
+	var $flow = $url.split("/");
+	if($flow[5] == "qephome"){
+		qepHomeClickAddress();
+		qepHomeClickContinue();
+		qepEligibleClickStartApplication();
+	}
+	_click(_submit("Apply without Cost-Savings"));
+	if($permission =="Y"){
+		_assertVisible(_heading4("Verify your Identity"));
+		_assertVisible(_link("ridp-start"));
+	}
+	else {
+	//	_assertEqual("Cause: Access is denied No permission to access this page. Go back to previous page", _getText(_div("Cause: Access is denied No permission to access this page. Go back to previous page")));
+		_assertVisible(_div("Reason: Access is denied Go back to previous page"),"Access denied error message is not displayed");
+		_assertEqual("Reason: Access is denied Go back to previous page", _getText(_div("Reason: Access is denied Go back to previous page")));
+		
+	}
+}
+
+function csrModifyingIndividualEnrollment($role,$user,$password,$actionTabPermission,$cancelOrTerminatePermission,$changeCovDate,$reinstatement,$openSpecialEnrollment,$overrideEnrollmentStatus,$editToolPermission,$resend,$isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic){
+	setDB();
+	var $inGlobalOEP = inGlobalOEP();
+	createIndividualAndSubmitSSAP();
+	clickMyApplications();
+	logOut();
+	loginEnterEmailAddress($user);
+	loginEnterPassword($password);
+	loginClickLoginButton();
+	loginClickMembersManageApplicant();
+	clickSearchByApplicationId();
+	loginClickGo();
+	loginClickIndividualUnderPrimaryContact();
+	clickViewMemberAccount();
+	clickMyApplications($actionTabPermission,$role);
+	if($role != "1095-A"){
+		//clickChangeCoverageStartDate($changeCovDate,"-28");//roles and permission failing for admin in oep
+		
+		$overrideCoverageStartDate = getStartDateOfYear();
+		clickChangeCoverageStartDate($changeCovDate,"-28",$overrideCoverageStartDate);
+		
+		_click(_link("My Dashboard"));
+		enrollIndividual($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+		clickMyApplications($actionTabPermission,$role);
+		clickCancelAndTerminatePlan($cancelOrTerminatePermission,"-25");
+		clickMyApplications($actionTabPermission);
+		
+		if($inGlobalOEP != "ON"){
+			clickReinstatement($reinstatement);	// IN OEP you can select plans by clicking finalize your Plan button
+		}
+		clickMyApplications($actionTabPermission);
+		clickOpenSpecialEnrollment($openSpecialEnrollment,"10","20");
+	}
+	else {
+		logOut();
+		loginEnterEmailAddress();
+		loginEnterPassword($password);
+		loginClickLoginButton();
+		enrollIndividual($isCSREnabled, $aptcAmount, $noOfAdults, $noOfChildren, $showCatastrophic);
+		logOut();
+		loginEnterEmailAddress($user);
+		loginEnterPassword($password);
+		loginClickLoginButton();
+		loginClickMembersManageApplicant();
+		clickSearchByApplicationId();
+		loginClickGo();
+		loginClickIndividualUnderPrimaryContact();
+		clickViewMemberAccount();
+	}
+	if($inGlobalOEP != "ON"){
+		clickOverrideEnrollmentStatus($overrideEnrollmentStatus);
+		_click(_link("My Account", _near(_strong(0))));
+		_click(_link("Enrollments"));
+		var $inGlobalOEP = inGlobalOEP();
+		if(_isVisible(_select(0))){
+			_setSelected(_select(0),  ""+$coverageYear);
+		}
+	
+		EnrollmentEditTool($editToolPermission,$resend);
+	}
+	logOut();
+	closeBrowser();
+	openBrowser();
+}
+
+function manageMemberReRunFinancialEligibility(){
+	clickManageMember();
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_setValue(_textbox("householdEmail"), $signupEmail);
+	_click(_submit("Go"));
+	_assertVisible(_font("1 total members:"));
+	_click(_link(0, _in(_cell(2))));
+	clickViewMemberAccount();
+	_click(_link("My Applications"));
+	_click(_span("csrActionButton"));
+	_click(_link("RE-RUN NON FINANCIAL ELIGIBILITY", _near(_span("csrActionButton"))));
+	_assertVisible(_heading3("Re-run Non Financial Eligibility"));
+	_setValue(_textarea("overrideText ng-pristine ng-valid"), "ReRun Eligibility");
+	_click(_link("Continue"));
+	_assertVisible(_heading3("Submission Successful!"));
+	_click(_link("OK[3]"));
+}
+
+function CSRCreatingTicketForIndividual($individualEmail){
+	getCredentialsAndLogIn();
+	$individualEmail = "ptest123@yopmail.com";
+	clickManageMember();
+	_setValue(_textbox("householdEmail"), $individualEmail);
+	_click(_submit("Go"));
+	_click(_link(0, _leftOf(_cell($individualEmail)), _under(_tableHeader("/Name/"))));
+	clickAddNewTicket();
+	_assertEqual(true, _getAttribute(_select("userRole"), "disabled"));
+	_assertEqual(true, _getAttribute(_textbox("requester"), "disabled"));
+	$individualTktSubject = "Ticket Created To Assist "+$individualEmail;
+	enterSubject($individualTktSubject);
+	enterTicketType("Triage");
+	enterPriority("Low");
+	enterDescription("Details Of Ticket Created For " + $individualEmail);
+	clickSaveTicket();
+}
+
+function CancelOrTerminate($role,$user,$password,$actionTabPermission,$cancelOrTerminatePermission){
+	$url = getUpdatedBaseURL("").split("/");
+//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+		var $userDataPath = _userDataDir();
+		//Function returns username and password based on the Role
+//		$data= getAccountDetails($ExcelPath,$role) ;
+		$data= getAccountDetails($role) ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+		$firstname = "Kate";
+		$lastname = "William";
+	}
+	else{
+		loginEnterEmailAddress($user);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($password);
+		_unmaskLogs("Information end");
+	}
+	loginClickLoginButton();
+	loginClickMembersManageApplicant();
+	clickSearchByApplicationId("");
+	loginClickGo();
+	loginClickIndividualUnderPrimaryContact($firstName, $lastName);
+//	loginClickIndividualUnderPrimaryContact();
+	clickViewMemberAccount($firstName, $lastName);
+	clickMyApplications($actionTabPermission,$role);
+	_click(_span("csrActionButton"));
+	_assertTrue(new RegExp("CANCEL OR TERMINATE PLAN").test(_getText(_div("csrMenu_0"))));
+	_assertTrue(new RegExp("VIEW OVERRIDE HISTORY").test(_getText(_div("csrMenu_0"))));
+	logOut();
+	closeBrowser();
+	openBrowser();
+}
+
+function EnrollmentEditToolPermissionForDifferentUsers($role,$user,$password,$editToolPermission,$firstName,$lastName){
+	$url = getUpdatedBaseURL("").split("/");
+	var $userDataPath = _userDataDir();
+
+//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+		//		$data= getAccountDetails($ExcelPath,$role) ;
+		$data= getAccountDetails($role) ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+		$firstName = "Adrianne";
+		$lastName ="Gustafson";
+	}
+	else{
+		loginEnterEmailAddress($user);
+		//	_maskLogs("Sensitive Data");
+		loginEnterPassword($password);
+		//	_unmaskLogs("Information end");
+		$firstName = "Bryan";
+		$lastName ="Miller";
+	}
+	loginClickLoginButton();
+	clickManageMember();
+	_assertVisible(_textbox("firstName"));
+	_setValue(_textbox("firstName"), $firstName);
+	_assertVisible(_textbox("firstName"));
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("Go"));
+	_assertTrue(_isVisible(_cell(1, _in(_table("table table-striped jsMemberSearchResultTable")))));
+	var $name =$firstName+ " "+$lastName;
+	_click(_link("/"+$name+"/", _in(_table("table table-striped jsMemberSearchResultTable"))));
+	_click(_link("Enrollments"));
+	_assertVisible(_link("SHOW PREMIUM HISTORY", _in(_div("well-step enrollment-history"))));
+	_click(_link("SHOW PREMIUM HISTORY"));
+	if(isTrue($editToolPermission) && !isProductionEnvironment()){
+		_assertVisible(_span("Actions"));
+	}
+	else {
+		_assertNotVisible(_span("Actions"));
+	}
+	logOut();
+	closeBrowser();
+	openBrowser();
+}
+
+function AdminSearchForReferalApplication($firstName,$lastName){
+	clickLogin();
+	$url = getUpdatedBaseURL("").split("/");
+	var $userDataPath = _userDataDir();
+
+//	if ($url[2] =="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+		//var $ExcelPath = $userDataPath+"/temp/scripts/staging/opt/sahi/useraccounts.xls";
+		//Function returns username and password based on the Role
+//		$data= getAccountDetails($ExcelPath,"Admin") ;
+		$data= getAccountDetails("Admin") ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+		$firstName =  "Adrianne";
+		$lastName="Gustafson";
+	}
+	else {
+		loginEnterEmailAddress("gismoketest_admin@getinsured.com");
+		_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		_unmaskLogs("Information end");
+		$firstName =  "John";
+		$lastName="Williams";
+	}
+	loginClickLoginButton();
+	loginClickMembersManageApplicant();
+	_assertVisible(_textbox("firstName"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_setSelected(_select("appSource"), "Referral Application");
+	var $appYear="";
+	var $now= _call(window.moment()).format("MM/DD/YYYY");
+	var $currentDay = parseInt(_fetch(window.moment($now).get('date')));
+
+	var $currentMonth =  parseInt(_fetch(window.moment($now).get('month')))+1;
+	//if($currentMonth == 12){
+	//	$appYear= parseInt(_fetch(window.moment($now).get('year')))+1;
+	//}
+	//else {
+		$appYear= parseInt(_fetch(window.moment($now).get('year')));
+	//}
+
+	_setSelected(_select("effectiveYearProxy"), "/"+$appYear+"/");
+	_click(_submit("Go"));
+	_assertNotVisible(_heading4("Records not found."));
+	var $appStatus = _getText(_cell(4, _near(_tableHeader("App Status"))));
+	var $applicationYear =  _getText(_cell(5, _near(_tableHeader("App. Year"))));
+	loginClickIndividualUnderPrimaryContact($firstName, $lastName);
+	clickViewMemberAccount($firstName, $lastName);
+	_click(_link("/"+$applicationYear+"/", _in(_list("nav nav-tabs multi-year-tab"))));
+	_click(_link("My Applications"));
+
+	$currentYear = parseInt(_fetch(window.moment($now).get('year')));
+	$prevYear = parseInt(_fetch(window.moment($now).get('year')))-1;
+	_assertTrue(new RegExp($currentYear).test(_getText(_select(0))));
+	_assertTrue(new RegExp("2016").test(_getText(_select(0))));
+	_assertTrue(new RegExp("2015").test(_getText(_select(0))));
+	_setSelected(_select(0), "/"+$currentYear+"/");
+	_setSelected(_select(0), "/"+$prevYear+"/");
+
+	_setSelected(_select(0), "/"+$applicationYear+"/");
+	_click(_link("Plan Summary"));
+	var $health="";
+	var $dental="";
+	if(_isVisible(_link("DISENROLL FROM HEALTH PLAN"))){
+		$health="true";
+		var $enrolledStatus=_getText(_dDesc("generic-medic", _near(_dTerm("Status:", _near(_heading5("Policy Information"))))));
+		if($enrolledStatus=="Pending"){
+			_assertVisible(_link("Pay for Health Insurance"));
+		}
+		else {
+			_assertNotVisible(_link("Pay for Health Insurance"));
+		}
+	}
+	if(_isVisible(_link("DISENROLL FROM DENTAL PLAN"))){
+		$dental="true";
+	}
+	if (_isVisible(_link("Adjust Premium tax Credit"))) {
+		_click(_link("Adjust Premium tax Credit"));
+		_assertVisible(_heading3("Adjust Your Premium Tax Credit"));
+		_assertVisible(_paragraph("There are two ways to use the premium tax credit:"));
+		_assertVisible(_strong("When you are ready to choose how you will allocate your tax credit, click on \"Adjust Tax Credit\"."));
+		_click(_link("Adjust Tax Credit"));
+		var $monthlyTaxCredit = _getValue(_textbox("aptcText"));
+		var $aptc = parseInt($monthlyTaxCredit);
+		$aptc = $aptc-20;
+		var $amountPerMonth = _getText(_div("slider-container")).split(' ')[1];
+		_setValue(_rangebox("aptcSliderValue"), $aptc);
+		_wait(10000);
+		_assertNotEqual($monthlyTaxCredit,_getValue(_textbox("aptcText")));
+		_assertNotEqual($amountPerMonth, _getText(_div("slider-container")).split(' ')[1]);
+		$monthlyTaxCredit = _getValue(_textbox("aptcText"));
+		var $aptc = parseInt($monthlyTaxCredit);
+		$aptc = $aptc+15;
+		$amountPerMonth = _getText(_div("slider-container")).split(' ')[1];
+		_setValue(_rangebox("aptcSliderValue"), $aptc);
+		_wait(10000);
+		_assertNotEqual($monthlyTaxCredit,_getValue(_textbox("aptcText")));
+		_assertNotEqual($amountPerMonth, _getText(_div("slider-container")).split(' ')[1]);
+		_click(_link("Close"));
+		_click(_link("My Enrollments"));
+		_assertTrue(new RegExp($currentYear).test(_getText(_select(0))));
+		_assertTrue(new RegExp($prevYear).test(_getText(_select(0))));
+		_assertTrue(new RegExp("2015").test(_getText(_select(0))));
+		_setSelected(_select(0), "/"+$currentYear+"/");
+		_assertVisible(_heading4("/Enrollments Enrollment Year/"));
+		_wait(3000);
+		_setSelected(_select(0), "/"+$prevYear+"/");
+		_assertVisible(_heading4("/Enrollments Enrollment Year/"));
+		_wait(3000);
+		_setSelected(_select(0), "/"+$applicationYear+"/");
+		_click(_link("My Dashboard"));
+		_click(_link("/"+$applicationYear+"/", _in(_list("nav nav-tabs multi-year-tab"))));
+		if($health=="true"){
+			_assertNotVisible(_image("Sample Plan Image"));
+			_assertNotVisible(_image("This is a sample plan summary"));
+		}
+		else {
+			_assertVisible(_image("Sample Plan Image"));
+			_assertVisible(_image("This is a sample plan summary"));
+		}
+		if($dental=="true"){
+			_assertNotVisible(_image("Sample Plan Image[1]"));
+			_assertNotVisible(_image("This is a sample plan summary[1]"));
+		}
+		else {
+			_assertVisible(_image("Sample Plan Image[1]"));
+			_assertVisible(_image("This is a sample plan summary[1]"));
+		}
+		_click(_link("My Applications"));
+		
+		_setSelected(_select(0),  "/"+$prevYear+"/");
+		_click(_link("Plan Summary"));
+		if(_isVisible(_link("DISENROLL FROM HEALTH PLAN"))){
+			$health="true";
+			_assertVisible(_link("Pay for Health Insurance"));
+		}
+		if(_isVisible(_link("DISENROLL FROM DENTAL PLAN"))){
+			$dental="true";
+		}
+		$enrolledStatus=_getText(_dDesc("generic-medic", _near(_dTerm("Status:", _near(_heading5("Policy Information"))))));
+		if($enrolledStatus!="Terminated"){
+			_click(_link("Adjust Premium tax Credit"));
+			_wait(5000,_isVisible(_div("Please note that your Enrollment does not have active coverage period to adjust Premium Tax Credit.")));
+			_assertVisible(_div("Please note that your Enrollment does not have active coverage period to adjust Premium Tax Credit."));
+			_click(_submit("Close[1]"));
+		}
+		_click(_link("My Dashboard"));
+		_click(_link( "/"+$prevYear+"/", _in(_list("nav nav-tabs multi-year-tab"))));
+		if($health=="true"){
+			_assertNotVisible(_image("Sample Plan Image"));
+			_assertNotVisible(_image("This is a sample plan summary"));
+		}
+		else {
+			_assertVisible(_image("Sample Plan Image"));
+			_assertVisible(_image("This is a sample plan summary"));
+		}
+		if($dental=="true"){
+			_assertNotVisible(_image("Sample Plan Image[1]"));
+			_assertNotVisible(_image("This is a sample plan summary[1]"));
+		}
+		else {
+			_assertVisible(_image("Sample Plan Image[1]"));
+			_assertVisible(_image("This is a sample plan summary[1]"));
+		}
+	}
+}
+
+function CSRSearchForIndividualQLETicket(){
+	$inGlobalOEP = inGlobalOEP();
+	clickManageMember();
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_setValue(_textbox("householdEmail"), $signupEmail);
+	_click(_submit("Go"));
+	_click(_link(0, _in(_cell(2))));
+	_click(_link("Ticket History"));
+	if($isGatedEvent == "Y" && $inGlobalOEP != "ON"){
+		$qleTicketCount =  _getTableContents(_table("table table-condensed table-border-none table-striped")).length;
+		_log("Table Row " + $qleTicketCount);
+		for(var $i=0; $i<($qleTicketCount-1); $i++){
+			$qleTicket[$i] = _getText(_cell(($i*6), _near(_cell("Qle Validation"))));
+			_log("Ticket Id " + $qleTicket[$i]);
+		}
+	}
+}
+
+function CSRApprovesQLETicket(){
+	$inGlobalOEP = inGlobalOEP();
+	if($isGatedEvent == "Y" && $inGlobalOEP != "ON"){
+		clickMangeTickets();
+		for(var $i=0;$i<($qleTicketCount-1);$i++){
+			_setValue(_textbox("ticketNumber"), $qleTicket[$i]);
+			clickSearchTicket();
+			clickGearButton();
+			var $status = _getText(_cell("ng-scope[4]", _near(_link("Ticket Status"))));
+			if($status == "Unclaimed"){
+				ClaimTicket("Y");
+				_click(_link("Mark As Complete", _in(_list("dropdown-menu pull-right"))));
+				_assertVisible(_heading3("Mark Task As Complete"));
+				_assertVisible(_submit("ticketListtaskCompleteBtn"));
+				_setValue(_textarea("commentBox"), "Complete");
+				_click(_submit("ticketListtaskCompleteBtn"));
+			}
+			_assertEqual("Search", _getValue(_submit("Search")));
+			manageTicketVerify();
+		}
+	}
+	else {
+		_log("Not a gated event");
+	}
+}
+
+function smokeTest(){
+	var $userDataPath = _userDataDir();
+	var $ExcelPath = "../opt/sahi/useraccounts.xls";
+//	$data= getAccountDetails($ExcelPath,"L2_CS2") ;
+	$data= getAccountDetails("L2_CS2") ;
+	loginEnterEmailAddress($data["Email"]);
+	_maskLogs("Sensitive Data");
+	loginEnterPassword($data["Password"]);
+	_unmaskLogs("Information end");
+	loginClickLoginButton();
+	loginClickMembersManageApplicant();
+}
+
+function selectTestMember(){
+	$email = $email.toLowerCase();
+	_click(_link(0, _under(_tableHeader("/Name Sortable/")), _in(_parentRow(_cell($email)))));
+}
+
+
+//function SearchApplicantByExchangeAssignedPolicyNumber(){
+//	var $enrollment = getEnrollmentIdFromDb();
+//	_setValue(_textbox("enrollmentId"), $enrollmentId[0][0]);
+//
+//}
+
+
+function clickFirstTicketIdOnTicketHistory(){
+	$inGlobalOEP = inGlobalOEP();
+	if($inGlobalOEP != "ON"){
+		clickElement(_link($qleTicket[0]));
+		_assertVisible(_heading4("Ticket Summary"));
+		_assertNotNull(_getText(_cell(0, _near(_tableHeader("Task")))));
+		_assertNotNull(_getText(_cell(0, _near(_tableHeader("Ticket Type")))));
+		_assertNotNull(_getText(_cell(0, _near(_tableHeader("Requestor")))));
+		_assertNotNull(_getText(_cell(0, _near(_tableHeader("Plan Name")))));
+		_assertNotNull(_getText(_cell(0, _near(_tableHeader("Created On")))));
+		_assertNotNull(_getText(_cell(0, _near(_tableHeader("Description")))));
+	}
+	
+}
+	
+function clickEnrollmentsOnManageMember($name){
+	clickElement(_link("Enrollments"));
+	_assertVisible(_heading4("/Enrollment/"));
+	var $enrollmentText = _getText(_paragraph(0));
+	if ($enrollmentText != "No enrollment found."){
+		clickElement(_link("Additional Information"));
+		var $relationship=_getText(_cell(0, _in(_row(1, _in(_table("table table-condensed"))))));
+		_assertEqual("Self (18)", $relationship);
+		var $HHName=_getText(_cell(1, _in(_row(1, _in(_table("table table-condensed"))))));
+		_assertEqual($name, $HHName);
+		_assertVisible(_cell("Spouse (01)", _near(_tableHeader("Type"))));
+		_assertVisible(_cell("Child (19)", _near(_tableHeader("Type"))));
+		
+	}
+	else {
+	_log("No enrollment found.");
+	}
+}
+
+
+function updateNameThroughEditTool($firstName,$middleName, $lastName){
+	var $name = $firstName+" "+$middleName+" "+$lastName;
+	 clickElement(_link("Enrollments"));
+	_assertVisible(_heading4("/Enrollment/"));
+	_click(_link("SHOW PREMIUM HISTORY", _near(_cell("01/01/2017 - 12/31/2017"))));
+	_click(_span("Actions"));
+	_click(_submit("Change"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("middleName"), $middleName);
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("/Continue/"));
+	_assertVisible(_span("Enrollment - Change"));
+	_setValue(_textarea(0), "updated name");
+	_click(_submit("Submit"));
+	_wait(5000);
+	_assertVisible(_div("Your change has been successfully updated."));
+	_click(_submit("Close"));
+	_assertVisible(_heading4("Enrollment - Premium History Back"));
+	var $HHName =  _getText(_cell(1, _in(_row(1, _in(_table("table table-condensed ng-scope"))))));
+	_assertEqual($name, $HHName);
+
+	}
+
+function clickFirstMemberFromSearchResult(){
+	_click(_link(0, _under(_tableHeader("/Name Sortable/"))));
+}
+
+function clickEnrollments(){
+	_click(_link("Enrollments"));
+	_assertVisible(_heading4("Enrollment"));
+
+}
+
+function clickHistory($visibleText){
+	_click(_link("History"));
+	_assertVisible(_heading4("Consumer History"));
+	if(!visibleText){
+		_assertContainsText("Enrollments", _span(0, _in(_div("box_0"))),"It will check for first box in the table" );
+		//_assertContainsText("Enrollments",_div("row-fluid "));
+	}
+	else{
+		_assertContainsText($visibleText,_div("row-fluid "));
+	}
+	var $date = _fetch(window.moment().format('M/D/YYYY'));
+	_assertContainsText($date, _span(1, _in(_div("box_0"))),"Verify the enrollment was updated today");
+}
+
+function navigateToShowComments($comments){
+	_click(_italic("icon-chevron-down"));
+	_click(_link("Show Comments"));
+	if(!$comments){
+		$comments = "Send in 834";
+	}
+	_assertVisible(_div($comments, _near(_div("Comments")))," Verify the comments");
+
+}

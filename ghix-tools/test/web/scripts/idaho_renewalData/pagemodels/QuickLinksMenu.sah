@@ -1,0 +1,18 @@
+_includeOnce("FindLocalAssistance.sah");
+_includeOnce("Utils.sah");
+
+var $QuickLinksMenu = true;
+
+var $quickLinksHeader = _heading4("Quick Links");
+var $quickLinksFindLocalAssistance = _link("pop_findLocalAssistance");
+var $quickLinksDownloadAppealsForm = _link("Download Appeals Form");
+var $quickLinksAccessors = [$quickLinksHeader, $quickLinksFindLocalAssistance, $quickLinksDownloadAppealsForm];
+
+function quickLinksVerify() {
+	verifyArray($quickLinksAccessors);
+}
+
+function quickLinksClickFindLocalAssistance() {
+	_click($quickLinksFindLocalAssistance);
+	findLocalAssistanceVerify();
+}

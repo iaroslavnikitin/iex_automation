@@ -1,0 +1,99 @@
+_includeOnce("../../lib/Utils.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $COUNSELOR_CERTIFICATION_STATUSES = ["Select",
+	"Withdrawn - Assister Request",
+	"Denied - Not Eligible For Training",
+	"Denied - Did Not Complete Required Training",
+	"Denied - Background Check",
+	"Denied - Conflict of Interest",
+	"Denied - Unable to Satisfy Program Requirements",
+	"Denied",
+	"Certified",
+	"Decertified - Misconduct",
+	"Pending",
+	"Decertified - Assister Request",
+	"Entity Deregistered",
+	"Entity Deregistered - Failed to Renew",
+	"Entity Deregistered - Misconduct",
+	"Incomplete",
+	"Denied - Prior Conviction",
+	"Decertified - Failure to Renew"];
+
+var $counselorCertStatusElements = {
+	"header_hd":{
+		"element": _heading4("Certification Status"),
+		"label": null
+	},
+	"viewMode":{
+		"edit_btn":{
+			"element": _link("Edit"),
+			"label": null
+		},
+		"counselorNumber_lb":{
+			"element": _cell("Certified Enrollment Counselor Number"),
+			"label": null,
+			"value": _cell(1, _in(_row("/Certified Enrollment Counselor Number/")))
+		},
+		"counselorCertNumber_lb":{
+			"element": _cell("Enrollment Counselor Certification Number"),
+			"label": null,
+			"value": _cell(1, _in(_row("/Enrollment Counselor Certification Number/")))
+		},
+	},
+	"editMode":{
+		"submit_btn":{
+			"element": _button("update"),
+			"label": _button("Submit")
+		},
+		"certificationStatus_dd":{
+			"element": _select("certificationStatus"),
+			"label": _label("New Status")
+		}
+	}
+}
+
+function certifyAllCounselors($entity){
+
+	for (var $i = 0; $i < $entity.counselors.length; $i++) {
+		$entity.counselors[$i] = certifyCounselor($entity.counselors[$i]);
+	}
+
+	return $entity;
+}
+
+function certifyCounselor($counselor){
+	navigateToManageCounselors();
+	searchByCounselorFirstName($counselor);
+	searchByCounselorLastName($counselor);
+	searchByCounselorNumber($counselor);
+	clickEditUnderActionsInCecList();
+	$counselor = editCounselorCertificationStatus($counselor,$COUNSELOR_CERTIFICATION_STATUSES[8]);
+
+	return $counselor;
+}
+
+function clickEditOnCounselorCertification(){
+	click($counselorCertStatusElements.viewMode.edit_btn.element);
+}
+
+function editCounselorCertificationStatus($counselor,$newStatus){
+	clickEditOnCounselorCertification()
+	if (!$newStatus) $newStatus = $COUNSELOR_CERTIFICATION_STATUSES[8];
+	_setSelected($counselorCertStatusElements.editMode.certificationStatus_dd.element, $newStatus);
+	click($counselorCertStatusElements.editMode.submit_btn.element);
+
+	$counselor.certificationStatus.status = $newStatus;
+	$counselor.certificationStatus.certNumber = _getText($counselorCertStatusElements.viewMode.counselorCertNumber_lb.value);
+	$counselor.certificationStatus.certStartDate = getCurrentDate("MM/DD/YYYY");
+	$counselor.certificationStatus.certRenewalDate = _fetch(window.moment(getCurrentDate("MM/DD/YYYY")).add(1, 'Y').format("MM/DD/YYYY"));
+
+	var $allHistoryRecords = JSON.parse(JSON.stringify($counselor.certificationStatus.certHistory));
+	var $newRecord = $allHistoryRecords[$allHistoryRecords.length-1];
+	$newRecord.date = getCurrentDate("MM/DD/YYYY");
+	$newRecord.previousStatus = $allHistoryRecords[$allHistoryRecords.length-1].newStatus;
+	$newRecord.newStatus = $newStatus;
+	$counselor.certificationStatus.certHistory.push($newRecord);
+
+	return $counselor;
+}

@@ -1,0 +1,7 @@
+{
+    "planCompareTiles":
+    {
+        "lk_expense":"$$('.ps-detail__tile-estimate')[index]",
+        "tier":"$$('//div[@class=\"cp-tile__body\"]/div[3]/span[1]')[index]"
+    } 
+}

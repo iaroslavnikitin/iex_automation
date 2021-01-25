@@ -1,0 +1,56 @@
+_includeOnce("../../pagemodels/global_include_ct.sah");
+_includeOnce("../../lib/common.sah");
+
+agreeDisclaimerforCT();
+_setStrictVisibilityCheck(true);
+
+_setValue(_textbox("zipCode"), "06001");
+_setValue(_textbox("age"), "01/01/1990");
+verifyTooltip(_link("/"+"Needs Coverage"+"/"), "Needs Coverage Check the box if this family member wants health insurance.");
+_setValue(_textbox("income"), "25,000");
+verifyTooltip(_link("/"+"Tax Household Income"+"/"), "Tax Household Income This is the total income for everyone listed on your tax return.");
+_click(_button("Check for Savings"));
+
+verifyTooltip(_link("/"+"APTC"+"/"), "APTC APTC's can help you pay for a medical plan and can be used right away to lower your monthly bill or you can wait until the end of the year to claim your tax credit.");
+verifyTooltip(_link("/"+"copays"+"/"), "Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service.");
+verifyTooltip(_link("/"+"deductibles"+"/"), "Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible.");
+_click(_button("Next"));
+
+//var $tooltip = "K:pd.label.preferences.tooltip1.3";
+var $tooltip = "How will this affect the total expense estimates of my health plan? Your medical service use level helps estimate what you could spend when you see a doctor or get other care (for doctors and hospitals in the plan’s network). To see how plans compare if your health is better or worse next year, return to the screen and change your selection. For families, choose the category that best fits the person who will probably need the most medical services next year. The health plan cost estimates will include all family members.";
+$tooltip = "/" + encodeForRegEx($tooltip) + "/";
+verifyTooltip(_link("/"+"medical service"+"/"), $tooltip);
+_click(_link("Next"+" to prescription drug section"));
+
+verifyTooltip(_link("/"+"prescription drug"+"/"), "K:pd.label.preferences.tooltip2.3");
+_click(_link("Next"+" to provider search section"));
+
+_click(_link("Next"+" to prescription search section"));
+
+verifyTooltip(_link("/"+"Do you know?"+"/"), "There may be multiple brand and generic medications that address the same health issue. Generic options cost less than the brand name drugs and are typically covered by a larger number of health plans. By considering generic drugs you may save money and expand the number of plans available to you, some of which may better fit your budget. Please consult with your doctor to determine if a generic is right for you.");
+_click(_submit("View Plans"));
+
+verifyTooltip(_link("/^\\$/", _in(_small(0))), "This result is only an estimate. You will need to complete a full application before we can determine your eligibility and your household's final tax credit amount.");
+if(_isVisible(_link("HMO"))){
+	verifyTooltip(_link("/"+"HMO"+"/"), "Health Maintenance Organization, also called Managed Care or Point of Service. A form of insurance that focuses on efforts to coordinate the use of services to achieve effective outcomes while managing costs. Generally, a Primary Care Physician is chosen or assigned to each member to assist in coordination.");
+}
+if(_isVisible(_link("PPO"))){	
+	verifyTooltip(_link("/"+"PPO"+"/"), "PPO stands for \"preferred provider organization\". A PPO does not require you to select a primary care physician. You can see any doctor or provider within your network. You can also see providers outside your network, but it will cost you more. You won't need a referral to see a specialist.");
+}
+if(_isVisible(_link("POS"))){
+	verifyTooltip(_link("/"+"POS"+"/"), "POS stands for \"point of service\". With a POS plan you pay less if you use doctors, hospitals, and other health care providers that belong to the plan's network. If you go out-of-network, your plan will provide coverage, but it will likely cost you more. You will also need a referral for a specialist.");
+}
+verifyTooltip(_link("/"+"Metal tier"+"/"), "As you will see, plans with lower premiums offer more limited coverage or a higher deductible before the plan will start to pay your health care costs.");
+verifyTooltip(_link("/"+"Estimated Monthly Premium"+"/"), "Prices displayed show the amount of premium you would pay, and the monthly APTC would pay the rest of the premium if you are eligible for this type of financial help.");
+verifyTooltip(_link("/"+"Primary Care Visits"+"/"), "Estimated copay or coinsurance to visit to a health care office or facility where services are provided by a physician, nurse practitioner, or physician assistant to treat an injury or illness.");
+verifyTooltip(_link("/"+"Drug Tier 1"+"/"), "Estimated copay or coinsurance for a tier 1 drug (mostly generics) purchased through a retail location.");
+verifyTooltip(_link("/"+"Yearly Deductible"+"/"), "A deductible is the amount of money you will need to pay each year for some health care services before your health plan will begin to help pay for the costs. Click the plan's VIEW DETAIL link to see how a deductible may apply.");
+verifyTooltip(_link("Out-Of-Pocket Maximum"), "The most you pay during a policy period (usually a year) before your plan begins to pay 100% of the costs. This limit never includes your premium or exclusions. Depending on your plan, these out-of-pocket expenses may include annual deductibles, coinsurance, and co-payments for covered services. Once you reach your health plan' s out-of-pocket maximum, your insurance company will cover 100% of the costs for medically necessary covered services.");
+verifyTooltip(_link("Total Expense Estimate", _in(_div("tile-header"))), "This is an estimate of the total amount you pay for this plan yearly. The cost includes your share of the premium for the plan year and an estimate of what you pay when you get care - like the amount you spend when you visit the doctor, get a lab test, or buy a prescription drug. These costs are for network doctors and hospitals only; out-of-network providers cost more. These estimates, which are for all covered medical services, are based on your answers about expected doctor visits and prescription drug use. If you did not answer these questions we assume that you, and any family members, have 'moderate' healthcare needs.");
+verifyTooltip(_link("/"+"Quality Rating"+"/"), "An overall rating from the National Committee of Assurance (NCQA) that measures whether the health plans are providing good care and services to their members. For example, NCQA would measure how well a plan helps members manage their diabetes. This Qualified Health Plan (QHP) quality rating is a conversion of NCQA ratings into a star system, which ranges from zero to four stars, with four stars being the highest possible rating. Excellent = 4 stars (4 stars highlighted); Commendable = 3 stars highlighted; Accredited = 2 stars highlighted; Provisions = 1 star highlighted; 'Not Yet Rated, New Carrier' = \"Not yet rated/New carrier\".");
+_click(_link("View Detail"));
+
+verifyTooltip(_link("/"+"Expense Estimate"+"/"), "This is an estimate of the total amount you pay for this plan yearly. The cost includes your share of the premium for the plan year and an estimate of what you pay when you get care - like the amount you spend when you visit the doctor, get a lab test, or buy a prescription drug. These costs are for network doctors and hospitals only; out-of-network providers cost more. These estimates, which are for all covered medical services, are based on your answers about expected doctor visits and prescription drug use. If you did not answer these questions we assume that you, and any family members, have 'moderate' healthcare needs.");
+verifyTooltip(_link("/"+"Yearly Deductible"+"/"), "A deductible is the amount of money you will need to pay each year for some health care services before your health plan will begin to help pay for the costs. Click the plan's VIEW DETAIL link to see how a deductible may apply.");
+
+_setStrictVisibilityCheck(false);

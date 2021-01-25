@@ -1,0 +1,10 @@
+IND to Service Mapping
+IND04 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockPlanInfoEndPointImplServiceSoapBinding?WSDL
+IND05 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockIssuerInfoEndPointImplServiceSoapBinding?WSDL
+IND20 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockIndividualPlanSelectionEndPointImplServiceSoapBinding?WSDL
+IND21 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockIndvEnrollmentConfirmationEndPointImplServiceSoapBinding?WSDL
+IND35 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockCertificationInfoEndPointImplServiceSoapBinding?WSDL
+IND54 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockDelegateAccessCodeEndPointImplServiceSoapBinding?WSDL
+IND65 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockGenerateEntityRecordIdServiceSoap11?WSDL
+IND72 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockAgentAssisterBookOfBusinessEndPointImplServiceSoapBinding?WSDL
+IND73 - http://abhxmock.ghixqa.com:8080/CA_AHBX_Mocks/mockGetIndividualBookOfBusinessEndPointImplServiceSoapBinding?WSDL

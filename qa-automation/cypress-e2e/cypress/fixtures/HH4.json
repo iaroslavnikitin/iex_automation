@@ -1,0 +1,23 @@
+{
+    "description": "2adults/2 kids household CS4 ",
+    "hhFamily": {"size": 4, "singleParent": false},
+    "hhLastName": true,
+    "people": [
+        {
+            "personSex": "Male",
+            "dob": "1980-01-01"
+        },
+        {
+            "personSex": "Female",
+            "dob": "1982-02-20"
+        },
+        {
+            "personSex": "Female",
+            "dob": "2001-10-11"
+        },
+        {
+            "personSex": "Male",
+            "dob": "2010-12-07"
+        }
+    ]
+}

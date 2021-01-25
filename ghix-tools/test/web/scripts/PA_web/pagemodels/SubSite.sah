@@ -1,0 +1,119 @@
+_includeOnce("EntityContactInfo.sah");
+_includeOnce("PrimarySite.sah");
+_includeOnce("Utils.sah");
+
+// Variables
+var $SubSite = true;
+var $subSiteSiteForm = new Site(true);
+var $addingSubSite = false;
+
+// Accessors
+var $subSiteHeader = _heading4("Step 3: Location and Hours - Sub-Site");
+var $subSiteInstructions = _paragraph("In this section, you will add all of your organization's sub-sites");
+var $subSiteAddSubSite = _button("addSubSite");
+var $subSiteBack = _button("subSiteBack");
+var $subSiteDone = _submit("subSiteDone");
+var $subSiteSaveSubSite = _submit("save");
+
+function verifyElementsForSubsite() {
+	_assertVisible($subSiteHeader);
+	_assertVisible($subSiteInstructions);
+	_assertVisible($subSiteAddSubSite);
+	_assertVisible($subSiteBack);
+	_assertVisible($subSiteDone);
+}
+
+function clickAddSubSite() {
+	_click($subSiteAddSubSite);
+	$addingSubSite = true;
+	$subSiteSiteForm.verify();
+	_assertVisible($subSiteSaveSubSite);
+}
+
+function clickBackFromSubSite() {
+	_click($subSiteBack);
+	verifyElementsOfPrimarySite();
+}
+
+function clickDoneOnSubSite() {
+	_click($subSiteDone);
+	verifyElementsOnEntityContactInfoPage();
+}
+
+function clickEditsubSite($index) {
+	if ($index === undefined) {
+		$index = 0;
+	}
+
+	_click(_italic("icon-cog[" + $index + "]"));
+	_click(_link("editId[" + $index + "]"));
+
+	$addingSubSite = false;
+	$subSiteSiteForm.verify();
+	_assertVisible($subSiteSaveSubSite);
+}
+
+function enterSubSiteName($name) {
+	if ($name === undefined) {
+		$name = randomString($FIELD_LENGTH);
+	}
+	$subSiteSiteForm.setName($name);
+}
+
+function enterSubSitePrimaryEmailAddress($email) {
+	if ($email === undefined) {
+		$email = randomString($FIELD_LENGTH) + "@example.com";
+	}
+	$subSiteSiteForm.setPrimaryEmailAddress($email);
+}
+
+function enterSubSitePrimaryPhoneNumber() {
+	$subSiteSiteForm.setPrimaryPhoneNumber();
+}
+
+function enterSubSiteSecondaryPhoneNumber() {
+	$subSiteSiteForm.setSecondaryPhoneNumber();
+}
+
+function enterSubSiteHours($day, $start, $end) {
+	$subSiteSiteForm.setHours($day, $start, $end);
+}
+
+function enterSubSiteSampleHours() {
+	enterSubSiteHours("Monday", "06:00 am", "06:00 pm");
+	enterSubSiteHours("Tuesday", "Closed", "Closed");
+	enterSubSiteHours("Wednesday", "Closed", "Closed");
+	enterSubSiteHours("Thursday", "Closed", "Closed");
+	enterSubSiteHours("Friday", "Closed", "Closed");
+	enterSubSiteHours("Saturday", "Closed", "Closed");
+	enterSubSiteHours("Sunday", "Closed", "Closed");
+}
+
+function enterSubsiteMailingInformation($address1, $address2, $city, $state, $zip) {
+	$subSiteSiteForm.setMailingInformation($address1, $address2, $city, $state, $zip);
+}
+
+function selectSameAsMailingAddressForSubsite($bool) {
+	$subSiteSiteForm.setSameAsMailingAddress($bool);
+}
+
+function enterSubSitePhysicalAddress($address1, $address2, $city, $state, $zip) {
+	$subSiteSiteForm.setPhysicalInformation($address1, $address2, $city, $state, $zip);
+}
+
+function selectSubSiteSpokenLanguage($language) {
+	$subSiteSiteForm.addSpokenLanguage($language);
+}
+
+function selectSubSiteWrittenLanguage($language) {
+	$subSiteSiteForm.addWrittenLanguage($language);
+}
+
+function clickSaveSubSite() {
+	var $numSites = _count("_div", "/dropdown pull-right.*/");
+	_click($subSiteSaveSubSite);
+	if ($addingSubSite) {
+		var $newNumSites = _count("_div", "/dropdown pull-right.*/");
+		_assertEqual($numSites + 1, $newNumSites);
+	}
+}

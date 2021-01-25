@@ -1,0 +1,76 @@
+{
+    "agencyInfoHeader":
+    {
+        "label":"agencyInfoHeader",
+        "fieldType":"staticText",
+        "selectors":
+        {
+          "common":"$('#agencyInfo .header')",
+          "PA":"$('#agencyInfo .header')"
+        },
+        "headerText":"Step 1: Agency Information"
+        
+    },
+    "agencyName":
+    {
+        "label":"Agency Name (Public Facing)",
+        "fieldType":"text",
+        "selectors":
+        {
+          "common":"$('#agency-name')",
+          "PA":"$('#agency-name')"
+        },
+        "required":true,
+        "matchingDataProperty":"agencyName"
+    },
+    "businessName":
+    {
+        "label":"Legal Business Name",
+        "fieldType":"text",
+        "selectors":
+        {
+          "common":"$('#business-legal-name')",
+          "PA":"$('#business-legal-name')"
+        },
+        "required":true,
+        "matchingDataProperty":"businessName",
+        "stateToSkip":["CA"]
+    },
+    "ein":
+    {
+        "label":"Federal Tax Id",
+        "fieldType":"ein",
+        "selectors":
+        {
+          "common":"$('#federal-tax-id')",
+          "PA":"$('#federal-tax-id')"
+        },
+        "required":true,
+        "matchingDataProperty":"ein",
+        "stateToSkip":["CA"]
+    },
+    "licenseNumber":
+    {
+        "label":"Agency License Number",
+        "fieldType":"licenseNumber",
+        "selectors":
+        {
+          "common":"$('#license-number')",
+          "PA":"$('#license-number')"
+        },
+        "required":true,
+        "matchingDataProperty":"licenseNumber"
+    },
+
+    "nextButton":
+    {
+        "label":"NEXT",
+        "fieldType":"button",
+        "selectors":
+        {
+          "common":"$('#agencyInfo > form > div > div:nth-child(5) > div > input')",
+          "PA":"$('#agencyInfo > form > div > div:nth-child(5) > div > input')"
+        }
+    }
+    
+}

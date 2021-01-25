@@ -1,0 +1,401 @@
+_includeOnce("../../resources/Address.sah");
+_includeOnce("CounselorDB.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $cecElements = {
+	"header_hd":{
+		"element": _heading4("Step 5: Certified Enrollment Counselors"),
+		"label": null
+	},
+	"addCec_btn":{
+		"element": _button("addAssister"),
+		"label": _button("Add Certified Enrollment Counselor")
+	},
+	"done_btn":{
+		"element": _button("assisterDone"),
+		"label": _button("Done")
+	},
+	"newCecForm":{
+		"header_hd":{
+			"element": _heading4("New Enrollment Counselor Form"),
+			"label": null
+		},
+		"firstName_cb":{
+			"element": _textbox("firstName"),
+			"label": _label("First nameRequired")
+		},
+		"lastName_cb":{
+			"element": _textbox("lastName"),
+			"label": _label("Last nameRequired")
+		},
+		"email_cb":{
+			"element": _textbox("emailAddress"),
+			"label": _label("EmailRequired")
+		},
+		"primaryPhoneOne_tb":{
+			"element": _textbox("primaryPhone1"),
+			"label": _label("/Primary Phone Number/")
+		},
+		"primaryPhoneTwo_tb":{
+			"element": _textbox("primaryPhone2"),
+			"label": null
+		},
+		"primaryPhoneThree_tb":{
+			"element": _textbox("primaryPhone3"),
+			"label": null
+		},
+		"secondaryPhoneOne_tb":{
+			"element": _textbox("secondaryPhone1"),
+			"label": _label("/Secondary Phone Number/")
+		},
+		"secondaryPhoneTwo_tb":{
+			"element": _textbox("secondaryPhone2"),
+			"label": null
+		},
+		"secondaryPhoneThree_tb":{
+			"element": _textbox("secondaryPhone3"),
+			"label": null
+		},
+		"wayToContact_lb":{
+			"element": _fieldset("/How would this person like to be contacted?/"),
+			"label": null
+		},
+		"wayToContactEmail_cb":{
+			"element": _radio("email"),
+			"label": _label("Email")
+		},
+		"wayToContactPhone_cb":{
+			"element": _radio("phone"),
+			"label": _label("Primary Phone")
+		},
+		"wayToContactMail_cb":{
+			"element": _radio("mail"),
+			"label": _label("Mail")
+		},
+		"isCecCertified_lb":{
+			"element": _fieldset("Is this Enrollment Counselor Certified?"),
+			"label": null
+		},
+		"isCecCertifiedNo_cb":{
+			"element": _radio("selectNo"),
+			"label": _label("No")
+		},
+		"isCecCertifiedYes_cb":{
+			"element": _radio("selectYes"),
+			"label": _label("Yes")
+		},
+		"primaryCecSite_dd":{
+			"element": _select("primarySite"),
+			"label": _label("Primary Certified Enrollment Counselor SiteRequired")
+		},
+		"secondaryCecSite_dd":{
+			"element": _select("secondarySite"),
+			"label": _label("Secondary Certified Enrollment Counselor Site")
+		},
+		"mailingAddressHeader_hd":{
+			"element": _heading4("Mailing Address"),
+			"label": null
+		},
+		"mailingAddress":{
+			"streetAddress_tb": {
+				"element": _textbox("address1"),
+				"label": _label("Street AddressRequired")
+			},
+			"suite_tb": {
+				"element": _textbox("address2"),
+				"label": _label("Suite")
+			},
+			"city_tb": {
+				"element": _textbox("city"),
+				"label": _label("CityRequired")
+			},
+			"state_dd": {
+				"element": _select("state"),
+				"label": _label("StateRequired")
+			},
+			"zipcode_tb": {
+				"element": _textbox("zip"),
+				"label": _label("Zip CodeRequired")
+			}
+		},
+		"profileInformationHeader_hd":{
+			"element": _heading4("Profile Information"),
+			"label": null
+		},
+		"spokenlanguages":{
+			"spokenlanguages_lb":{
+				"element": _fieldset("/Spoken Languages Supported (Select all that apply)/"),
+				"label": null
+			},
+			"english_cb":{
+				"element": _checkbox("spokenLanguagesId"),
+				"label": _checkbox("English", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"arabic_cb":{
+				"element": _checkbox("spokenLanguagesId[1]"),
+				"label": _checkbox("Arabic", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"armenian_cb":{
+				"element": _checkbox("spokenLanguagesId[2]"),
+				"label": _checkbox("Armenian", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"cambodian_cb":{
+				"element": _checkbox("spokenLanguagesId[3]"),
+				"label": _checkbox("Cambodian", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"cantonese_cb":{
+				"element": _checkbox("spokenLanguagesId[4]"),
+				"label": _checkbox("Cantonese", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"farsi_cb":{
+				"element": _checkbox("spokenLanguagesId[5]"),
+				"label": _checkbox("Farsi", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"hmong_cb":{
+				"element": _checkbox("spokenLanguagesId[6]"),
+				"label": _checkbox("Hmong", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"korean_cb":{
+				"element": _checkbox("spokenLanguagesId[7]"),
+				"label": _checkbox("Korean", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"mandarin_cb":{
+				"element": _checkbox("spokenLanguagesId[8]"),
+				"label": _checkbox("Mandarin", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"russian_cb":{
+				"element": _checkbox("spokenLanguagesId[9]"),
+				"label": _checkbox("Russian", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"spanish_cb":{
+				"element": _checkbox("spokenLanguagesId[10]"),
+				"label": _checkbox("Spanish", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"tagalog_cb":{
+				"element": _checkbox("spokenLanguagesId[11]"),
+				"label": _checkbox("Tagalog", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"vietnamese_cb":{
+				"element": _checkbox("spokenLanguagesId[12]"),
+				"label": _checkbox("Vietnamese", _in(_fieldset("/Spoken Languages Supported/")))
+			},
+			"other_cb":{
+				"element": _checkbox("otherSpokenLanguageCheckbox", _in(_fieldset("/Spoken Languages Supported/"))),
+				"label": null
+			},
+			"selectOptions_tb":{
+				"element": _textbox("chzn-choices", _in(_fieldset("/Spoken Languages Supported/"))),
+				"label": null
+			}
+		},
+		"writtenlanguages":{
+			"writtenlanguages_hd":{
+				"element": _fieldset("/Written Languages Supported (Select all that apply)/"),
+				"label": null
+			},
+			"english_cb":{
+				"element": _checkbox("writtenLanguagesId"),
+				"label": _label("English", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"arabic_cb":{
+				"element": _checkbox("writtenLanguagesId[1]"),
+				"label": _label("Arabic", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"armenian_cb":{
+				"element": _checkbox("writtenLanguagesId[2]"),
+				"label": _label("Armenian", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"cambodian_cb":{
+				"element": _checkbox("writtenLanguagesId[3]"),
+				"label": _label("Cambodian", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"farsi_cb":{
+				"element": _checkbox("writtenLanguagesId[4]"),
+				"label": _label("Farsi", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"hmong_cb":{
+				"element": _checkbox("writtenLanguagesId[5]"),
+				"label": _label("Hmong", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"korean_cb":{
+				"element": _checkbox("writtenLanguagesId[6]"),
+				"label": _label("Korean", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"russian_cb":{
+				"element": _checkbox("writtenLanguagesId[7]"),
+				"label": _label("Russian", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"spanish_cb":{
+				"element": _checkbox("writtenLanguagesId[8]"),
+				"label": _label("Spanish", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"tagalog_cb":{
+				"element": _checkbox("writtenLanguagesId[9]"),
+				"label": _label("Tagalog", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"chinese_cb":{
+				"element": _checkbox("writtenLanguagesId[10]"),
+				"label": _label("Traditional Chinese character", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"vietnamese_cb":{
+				"element": _checkbox("writtenLanguagesId[11]"),
+				"label": _label("Vietnamese", _in(_fieldset("/Written Languages Supported/")))
+			},
+			"other_cb":{
+				"element": _checkbox("otherWrittenLanguageCheckbox", _in(_fieldset("/Written Languages Supported/"))),
+				"label": null
+			},
+			"selectOptions_tb":{
+				"element": _textbox("chzn-choices", _in(_fieldset("/Written Languages Supported/"))),
+				"label": null
+			}
+		},
+		"education_dd":{
+			"element": _select("education"),
+			"label": _label("EducationRequired")
+		},
+		"uploadPhoto_fl":{
+			"element": _file("fileInput"),
+			"label": _label("Upload Photo")
+		},
+		"saveAssister_btn":{
+			"element": _button("SaveAssister"),
+			"label": _button("Save Certified Enrollment Counselor")
+		}
+	}
+}
+
+function addCounselors($counselor,$entity,$cecNum){
+	$entity.counselors = [];
+	if (!$cecNum) $cecNum = 1;
+	for (var $i = 0; $i < $cecNum; $i++) {
+		$entity.counselors[$i] = addCounselor($counselor,$entity);
+	}
+
+	clickDoneOnCecPage();
+	//_log("$entity: "+JSON.stringify($entity));
+
+	return $entity;
+}
+
+function addCounselor($counselor,$entity){
+	clickAddCounselor();
+	if (!$counselor) $counselor = JSON.parse(JSON.stringify($DEFAULT_CEC));
+	$counselor = inputCounselorInfo($counselor,$entity);
+	$counselor.mailingAddress = inputCecMailingAddress($counselor.mailingAddress);
+	$counselor.spokenLanguages = inputCecSpokenLanguages($counselor.spokenLanguages);
+	$counselor.writtenLanguages = inputCecWrittenLanguages($counselor.writtenLanguages);
+	$counselor.education = selectEducation($counselor.education);
+	clickSaveCounselor();
+
+	$counselor.certificationStatus.status = "Pending";
+	$counselor.certificationStatus.certHistory[0].newStatus = "Pending";
+
+	$counselor.activityStatus.activityHistory[0].date = getCurrentDate("MM/DD/YYYY");
+
+	$counselor.dbdata.ee_assisters.push(getCounselorDataDB($counselor)[0]);
+	$counselor.counselorNumber = $counselor.dbdata.ee_assisters[0].ASSISTER_NUMBER;
+
+	return $counselor;
+}
+
+function getWayToContactForCec($num){
+	var $wayToContact = ["Email","Primary Phone","Mail"];
+
+	if ($num) {
+		return $wayToContact[$num]
+	}else{
+		return $wayToContact[0]
+	}
+}
+
+function inputCounselorInfo($counselor,$entity){
+	if (!$counselor.firstName) $counselor.firstName = randomFirstName();
+	if (!$counselor.lastName) $counselor.lastName = randomLastName();
+	if (!$counselor.email) $counselor.email = getRandomEmail($counselor.firstName);
+	if (!$counselor.primaryPhoneNumber) $counselor.primaryPhoneNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$counselor.secondaryPhomeNumber) $counselor.secondaryPhomeNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$counselor.wayToContact) $counselor.wayToContact = getWayToContactForCec(getRandomInt(0,3));
+	if (!$counselor.isCecCertified) $counselor.isCecCertified = "No";
+	if (!$counselor.primaryCecSite) $counselor.primaryCecSite = $entity.locationAndHours.primarySite.primarySiteLocation;
+	if (!$counselor.secondaryCecSite && $entity.locationAndHours.subSites) $counselor.secondaryCecSite = $entity.locationAndHours.subSites[0].subsiteLocation;
+
+	setValue($cecElements.newCecForm.firstName_cb.element, $counselor.firstName);
+	setValue($cecElements.newCecForm.lastName_cb.element, $counselor.lastName);
+	setValue($cecElements.newCecForm.email_cb.element, $counselor.email);
+
+	setValue($cecElements.newCecForm.primaryPhoneOne_tb.element, $counselor.primaryPhoneNumber[0]);
+	setValue($cecElements.newCecForm.primaryPhoneTwo_tb.element, $counselor.primaryPhoneNumber[1]);
+	setValue($cecElements.newCecForm.primaryPhoneThree_tb.element, $counselor.primaryPhoneNumber[2]);
+
+	setValue($cecElements.newCecForm.secondaryPhoneOne_tb.element, $counselor.secondaryPhomeNumber[0]);
+	setValue($cecElements.newCecForm.secondaryPhoneTwo_tb.element, $counselor.secondaryPhomeNumber[1]);
+	setValue($cecElements.newCecForm.secondaryPhoneThree_tb.element, $counselor.secondaryPhomeNumber[2]);
+
+	click(_radio($counselor.wayToContact));
+	click(_radio($counselor.isCecCertified));
+
+	_setSelected($cecElements.newCecForm.primaryCecSite_dd.element, $counselor.primaryCecSite);
+	if ($counselor.secondaryCecSite) _setSelected($cecElements.newCecForm.secondaryCecSite_dd.element, $counselor.secondaryCecSite);
+
+	return $counselor;
+}
+
+function inputCecMailingAddress($address){
+	if (!$address) $address = $VALID_ADRESSES[getRandomInt(0, $VALID_ADRESSES.length)];
+	inputAddress($cecElements.newCecForm.mailingAddress, $address);
+	return $address;
+}
+
+function inputCecSpokenLanguages($languages){
+	if (!$languages){
+		var $randomLanguage = getRandomInt(0, $SPOKEN_LANGUAGES.length-4);
+		$languages = [];
+		for (var $i = 0; $i < 3; $i++) {
+			$languages.push($SPOKEN_LANGUAGES[$randomLanguage+$i]);
+		}
+	} 
+
+	$languages.map(function selectLanguage($language){
+		click(_checkbox($language, _in(_fieldset("/Spoken Languages Supported/"))));
+	});
+
+	return $languages;
+}
+
+function inputCecWrittenLanguages($languages){
+	if (!$languages){
+		var $randomLanguage = getRandomInt(0, $WRITTEN_LANGUAGES.length-4);
+		$languages = [];
+		for (var $i = 0; $i < 3; $i++) {
+			$languages.push($WRITTEN_LANGUAGES[$randomLanguage+$i]);
+		}
+	} 
+
+	$languages.map(function selectLanguage($language){
+		click(_checkbox($language, _in(_fieldset("/Written Languages Supported/"))));
+	});
+
+	return $languages;
+}
+
+const $CEC_EDUCATION = ["Select","Up to 8th Grade","Some High School","High School Graduate","Some College","College Graduate","Two Year Associate Degree","Inapplicable/Not Ascertained"];
+
+function selectEducation($education){
+	if (!$education) $education = $CEC_EDUCATION[getRandomInt(1,8)];
+	_setSelected($cecElements.newCecForm.education_dd.element, $education);
+
+	return $education;
+}
+
+function clickSaveCounselor(){
+	click($cecElements.newCecForm.saveAssister_btn.element);
+}
+
+function clickAddCounselor(){
+	click($cecElements.addCec_btn.element);
+}
+
+function clickDoneOnCecPage(){
+	click($cecElements.done_btn.element);
+}

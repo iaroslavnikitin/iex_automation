@@ -1,0 +1,19 @@
+{
+  "editMode":
+  {
+    "tb_certificationStartDate": "$('#newStartDate')",
+    "tb_certificationEndDate": "$('#newEndDate')",
+    "sb_certificationStatus":"$('#certificationStatus')",
+    "fileUploadSuccessPopupText":"$('//*[@id=\"fileUoload\"]/div[2]/h4')",
+    "chooseEODeclarationPage":"$('#fileInputEODeclPage')",
+    "fileNameEODeclarationPage":"$('#fileNameEODeclPage')",
+    "btn_UploadEODeclaratioPage":"$('#btn_Upload_fileInputEODeclPage')",
+    "fileUploadPopupClose":"$('#iFrameClose')",
+    "btn_updateCertificationStatus": "$('#updateCertStatus')"
+  },
+  "detailsMode":
+  {
+    "lbl_certificationStatus":"$('#frmcertificationstatus > div:nth-child(2) > table > tbody > tr:nth-child(3) > td.span3.txt-right')",
+    "certificationStatus":"$('#frmcertificationstatus > div:nth-child(2) > table > tbody > tr:nth-child(3) > td.span6 > strong')"
+  }
+}

@@ -1,0 +1,14 @@
+
+{
+    "lbl_requiredNotice":"$('li*=Your cost of health insurance depends on where you live')",
+    "lbl_requiredNotice2":"$('li*=Your information will help us find out if you qualify for help')",
+    "continueSectionHeader":"$('h1')",
+    "lk_continue":"$('*=Continue')",
+    "lbl_importantTextContinuePage":"$('//p[contains(text(),\"you acknowledge that you understand\")]')",
+    "lbl_nativeAmerican":"$('div').$('a*=Native American')",
+    "lbl_seekingCoverage":"$('div').$('a*=Needs Coverage')",
+    "lbl_taxHouseholdIncome":"$('a*=Tax Household Income')",
+    "lbl_learnMore":"$('a=Learn More')",
+    "lbl_getHelp":"$('a=Get Help')",
+    "lbl_languageSelect":"$('a=Español')"
+}

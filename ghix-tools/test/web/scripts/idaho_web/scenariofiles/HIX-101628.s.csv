@@ -1,0 +1,12 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/global_include.sah"
+,"loadSahi","../pagemodels/User.sah"
+,"loadSahi","../lib/HIX-101628.sah"
+
+"HIX-101628","[Documentation]","Verify CAP History to capture notification preference changes for Individual"
+,"createNewUser"
+,"[Keyword]","verifyCAPHistoryNotificationPreference"
+,"[Documentation]","admin","password","preference type"
+,"[Data]","gismoketest_admin@getinsured.com","ghix123#","""None"""
+,,"gismoketest_admin@getinsured.com","ghix123#","""Email"""
+,,"gismoketest_admin@getinsured.com","ghix123#","""Postal Mail"""

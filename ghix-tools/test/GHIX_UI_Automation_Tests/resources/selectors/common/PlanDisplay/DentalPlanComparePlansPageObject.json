@@ -1,0 +1,6 @@
+{
+    "planCompareTiles":
+    {
+        "tier":"$$('//div[@class=\"cp-tile__body\"]/div[3]')[index]"
+    } 
+}

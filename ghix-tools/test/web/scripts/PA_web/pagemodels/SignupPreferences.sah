@@ -1,0 +1,202 @@
+_includeOnce("Indportal.sah");
+//_includeOnce("Utils.sah");
+
+var $SignupPreferences = true;
+
+var $SIGNUP_PREFERENCES_LANGUAGE_MENU_LENGTH = 2;
+
+var $preferencesAddress1 = _textbox("streetAddress1");
+var $preferencesAddress2 = _textbox("streetAddress2");
+var $preferencesCity = _textbox("city");
+var $preferencesState = _select("state");
+var $preferencesZipCode = _textbox("postalCode");
+var $preferencesCounty = _select("countyCode");
+
+
+var $preferencesDob = _textbox("birthDate");
+var $preferencesPhoneNumber = [_textbox("phone1"), _textbox("phone2"), _textbox("phone3")];
+var $preferencesTextMe = _checkbox("textMe");
+var $preferncesEmailAddress = _textbox("emailAddress");
+var $preferencesSpokenLanguage = _select("prefSpokenLang");
+var $preferencesWrittenLanguage = _select("prefWrittenLang");
+var $preferencesEmail = _radio("recieveTypeEmail");
+var $preferencesPostal = _radio("recieveTypePostal");
+var $preferencesContinue = _button("submitAdditionalInfo")
+var $preferencesSaveMailingAddress = _submit("Save Mailing Address");
+var $SSN1 = _textbox("ssn1");
+var $SSN2 = _textbox("ssn2");
+var $SSN3 = _textbox("ssn3");
+
+function verifyElementsOnPreferencesPage() {
+    _assertVisible($preferencesAddress1);
+    _assertVisible($preferencesAddress2);
+    _assertVisible($preferencesCity);
+    _assertVisible($preferencesState);
+    _assertVisible($preferencesZipCode);
+    _assertVisible($preferencesCounty);
+    _assertVisible($preferncesEmailAddress);
+
+    // for (var $i = 0; $i < $preferencesPhoneNumber.length; $i++) {
+    //     _assertVisible($preferencesPhoneNumber[$i]);
+    // }
+    // _assertVisible($preferencesTextMe);
+    // _assertVisible($preferencesSpokenLanguage);
+    // _assertVisible($preferencesWrittenLanguage);
+    // _assertVisible($preferencesEmail);
+    // _assertVisible($preferencesPostal);
+    // _assertVisible($preferencesContinue);
+    // _assertNotVisible($preferencesDob, "Date of Birth field is visible on Communication Preferences page");
+    // _assertNotVisible($SSN1, "SSN1 field is visisble on Communication Preferences page");
+    // _assertNotVisible($SSN2, "SSN2 field is visisble on Communication Preferences page");
+    // _assertNotVisible($SSN3, "SSN3 field is visisble on Communication Preferences page");
+}
+
+var $PreferenceType = "";
+
+function clickContinueOnCommunicationPreference($addr1, $addr2, $city, $state, $zip, $county, $dob, $communicationPreference, $chekforAddress, $prefspokenLang, $prefwrittenLang, $textMe, $coverageDate, $people, $isSEP) {
+    _windowAction("maximize");
+    if ($zip === undefined) {
+        $zip = "17025";
+    }
+    _setValue($preferencesAddress1, $addr1);
+    if ($addr2) {
+        _setValue($preferencesAddress2, $addr2);
+    }
+    _setValue($preferencesCity, $city);
+    _setSelected($preferencesState, $state);
+    _setValue($preferencesZipCode, $zip);
+    if (!$county) {
+        $county = 1;
+    }
+    _setSelected($preferencesCounty, $county);
+   // _click($preferencesSaveMailingAddress)
+
+    _click(_button("Save Mailing Address"));
+    _click(_button("Ok"));
+    _click(_button("Save Preferences"));
+    _click(_button("Ok"));
+
+    // set phone number
+    // var $phoneNumber = $people[0].$phoneNumber;
+    // _setValue(_textbox("phone1"), $phoneNumber[0]);
+    // _setValue(_textbox("phone2"), $phoneNumber[1]);
+    // _setValue(_textbox("phone3"), $phoneNumber[2]);
+
+    //Text me
+//     _assertVisible(_checkbox("textMe"), "Text me checkbox is not displayed");
+//     if ($textMe == "true") {
+//         _click(_checkbox("textMe"));
+//         _assertVisible(_div("textMeModal"), "Modal dialog is not displayed when Text me checkbox is checked");
+//         _assertVisible(_div("Click to allow text messages for general notification. Text messages do not replace your secure email or mail account notifications. Message and data rates may apply."), "Appropriate message is not displayed in Text me modal dialog");
+//         _click(_submit("Ok", _in(_div("textMeModal"))));
+//     }
+//
+//     if (_isVisible($preferencesDob)) {
+//
+//         var $dob;
+//         if (!$dob) {
+//             $dob = getRandomDateOfBirth();
+//         }
+//         _setValue($preferencesDob, $dob);
+//     }
+//
+//     if (!$prefspokenLang) {
+//         _setSelected($preferencesSpokenLanguage, 0);
+//     } else {
+//         _setSelected(_select("prefSpokenLang"), $prefspokenLang);
+//     }
+//
+//     if (!$prefwrittenLang) {
+//         _setSelected($preferencesWrittenLanguage, 0);
+//     } else {
+//         _setSelected(_select("prefWrittenLang"), $prefwrittenLang);
+//     }
+//
+//     if (!$communicationPreference) {
+//         var $rand = Math.floor(Math.random() * 2);
+//         if ($rand == 0) {
+//             _click($preferencesEmail);
+//             $preferenceType = "Email";
+//         } else {
+//             _click($preferencesPostal);
+//             $preferenceType = "Mail";
+//         }
+//     } else if ($communicationPreference == "Email") {
+//         _click($preferencesEmail);
+//         $preferenceType = "Email";
+//     } else if ($communicationPreference == "Mail") {
+//         _click($preferencesPostal);
+//         $preferenceType = "Mail";
+//     }
+//     _click($preferencesContinue);
+//     //if($chekforAddress){
+//     _wait(5000);
+//     if (_isVisible(_heading3("Address not found"))) {
+//         _click(_submit("OK[1]"));
+//     }
+// //	if(_isVisible(_div("modal hide fade addressMatchModal address-modal in"))){
+//     if (_isVisible(_heading3("Select your address"))) {
+//         _click(_submit("OK"));
+//     }
+//     _wait(5000);
+//     // DB verification - text_me
+//     if ($signupMode === "Individual" && $textMe == "true") {
+//         verifyDbTextMe($signupEmail);
+//     }
+//     _assertNotVisible(_heading4("Viewing Individual Account (Declan Severson)My Account"));
+
+    if (inGlobalOEP() != "ON") {
+//		verifyElementsOfIndividualDashboard($coverageDate,$people,"REPORT LIFE EVENT AND SHOP");
+        verifyElementsOfIndividualDashboard($coverageDate, $people, "Start New Application");//, "OE", null, null, null, null, null, null, $isSEP);
+    } else {
+        if ($isSEP) {
+            verifyElementsOfIndividualDashboard($coverageDate, $people, "Start New Application", "OE", null, null, null, null, null, null, $isSEP);
+        } else {
+            verifyElementsOfIndividualDashboard($coverageDate, $people, "Start New Application", "OE");
+        }
+    }
+}
+
+function clickUpdateContactInformationOnMyPreferencePage($addr1, $addr2, $city, $state, $zip, $county, $phoneNumber) {
+    _assertVisible(_link("My Preferences", _in(_list("nav nav-list"))));
+    _click(_link("My Preferences", _in(_list("nav nav-list"))));
+    _assertVisible(_div("Please set your communication preferences. Fields marked with an asterisk (*) are required."));
+    _click(_submit("Update Contact Information"));
+    _assertVisible(_div("You have an application which has a pending action from you, please take action on that application before proceeding with reporting mailing address update."));
+    _click(_submit("Ok[2]"));
+}
+
+function clickUpdatePreference($spokenLang, $writtenLang, $type) {
+    _assertVisible(_link("My Preferences", _in(_list("nav nav-list"))));
+    _click(_link("My Preferences", _in(_list("nav nav-list"))));
+    _assertVisible(_label("Preferred spoken language"));
+    _assertVisible(_label("Preferred written language"));
+    _assertVisible(_label("I would like to receive information by:"));
+    _setSelected(_select("prefSpokenLang"), $spokenLang);
+    _setSelected(_select("prefWrittenLang"), $writtenLang);
+    if ($type == "Email") {
+        _click($preferencesEmail);
+        $preferenceType = "Email";
+    } else if ($type == "Mail") {
+        _click($preferencesPostal);
+        $preferenceType = "Mail";
+    }
+    _assertVisible(_submit("Update Preferences"));
+    _click(_submit("Update Preferences"));
+    _assertVisible(_paragraph("Your preferred method of communication has been updated successfully."));
+    _click(_submit("Go to Dashboard"));
+}
+
+function clickReportChangeForCommunicationPreferences() {
+    _assertVisible(_link("My Preferences", _in(_list("nav nav-list"))));
+    _click(_link("My Preferences", _in(_list("nav nav-list"))));
+    _assertVisible(_submit("Report A Change"));
+    _click(_submit("Report A Change"));
+    _assertVisible(_heading4("Life Change Event: Change of Address"));
+}
+
+// DB verification - text_me
+function verifyDbTextMe($signupEmail) {
+    var $dbTextMe = getTextMeFromCmrHousehold($signupEmail);
+    _assertEqual("t", $dbTextMe[0][0], "Value of text_me for this user in DB is not set to true");
+}

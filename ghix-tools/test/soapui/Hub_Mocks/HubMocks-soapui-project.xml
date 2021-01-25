@@ -1,0 +1,947 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project activeEnvironment="Default" name="Hub_Mocks" resourceRoot="${projectDir}" soapui-version="5.1.2" abortOnError="false" runType="SEQUENTIAL" id="2956b9d1-4823-4f47-99dc-1e06a8e110f6" xmlns:con="http://eviware.com/soapui/config">
+  <con:settings/>
+  <con:interface xsi:type="con:RestService" wadlVersion="http://wadl.dev.java.net/2009/02" name="Hub API" type="rest" id="23565570-b924-47bc-8178-ecfd91268325" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <con:settings/>
+    <con:definitionCache type="TEXT" rootPart=""/>
+    <con:endpoints>
+      <con:endpoint>${#Project#Protocol}://${#Project#ServerUrl}</con:endpoint>
+      <con:endpoint>http://SJC-LP173:8089/</con:endpoint>
+      <con:endpoint>http://abhxmock.ghixqa.com:8080/Hub_Mocks/</con:endpoint>
+      <con:endpoint>https://ide2e.ghixqa.com</con:endpoint>
+    </con:endpoints>
+    <con:resource name="VLP" path="/ghix/invokeVerifiedLawfulPresence" id="801ccc22-3e6e-42a0-b4ec-1ab5b42e8535">
+      <con:settings/>
+      <con:parameters/>
+      <con:method name="VLP" method="POST" id="670a9997-62f3-44fa-b6e8-cd477659171c">
+        <con:settings/>
+        <con:parameters/>
+        <con:representation type="FAULT">
+          <con:mediaType>application/json</con:mediaType>
+          <con:status>500</con:status>
+          <con:params/>
+          <con:element xmlns:inv="https://ide2e.ghixqa.com/ghix/invokeVerifiedLawfulPresence">inv:Fault</con:element>
+        </con:representation>
+        <con:representation type="REQUEST">
+          <con:mediaType>application/json</con:mediaType>
+          <con:params/>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType>application/json</con:mediaType>
+          <con:status>200</con:status>
+          <con:params/>
+          <con:element xmlns:inv="https://ide2e.ghixqa.com/ghix/invokeVerifiedLawfulPresence">inv:Response</con:element>
+        </con:representation>
+        <con:representation type="FAULT">
+          <con:mediaType>text/plain;charset=ISO-8859-1</con:mediaType>
+          <con:status>400 404</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="FAULT">
+          <con:mediaType>text/html; charset=iso-8859-1</con:mediaType>
+          <con:status>503</con:status>
+          <con:params/>
+          <con:element>html</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType>application/xml</con:mediaType>
+          <con:status>200</con:status>
+          <con:params/>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType>text/html; charset=iso-8859-1</con:mediaType>
+          <con:status>200</con:status>
+          <con:params/>
+          <con:element>html</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType>text/html;charset=ISO-8859-1</con:mediaType>
+          <con:status>200</con:status>
+          <con:params/>
+          <con:element>html</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType xsi:nil="true"/>
+          <con:status>0</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:request name="VLP Request" mediaType="application/json" postQueryString="false" id="772bbbe9-6e85-42c9-b9fe-1a493aa9f46b">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting>
+          </con:settings>
+          <con:endpoint>http://SJC-LP173:8089/</con:endpoint>
+          <con:request>{
+	"applicationId": null,
+	"documentType": "I327",
+	"clientIp": "${#Project#clientIp}",
+	"payload": {
+		"DHSID": {
+			"I327DocumentID": {
+			  "AlienNumber": "888227777",
+			  "I94Number": "91402404792",
+			  "SEVISID":"9889334221",
+			  "DocExpirationDate": "Jan 21, 2018 05:44:17 PM",
+			  "NaturalizationNumber": "1234556789",
+			  "ReceiptNumber": "ABC4389736754",
+			  "CitizenshipNumber": "123456789"
+			}
+		},
+		"CategoryCode": "C40",
+		"RequestedCoverageStartDate": "2014-01-03",
+		"LastName": "Stockman",
+		"RequestSponsorDataIndicator": false,
+      	"DateOfBirth": "May 05, 1979 10:00:00 PM",
+		"MiddleName": null,
+		"FiveYearBarApplicabilityIndicator": true,
+		"FirstName": "Joseph",
+		"RequesterCommentsForHub": "Initial Verification"
+	}
+}</con:request>
+          <con:originalUri>https://ide2e.ghixqa.com/ghix/invokeVerifiedLawfulPresence</con:originalUri>
+          <con:credentials>
+            <con:authType>No Authorization</con:authType>
+          </con:credentials>
+          <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters/>
+          <con:parameterOrder/>
+        </con:request>
+      </con:method>
+    </con:resource>
+    <con:resource name="SSAC" path="/ghix/invokeSSAC" id="62b892be-f7c4-494b-ab03-487907aacc19">
+      <con:settings/>
+      <con:parameters/>
+      <con:method name="SSAC" id="b34335f7-9427-4336-9bdd-546c58c8820a" method="POST">
+        <con:settings/>
+        <con:parameters/>
+        <con:representation type="FAULT">
+          <con:mediaType>text/plain;charset=ISO-8859-1</con:mediaType>
+          <con:status>404 400</con:status>
+          <con:params/>
+          <con:element>data</con:element>
+        </con:representation>
+        <con:representation type="REQUEST">
+          <con:mediaType>application/json</con:mediaType>
+          <con:params/>
+        </con:representation>
+        <con:representation type="RESPONSE">
+          <con:mediaType>application/json</con:mediaType>
+          <con:status>200</con:status>
+          <con:params/>
+          <con:element xmlns:inv="https://ide2e.ghixqa.com/ghix/invokeSSAC">inv:Response</con:element>
+        </con:representation>
+        <con:representation type="FAULT">
+          <con:mediaType>application/json</con:mediaType>
+          <con:status>500</con:status>
+          <con:params/>
+          <con:element xmlns:inv="https://ide2e.ghixqa.com/ghix/invokeSSAC">inv:Fault</con:element>
+        </con:representation>
+        <con:request name="SSAC Request" id="d5ae6ebc-3eed-456d-bb5d-3da38a576947" mediaType="application/json" postQueryString="false">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting>
+          </con:settings>
+          <con:endpoint>http://:8089/</con:endpoint>
+          <con:request>{
+   "applicationId": null,
+   "clientIp": "${#Project#clientIp}",
+   "payload": {
+      "taxHousehold": [
+         {
+            "householdMember": [
+               {
+                  "personId": 1,
+                  "name": {
+                     "firstName": "Helen",
+                     "middleName": "B",
+                     "lastName": "Decosta"
+                  },
+                  "dateOfBirth": "Jun 30, 1980 12:00:00 PM",
+                  "socialSecurityCard": {
+                     "socialSecurityNumber": "729-16-9807"
+                  },
+                  "citizenshipImmigrationStatus": {
+                     "citizenshipAsAttestedIndicator": true
+                  },
+                  "incarcerationStatus": {
+                     "incarcerationAsAttestedIndicator": true
+                  }
+               }
+            ]
+         }
+      ]
+   }
+}</con:request>
+          <con:originalUri>https://ide2e.ghixqa.com/ghix/invokeSSAC</con:originalUri>
+          <con:credentials>
+            <con:authType>No Authorization</con:authType>
+          </con:credentials>
+          <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters/>
+        </con:request>
+      </con:method>
+    </con:resource>
+    <con:resource name="RIDPPrimary" path="/ghix/invokeRIDPPrimary" id="2d1f9186-afc1-4991-91e7-a4b704ade2bf">
+      <con:settings/>
+      <con:parameters/>
+      <con:method name="RIDPPrimary" id="1217486f-f9f4-4a74-8266-2fe5aa30e0ff" method="POST">
+        <con:settings/>
+        <con:parameters/>
+        <con:representation type="RESPONSE">
+          <con:mediaType>application/json</con:mediaType>
+          <con:status>200</con:status>
+          <con:params/>
+          <con:element xmlns:inv="https://ide2e.ghixqa.com/ghix/invokeRIDPPrimary">inv:Response</con:element>
+        </con:representation>
+        <con:representation type="REQUEST">
+          <con:mediaType>application/json</con:mediaType>
+          <con:params/>
+        </con:representation>
+        <con:representation type="FAULT">
+          <con:mediaType>application/json</con:mediaType>
+          <con:status>500 400</con:status>
+          <con:params/>
+          <con:element xmlns:inv="https://ide2e.ghixqa.com/ghix/invokeRIDPPrimary">inv:Fault</con:element>
+        </con:representation>
+        <con:request name="RIDPPrimary" id="564f63eb-cad7-4828-9fbd-c1e64e19a5a9" mediaType="application/json" postQueryString="false">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting>
+          </con:settings>
+          <con:endpoint>http://abhxmock.ghixqa.com:8080/Hub_Mocks/</con:endpoint>
+          <con:request>{
+	"personGivenName":"Becky",
+  "personMiddleName":"L",
+  "personSurName":"Swedlund",
+  "personBirthDate":"06/01/1936",
+  "personNameSuffixText":"Jr.",
+  "personSSNIdentification":"666-82-4714",
+  "fullTelephoneNumber":"9034656863",
+  "streetName":"RR 1 BOX 337",
+  "locationCityName":"MC KINNEY",
+  "locationStateUSPostalServiceCode":"TX",
+  "locationPostalCode":"75070",
+  "locationPostalExtensionCode":"5406"
+  }</con:request>
+          <con:originalUri>https://ide2e.ghixqa.com/ghix/invokeRIDPPrimary</con:originalUri>
+          <con:credentials>
+            <con:authType>No Authorization</con:authType>
+          </con:credentials>
+          <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters/>
+        </con:request>
+      </con:method>
+    </con:resource>
+    <con:resource name="VLPCloseCase" path="/ghix/invokeCloseCaseRequest" id="8ba8f492-3c11-4fc3-9c7e-c6cecfcfced9">
+      <con:settings/>
+      <con:parameters/>
+      <con:method name="VLPCloseCase" id="00ac2e3c-c18b-4e70-8987-f39f15811246" method="POST">
+        <con:settings/>
+        <con:parameters/>
+        <con:representation type="RESPONSE">
+          <con:mediaType>application/json</con:mediaType>
+          <con:status>200</con:status>
+          <con:params/>
+          <con:element xmlns:inv="https://ide2e.ghixqa.com/ghix/invokeCloseCaseRequest">inv:Response</con:element>
+        </con:representation>
+        <con:representation type="REQUEST">
+          <con:mediaType>application/json</con:mediaType>
+          <con:params/>
+        </con:representation>
+        <con:request name="VLPCloseCase Request" id="0d921c35-a15e-4084-875c-be01f0b08cb2" mediaType="application/json" postQueryString="false">
+          <con:settings>
+            <con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting>
+          </con:settings>
+          <con:endpoint>http://SJC-LP173:8089/</con:endpoint>
+          <con:request>{"caseNumber": "2016132190928HN"}</con:request>
+          <con:originalUri>https://ide2e.ghixqa.com/ghix/invokeCloseCaseRequest</con:originalUri>
+          <con:credentials>
+            <con:authType>No Authorization</con:authType>
+          </con:credentials>
+          <con:jmsConfig JMSDeliveryMode="PERSISTENT"/>
+          <con:jmsPropertyConfig/>
+          <con:parameters/>
+        </con:request>
+      </con:method>
+    </con:resource>
+  </con:interface>
+  <con:restMockService id="afaea3ea-b2ec-4cee-8429-0c567d0e531c" port="8089" path="/" host="SJC-LP173" name="Hub MockService 1">
+    <con:settings/>
+    <con:properties/>
+    <con:restMockAction name="/ghix/invokeVerifiedLawfulPresence" method="POST" resourcePath="/ghix/invokeVerifiedLawfulPresence" id="459927fa-14fb-4f23-8862-c164dfe9e922">
+      <con:settings/>
+      <con:defaultResponse>Response 1</con:defaultResponse>
+      <con:dispatchStyle>SEQUENCE</con:dispatchStyle>
+      <con:dispatchPath>/*
+// Script dispatcher is used to select a response based on the incoming request.
+// Here are few examples showing how to match based on path, query param, header and body
+
+// Match based on path
+def requestPath = mockRequest.getPath()
+log.info "Path: "+ requestPath
+
+if( requestPath.contains("json") )
+{
+    // return the name of the response you want to dispatch
+    return "JSON Response"
+}
+
+
+// Match based on query parameter
+def queryString = mockRequest.getRequest().getQueryString()
+log.info "QueryString: " + queryString
+
+if( queryString.contains("stockholm") )
+{
+    // return the name of the response you want to dispatch
+    return "Response Stockholm"
+}
+else if( queryString.contains("london") )
+{
+    // return the name of the response you want to dispatch
+    return "Response London"
+}
+
+
+// Match based on header
+def acceptEncodingHeaderList = mockRequest.getRequestHeaders().get("Accept-Encoding")
+log.info "AcceptEncoding Header List: " + acceptEncodingHeaderList
+
+if( acceptEncodingHeaderList.contains("gzip,deflate") )
+{
+    // return the name of the response you want to dispatch
+    return "GZiped Response"
+}
+
+
+// Match based on body
+def requestBody = mockRequest.getRequestContent()
+log.info "Request body: " + requestBody
+
+if( requestBody.contains("some data") )
+{
+    // return the name of the response you want to dispatch
+    return "Response N"
+}
+*/</con:dispatchPath>
+      <con:response name="Response 1" id="c99aa489-de63-493f-8d9e-8064c259729d" httpResponseStatus="200" mediaType="application/json">
+        <con:settings/>
+        <con:responseContent>{
+    "Agency3InitVerifResponseSet": {
+        "Agency3InitVerifIndividualResponse": [
+            {
+                "ResponseMetadata": {
+                    "TDSResponseDescriptionText": "Success",
+                    "ResponseCode": "HS000000",
+                    "ResponseDescriptionText": "Success"
+                },
+                "LawfulPresenceVerifiedCode": "P",
+                "Agency3InitVerifIndividualResponseSet": {
+                    "NonCitCoaCode": null,
+                    "NonCitAdmittedToText": null,
+                    "NonCitEntryDate": "2000-09-22",
+                    "NonCitEadsExpireDate": "2019-05-18",
+                    "NonCitCountryCitCd": "INDIA",
+                    "NonCitLastName": "Stockman",
+                    "USCitizenCode": "X",
+                    "NonCitFirstName": "Joseph",
+                    "NonCitAdmittedToDate": "2019-02-02",
+                    "EligStatementTxt": "Requires SEVIS ID",
+                    "NonCitCountryBirthCd": "INDIA",
+                    "PhotoBinaryAttachment": null,
+                    "DSHAutoTriggerStepTwo": false,
+                    "CaseNumber": "6617889880000CC",
+                    "NonCitBirthDate": "1976-05-05",
+                    "CaseSentToSecondaryIndicator": false,
+                    "EligStatementCd": 32,
+                    "PhotoIncludedIndicator": false,
+                    "SponsorDataFoundIndicator": false,
+                    "WebServSftwrVer": "Sprint 16",
+                    "NonCitMiddleName": "Stockman",
+                    "FiveYearBarMetCode": "X",
+                    "ArrayOfSponsorshipData": {
+                        "SponsorshipData": []
+                    },
+                    "IAVTypeTxt": "IAV Text",
+                    "IAVTypeCode": "IAV202",
+                    "SponsorshipReasonCd": null,
+                    "FiveYearBarApplyCode": "X",
+                    "QualifiedNonCitizenCode": "N",
+                    "GrantDate": "2019-02-02",
+                    "GrantDateReasonCd": null
+                }
+            }
+        ]
+    },
+    "ResponseMetadata": {
+        "TDSResponseDescriptionText": null,
+        "ResponseCode": null,
+        "ResponseDescriptionText": null
+    }
+}</con:responseContent>
+      </con:response>
+    </con:restMockAction>
+    <con:restMockAction name="/ghix/invokeSSAC" method="POST" resourcePath="/ghix/invokeSSAC" id="222f7f44-86f3-4f19-9df1-65d82a99ae29">
+      <con:settings/>
+      <con:defaultResponse>Response 1</con:defaultResponse>
+      <con:dispatchStyle>SEQUENCE</con:dispatchStyle>
+      <con:dispatchPath>/*
+// Script dispatcher is used to select a response based on the incoming request.
+// Here are few examples showing how to match based on path, query param, header and body
+
+// Match based on path
+def requestPath = mockRequest.getPath()
+log.info "Path: "+ requestPath
+
+if( requestPath.contains("json") )
+{
+    // return the name of the response you want to dispatch
+    return "JSON Response"
+}
+
+
+// Match based on query parameter
+def queryString = mockRequest.getRequest().getQueryString()
+log.info "QueryString: " + queryString
+
+if( queryString.contains("stockholm") )
+{
+    // return the name of the response you want to dispatch
+    return "Response Stockholm"
+}
+else if( queryString.contains("london") )
+{
+    // return the name of the response you want to dispatch
+    return "Response London"
+}
+
+
+// Match based on header
+def acceptEncodingHeaderList = mockRequest.getRequestHeaders().get("Accept-Encoding")
+log.info "AcceptEncoding Header List: " + acceptEncodingHeaderList
+
+if( acceptEncodingHeaderList.contains("gzip,deflate") )
+{
+    // return the name of the response you want to dispatch
+    return "GZiped Response"
+}
+
+
+// Match based on body
+def requestBody = mockRequest.getRequestContent()
+log.info "Request body: " + requestBody
+
+if( requestBody.contains("some data") )
+{
+    // return the name of the response you want to dispatch
+    return "Response N"
+}
+*/</con:dispatchPath>
+      <con:response name="Response 1" id="74c3e186-dd14-487e-8604-c1fc776ec1d1" httpResponseStatus="200" mediaType="application/json">
+        <con:settings/>
+        <con:responseContent>{
+    "SSACompositeResponse": [
+        {
+            "SSACompositeIndividualResponse": {
+                "ResponseMetadata": {
+                    "TDSResponseDescriptionText": null,
+                    "ResponseCode": "HS000000",
+                    "ResponseDescriptionText": "Success"
+                },
+                "PersonSSNIdentification": "221212503",
+                "SSAResponse": {
+                    "SSAQuartersOfCoverageInformationIndicator": false,
+                    "PersonUSCitizenIndicator": true,
+                    "DeathConfirmationCode": "Confirmed",
+                    "SSATitleIIYearlyIncome": {
+                        "TitleIIRequestedYearInformation": {
+                            "YearlyIncomeAmount": "193999.00",
+                            "IncomeDate": "2012"
+                        }
+                    },
+                    "SSAIncarcerationInformation": {
+                        "SupervisionFacility": {
+                            "FacilityContactInformation": {
+                                "PersonFullName": "George Prince",
+                                "ContactTelephoneNumber": "1",
+                                "ContactFaxNumber": "2"
+                            },
+                            "FacilityCategoryCode": "03",
+                            "FacilityName": "Federal Correctional Complex, Beaumont",
+                            "FacilityLocation": {
+                                "LocationStateUSPostalServiceCode": "TX",
+                                "LocationPostalCode": "1",
+                                "LocationCityName": "Beaumont",
+                                "LocationStreet": "6000 Reynolds Drive"
+                            }
+                        },
+                        "ReportingPersonText": "Confinement",
+                        "PrisonerIdentification": "1122334455",
+                        "PrisonerConfinementDate": "2",
+                        "InmateStatusIndicator": false
+                    },
+                    "PersonIncarcerationInformationIndicator": true,
+                    "SSATitleIIMonthlyIncome": {
+                        "RequestedMonthMinusTwoInformation": {
+                            "IncomeMonthYear": "201210",
+                            "BenefitCreditedAmount": "2000",
+                            "NetMonthlyBenefitCreditedAmount": "1850.00",
+                            "ReturnedCheckAmount": "50.89",
+                            "PriorMonthAccrualAmount": "10",
+                            "OverpaymentDeductionAmount": "150.00",
+                            "MonthlyIncomeAmount": "1860.00",
+                            "PaymentInSuspenseIndicator": false
+                        },
+                        "PersonDisabledIndicator": false,
+                        "OngoingPaymentInSuspenseIndicator": false,
+                        "OngoingMonthlyOverpaymentDeductionAmount": "250.00",
+                        "RequestedMonthMinusOneInformation": {
+                            "IncomeMonthYear": "201211",
+                            "BenefitCreditedAmount": "2000.00",
+                            "NetMonthlyBenefitCreditedAmount": "1949.25",
+                            "ReturnedCheckAmount": "10.00",
+                            "PriorMonthAccrualAmount": "100",
+                            "OverpaymentDeductionAmount": "50.75",
+                            "MonthlyIncomeAmount": "2049.25",
+                            "PaymentInSuspenseIndicator": false
+                        },
+                        "RequestedMonthInformation": {
+                            "IncomeMonthYear": "201212",
+                            "BenefitCreditedAmount": "2000",
+                            "NetMonthlyBenefitCreditedAmount": "0.00",
+                            "ReturnedCheckAmount": "50.00",
+                            "PriorMonthAccrualAmount": "20",
+                            "OverpaymentDeductionAmount": "250.00",
+                            "MonthlyIncomeAmount": "20.00",
+                            "PaymentInSuspenseIndicator": true
+                        },
+                        "OngoingMonthlyBenefitCreditedAmount": "2000",
+                        "RequestedMonthMinusThreeInformation": {
+                            "IncomeMonthYear": "201209",
+                            "BenefitCreditedAmount": "2000.50",
+                            "NetMonthlyBenefitCreditedAmount": "1985.50",
+                            "ReturnedCheckAmount": "10.00",
+                            "PriorMonthAccrualAmount": "120.00",
+                            "OverpaymentDeductionAmount": "15.00",
+                            "MonthlyIncomeAmount": "2105.50",
+                            "PaymentInSuspenseIndicator": false
+                        }
+                    },
+                    "SSNVerificationIndicator": true,
+                    "SSATitleIIAnnualIncomeInformationIndicator": true,
+                    "SSAQuartersOfCoverage": null,
+                    "SSATitleIIMonthlyIncomeInformationIndicator": true
+                }
+            }
+        }
+    ],
+    "gi_context": {
+        "APPID": 100
+    }
+}</con:responseContent>
+      </con:response>
+    </con:restMockAction>
+    <con:restMockAction name="/ghix/invokeRIDPPrimary" method="POST" resourcePath="/ghix/invokeRIDPPrimary" id="9d3ce51f-725b-4ca4-a419-d24146b9304e">
+      <con:settings/>
+      <con:defaultResponse>Response 1</con:defaultResponse>
+      <con:dispatchStyle>SEQUENCE</con:dispatchStyle>
+      <con:dispatchPath>/*
+// Script dispatcher is used to select a response based on the incoming request.
+// Here are few examples showing how to match based on path, query param, header and body
+
+// Match based on path
+def requestPath = mockRequest.getPath()
+log.info "Path: "+ requestPath
+
+if( requestPath.contains("json") )
+{
+    // return the name of the response you want to dispatch
+    return "JSON Response"
+}
+
+
+// Match based on query parameter
+def queryString = mockRequest.getRequest().getQueryString()
+log.info "QueryString: " + queryString
+
+if( queryString.contains("stockholm") )
+{
+    // return the name of the response you want to dispatch
+    return "Response Stockholm"
+}
+else if( queryString.contains("london") )
+{
+    // return the name of the response you want to dispatch
+    return "Response London"
+}
+
+
+// Match based on header
+def acceptEncodingHeaderList = mockRequest.getRequestHeaders().get("Accept-Encoding")
+log.info "AcceptEncoding Header List: " + acceptEncodingHeaderList
+
+if( acceptEncodingHeaderList.contains("gzip,deflate") )
+{
+    // return the name of the response you want to dispatch
+    return "GZiped Response"
+}
+
+
+// Match based on body
+def requestBody = mockRequest.getRequestContent()
+log.info "Request body: " + requestBody
+
+if( requestBody.contains("some data") )
+{
+    // return the name of the response you want to dispatch
+    return "Response N"
+}
+*/</con:dispatchPath>
+      <con:response name="Response 1" id="f679e058-460a-4717-8a66-2dfe714fb476" httpResponseStatus="200" mediaType="application/json">
+        <con:settings/>
+        <con:responseContent>{
+   "responseDescription": "Successful",
+   "verificationResponse":    {
+      "questions":       [
+                  {
+            "question": "You may have opened an auto loan or auto lease in or\n                                around November 2012. Please select the dollar amount range in which\n                                your monthly auto loan or lease payment falls. If you have not had\n                                an auto loan or lease with any of these amount ranges now or in the\n                                past, please select 'NONE OF THE ABOVE/DOES NOT\n                                APPLY'.",
+            "choices":             [
+               {"answerChoice":                {
+                  "choiceText": "$125 - $224",
+                  "choiceIndex": 1
+               }},
+               {"answerChoice":                {
+                  "choiceText": "$225 - $324",
+                  "choiceIndex": 2
+               }},
+               {"answerChoice":                {
+                  "choiceText": "$325 - $424",
+                  "choiceIndex": 3
+               }},
+               {"answerChoice":                {
+                  "choiceText": "$425 - $524",
+                  "choiceIndex": 4
+               }},
+               {"answerChoice":                {
+                  "choiceText": "NONE OF THE ABOVE/DOES NOT APPLY",
+                  "choiceIndex": 5
+               }}
+            ],
+            "questionNumber": 1
+         },
+                  {
+            "question": "Please select the number of bedrooms in your home from the\n                                following choices. If the number of bedrooms in your home is not one\n                                of the choices please select 'NONE OF THE ABOVE'.",
+            "choices":             [
+               {"answerChoice":                {
+                  "choiceText": "2",
+                  "choiceIndex": 1
+               }},
+               {"answerChoice":                {
+                  "choiceText": "3",
+                  "choiceIndex": 2
+               }},
+               {"answerChoice":                {
+                  "choiceText": "4",
+                  "choiceIndex": 3
+               }},
+               {"answerChoice":                {
+                  "choiceText": "5",
+                  "choiceIndex": 4
+               }},
+               {"answerChoice":                {
+                  "choiceText": "NONE OF THE ABOVE",
+                  "choiceIndex": 5
+               }}
+            ],
+            "questionNumber": 2
+         },
+                  {
+            "question": "Please select the model year of the vehicle you purchased\n                                or leased prior to April 2009 .",
+            "choices":             [
+               {"answerChoice":                {
+                  "choiceText": "1997",
+                  "choiceIndex": 1
+               }},
+               {"answerChoice":                {
+                  "choiceText": "1998",
+                  "choiceIndex": 2
+               }},
+               {"answerChoice":                {
+                  "choiceText": "1999",
+                  "choiceIndex": 3
+               }},
+               {"answerChoice":                {
+                  "choiceText": "2000",
+                  "choiceIndex": 4
+               }},
+               {"answerChoice":                {
+                  "choiceText": "NONE OF THE ABOVE",
+                  "choiceIndex": 5
+               }}
+            ],
+            "questionNumber": 3
+         },
+                  {
+            "question": "Using your date of birth, please select your astrological\n                                sun sign of the zodiac from the following choices.",
+            "choices":             [
+               {"answerChoice":                {
+                  "choiceText": "LEO",
+                  "choiceIndex": 1
+               }},
+               {"answerChoice":                {
+                  "choiceText": "CANCER",
+                  "choiceIndex": 2
+               }},
+               {"answerChoice":                {
+                  "choiceText": "GEMINI",
+                  "choiceIndex": 3
+               }},
+               {"answerChoice":                {
+                  "choiceText": "TAURUS",
+                  "choiceIndex": 4
+               }},
+               {"answerChoice":                {
+                  "choiceText": "NONE OF THE ABOVE",
+                  "choiceIndex": 5
+               }}
+            ],
+            "questionNumber": 4
+         }
+      ],
+      "finalDecision": null,
+      "dhsReferenceNumber": "7f64-fc-255a",
+      "sessionIdentifier": "B22A4FCBA78578213A83926A24D50777.pidd2v-1303061703040210129111408"
+   },
+   "responseCode": "HS000000"
+}</con:responseContent>
+      </con:response>
+    </con:restMockAction>
+    <con:restMockAction name="/ghix/invokeCloseCaseRequest" method="POST" resourcePath="/ghix/invokeCloseCaseRequest" id="cb02d34a-ff24-4f52-8424-102eb58e1e23">
+      <con:settings/>
+      <con:defaultResponse xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+      <con:dispatchStyle>SEQUENCE</con:dispatchStyle>
+      <con:dispatchPath>/*
+// Script dispatcher is used to select a response based on the incoming request.
+// Here are few examples showing how to match based on path, query param, header and body
+
+// Match based on path
+def requestPath = mockRequest.getPath()
+log.info "Path: "+ requestPath
+
+if( requestPath.contains("json") )
+{
+    // return the name of the response you want to dispatch
+    return "JSON Response"
+}
+
+
+// Match based on query parameter
+def queryString = mockRequest.getRequest().getQueryString()
+log.info "QueryString: " + queryString
+
+if( queryString.contains("stockholm") )
+{
+    // return the name of the response you want to dispatch
+    return "Response Stockholm"
+}
+else if( queryString.contains("london") )
+{
+    // return the name of the response you want to dispatch
+    return "Response London"
+}
+
+
+// Match based on header
+def acceptEncodingHeaderList = mockRequest.getRequestHeaders().get("Accept-Encoding")
+log.info "AcceptEncoding Header List: " + acceptEncodingHeaderList
+
+if( acceptEncodingHeaderList.contains("gzip,deflate") )
+{
+    // return the name of the response you want to dispatch
+    return "GZiped Response"
+}
+
+
+// Match based on body
+def requestBody = mockRequest.getRequestContent()
+log.info "Request body: " + requestBody
+
+if( requestBody.contains("some data") )
+{
+    // return the name of the response you want to dispatch
+    return "Response N"
+}
+*/</con:dispatchPath>
+      <con:response name="Response 1" id="b3bd8e83-8d17-40bc-af85-018dca66a46f" httpResponseStatus="200" mediaType="application/json">
+        <con:settings/>
+        <con:responseContent>{
+    "ResponseMetadata": {
+        "TDSResponseDescriptionText": "Success",
+        "ResponseCode": "HS000000",
+        "ResponseDescriptionText": "Success"
+    },
+    "WebServiceSoftwareVersion": "Sprint 12"
+}</con:responseContent>
+        <con:header>
+          <con:name>p3p</con:name>
+          <con:value>CP=&amp;#39;CURa ADMa DEVa CONo HISa OUR IND DSP ALL COR&amp;#39;</con:value>
+        </con:header>
+        <con:header>
+          <con:name>Date</con:name>
+          <con:value>Wed, 08 Jun 2016 23:26:25 GMT</con:value>
+        </con:header>
+        <con:header>
+          <con:name>Keep-Alive</con:name>
+          <con:value>timeout=20, max=100</con:value>
+        </con:header>
+        <con:header>
+          <con:name>Connection</con:name>
+          <con:value>Keep-Alive</con:value>
+        </con:header>
+        <con:header>
+          <con:name>X-RequestId</con:name>
+          <con:value>658073</con:value>
+        </con:header>
+        <con:header>
+          <con:name>Server</con:name>
+          <con:value>Apache-Coyote/1.1</con:value>
+        </con:header>
+        <con:header>
+          <con:name>X-ResponseId</con:name>
+          <con:value>496753</con:value>
+        </con:header>
+        <con:header>
+          <con:name>X-Content-Type-Options</con:name>
+          <con:value>nosniff</con:value>
+        </con:header>
+      </con:response>
+    </con:restMockAction>
+  </con:restMockService>
+  <con:requirements/>
+  <con:properties>
+    <con:property>
+      <con:name>ServerURL</con:name>
+      <con:value>idmainqa.ghixqa.com</con:value>
+    </con:property>
+    <con:property>
+      <con:name>Protocol</con:name>
+      <con:value>https</con:value>
+    </con:property>
+    <con:property>
+      <con:name>clientIp</con:name>
+      <con:value>192.168.89.1</con:value>
+    </con:property>
+  </con:properties>
+  <con:wssContainer/>
+  <con:databaseConnectionContainer/>
+  <con:oAuth2ProfileContainer/>
+  <con:reporting>
+    <con:xmlTemplates/>
+    <con:parameters/>
+  </con:reporting>
+  <con:sensitiveInformation/>
+</con:soapui-project>

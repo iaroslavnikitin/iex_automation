@@ -1,0 +1,140 @@
+function getPlanRateFromDB($planId, $zipCode, $county, $toDate, $applicableYear, $age, $insuranceType) {
+    var $planRateQuery = "SELECT round( CAST(prate.rate as numeric),2)  AS pre,prate.rate_option AS rate_option,childtable.plan_id AS plan_id,p2.name AS plan_name,childtable.cost_sharing AS cost_sharing,childtable.plan_level AS plan_level FROM plan_health childtable, pm_service_area psarea, pm_plan_rate prate, plan p2 WHERE p2.id = childtable.plan_id AND p2.service_area_id = psarea.service_area_id AND psarea.zip = '" + $zipCode + "' AND p2.id = prate.plan_id AND p2.is_deleted = 'N' AND prate.is_deleted = 'N' AND psarea.is_deleted = 'N' AND prate.rating_area_id in(SELECT pzcrarea.rating_area_id FROM pm_zip_county_rating_area pzcrarea WHERE pzcrarea.county_fips = '" + $county + "' AND (pzcrarea.zip = '" + $zipCode + "' OR pzcrarea.zip IS NULL)) AND (prate.tobacco = 'N' OR prate.tobacco  IS NULL) AND ( (" + $age + " >= prate.min_age AND " + $age + " <= prate.max_age) OR (1008 >= prate.min_age AND 1008 <= prate.max_age) ) AND prate.rate     > 0 AND TO_DATE ('" + $toDate + "', 'YYYY-MM-DD') BETWEEN prate.effective_start_date AND prate.effective_end_date AND psarea.fips = '" + $county + "' AND TO_DATE ('" + $toDate + "', 'YYYY-MM-DD') BETWEEN p2.start_date AND p2.end_date AND p2.insurance_type ='" + $insuranceType + "' AND p2.market = 'INDIVIDUAL' AND p2.available_for IN ('ADULTONLY', 'ADULTANDCHILD') AND p2.status = 'CERTIFIED' AND p2.issuer_verification_status IN ('VERIFIED') AND P2.enrollment_avail = 'AVAILABLE' AND p2.applicable_year =" + $applicableYear + " AND p2.id=" + $planId;
+    _log("query: " + $planRateQuery);
+    var $planRate = $db.select($planRateQuery);
+    _log("Results from Db" + $planRate + " Plan Rate for this Plan is " + $planRate[0][0])
+    return $planRate[0][0];
+}
+
+function getCountyCodeByZipFromDb($zip) {
+    var $countyQuery = "select state_fips,county_fips from zipcodes where zipcode= '" + $zip + "'";
+    _log("query: " + $countyQuery);
+    var $county = $db.select($countyQuery);
+    _log("county: " + $county);
+    var $countyCode = $county[0][0] + $county[0][1];
+    _log("county code: " + $countyCode);
+    return $countyCode;
+}
+
+
+function getPlanIdFromPlanPage($tile) {
+    var $planID = _getAttribute(_link("cp-tile__img-link detail", _in($tile)), "id").split("_")[1];
+    _log("Plan id from PlanSelection page =  " + $planID);
+    return $planID;
+
+}
+
+function getIssuerIdAndFormularlyIdFromDb($planId) {
+
+    var $query = "select issuer_id, formularly_id from plan where id=" + $planId;
+    _log($query);
+    $results = $db.select($query);
+    _log("Issuer and Formularly_id from db is " + $results);
+    return $results;
+}
+
+
+function getAuthRequiredAndStepTherapyRequiredFromDB($genericRxCode, $issuerId, $fId) {
+
+    $query = "select d.auth_required, d.step_therapy_required from formulary f, PM_DRUG_LIST dl, PM_DRUG_TIER dt, PM_DRUG d where f.DRUG_LIST_ID = dl.id and dt.DRUG_LIST_ID = dl.id and d.DRUG_TIER_ID = dt.id and dl.is_deleted = 'N' and d.RXCUI = '" + $genericRxCode + "' and f.ISSUER_ID = " + $issuerId + " and f.id = " + $fId;
+    _log($query);
+    $results = $db.select($query);
+    _log("Results from db for auth required and step_therapy_Required are " + $results);
+    return $results;
+}
+
+function getCurrentCoverageYear() {
+    var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage%'";
+    _log($query);
+    var $currentCoverageYear = $db.select($query);
+    _log("current coverage Year is " + $currentCoverageYear);
+    return $currentCoverageYear;
+}
+
+function getPreviousCoverageYear() {
+    var $query = "select property_value from gi_app_config where property_key like '%iex.prev_coverage_year%'";
+    _log($query);
+    var $previousCoverageYear = $db.select($query);
+    _log("Previous coverage Year is " + $previousCoverageYear);
+    return $previousCoverageYear;
+}
+
+//Minanshu
+function getNumberOfPrevYear() {
+    var $query = "select property_value from gi_app_config where property_key like '%iex.prescreener.show_number_of%'";
+    _log($query);
+    var $numberOfPrevYear = $db.select($query);
+    _log("Number of Previous Year is " + $numberOfPrevYear);
+    return $numberOfPrevYear;
+}
+
+//
+
+function getPreScreenerShowCurrentYear() {
+    var $query = "select property_value from gi_app_config where property_key like'%iex.prescreener.show_current_year%'";
+    _log($query);
+    var $PreScreenerShowCurrentYear = $db.select($query);
+    _log("PreScreener Show Current Year  " + $PreScreenerShowCurrentYear);
+    return $PreScreenerShowCurrentYear;
+}
+
+function getPreScreenerIndportalShowPreviousYearTabUntil() {
+    var $query = "select property_value from gi_app_config where property_key like '%iex.indportal.show_previous_year_tab_until%'";
+    _log($query);
+    var $PreScreenerShowPrevYearTab = $db.select($query);
+    _log("PreScreener Show PrevYear Tab until " + $PreScreenerShowPrevYearTab);
+    return $PreScreenerShowPrevYearTab;
+
+}
+
+
+function inGlobalOEP() {
+    //if (!$inGlobalOEP) {
+
+    var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'";
+    _log($query);
+	_log("db"+$db);
+	
+    var $endDate = $db.select($query)[0];
+    _log("OE end date  = " + $endDate);
+    $endDate = _call(window.moment($endDate, "MM/DD/YYYY"));
+
+
+    var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_start_date%'";
+    _log($query);
+    var $startDate = $db.select($query)[0];
+    _log("OE start date  = " + $startDate);
+    $startDate = _call(window.moment($startDate, "MM/DD/YYYY"));
+
+
+    var $isAfter = _fetch(window.moment().isAfter($startDate));
+    var $isBefore = _fetch(window.moment().isBefore($endDate));
+    var $dbCurrentCoverageYear = getCurrentCoverageYear();
+
+    //_log(" Start date = "+ $startDate+"   end date = "+$endDate+ $isAfter +"    "+$isBefore);
+
+    if ($isBefore && $isAfter) {
+        $inGlobalOEP = "ON";
+    } else
+        $inGlobalOEP = "OFF";
+    _log($inGlobalOEP);
+
+    return $inGlobalOEP;
+}
+
+function getOECoverageYearDB() {
+    var $query = "select property_value from gi_app_config where property_key like '%iex.current_coverage_year%'";
+    _log($query);
+    //var $OECoverageYear = 2019;
+    var $OECoverageYear = $db.select($query);
+    return $OECoverageYear;
+
+}
+
+function getOEPEndDate() {
+    var $query = "select property_value from gi_app_config where property_key like '%iex.current_oe_end_date%'";
+    _log($query);
+    var $oepEndDate = $db.select($query);
+    return $oepEndDate;
+
+}

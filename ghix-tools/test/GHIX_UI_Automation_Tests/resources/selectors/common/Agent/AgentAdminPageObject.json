@@ -1,0 +1,70 @@
+{
+    "pageHeader":"$('h1')",
+    "header_Tickets":"$('//span[@id=\"tktCountHeader\"]')",
+    "dd_agents": "$('//a[@title=\"Agents\"]')",
+    "lk_manageAgents":"$('//a[@title=\"Manage Agents\"]')",
+    "dd_tickets": "$('//a[@title=\"Tickets\"]')",
+    "tb_agentFname":"$('//*[@id=\"user.firstName\"]')",
+    "tb_agentLname":"$('//*[@id=\"user.lastName\"]')",
+    "tb_companyName":"$('#companyName')",
+    "sb_certificationStatus":"$('#certificationStatus')",
+    "btn_submit":"$('#submit')",
+    "dd_Action":"$('//i[@class=\"icon-cog\"]')",
+    "lk_Edit":"$('*=Edit')",
+    "tb_newStartDate":"$('#newStartDate')",
+    "tb_newEndDate":"$('#newEndDate')",
+    "btn_updateCertStatus":"$('#updateCertStatus')",
+    "lbl_certStatus":"$('#frmcertificationstatus > div:nth-child(2) > table > tbody > tr:nth-child(3) > td.span3.txt-right')",
+    "updatedCertStatus":"$('#frmcertificationstatus > div:nth-child(2) > table > tbody > tr:nth-child(3) > td.span6 > strong')",
+    "img_logo":"$('//img[contains(@src,\"logo_\")]')",
+    "home_icon":"$('//i[@class=\"icon-home\"]')",
+    "mail_envelope":"$('//i[@class=\"icon-envelope\"]')",
+    "lk_myAccount":"$('//a[@class=\"dropdown-toggle\"][contains(text(),\"My Account\")]')",
+    "lk_accountSettings":"$('#masthead-account-settings')",
+    "lk_accountDashboard":"$('#masthead-dashboard')",
+    "lk_logout":"$('//a[contains(@href,\"logout\")]')",
+    "lk_privacyPolicy":"$('//a[contains(@href,\"privacy\")]')",
+    "chooseEODeclPage":"$('#fileInputEODeclPage')",
+    "btn_UploadEODeclPage":"$('#btn_Upload_fileInputEODeclPage')",
+    "chooseContractFile":"$('#fileInputContract')",
+    "btn_UploadContractFile":"$('#btn_Upload_fileInputContract')",
+    "chooseSupportDoc":"$('#fileInput')",
+    "btn_UploadSupportDoc":"$('#btn_UploadDoc_fileInput')",
+    "fileUploadSuccessPopupText":"$('//*[@id=\"fileUoload\"]/div[2]/h4')",
+    "fileUploadPopupClose":"$('#iFrameClose')",
+    "fileNameEODeclPage":"$('#fileNameEODeclPage')",
+    "fileNameContract":"$('#fileNameContract')",
+    "fileName":"$('#fileName')",
+    "agencyControls":
+    {
+        "manageAgenciesURL":"manageAgencies",
+        "dp_agencies": "$('*=Agenc')",
+        "lk_manageAgencies":"$('//a[@title=\"Manage Agencies\"]')",
+        "agenciesPageHeader":"$('#aid-agency-portal > ui-view > div.gutter10.ng-scope > h1')",
+        "lnk_agencyRecord":"$('//tbody/*/td/a')"  ,
+        "leftSidebarMain":
+        {
+            "tb_companyName":"$('#sidebar > form > div:nth-child(1) > div > input')",
+            "sb_certificationStatus":"$('#sidebar > form > div:nth-child(2) > div > select')",
+            "btn_go":"$('#sidebar > form > div.txt-center > button')"
+        },    
+
+        "agencyDetails":
+        {
+            "leftSidebar":
+            {
+                "lk_agencyCertificationStatus":"$('//*[@id=\"sidebar\"]//*[contains(@href,\"certificationStatus\")]')"
+            },
+            "agencyCertificationPage":
+            {
+              "btn_editCertificationStatus":"$('.header>button')",
+              "sb_newCertificationStatus":"$('#certification-status')",
+              "btn_submit":"$('button=Submit')",
+              "certificationStatus":"$('//tbody/tr[2]/td[2]')"
+            }
+        }
+
+    }
+    
+   }
+  

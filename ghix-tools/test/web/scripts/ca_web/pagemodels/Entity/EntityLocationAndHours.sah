@@ -1,0 +1,488 @@
+_includeOnce("../../resources/Address.sah");
+_includeOnce("../../lib/Utils.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $locationAndHoursElements = {
+	"header_hd":{
+		"element": _heading4("Step 3: Locations and Hours"),
+		"label": null
+	},
+	"listLocationsAndBusinessHours_lb":{
+		"element": _paragraph("Please list all locations and business hours for your organization."),
+		"label": null
+	},
+	"primarySiteLocation_tb":{
+		"element": _textbox("siteLocationName"),
+		"label": _label("Primary Site LocationRequired")
+	},
+	"primaryEmailAddress_tb":{
+		"element": _textbox("primaryEmailAddress"),
+		"label": _label("Primary Email Address")
+	},
+	"primaryPhone1_tb":{
+		"element": _textbox("primaryPhone1"),
+		"label": _label("Primary Phone Number")
+	},
+	"primaryPhone2_tb":{
+		"element": _textbox("primaryPhone2"),
+		"label": null
+	},
+	"primaryPhone3_tb":{
+		"element": _textbox("primaryPhone3"),
+		"label": null
+	},
+	"secondaryPhone1_tb":{
+		"element": _textbox("secondaryPhone1"),
+		"label": _label("Secondary Phone Number")
+	},
+	"secondaryPhone2_tb":{
+		"element": _textbox("secondaryPhone2"),
+		"label": null
+	},
+	"secondaryPhone3_tb":{
+		"element": _textbox("secondaryPhone3"),
+		"label": null
+	},
+	"hoursOfOperation_hd":{
+		"element": _heading4("Hours of OperationRequired"),
+		"label": null
+	},
+	"hoursOfOperation": {
+		"mondayFrom_dd": {
+			"element": _select("MondayFrom"),
+			"label": _label("Monday")
+		},
+		"mondayTo_dd": {
+			"element": _select("MondayTo"),
+			"label": _span("To")
+		},
+		"tuesdayFrom_dd": {
+			"element": _select("TuesdayFrom"),
+			"label": _label("Tuesday")
+		},
+		"tuesdayTo_dd": {
+			"element": _select("TuesdayTo"),
+			"label": _span("To")
+		},
+		"wednesdayFrom_dd": {
+			"element": _select("WednesdayFrom"),
+			"label": _label("Wednesday")
+		},
+		"wednesdayTo_dd": {
+			"element": _select("WednesdayTo"),
+			"label": _span("To")
+		},
+		"thursdayFrom_dd": {
+			"element": _select("ThursdayFrom"),
+			"label": _label("Thursday")
+		},
+		"thursdayTo_dd": {
+			"element": _select("ThursdayTo"),
+			"label": _span("To")
+		},
+		"fridayFrom_dd": {
+			"element": _select("FridayFrom"),
+			"label": _label("Friday")
+		},
+		"fridayTo_dd": {
+			"element": _select("FridayTo"),
+			"label": _span("To")
+		},
+		"saturdayFrom_dd": {
+			"element": _select("SaturdayFrom"),
+			"label": _label("Saturday")
+		},
+		"saturdayTo_dd": {
+			"element": _select("SaturdayTo"),
+			"label": _span("To")
+		},
+		"sundayFrom_dd": {
+			"element": _select("SundayFrom"),
+			"label": _label("Sunday")
+		},
+		"sundayTo_dd": {
+			"element": _select("SundayTo"),
+			"label": _span("To")
+		}
+	},
+	"mailingAddress":{
+		"header_hd":{
+			"element": _heading4("Mailing Address"),
+			"label": null
+		},
+		"streetAddress_tb": {
+			"element": _textbox("mailingLocation_address1"),
+			"label": _label("Street AddressRequired")
+		},
+		"suite_tb": {
+			"element": _textbox("mailingLocation_address2"),
+			"label": _label("Suite")
+		},
+		"city_tb": {
+			"element": _textbox("mailingLocation_city"),
+			"label": _label("CityRequired")
+		},
+		"state_dd": {
+			"element": _select("mailingLocation_state"),
+			"label": _label("StateRequired")
+		},
+		"zipcode_tb": {
+			"element": _textbox("mailingLocation_zip"),
+			"label": _label("Zip codeRequired")
+		}
+	},
+	"physicalAddress":{
+		"header_hd":{
+			"element": _heading4("Physical Address"),
+			"label": null
+		},
+		"physicalAddressText_lb":{
+			"element": _paragraph("", _under(_heading4("Physical Address"))),
+			"label": null
+		},
+		"sameAsMailing_cb":{
+			"element": _checkbox("physicalAddressCheck"),
+			"label": _label("Same as Mailing Address")
+		},
+		"streetAddress_tb": {
+			"element": _textbox("physicalLocation_address1"),
+			"label": _label("Street Address")
+		},
+		"suite_tb": {
+			"element": _textbox("physicalLocation_address2"),
+			"label": _label("Suite")
+		},
+		"city_tb": {
+			"element": _textbox("physicalLocation_city"),
+			"label": _label("City")
+		},
+		"state_dd": {
+			"element": _select("physicalLocation_state"),
+			"label": _label("State")
+		},
+		"zipcode_tb": {
+			"element": _textbox("physicalLocation_zip"),
+			"label": _label("Zip code")
+		}
+	},
+	"languagesSupported":{
+		"languagesSupported_hd":{
+			"element": _heading4("Languages Supported"),
+			"label": null
+		},
+		"spokenlanguages":{
+			"spokenlanguages_hd":{
+				"element": _tableHeader("Choose all spoken languagesRequired"),
+				"label": null
+			},
+			"english_cb":{
+				"element": _checkbox("spokenLanguagesId"),
+				"label": _label("/English/", _in(_table("languageTable")))
+			},
+			"arabic_cb":{
+				"element": _checkbox("spokenLanguagesId[1]"),
+				"label": _label("/Arabic/", _in(_table("languageTable")))
+			},
+			"armenian_cb":{
+				"element": _checkbox("spokenLanguagesId[2]"),
+				"label": _label("/Armenian/", _in(_table("languageTable")))
+			},
+			"cambodian_cb":{
+				"element": _checkbox("spokenLanguagesId[3]"),
+				"label": _label("/Cambodian/", _in(_table("languageTable")))
+			},
+			"cantonese_cb":{
+				"element": _checkbox("spokenLanguagesId[4]"),
+				"label": _label("/Cantonese/", _in(_table("languageTable")))
+			},
+			"farsi_cb":{
+				"element": _checkbox("spokenLanguagesId[5]"),
+				"label": _label("/Farsi/", _in(_table("languageTable")))
+			},
+			"hmong_cb":{
+				"element": _checkbox("spokenLanguagesId[6]"),
+				"label": _label("/Hmong/", _in(_table("languageTable")))
+			},
+			"korean_cb":{
+				"element": _checkbox("spokenLanguagesId[7]"),
+				"label": _label("/Korean/", _in(_table("languageTable")))
+			},
+			"mandarin_cb":{
+				"element": _checkbox("spokenLanguagesId[8]"),
+				"label": _label("/Mandarin/", _in(_table("languageTable")))
+			},
+			"russian_cb":{
+				"element": _checkbox("spokenLanguagesId[9]"),
+				"label": _label("/Russian/", _in(_table("languageTable")))
+			},
+			"spanish_cb":{
+				"element": _checkbox("spokenLanguagesId[10]"),
+				"label": _label("/Spanish/", _in(_table("languageTable")))
+			},
+			"tagalog_cb":{
+				"element": _checkbox("spokenLanguagesId[11]"),
+				"label": _label("/Tagalog/", _in(_table("languageTable")))
+			},
+			"vietnamese_cb":{
+				"element": _checkbox("spokenLanguagesId[12]"),
+				"label": _label("/Vietnamese/", _in(_table("languageTable")))
+			},
+			"other_cb":{
+				"element": _checkbox("otherSpokenLanguageCheckbox", _in(_table("languageTable"))),
+				"label": null
+			},
+			"selectOptions_tb":{
+				"element": _textbox("chzn-choices", _in(_table("languageTable"))),
+				"label": null
+			}
+		},
+		"writtenlanguages":{
+			"writtenlanguages_hd":{
+				"element": _tableHeader("Choose all written languagesRequired"),
+				"label": null
+			},
+			"english_cb":{
+				"element": _checkbox("writtenLanguagesId"),
+				"label": _label("/English/", _in(_table("/writtenLanguages/")))
+			},
+			"arabic_cb":{
+				"element": _checkbox("writtenLanguagesId[1]"),
+				"label": _label("/Arabic/", _in(_table("/writtenLanguages/")))
+			},
+			"armenian_cb":{
+				"element": _checkbox("writtenLanguagesId[2]"),
+				"label": _label("/Armenian/", _in(_table("/writtenLanguages/")))
+			},
+			"cambodian_cb":{
+				"element": _checkbox("writtenLanguagesId[3]"),
+				"label": _label("/Cambodian/", _in(_table("/writtenLanguages/")))
+			},
+			"farsi_cb":{
+				"element": _checkbox("writtenLanguagesId[4]"),
+				"label": _label("/Farsi/", _in(_table("/writtenLanguages/")))
+			},
+			"hmong_cb":{
+				"element": _checkbox("writtenLanguagesId[5]"),
+				"label": _label("/Hmong/", _in(_table("/writtenLanguages/")))
+			},
+			"korean_cb":{
+				"element": _checkbox("writtenLanguagesId[6]"),
+				"label": _label("/Korean/", _in(_table("/writtenLanguages/")))
+			},
+			"russian_cb":{
+				"element": _checkbox("writtenLanguagesId[7]"),
+				"label": _label("/Russian/", _in(_table("/writtenLanguages/")))
+			},
+			"spanish_cb":{
+				"element": _checkbox("writtenLanguagesId[8]"),
+				"label": _label("/Spanish/", _in(_table("/writtenLanguages/")))
+			},
+			"tagalog_cb":{
+				"element": _checkbox("writtenLanguagesId[9]"),
+				"label": _label("/Tagalog/", _in(_table("/writtenLanguages/")))
+			},
+			"chinese_cb":{
+				"element": _checkbox("writtenLanguagesId[10]"),
+				"label": _label("/Traditional Chinese character/", _in(_table("/writtenLanguages/")))
+			},
+			"vietnamese_cb":{
+				"element": _checkbox("writtenLanguagesId[11]"),
+				"label": _label("/Vietnamese/", _in(_table("/writtenLanguages/")))
+			},
+			"other_cb":{
+				"element": _checkbox("otherWrittenLanguageCheckbox", _in(_table("/writtenLanguages/"))),
+				"label": null
+			},
+			"selectOptions_tb":{
+				"element": _textbox("chzn-choices", _in(_table("/writtenLanguages/"))),
+				"label": null
+			}
+		}
+	},
+	"next_btn":{
+		"element": _submit("save"),
+		"label": _submit("Next")
+	},
+	"back_btn":{
+		"element": _button("back"),
+		"label": _button("Back")
+	},
+	"failAddressPopup":{
+		"failAddressPopup_div":{
+			"element": _div("address-failure-box"),
+			"label": null
+		},
+		"header_hd": {
+			"element": _heading3("Confirm Address", _in(_div("address-failure-box"))),
+			"label": null	
+		},
+		"addressNotFoundText_div": {
+			"element": _div("suggestedAddress"),
+			"label": _div("The address you entered is not in the postal database. Please check it for accuracy.")	
+		},
+		"ok_btn":{
+			"element": _button("OK", _in(_div("address-failure-box"))),
+			"label": null
+		}
+	},
+	"suggestAddressPopup":{
+		"suggestAddressPopup_div":{
+			"element": _div("suggestion-box"),
+			"label": null
+		},
+		"header_hd": {
+			"element": _heading3("Check Your Address", _in(_div("suggestion-box"))),
+			"label": null	
+		},
+		"suggestText_div": {
+			"element": _paragraph("Please select the best match for your address:"),
+			"label": null	
+		},
+		"enteredAddress_cb":{
+			"element": _radio("userdefault"),
+			"label": _heading4("Address you entered:")
+		},
+		"ok_btn":{
+			"element": _button("submitAddr"),
+			"label": _button(" OK ")
+		}
+	},
+	"locationAndHoursSubSite":{
+		"done_btn":{
+			"element": _submit("subSiteDone"),
+			"label": _submit("Done")
+		}
+	}
+}
+
+function inputLocationsAndHours($entity){
+	$entity.locationAndHours.primarySite = inputLocationNameAndContactInfo($entity.locationAndHours.primarySite);
+	inputHoursOfOperation($entity.locationAndHours.primarySite.hoursOfOperation);
+	$entity.locationAndHours.primarySite.mailingAddress = inputMailingAddress($entity.locationAndHours.primarySite.mailingAddress);
+	$entity.locationAndHours.primarySite.physicalAddress = inputPhysicalAddress($entity.locationAndHours.primarySite.physicalAddress);
+	
+	$entity.locationAndHours.primarySite.spokenLanguages = inputSpokenLanguages($entity.locationAndHours.primarySite.spokenLanguages);
+	$entity.locationAndHours.primarySite.writtenLanguages = inputWrittenLanguages($entity.locationAndHours.primarySite.writtenLanguages);
+
+	clickNextOnLocationsAndHours();
+	clickDoneOnLocationsAndHoursSubSite();
+	//_log("$entity: "+JSON.stringify($entity));
+	
+	return $entity;
+}
+
+function inputLocationNameAndContactInfo($siteInfo){
+	if (!$siteInfo.primarySiteLocation) $siteInfo.primarySiteLocation = $VALID_ADRESSES[getRandomInt(0, $VALID_ADRESSES.length)].city+" Location";
+	if (!$siteInfo.primaryEmailAddress) $siteInfo.primaryEmailAddress = getRandomEmail($siteInfo.primarySiteLocation.replace(/ /g,""));
+	if (!$siteInfo.primaryPhoneNumber) $siteInfo.primaryPhoneNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$siteInfo.secondaryPhomeNumber) $siteInfo.secondaryPhomeNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+
+	setValue($locationAndHoursElements.primarySiteLocation_tb.element, $siteInfo.primarySiteLocation);
+	setValue($locationAndHoursElements.primaryEmailAddress_tb.element, $siteInfo.primaryEmailAddress);
+
+	setValue($locationAndHoursElements.primaryPhone1_tb.element, $siteInfo.primaryPhoneNumber[0]);
+	setValue($locationAndHoursElements.primaryPhone2_tb.element, $siteInfo.primaryPhoneNumber[1]);
+	setValue($locationAndHoursElements.primaryPhone3_tb.element, $siteInfo.primaryPhoneNumber[2]);
+
+	setValue($locationAndHoursElements.secondaryPhone1_tb.element, $siteInfo.secondaryPhomeNumber[0]);
+	setValue($locationAndHoursElements.secondaryPhone2_tb.element, $siteInfo.secondaryPhomeNumber[1]);
+	setValue($locationAndHoursElements.secondaryPhone3_tb.element, $siteInfo.secondaryPhomeNumber[2]);
+
+	return $siteInfo;		
+}
+
+function inputHoursOfOperation($hoursOfOperation){
+	var $valuesKeys = Object.keys($hoursOfOperation);
+	var $elementsKeys = Object.keys($locationAndHoursElements.hoursOfOperation);
+	
+	var $elementNum = 0;
+	var $nextElementNum = 0;
+	var $valueNum = 0;
+
+	$valuesKeys.map(function setHours($value){
+		$nextElementNum = $elementNum+1;
+		_setSelected($locationAndHoursElements.hoursOfOperation[$elementsKeys[$elementNum]].element, $hoursOfOperation[$value][0]);
+		_setSelected($locationAndHoursElements.hoursOfOperation[$elementsKeys[$nextElementNum]].element, $hoursOfOperation[$value][1]);
+
+		$valueNum++;
+		$elementNum = $elementNum+2;
+	});
+
+}
+
+function inputMailingAddress($address){
+	if (!$address) $address = $VALID_ADRESSES[getRandomInt(0, $VALID_ADRESSES.length)];
+	inputAddress($locationAndHoursElements.mailingAddress, $address);
+	return $address;
+}
+
+function inputPhysicalAddress($address){
+	if (!$address) $address = $VALID_ADRESSES[getRandomInt(0, $VALID_ADRESSES.length)];
+	inputAddress($locationAndHoursElements.physicalAddress, $address);
+	return $address;
+}
+
+function inputAddress($addressElements, $addressValues){
+
+	setValue($addressElements.streetAddress_tb.element,$addressValues.streetAddress);
+	if ($addressValues.suite) setValue($addressElements.suite_tb.element,$addressValues.suite);
+	setValue($addressElements.city_tb.element,$addressValues.city);
+	var $state = abbrState($addressValues.state,"name");
+	_setSelected($addressElements.state_dd.element,$state);
+	setValue($addressElements.zipcode_tb.element,$addressValues.zipcode);
+	_removeFocus($addressElements.zipcode_tb.element);
+
+	_setStrictVisibilityCheck(true);
+
+	if (_isVisible($locationAndHoursElements.failAddressPopup.failAddressPopup_div.element)) {
+		click($locationAndHoursElements.failAddressPopup.ok_btn.element);
+	}
+	if (_isVisible($locationAndHoursElements.suggestAddressPopup.suggestAddressPopup_div.element)) {
+		click($locationAndHoursElements.suggestAddressPopup.enteredAddress_cb.element);
+		click($locationAndHoursElements.suggestAddressPopup.ok_btn.element);
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+const $SPOKEN_LANGUAGES = ["English","Arabic","Armenian","Cambodian","Cantonese","Farsi","Hmong","Korean","Mandarin","Russian","Spanish","Tagalog","Vietnamese","Other"];
+const $WRITTEN_LANGUAGES = ["English","Arabic","Armenian","Cambodian","Farsi","Hmong","Korean","Russian","Spanish","Tagalog","Traditional Chinese character","Vietnamese","Other"];
+
+function inputSpokenLanguages($languages){
+	if (!$languages){
+		var $randomLanguage = getRandomInt(0, $SPOKEN_LANGUAGES.length-4);
+		$languages = [];
+		for (var $i = 0; $i < 3; $i++) {
+			$languages.push($SPOKEN_LANGUAGES[$randomLanguage+$i]);
+		}
+	} 
+
+	$languages.map(function selectLanguage($language){
+		click(_checkbox($language, _in(_table("languageTable"))));
+	});
+
+	return $languages;
+}
+
+function inputWrittenLanguages($languages){
+	if (!$languages){
+		var $randomLanguage = getRandomInt(0, $WRITTEN_LANGUAGES.length-4);
+		$languages = [];
+		for (var $i = 0; $i < 3; $i++) {
+			$languages.push($WRITTEN_LANGUAGES[$randomLanguage+$i]);
+		}
+	} 
+
+	$languages.map(function selectLanguage($language){
+		click(_checkbox($language, _in(_table(1))));
+	});
+
+	return $languages;
+}
+
+function clickNextOnLocationsAndHours(){
+	click($locationAndHoursElements.next_btn.element);
+}
+
+function clickDoneOnLocationsAndHoursSubSite(){
+	click($locationAndHoursElements.locationAndHoursSubSite.done_btn.element);
+}

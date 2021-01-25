@@ -1,0 +1,234 @@
+_includeOnce("../../lib/Utils.sah");
+_includeOnce("../../resources/EntityData/EntityData.sah");
+_includeOnce("../../resources/EntityData/EntityInformationContent.sah");
+_includeOnce("../../lib/CommonFunctions.sah");
+
+var $entityInformationContent = {
+	"entityType": ["In-Person Assistance","Certified Navigator Entities","Certified Application Counselor"],
+	"wayToContact": ["Email","Phone","Fax","Mail"],
+	"organizationType": ["Select","Private Partnership","School","Community Clinic","Faith-based organization","Public Partnership","Community-Based organization"],
+	"countiesServed": ["Sonoma","Merced","San Diego","Monterey","Shasta","San Benito","Yuba","Colusa","Imperial","Fresno","San Francisco","Santa Clara","Stanislaus","Tuolumne","Alameda","Mendocino","Napa","Sutter","Glenn","Kern","Madera","San Joaquin","Mariposa","Sacramento","Solano","Orange","Los Angeles","Marin","Lake","Trinity","Amador","Placer","Yolo","Sierra","Modoc","Riverside","Ventura","Kings","Santa Cruz","Humboldt","Siskiyou","Nevada","El Dorado","Alpine","Lassen","Mono","Contra Costa","San Bernardino","Inyo","San Mateo","Calaveras","Del Norte","Butte","Plumas","Tehama","Santa Barbara","Tulare","San Luis Obispo"],
+	"educationGrant": ["Yes","No"]
+}
+
+var $entityInformationElements = {
+	"entityInformationHeader_hd":{
+		"element": _heading4("Step 1: Entity Information"),
+		"label": null
+	},
+	"entityType_lb":{
+		"element": _fieldset("Entity Type required Required"),
+		"label": null
+	},
+	"inPersonAssistence_cb":{
+		"element": _radio("inpersonassistance"),
+		"label": _label("In-Person Assistance")
+	},
+	"certifiedNavEntities_cb":{
+		"element": _radio("navigationorganization"),
+		"label": _label("Certified Navigator Entities")
+	},
+	"certifiedApplicationCounselor_cb":{
+		"element": _radio("certifiedApplicationCounselor"),
+		"label": _label("Certified Application Counselor")
+	},
+	"entityName_tb":{
+		"element": _textbox("entityName"),
+		"label": _label("Enrollment Entity NameRequired")
+	},
+	"entityBusinessName_tb":{
+		"element": _textbox("businessLegalName"),
+		"label": _label("Business Name (Legal)Required")
+	},
+	"primaryEmailAddress_tb":{
+		"element": _textbox("primaryEmailAddress"),
+		"label": _label("Primary Email AddressRequired")
+	},
+	"primaryPhoneOne_tb":{
+		"element": _textbox("primaryPhone1"),
+		"label": _label("/Primary Phone NumberRequired/")
+	},
+	"primaryPhoneTwo_tb":{
+		"element": _textbox("primaryPhone2"),
+		"label": null
+	},
+	"primaryPhoneThree_tb":{
+		"element": _textbox("primaryPhone3"),
+		"label": null
+	},
+	"secondaryPhoneOne_tb":{
+		"element": _textbox("secondaryPhone1"),
+		"label": _label("/Secondary Phone Number/")
+	},
+	"secondaryPhoneTwo_tb":{
+		"element": _textbox("secondaryPhone2"),
+		"label": null
+	},
+	"secondaryPhoneThree_tb":{
+		"element": _textbox("secondaryPhone3"),
+		"label": null
+	},
+	"wayToContact_lb":{
+		"element": _fieldset("How would you like for us to contact you?"),
+		"label": null
+	},
+	"wayToContactEmail_cb":{
+		"element": _radio("email"),
+		"label": _label("Email")
+	},
+	"wayToContactPhone_cb":{
+		"element": _radio("phone"),
+		"label": _label("Phone")
+	},
+	"wayToContactFax_cb":{
+		"element": _radio("fax"),
+		"label": _label("Fax")
+	},
+	"wayToContactMail_cb":{
+		"element": _radio("mail"),
+		"label": _label("Mail")
+	},
+	"faxNumberOne_tb":{
+		"element": _textbox("faxNumber1"),
+		"label": _label("/Fax Number Required/")
+	},
+	"faxNumberTwo_tb":{
+		"element": _textbox("faxNumber2"),
+		"label": null
+	},
+	"faxNumberThree_tb":{
+		"element": _textbox("faxNumber3"),
+		"label": null
+	},
+	"federalTaxId_tb":{
+		"element": _textbox("federalTaxID"),
+		"label": _label("Federal Tax IDRequired")
+	},
+	"stateTaxId_tb":{
+		"element": _textbox("stateTaxID"),
+		"label": _label("State Tax IDRequired")
+	},
+	"organizationType_dd":{
+		"element": _select("orgType"),
+		"label": _label("Organization TypeRequired")
+	},
+	"countiesServed_tb":{
+		"element": _textbox("chzn-choices"),
+		"label": _label("Counties ServedRequired")
+	},
+	"educationGrand_lb":{
+		"element": _fieldset("Did your organization receive an Outreach and Education Grant?"),
+		"label": null
+	},
+	"educationGrandYes_cb":{
+		"element": _radio("educationGrant1"),
+		"label": _label("Yes")
+	},
+	"educationGrandNo_cb":{
+		"element": _radio("educationGrant2"),
+		"label": _label("No")
+	},
+	"next_btn":{
+		"element": _submit("SaveEntityInfo"),
+		"label": _submit("Next")
+	}
+
+}
+
+function createEntityAccount($entity){
+	if (!$entity) {
+		$entity = JSON.parse(JSON.stringify($DEFAULT_ENTITY));
+	}
+
+	if (!$entity.firstName) $entity.firstName = randomFirstName();
+	if (!$entity.lastName) $entity.lastName = randomLastName();
+	if (!$entity.username) $entity.username = getRandomEmail($entity.firstName);
+	if (!$entity.password) $entity.password = "ghix123#";
+
+	click(_link("Enrollment Entities"));
+	setValue(_textbox("firstName"), $entity.firstName);
+	setValue(_textbox("lastName"), $entity.lastName);
+	setValue(_emailbox("email"), $entity.username);
+	setValue(_emailbox("confirmEmail"), $entity.username);
+
+	setValue(_textbox("phone1"), $entity.phoneNumber[0]);
+	setValue(_textbox("phone2"), $entity.phoneNumber[1]);
+	setValue(_textbox("phone3"), $entity.phoneNumber[2]);
+
+	var $allOptions = _getText(_select("securityQuestion1"))
+	var $noOfOptions = JSON.stringify($allOptions).split(",").length;
+	var $option = _random($noOfOptions-1);
+	
+	if($option == 0){
+		$option++;
+	}
+	
+	_setSelected(_select("securityQuestion1"), $option);
+	_wait(500);
+	setValue(_textbox("Security Answer"), "abc");
+	
+	setValue(_password("password"), $entity.password);
+	setValue(_password("confirmPassword"), $entity.password);
+	click(_button("Submit"));
+
+	return $entity;
+}
+
+function inputEntityInformation($entity){
+
+	if ($entity.entityInformation.entityType.length < 1) $entity.entityInformation.entityType = $entityInformationContent.entityType[1];
+	if (!$entity.entityInformation.entityName) $entity.entityInformation.entityName = $entity.firstName+" "+$entity.lastName+" Entity";
+	if (!$entity.entityInformation.businessName) $entity.entityInformation.businessName = $entity.firstName+" "+$entity.lastName+" Entity";
+	if (!$entity.entityInformation.primaryEmailAddress) $entity.entityInformation.primaryEmailAddress = $entity.username;
+	if (!$entity.entityInformation.primaryPhoneNumber) $entity.entityInformation.primaryPhoneNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$entity.entityInformation.secondaryPhomeNumber) $entity.entityInformation.secondaryPhomeNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if ($entity.entityInformation.wayToContact.length < 1) $entity.entityInformation.wayToContact = $entityInformationContent.wayToContact[1];
+	if (!$entity.entityInformation.faxNumber) $entity.entityInformation.faxNumber = [randomStringWithoutStartingZero(3, "N"),randomString(3, "N"),randomString(4, "N")];
+	if (!$entity.entityInformation.federalTaxId) $entity.entityInformation.federalTaxId = randomStringWithoutStartingZero(9,"N");
+	if (!$entity.entityInformation.stateTaxId) $entity.entityInformation.stateTaxId = randomStringWithoutStartingZero(12,"N");
+	if ($entity.entityInformation.organizationType.length < 1) $entity.entityInformation.organizationType = $entityInformationContent.organizationType[1];
+	if ($entity.entityInformation.countiesServed.length < 1) {
+		var $counties = [];
+		$counties.push($entityInformationContent.countiesServed[1]);
+		$entity.entityInformation.countiesServed = $counties;
+	} 
+	if ($entity.entityInformation.educationGrant.length < 1) $entity.entityInformation.educationGrant = $entityInformationContent.educationGrant[1];
+
+	click(_radio($entity.entityInformation.entityType));
+
+	setValue($entityInformationElements.entityName_tb.element, $entity.entityInformation.entityName);
+	setValue($entityInformationElements.entityBusinessName_tb.element, $entity.entityInformation.businessName);
+	setValue($entityInformationElements.primaryEmailAddress_tb.element, $entity.entityInformation.primaryEmailAddress);
+
+	setValue($entityInformationElements.primaryPhoneOne_tb.element, $entity.entityInformation.primaryPhoneNumber[0]);
+	setValue($entityInformationElements.primaryPhoneTwo_tb.element, $entity.entityInformation.primaryPhoneNumber[1]);
+	setValue($entityInformationElements.primaryPhoneThree_tb.element, $entity.entityInformation.primaryPhoneNumber[2]);
+
+	setValue($entityInformationElements.secondaryPhoneOne_tb.element, $entity.entityInformation.secondaryPhomeNumber[0]);
+	setValue($entityInformationElements.secondaryPhoneTwo_tb.element, $entity.entityInformation.secondaryPhomeNumber[1]);
+	setValue($entityInformationElements.secondaryPhoneThree_tb.element, $entity.entityInformation.secondaryPhomeNumber[2]);
+
+	click(_radio($entity.entityInformation.wayToContact));
+
+	setValue($entityInformationElements.faxNumberOne_tb.element, $entity.entityInformation.faxNumber[0]);
+	setValue($entityInformationElements.faxNumberTwo_tb.element, $entity.entityInformation.faxNumber[1]);
+	setValue($entityInformationElements.faxNumberThree_tb.element, $entity.entityInformation.faxNumber[2]);
+
+	setValue($entityInformationElements.federalTaxId_tb.element, $entity.entityInformation.federalTaxId);
+	setValue($entityInformationElements.stateTaxId_tb.element, $entity.entityInformation.stateTaxId);
+
+	_setSelected($entityInformationElements.organizationType_dd.element, $entity.entityInformation.organizationType);
+
+	$entity.entityInformation.countiesServed.map(function($county){
+		click(_listItem($county));
+	})
+	
+	click(_radio($entity.entityInformation.educationGrant));
+
+	return $entity;
+}
+
+function clickNextOnEntityInformation(){
+	click($entityInformationElements.next_btn.element);
+}
+

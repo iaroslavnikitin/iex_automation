@@ -1,0 +1,13 @@
+{
+  "header_Tickets": "$('//span[@id=\"tktCountHeader\"]')",
+  "agentsMenu":
+  {
+    "dd_agents": "$('//a[@title=\"Agents\"]')",
+    "lk_manageAgents": "$('//a[@title=\"Manage Agents\"]')"
+  },
+  "adminStaffMenu":
+  {
+    "dd_adminStaff": "$('a*=Admin Staff')",
+    "lk_manageAdminStaff": "$('a*=Manage Admin Staff')"
+  }
+}

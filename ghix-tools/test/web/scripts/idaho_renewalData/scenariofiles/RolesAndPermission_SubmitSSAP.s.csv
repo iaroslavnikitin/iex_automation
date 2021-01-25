@@ -1,0 +1,18 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+,,"loadSahi","../pagemodels/global_include.sah"
+"//",,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+
+"all,Security,individualPortal","L1 / L2 / Supervisor Creating Individual Account And Submitting SSAP","[Documentation]"
+,,"openBrowser"
+,,"setDB"
+,,"[Keyword]","csrCreatingAndVerifyingIndividualAccount"
+,,"[Documentation]","Role","createPermission","ridpPermission","user","password","first","last","dob","zipcode","phoneNumber","emailPrefix","isCSREnabled","aptcAmount","noOfAdults","noOfChildren","showCatastrophic"
+,,"[Data]","[userdata:RolesAndPermissionSubmitSSAP:Role]","[userdata:RolesAndPermissionSubmitSSAP:createPermission]","[userdata:RolesAndPermissionSubmitSSAP:ridpPermission]","[userdata:RolesAndPermissionSubmitSSAP:user]","[userdata:RolesAndPermissionSubmitSSAP:password]","[userdata:RolesAndPermissionSubmitSSAP:first]","[userdata:RolesAndPermissionSubmitSSAP:last]","[userdata:RolesAndPermissionSubmitSSAP:dob]","[userdata:RolesAndPermissionSubmitSSAP:zipcode]","[userdata:RolesAndPermissionSubmitSSAP:phoneNumber]","[userdata:RolesAndPermissionSubmitSSAP:emailPrefix]","[userdata:RolesAndPermissionSubmitSSAP:isCSREnabled]","[userdata:RolesAndPermissionSubmitSSAP:aptcAmount]","[userdata:RolesAndPermissionSubmitSSAP:noOfAdults]","[userdata:RolesAndPermissionSubmitSSAP:noOfChildren]","[userdata:RolesAndPermissionSubmitSSAP:showCatastrophic]"

@@ -1,0 +1,481 @@
+{
+  "oep": [
+    {
+      "status": "at_created",
+      "description": "AT created, Eligibility Recieved(ER), shopping not started. Not enrolled in Dental. Text OE 12",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You have successfully completed your application for health insurance and provided your financial information. You can now compare and shop for medical and dental plans."],
+      "further_action_btn": "SHOP FOR PLANS",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": true
+    },
+    {
+      "status": "med_part_enroll",
+      "description": "AT created, Part of HH completed Health. Not enrolled in Dental.. Text OE 13",
+      "ssap_application": {
+        "app_status": "PN",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You have successfully completed one or more enrollment(s) for your household. Please complete remaining enrollments."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "Health_text": false,
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping."
+    },
+    {
+      "status": "med_part_enroll_dent",
+      "description": "AT created, Part of HH completed Health. Enrolled in Dental.. Text OE 13",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You have successfully completed one or more enrollment(s) for your household. Please complete remaining enrollments."]
+    },
+    {
+      "status": "med_full_enroll",
+      "description": "all members are enrolled into medical plan, no dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You have successfully enrolled in medical coverage. If you wish to change your medical plan or enroll in dental coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "oep_notice": true
+    },
+    {
+      "status": "med_full_enroll_dent",
+      "description": "Entire household completed Health EN and enrolled in Dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You have successfully enrolled in coverage through MNsure. If you wish to change your medical or dental plan, please click the 'CHANGE PLANS' button below."],
+      "further_action_btn": "CHANGE PLANS",
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_dent",
+      "description": "all members are enrolled into medical and dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You have successfully enrolled in dental coverage.", "If you wish to change your dental plan or enroll in medical coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": false,
+      "oep_notice": true
+    },
+    {
+      "status": "enroll_med_aptc_change",
+      "description": "all members are enrolled into medical and aptc change AT sent",
+      "isSepOpen": true,
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "SEP",
+        "app_dental_status": ""
+      },
+      "further_action_txt": ["You have successfully enrolled in medical coverage. If you wish to change your medical plan or enroll in dental coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "Health_text": false,
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_med_demo_update",
+      "description": "all members are enrolled into medical and Demo change AT sent",
+      "isSepOpen": false,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You have successfully enrolled in medical coverage. If you wish to change your medical plan or enroll in dental coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "Health_text": false,
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_med_dent_demo_update",
+      "description": "all members are enrolled into medical and dental, then Demo change AT sent",
+      "isSepOpen": true,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": ""
+      },
+      "further_action_txt": ["You have successfully reported a change.",  "You can now shop for a new plan or keep your existing plan.",  "Click the ‘CONFIRM PLAN’ button below to continue."],
+      "further_action_btn": "CONFIRM PLAN",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": true
+    },
+    {
+      "status": "enroll_med_dent_aptc_update",
+      "description": "all members are enrolled into medical and dental, then Demo change AT sent",
+      "isSepOpen": false,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": ""
+      },
+      "further_action_txt": ["We have processed the change you reported. Click the 'CONFIRM EVENT' button below to continue."],
+      "further_action_btn": "CONFIRM EVENT",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "med_full_enroll_dent_csr_update",
+      "description": "Entire household completed Health EN and enrolled in Dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You have successfully enrolled in coverage through MNsure. If you wish to change your medical or dental plan, please click the 'CHANGE PLANS' button below."],
+      "further_action_btn": "CHANGE PLANS",
+      "oep_notice": false
+    }
+  ],
+  "sep": [
+    {
+      "status": "at_created",
+      "description": "AT created in SEP",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["We have processed your application. Click the 'CONFIRM EVENT' button below to continue."],
+      "further_action_btn": "CONFIRM EVENT",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    },
+    {
+      "status": "event_confirmed",
+      "description": "55 - TEXT QLE 3",
+      "isSepOpen": true,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["We have processed your application. Click the 'CONTINUE' button below to learn more about providing required documentation to determine if you are eligible for a special enrollment period."],
+      "further_action_btn": "CONTINUE",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": true
+    },
+    {
+      "status": "event_confirmed_l2_csr",
+      "description": "55 - TEXT QLE 3",
+      "isSepOpen": true,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["Please provide supporting documents to confirm your life event. Once you have provided verification documents, you will have the ability to shop for plans."],
+      "further_action_btn": "UPLOAD DOCUMENTS",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": true
+    },
+    {
+      "status": "event_verified",
+      "description": "37 - TEXT QLE 6",
+      "isSepOpen": true,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You can now compare and shop for medical and dental plans. Click the ‘SHOP FOR PLANS’ button to continue."],
+      "further_action_btn": "SHOP FOR PLANS",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": true
+    },
+    {
+      "status": "med_full_enroll_dent",
+      "description": "Entire household completed Health EN and enrolled in Dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "and dental",  "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "med_full_enroll_dent_aian",
+      "description": "AIAN household completed Health EN and enrolled in Dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["If you wish to change plans, you can do so once every month by clicking the ‘CHANGE PLANS’ button below."],
+      "further_action_btn": "CHANGE PLANS",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "med_full_enroll_dent_csr_update",
+      "description": "Entire household completed Health EN and enrolled in Dental and then CSR change",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "SEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You have successfully enrolled in coverage through MNsure. If you wish to change your medical or dental plan, please click the 'CHANGE PLANS' button below."],
+      "further_action_btn": "CHANGE PLANS",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_dent",
+      "description": "all members are enrolled into medical and dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You have successfully enrolled in dental coverage.", "If you wish to enroll in medical coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": false,
+      "oep_notice": true
+    },
+    {
+      "status": "med_full_enroll",
+      "description": "all members are enrolled into medical plan, no dental",
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "OE",
+        "app_dental_status": null
+      },
+      "further_action_txt": ["You have successfully enrolled in medical coverage.", "If you wish to enroll in dental coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "oep_notice": true
+    },
+    {
+      "status": "enroll_med_dent_demo_update",
+      "description": "all members are enrolled into medical and dental, then Demo change AT sent",
+      "isSepOpen": true,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": ""
+      },
+      "further_action_txt": ["You have successfully reported a change.",  "You can now shop for a new plan or keep your existing plan.", "Click the ‘CONFIRM PLAN’ button below to continue."],
+      "further_action_btn": "CONFIRM PLAN",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": true
+    },
+    {
+      "status": "enroll_med_dent_aptc_update",
+      "description": "all members are enrolled into medical and dental, then Demo change AT sent",
+      "isSepOpen": false,
+      "ssap_application": {
+        "app_status": "ER",
+        "app_type": "SEP",
+        "app_dental_status": ""
+      },
+      "further_action_txt": ["We have processed the change you reported. Click the 'CONFIRM EVENT' button below to continue."],
+      "further_action_btn": "CONFIRM EVENT",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_all_disenroll_med_birth",
+      "description": "all members are enrolled into dental and disenrolled from medical",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "and dental",  "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_med_disenroll_med_marriage",
+      "description": "all members are enrolled into medical and disenrolled from medical with [marriage] event",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["FAIL: https://jira.getinsured.com/browse/HIX-114573 and https://jira.getinsured.com/browse/HIX-118800"],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": true
+    }
+  ,
+    {
+      "status": "enroll_med_disenroll_med_birth",
+      "description": "all members are enrolled into medical and disenrolled from medical with [birth] event",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You have successfully enrolled in medical coverage.", "If you wish to enroll in dental coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "Health_text": false,
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": true
+    },
+    {
+      "status": "enroll_dent_disenroll_dent_marriage",
+      "description": "all members are enrolled into dental and disenrolled from dental",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You have successfully enrolled in dental coverage.", "If you wish to enroll in medical coverage, please click the 'CONTINUE SHOPPING' button below."],
+      "further_action_btn": "CONTINUE SHOPPING",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": true
+    }
+  ,
+    {
+      "status": "enroll_dent_disenroll_dent_birth",
+      "description": "all members are enrolled into dental and disenrolled from medical",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "and dental",  "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_all_disenroll_med_marriage",
+      "description": "all members are enrolled into dental and disenrolled from medical",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_all_disenroll_dent_birth",
+      "description": "all members are enrolled into dental and disenrolled from medical",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "SEP",
+        "app_dental_status": ""
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "and dental",  "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": false,
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_all_disenroll_dent_marriage",
+      "description": "all members are enrolled into dental and disenrolled from medical",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    },
+    {
+      "status": "disenroll_all_marriage",
+      "description": "all members are disenrolled from medical and dental",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["FAIL: https://jira.getinsured.com/browse/HIX-118800"],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    },
+    {
+      "status": "disenroll_all_birth",
+      "description": "all members are disenrolled from medical and dental",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "QEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["FAIL: https://jira.getinsured.com/browse/HIX-118800"],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": "You will be able to see your medical plans here once you have completed plan shopping.",
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_med_demo_update",
+      "description": "all members are enrolled into medical and Demo change AT sent",
+      "isSepOpen": false,
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "SEP",
+        "app_dental_status": "EN"
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    },
+    {
+      "status": "enroll_med_aptc_change",
+      "description": "all members are enrolled into medical",
+      "ssap_application": {
+        "app_status": "EN",
+        "app_type": "SEP",
+        "app_dental_status": ""
+      },
+      "further_action_txt": ["You are currently enrolled in medical", "coverage. If you would like to report a change in income, household members, or something else please click the 'REPORT A CHANGE' button below."],
+      "further_action_btn": "REPORT A CHANGE",
+      "Health_text": false,
+      "Dental_text": "You will be able to see your dental plans here once you have completed plan shopping.",
+      "oep_notice": false
+    }
+  ]
+}

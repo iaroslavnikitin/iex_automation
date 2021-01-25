@@ -1,0 +1,203 @@
+_includeOnce("PlanSelection.sah");
+var $ViewDetails = true;
+
+// Accessors
+var $viewDetailsBack = _link("Back to all plans");
+var $viewDetailsHealthInsurance = _link("Health Insurance");
+var $viewDetailsDentalInsurance = _link("Dental Insurance");
+var $viewDetailsCart = _link("secondary-cart btn-append btn btn-default");
+var $viewDetailsAddToCart = _link("ADD TO CART");
+var $viewDetailsPayment;
+var $viewDetailsContinueToHealthPlans = _link("/Continue To Health Plans/");
+var $viewDetailsContinueToDentalPlans = _link("/Continue To Dental Plans/");
+var $viewDetailsContinueToCart = _link("/Continue To Cart/");
+
+function viewDetailsVerify($planName) {
+	/*
+	if ($onDentalPage && !(_isVisible(_link("HSA-compatible[1]"))) &&  (!(_isVisible(_row("hsaTypeDetail"))))) {
+		
+		
+		if(_isVisible(_link("Dental Insurance"))){
+			$viewDetailsHeader = _heading1("View Dental Plan Details");
+		}
+	}
+	else {
+		$viewDetailsHeader = _heading1("View Plan Details");
+	}
+	_assertVisible($viewDetailsHeader);
+	*/
+	_assertContainsText($planName, _span("details"));
+	$viewDetailsPayment = _div("payment");
+	_assertVisible($viewDetailsBack);
+	_assertVisible($viewDetailsCart);
+	
+	_assertVisible($viewDetailsAddToCart);
+	_assertVisible($viewDetailsPayment);
+
+	//if ($onDentalPage && !(_isVisible(_link("HSA-compatible[1]"))) &&  (!(_isVisible(_row("hsaTypeDetail"))))) {
+	if(_isVisible(_heading1("/Dental Plan/"))){
+		if(_isIE()){
+			_assertTrue(new RegExp($dentalPayment.substring(0, 1) + ",?" + $dentalPayment.substring(1, $dentalPayment.length)).test(_getText($viewDetailsPayment)));
+		}
+		else{
+			//_assertEqual("$"+$dentalPayment.split("/")[0], _getText($viewDetailsPayment).split("/")[0]);
+			_assertEqual("$"+$dentalPayment, _getText($viewDetailsPayment).split("/")[0]);
+		}
+	}
+	else {
+		if(_isIE()){
+			_assertTrue(new RegExp($payment.substring(0, 1) + ",?" + $payment.substring(1, $payment.length)).test(_getText($viewDetailsPayment)));
+		}
+		else{
+			_assertEqual($payment, _getText($viewDetailsPayment).split("/")[0]);
+			// IDSIT
+		}
+	}
+}
+
+function verifyViewPlanDetails_CT($plan) {
+	if ($isConnecticut) {
+		var $tierAndTypeSplitted = $plan.tierAndType.split(" ");
+		var $tier = $tierAndTypeSplitted[0];
+		var $type = $tierAndTypeSplitted[1];
+		_setStrictVisibilityCheck(true);
+		_assertVisible(_link($type, _rightOf(_link("/"+"K:pd.label.commontext.productType"+"/"))));
+
+		_assertVisible(_small($plan.tierAndType, _in(_div("tile-header"))));
+		_assertEqual($plan.title, _getAttribute(_link("detail", _in(_div("tile-header"))), "data-original-title"));
+		_assertVisible(_paragraph($plan.premium, _near(_tableHeader("Estimated Monthly Premium"))));
+		_assertVisible(_paragraph($plan.primaryCareVisits, _near(_tableHeader("Primary Care Visits"))));
+		_assertVisible(_paragraph($plan.genericDrugs, _near(_tableHeader("/"+"Drug Tier 1"+"/"))));
+		_assertVisible(_link($plan.yearlyDeductible, _near(_tableHeader("Yearly Deductible"))));
+		_assertVisible(_span($plan.totalExpenseEstimate, _near(_tableHeader("Total Expense Estimate"))));
+
+		for (var $i = 0; $i < $prescriptions.length; $i++) {
+			var $prescription = $prescriptions[$i];
+			var $brandName = encodeForRegEx($prescription.name+" (Brand)");
+			var $genericName = encodeForRegEx($prescription.name+" (Generic: "+$prescription.genericName+")");
+
+			if ($plan[$prescription.name] == "Not Covered") {
+				_assertVisible(_link("/"+$prescription.name+"/i", _rightOf(_div("Your Prescriptions"))));
+				_assertEqual("Not Covered", _getAttribute(_link(0, _rightOf(_link("/"+$prescription.name+"/i"), 10)), "data-original-title"));
+			}
+			else if ($prescription.genericName == ""){
+				_assertVisible(_italic("GOOD", _rightOf(_link("/"+$prescription.name+"/i", _rightOf(_div("Your Prescriptions"))))));
+			}
+			else {
+				if ($plan[$prescription.name].isBrandCovered == "Covered") {
+					_assertVisible(_italic("GOOD", _rightOf(_link("/"+$prescription.name+"/i", _rightOf(_div("Your Prescriptions"))))));
+				}
+				else {
+					//_assertEqual("Not Covered", _getAttribute(_link(0, _rightOf(_link("/"+$brandName+"/i"), 10)), "data-original-title"));
+					_assertEqual("Not Covered", _getAttribute(_link(0, _rightOf(_link("/"+$prescription.name+"/i"), 10)), "data-original-title"));
+				}
+				_assertVisible(_italic("GOOD", _rightOf(_link("/"+$genericName+"/i", _rightOf(_div("Your Prescriptions"))))));
+			}
+		}
+
+		for (var $i = 0; $i < $doctors.length; $i++) {
+			_assertVisible(_div("/"+$doctors[$i]+"/", _in(_parentNode(_div("providerSearchHeader")))));
+			//_assertVisible(_div($plan[$doctors[$i]], _rightOf(_div("/"+$doctors[$i]+"/"))));
+			
+		}
+
+		for (var $i = 0; $i < $hospitals.length; $i++) {
+			_assertVisible(_div("/"+$hospitals[$i]+"/", _in(_parentNode(_div("providerSearchHeader")))));
+			_assertVisible(_div($plan[$hospitals[$i]], _rightOf(_div("/"+$hospitals[$i]+"/"))));
+		}
+
+//		_assertVisible(_heading5("Summary"));
+//		_assertVisible(_heading5("Doctors and Facilities"));
+//		_assertVisible(_heading5("Deductible & Out-of-Pocket Maximum"));
+//		_assertVisible(_heading5("Doctor Office Visits"));
+//		_assertVisible(_heading5("Outpatient Diagnostic Services"));
+//		_assertVisible(_heading5("Prescription Drugs from a Retail Pharmacy"));
+//		_assertVisible(_heading5("Outpatient Services"));
+//		_assertVisible(_heading5("Emergency & Urgent Care"));
+//		_assertVisible(_heading5("Inpatient Hospital Services"));
+//		_assertVisible(_heading5("Pediatric Dental Care"));
+		
+		_assertVisible(_link("/"+"Summary"+"/", _in(_div("row header"))));
+		_assertVisible(_div("Doctors and Facilities"));
+		//_assertVisible(_div("Deductible"+" & "+"K:pd.label.icon.outOfPocket"));
+		_assertVisible(_div("K:pd.label.planDetail.deductible" +" & "+ "K:pd.label.icon.outOfPocket"));
+		_assertVisible(_div("Doctor Office Visits"));
+		_assertVisible(_link("/"+"Outpatient Diagnostic Services"+"/"));
+		_assertVisible(_link("/"+"Prescription Drugs from a Retail Pharmacy"+"/"));
+		_assertVisible(_link("/"+"Outpatient Services"+"/"));
+		_assertVisible(_div("Emergency"+" & "+"Urgent Care"));
+		_assertVisible(_div("Inpatient Hospital Services"));
+		_assertVisible(_div("Pediatric Dental Care"));
+		
+		_setStrictVisibilityCheck(false);
+	}
+}
+
+function viewDetailsClickBackToAllPlans() {
+	_click($viewDetailsBack);
+	verifyElementsOnPlanPage();
+}
+
+function viewDetailsClickHealthInsurance() {
+	_click($viewDetailsHealthInsurance);
+	$onDentalPage = false;
+	verifyElementsOnPlanPage();
+}
+
+function viewDetailsClickDentalInsurance() {
+	_click($viewDetailsDentalInsurance);
+	$onDentalPage = true;
+	verifyElementsOnPlanPage();
+}
+
+function viewDetailsAddToCart() {
+	_click($viewDetailsAddToCart);
+	//if(!(_isVisible(_link("HSA-compatible[1]"))) && (!(_isVisible(_row("hsaTypeDetail"))))){
+	if(!_isVisible(_heading1("/Health Plan/"))){
+		_wait(5000,_isVisible(_div("detailHead")));
+		$dentalPlanName = _getText(_link("detail"));
+		$dentalPlanName = $dentalPlanName.replace(/\.\.\./, "");
+		$dentalPlanName = escapeRegExp($dentalPlanName);
+		_log("Dental Plan Name"+ $dentalPlanName);
+	}
+	else {
+		$planName = _getText(_link("detail"));
+		$planName = $planName.replace(/\.\.\./, "");
+		$planName = escapeRegExp($planName);
+		_log("Health Plan"+ $planName);
+	}
+	if ($onDentalPage) {
+		//   _assertTrue((_isVisible($planSelectionContinueToHealthPlans) && _isVisible($planSelectionGoToCart)) || _isVisible($planSelectionContinueToCart));
+	}
+	else {
+		_wait(10000, ((_isVisible($planSelectionContinueToDentalPlans) || _isVisible($planSelectionGoToCart1)) || _isVisible($planSelectionContinueToCart)));
+		_assertTrue((_isVisible($planSelectionContinueToDentalPlans) || _isVisible($planSelectionGoToCart1)) || _isVisible($planSelectionContinueToCart));
+	}
+}
+
+function viewDetailsClickContinueToHealthPlans() {
+	_click($viewDetailsContinueToHealthPlans);
+	$onDentalPage = false;
+	verifyElementsOnPlanPage();
+}
+
+function viewDetailsClickContinueToDentalPlans() {
+	_click($viewDetailsContinueToDentalPlans);
+	$onDentalPage = true;
+	verifyElementsOnPlanPage();
+}
+
+function viewDetailsClickContinueToCart() {
+	if(($onDentalPage != true) || ($removeExisitngHealthPlan != false) || ($removeExistingPlan == "true")){
+		_assertTrue(new RegExp($planName).test(_getText(_span("PlanName"))));
+		$removeExisitngHealthPlan = false;
+		$removeExistingPlan = "false";
+	}
+	else {
+		_assertTrue(new RegExp($dentalPlanName).test(_getText(_span("PlanName"))));
+	}
+	_click($viewDetailsContinueToCart);
+	if($numAdults>0){
+		verifyElementsOnShowCartPage();
+	}
+}

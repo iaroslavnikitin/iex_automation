@@ -1,0 +1,20 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+"//",,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+
+"all,Security,HIX-88237,HIX-88234","HIX-88237 HIX-88234 CSR Modify Agent Account","[Documentation]","CSR modifies agent account.
+HIX-88237-Verify permission for L2 to modify/activate/deactivate only for individual/broker.
+HIX-88234-Verify permission for L1 to modify/activate/deactivate only for individual/broker"
+,,"openBrowser"
+,,"setDB"
+,,"[Keyword]","csrModifyAgentAccount"
+,,"[Data]","[userdata:csrModifiesAgent/BrokerAccount:user]","[userdata:csrModifiesAgent/BrokerAccount:password]","[userdata:csrModifiesAgent/BrokerAccount:permission]","[userdata:csrModifiesAgent/BrokerAccount:agentLogin]"

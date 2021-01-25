@@ -1,0 +1,76 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../lib/DB.sah"
+,,"loadSahi","../pagemodels/Preferences.sah"
+,,"loadSahi","../pagemodels/PlanSelection.sah"
+,,"loadSahi","../pagemodels/TooltipValidation.sah"
+,,"loadSahi","../pagemodels/PlanCompare.sah"
+
+,"[Global]","[SetUp]"
+,,"maximizeWindow"
+,,"createDbObj"
+,,"$zip =","""94043"""
+,,"$coverageDate=","""01/01/2018"""
+,,"$noOfAdults =","1"
+,,"$noOfChildren =","0"
+,,"$showCatastrophic =","""YES"""
+,,"$aptcAmount =","""80.22"""
+
+
+"all,Anonymous_TooltipsAndDBVerification","Tooltips verification","[Documentation]","1. One Adult only with No CSR and APTC
+2. Add 3 providers - doctor, dentist, hospital
+3. Verify tooltips on Medical Service Preference page
+4. Verify tooltips on Prescription Drug Preference page
+5. Verify tooltips on Health Plan Selection page and in plan tile
+6. Verify number of plans and plan tile info in DB for Health Plans
+7. Verify tooltips on Health plan detail page
+8. Verify tooltips on Health plan compare page
+9. Verify tooltips on Dental Plan Selection page
+10. Verify tooltips on Dental Plan detail page
+11. Verify tooltips on Dental Plan compare page
+12. Verify tooltips on Cart page"
+,,"[Documentation]","Zipcode","County","Date of Birth","aptc Amount","CSR","Coverage Date"
+,,"navigateToPreferencePage","$zip","""06085""","""01011995""","$aptcAmount","""CS5""","""01012018"""
+,,"[Documentation]","Provider","Name","Miles","Zipcode","No. of Providers"
+"//",,"selectprovider","""Doctor""",,"""10""","$zip","1"
+"//",,"selectprovider","""Dentist""",,"""10""","$zip","1"
+"//",,"selectprovider","""Hospital""",,"""10""","$zip","1"
+,,"clickNextPreferences"
+,,"verifyTooltipsOnMedicalServicePreferencePage"
+,,"clickNextPreferences"
+,,"verifyTooltipsOnPrescriptionDrugPreferencePage"
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickViewPlans","""Y""","""$""+$aptcAmount","$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+,,"[Documentation]","plan Index","zipCode","county","coverageDate","dob","insuranceType","CSR"
+,,"verifyTileInfoOnPlanSelectionPageInDB",,"$zip","""06085""","$coverageDate","""01/01/1995""","""HEALTH""","""CS5"""
+,,"verifyTooltipsOnPlanDisplay"
+,,"[Documentation]","Index"
+,,"$healthPlan = clickViewPlanDetails","""4"""
+,,"[Documentation]","Plan","zipCode","county","coverageDate","dob","insuranceType"
+,,"verifyInfoOnPlanDetailPageInDB","$healthPlan",,,"$coverageDate",,"""HEALTH"""
+,,"verifyTooltipsOnPlanDetailsPage"
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickBackToAllPlansOnViewDetails","""Y""","""$""+$aptcAmount","$zip","$coverageDate","$noOfAdults","$noOfChildren","$showCatastrophic"
+,,"$plan1=selectPlanForComparison","""2"""
+,,"clickCompareNow","$plan1"
+,,"verifyTooltipsOnPlanComparePage"
+,,"[Documentation]","Health Plan Details"
+,,"addToCartOnPlanCompare","$plan1"
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren"
+,,"clickContinueToDentalPlans","""Y""","""$""+$aptcAmount","$zip","$coverageDate","$noOfAdults","$noOfChildren"
+,,"[Documentation]","plan Index","zipCode","county","coverageDate","dob","insuranceType","CSR"
+,,"verifyTileInfoOnPlanSelectionPageInDB",,"$zip","""06085""","$coverageDate","""01/01/1995""","""DENTAL""","""CS5"""
+,,"verifyTooltipsOnPlanDisplay"
+,,"$dentalPlan=clickViewPlanDetails"
+,,"[Documentation]","Plan","zipCode","county","coverageDate","dob","insuranceType"
+,,"verifyInfoOnPlanDetailPageInDB","$dentalPlan",,,"$coverageDate",,"""DENTAL"""
+,,"verifyToolltipsOnDentalPlanDetailsPage"
+,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic","ShowCSROnAllTiles"
+,,"clickBackToAllPlansOnViewDetails",,,"$zip","$coverageDate","$noOfAdults","$noOfChildren"
+,,"$dentalPlan=selectPlanForComparison","""0"""
+,,"clickCompareNow","$dentalPlan"
+,,"verifyTooltipsOnDentalPlanComparePage"
+,,"[Documentation]","Health Plan Details","Dental Plan"
+,,"addToCartOnPlanCompare","$plan1","$dentalPlan"
+,,"[Documentation]","Health Plan","Dental Plan","Coverage Start Date"
+,,"clickContinueToCart","$plan1","$dentalPlan","$coverageDate"
+,,"verifyTooltipsOnCartPage"

@@ -1,0 +1,23 @@
+{
+    "description": "2adults/2 kids household CS4 ",
+    "household": {"size": 4, "adults": 2},
+    "hhLastName": "*****random****",
+    "people": [
+        {
+            "dob": "1980-01-01",
+            "csrCategoryAlphaCode": "CS4"
+        },
+        {
+            "dob": "1985-10-10",
+            "csrCategoryAlphaCode": "CS4"
+        },
+        {
+            "dob": "2010-09-15",
+            "csrCategoryAlphaCode": "CS4"
+        },
+        {
+            "dob": "2018-02-20",
+            "csrCategoryAlphaCode": "CS4"
+        }
+    ]
+}

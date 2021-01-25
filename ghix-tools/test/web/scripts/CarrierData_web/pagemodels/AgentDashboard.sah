@@ -1,0 +1,430 @@
+_includeOnce("Login.sah");
+_includeOnce("BrokerConnect.sah");
+
+_resource("../scenariofiles/document.txt");
+_resource("../resources/data.csv");
+_resource("../resources/createTicketData.csv");
+
+var $homeIcon = _link("Home[1]");
+var $individualMenu = _link("Individuals Dropdown Menu. Press enter to open it and tab through its options");
+var $myInfo = _link("My Information Dropdown Menu. Press enter to open it and tab through its options");
+var $pendingIndividual = _link("Pending Individuals");
+var $myProfile = _link("My Profile");
+var $reviewEditProfileText =  _paragraph("gutter10");
+var $addIndividual =_link("Add New Individual");
+var $editBtnOnProfilePage =_button("Edit");
+var $cancelButtonOnProfilePage = _link("Cancel");
+var $saveButtonOnProfilePage = _submit("Save");
+//_link("Save");
+var $chooseFileOnProfilePage = _file("fileInputPhoto");
+var $uploadFileButton = _submit("btn_UploadPhoto");
+var $businessAddressLine1EditAgentProfile = _textbox("address1");
+var $businessAddressLine2EditAgentProfile = _textbox("address2");
+var $cityEditAgentProfile = _textbox("city");
+var $stateEditAgentProfile = _select("state");
+var $zipEditAgentProfile = _textbox("zip");
+var $clientsServedEditAgentProfile = _checkbox("clientsServed");
+var $yourWebSiteEditAgentProfile= _textbox("yourWebSite");
+var $yourPublicEmailEditAgentProfile = _textbox("yourPublicEmail");
+var $educationEditAgentProfile = _select("education");
+var $aboutMeEditAgentProfile = _textarea("aboutMe");
+var $publicEmailAgentProfile = _cell("Your Public Email");
+var $langSpokenAgentProfile = _cell("Languages Spoken");
+var $prodExpertiseAgentProfile = _cell("Product Expertise");
+var $websiteAddressAgentProfile = _cell("Website address");
+var $aboutYourselfAgentProfile = _cell("About Me");
+var $uploadAgentPhotoFilePath =_resolvePath("../pic.jpg", "\\");
+var $uploadAgentPhotoChooseFile =_file("fileInputPhoto");
+var $uploadAgentPhotoUploadButton = _submit("Upload", _rightOf(_label("Change Photo")));
+//var $uploadAgentPhotoUploadButton=_submit("Upload", _rightOf(_label("Change Photo")));
+var $uploadAgentPhotoActionURL = getBaseURL() + "/hix/broker/uploadphoto/";
+
+function verifyElementsOnAgentDashboard(){
+	_assertVisible($homeIcon, _in(_div("menu")));
+	_assertVisible($individualMenu, _in(_div("menu")));
+	_assertVisible($myInfo, _in(_div("menu")));
+	_assertVisible($pendingIndividual , _in(_list("nav nav-list")));
+	_assertVisible($myProfile , _in(_list("nav nav-list")));
+}
+
+function clickAgentProfile(){
+	_click($myProfile);
+	_assertVisible($reviewEditProfileText,"Verify if review and edit your public profile text is displayed on view profile page");
+	_assertEqual("Review and edit your public profile, which can be seen by Get Covered NJ users looking for Agents. The more accurate the information you provide, the more likely it is that potential customers will contact you.", _getText(_paragraph("gutter10")));
+	_assertEqual("Agent Information Profile Certification Status", _getText(_list("nav nav-list")));
+	_assertVisible($editBtnOnProfilePage);
+}
+
+function clickEditButtonOnAgentProfile(){
+	_click($editBtnOnProfilePage);
+	_assertVisible($cancelButtonOnProfilePage);
+	_assertVisible($saveButtonOnProfilePage);
+	_assertVisible(_submit("saveAgentProfile"));
+	_assertEqual("true",_getAttribute(_textbox("brkName"),"aria-disabled"));
+	_assertVisible($chooseFileOnProfilePage);
+	_assertVisible($uploadFileButton);
+	_assertVisible(_div("You can upload a JPG, GIF or PNG file (File size limit is 5 MB)."));
+}
+
+function clickSaveChanges(){
+	_click(_submit("saveAgentProfile"));
+}
+
+function clickRemoveAgentLanguages($lang){
+	_click(_link("/"+$lang+"/"));
+}
+
+function clickAgentAcceptPendingRequest($firstName,$lastName){
+	verifyElementsOnAgentDashboard();
+	_check(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_assertVisible(_link("Pending Requests", _in(_listItem("dropdown open"))));
+	_assertVisible(_link("Active Individuals", _in(_listItem("dropdown open"))));
+	_assertVisible(_link("/Inactive Individuals/", _in(_listItem("dropdown open"))));
+	_check(_link("Pending Requests", _in(_listItem("dropdown open"))));
+	_assertVisible(_table("indTablePending"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("submit"));
+	_click(_link("Request Sent Sortable Ascending"));
+	// get the latest one
+	_click(_link(0, _in(_cell(0))));
+	//_assertVisible(_link("Accept[1]"));
+	_assertVisible(_link("btn btn-primary btn-small"));
+	_assertVisible(_link("Decline"));
+	_click(_link("btn btn-primary btn-small"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("submit"));
+	_assertVisible(_div("No matching records found."));
+}
+
+function clickAgentActiveIndividuals(){
+	_check(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_wait(500);
+	_click(_link("Active Individuals"));
+	_assertVisible(_heading4("Search"));
+	_assertVisible(_div("gridDataContainer"));
+	_click(_submit("+", _near(_heading4("Search"))));
+	_assertVisible(_div("searchPanelWrapper  ng-scope"));
+	_assertVisible(_label("Application Year", _near(_heading4("Search"))));
+	var $now=_call(window.moment());
+	$currentYear=parseInt(_fetch(window.moment($now).get('year')));
+	$lastYear=parseInt(_fetch(window.moment($now).get('year')))-1;
+	$nextYear=parseInt(_fetch(window.moment($now).get('year')))+1;
+	if($lastYear==2019){
+		_assertEqual("Application Year Select Year "+$currentYear+" "+$nextYear, _getText(_div("Application Year Select Year "+$currentYear+" "+$nextYear)));
+	}else{
+		_assertEqual("Application Year Select Year "+$lastYear+" "+$currentYear+" "+$nextYear, _getText(_div("Application Year Select Year "+$lastYear+" "+$currentYear+" "+$nextYear)));
+	}
+}
+
+function clickAgentSearchForIndividual($firstName,$lastName,$email){
+	_check(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_wait(500);
+	_click(_link("Active Individuals"));
+	_assertVisible(_heading4("Search"));
+	_assertVisible(_div("gridDataContainer"));
+	_click(_submit("+", _near(_heading4("Search"))));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+	_click(_submit("Go"));
+	_assertVisible(_div("gridRow ng-scope"));
+//	_click(_link("ng-binding", _in(_div("gridRow ng-scope"))));
+	_call(window.scrollTo(0, 5000));
+	_click(_link($firstName.toUpperCase()+" "+$lastName.toUpperCase(), _near(_cell($email.toLowerCase()))));
+	_assertVisible(_div("modal-body"));
+	_assertVisible(_submit("Individual View"));
+	_click(_submit("Individual View"));
+	_assertVisible(_strong("Viewing Individual Account ("+$firstName+" "+$lastName+")"),"Verify Viewing Individual Account heading");
+}
+
+function clickAgentExportActiveIndividuals(){
+	_assertVisible(_link("exportCSVLink"));
+	_click(_link("exportCSVLink"));
+	_assertVisible(_heading3("Disclaimer"));
+	_assertVisible(_paragraph("You are about to download customer information. You must follow Your Health Idaho privacy and security standards. Click YES to agree and continue."));
+	_click(_submit("Yes"));
+	_wait(90000, _lastDownloadedFileName() != null);
+	_assertEqual("/Agent_Book_Of_Business.*/", _lastDownloadedFileName());
+	_log("Downloaded File"+ _lastDownloadedFileName());
+	var $userDataPath = _userDataDir();
+	var $csvPath ="C:/bookofbusiness/Agent_Book_Of_Business.csv";
+	_log("CSV Path" + $csvPath);
+	_saveDownloadedAs($csvPath);
+	_clearLastDownloadedFileName();
+	_assertNull(_lastDownloadedFileName());
+	var $data = _readCSVFile($csvPath);
+
+	var $header1=[];
+	$header1 = ["Number","First Name","Last Name","Phone Number","Email","Address","YHI Application Date","Application Type","Current Status","Next Steps","Due Date","Carrier Name","Plan Name","Premium (monthly)","APTC (monthly)","Individual Contribution (monthly)","Office Visits","Generic Drugs","Deductible","Application Year"];
+	_assertEqual($header1[15],$data[0][15]);
+	_assertEqual($header1[13],$data[0][13]);
+	for($i=0;$i<$header1.length;$i++){
+		_assertEqual($header1[$i],$data[0][$i]);
+	}
+	_log("rowLength"+ $data.length);
+	_log("columnLength"+ $data[0].length);
+}
+
+function agentExportingBookOfBusinessExcel($firstname,$lastname){
+	clickLogin();
+	$url = getUpdatedBaseURL("").split("/");
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		//		$data= getAccountDetails("../opt/sahi/useraccounts.xls","Admin") ;
+		$data= getAccountDetails("Admin") ;
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+		$firstname =  "David";
+		$lastname="Parker";
+	}
+	else{
+		loginEnterEmailAddress("gismoketest_admin@getinsured.com");
+		//_maskLogs("Sensitive Data");
+		loginEnterPassword("ghix123#");
+		//_unmaskLogs("Information end");
+		$firstname =  "sahiagentaccount";
+		$lastname="sahiagentaccount";
+	}
+	loginClickLoginButton();
+	_click(_link("Agents", _in(_div("menu"))));
+	_assertVisible(_link("Manage Agents End of dropdown"));
+	_click(_link("Manage Agents", _in(_div("menu"))));
+	_assertVisible(_heading1("/Agent/"));
+	_setValue(_textbox("First	Name "), $firstname);
+	_setValue(_textbox("Last Name"), $lastname);
+	_click(_submit("Go"));
+	_assertVisible(_table("brokerlist"));
+	var $name =$firstname+" "+$lastname;
+	_click(_link($name, _in(_table("brokerlist"))));
+	_assertVisible(_heading4("Agent Information"));
+	_click(_link("View Agent Account"));
+	_assertVisible(_heading4("View Agent Account"));
+	_click(_submit("Agent View"));
+	_assertVisible(_heading4("Enrollment History"));
+	_click(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options", _in(_div("menu"))));
+	_click(_link("Active Individuals", _in(_div("menu"))));
+	var $textboxes = _collect("_div", "/span1 text-center ng-binding/", _in(_div("gridBody")));
+	var $pageSize=$textboxes.length;
+	clickAgentExportActiveIndividuals();
+	_call(window.scrollTo(0,document.body.scrollHeight));
+	waitForLoad();
+	$textboxes = _collect("_div", "/span1 text-center ng-binding/", _in(_div("gridBody")));
+	_assertNotEqual($pageSize,$textboxes.length);
+}
+
+function deleteBOBAndUserAccountFile(){
+	_execute("cmd /C C:\\deleteFiles\\deleteFile.bat");
+}
+
+
+
+function clickMyInformationOnBrokerProfile(){
+	_click(_link("My Information"));
+	_assertVisible(_listItem("Agent Information"));
+}
+
+function clickBrokerConnect($agentInfo, $agent){
+	_click(_link("/Broker Connect/"));
+
+	verifyBrokerParticipationInformation($agentInfo, $agent);
+	verifyAgentsLeftNavLinks();
+}
+
+function verifyBrokerParticipationInformation($agentInfo, $agent){
+
+	var $fullName = $agentInfo[0].$firstName+" "+$agentInfo[0].$lastName
+		_assertVisible(_heading1($fullName));
+
+	_assertVisible(_textbox("brokerConnectPhone"));
+	$phNumber = $agent.agentPrimaryNumber;
+	var $phNumber = $phNumber.substring(0,3)+ "-"+$phNumber.substring(3,6)+"-"+$phNumber.substring(6,10);
+
+	_assertVisible(_heading4("Participation Information"));
+	_assertEqual("Broker Connect is a program where brokers can join to receive leads for consumers that need help with completing their health insurance application or shop for a plan.", _getText(_paragraph("gutter10")));
+	_assertEqual("Broker Connect is a program where brokers can join to receive leads for consumers that need help with completing their health insurance application or shop for a plan.", _getText(_paragraph("gutter10")));
+	_assertVisible(_label("Broker Connect Phone Number"));
+	_assertEqual($phNumber, _getValue(_textbox("brokerConnectPhone")),"Verify Primary Phone number of Agent");
+	//agent primary number
+	_assertEqual("Please note that this number will be called only during business hours that you will provide on the next screen.", _getText(_paragraph("gutter10[2]")));
+	_assertVisible(_link("Broker Connect Terms and Conditions"),"Verify Broker Connect Terms and Conditions link is displayed");
+	_assertVisible(_checkbox("enrollmentChoiceCheckbox"));
+	//_assertNotTrue(_isChecked(_checkbox("enrollmentChoiceCheckbox"))); works on sahi V8
+	_assertNotTrue(_checkbox("enrollmentChoiceCheckbox").checked);
+
+}
+
+function verifyAgentsLeftNavLinks(){
+	_assertVisible(_heading4("Steps", _in(_div("sidebar"))));
+	_assertVisible(_link("Agent Information", _in(_div("sidebar"))));
+	_assertVisible(_link("Profile", _in(_div("sidebar"))));
+	_assertVisible(_link("Certification Status", _in(_div("sidebar"))));
+	_assertVisible(_heading4("Broker Connect", _in(_div("sidebar"))));
+	_assertVisible(_link("Participation Information", _in(_div("sidebar"))));
+	_assertVisible(_link("Availability", _in(_div("sidebar"))));
+
+}
+
+function clicktermsAndConditionCheckBox(){
+
+	_check(_checkbox("enrollmentChoiceCheckbox"));
+	//_assertTrue(_isChecked(_checkbox("enrollmentChoiceCheckbox")));// works only on Sahi V8
+	_assertTrue(_checkbox("enrollmentChoiceCheckbox").checked);
+
+}
+
+function clickConfirmparticipationInBrokerConnect($agentInfo){
+	var $phoneNumber = _getText(_textbox("brokerConnectPhone"))
+		_click(_submit("Confirm Participation in Broker Connect"));
+	verifyBrokerHelpOnDemandAvailabilityPage($agentInfo, $phoneNumber);
+
+}
+
+function editAgentProfile($addressLine1,$city,$state,$zip,$language,$productExpertise,$websiteAddress,$publicEmail,$education,$aboutYourself){
+	_setValue($businessAddressLine1EditAgentProfile,$addressLine1);
+	_setValue($cityEditAgentProfile,$city);
+	_setSelected($stateEditAgentProfile,$state);
+	_setValue($zipEditAgentProfile,$zip);
+	
+	_click(_listItem($language, _in(_list("chzn-results"))));
+	/*
+	if(_isVisible(_div("suggestion-box"))){
+		_click(_radio("userdefault"));
+		_click(_button(" OK "));
+	
+	}
+	*/
+	_click(_checkbox($productExpertise, _in(_fieldset("Product Expertise"))));
+	_setValue($yourWebSiteEditAgentProfile,$websiteAddress);
+	$agent.publicEmail=$publicEmail+$agent.publicEmail;
+	$publicEmail=$agent.publicEmail;
+	_setValue($yourPublicEmailEditAgentProfile,$agent.publicEmail);
+	_setSelected($educationEditAgentProfile, $education);
+	_setValue($aboutMeEditAgentProfile,$aboutYourself);
+	_click($saveButtonOnProfilePage);
+	verifyUpdatedAgentProfile($addressLine1,$city,$state,$zip,$language,$productExpertise,$websiteAddress,$publicEmail,$education,$aboutYourself);
+	verifyUpdatedAgentProfileDetailsDb($addressLine1,$city,$state,$zip,$language,$productExpertise,$websiteAddress,$publicEmail,$education,$aboutYourself);
+}
+
+
+function verifyUpdatedAgentProfile($addressLine1,$city,$state,$zip,$language,$productExpertise,$websiteAddress,$publicEmail,$education,$aboutYourself){
+	_assertVisible($reviewEditProfileText,"Verify if review and edit your public profile text is displayed on view profile page");
+	if($state=="New Jersey"){
+		$state="NJ"
+			}
+	_assertVisible(_paragraph("/"+$addressLine1+" "+$city+", "+$state+" "+$zip+"/"),"Verify if updated address is displayed");
+	_assertVisible(_cell($publicEmail, _rightOf($publicEmailAgentProfile)),"Verify if updated Email is displayed");
+	_assertVisible(_cell("/"+$language+"/", _rightOf($langSpokenAgentProfile)),"Verify if the updated language is displayed");
+	_assertVisible(_cell("/"+$productExpertise+"/", _rightOf($prodExpertiseAgentProfile)),"Verify if the updated product expertise is displayed");
+	_assertVisible(_cell($websiteAddress, _rightOf($websiteAddressAgentProfile)),"Verify if the updated website address is displayed");
+	_assertVisible(_cell($education, _rightOf(_cell("Education"))),"Verify if the updated education is displayed");
+	_assertVisible(_cell($aboutYourself, _rightOf($aboutYourselfAgentProfile)),"Verify if the updated text in about yourself is displayed");
+
+}
+
+function verifyUpdatedAgentProfileDetailsDb($addressLine1,$city,$state,$zip,$language,$productExpertise,$websiteAddress,$publicEmail,$education,$aboutYourself){
+	var $updatedAgentProfileDetailsDb = getAgentInfoFromdb($publicEmail);
+	var $updatedAgentAddressDb = getAgentAddressDetailsFromDb($publicEmail);
+	_assertEqual($addressLine1, $updatedAgentAddressDb[0][1], "Verify address line 1 in DB");
+	_assertEqual($city, $updatedAgentAddressDb[0][2], "Verify city in DB");
+	if($state=="New Jersey"){
+		$state="NJ"
+			}
+	_assertEqual($state, $updatedAgentAddressDb[0][3], "Verify state in DB");
+	_assertEqual($zip, $updatedAgentAddressDb[0][4], "Verify zipcode in DB");
+	_assertEqual("/"+$language+"/", $updatedAgentProfileDetailsDb[0][4], "Verify language in DB");
+	_assertEqual("/"+$productExpertise+"/", $updatedAgentProfileDetailsDb[0][6], "Verify product expertise in DB");
+	_assertEqual($websiteAddress, $updatedAgentProfileDetailsDb[0][12], "Verify website address in DB");
+	_assertEqual($publicEmail, $updatedAgentProfileDetailsDb[0][13], "Verify public email in DB");
+
+}
+
+
+function verifyAgentPhotoUpload(){
+	_assertVisible($uploadAgentPhotoChooseFile, "Verify if Choose File button is visible");
+	var $fileType= $uploadAgentPhotoFilePath.split(".")[1];
+	_setFile2($uploadAgentPhotoChooseFile,$uploadAgentPhotoFilePath,$uploadAgentPhotoActionURL,true,true);
+	_click($uploadAgentPhotoUploadButton);
+	_assertVisible(_heading4("/File uploaded Successfully./"),"Verify if file uploaded successfully pop up is displayed");
+	_assertVisible(_submit("Ok", _near(_heading4("/File uploaded Successfully./"))));
+	_click(_submit("Ok", _near(_heading4("/File uploaded Successfully./"))));
+}
+
+function verifyTopNavbar(){
+	_assertVisible(_image("Get Covered New Jersey"));
+	_assertVisible(_link("Home"));
+	_assertVisible(_link("/Inbox/"));
+	_assertVisible(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_assertVisible(_link("Agents Dropdown Menu. Press enter to open it and tab through its options"));
+	_assertVisible(_link("Tickets Dropdown Menu. Press enter to open it and tab through its options"));
+}
+
+
+function verifyNameHeader($firstName,$lastName,$agentInfo){
+	_assertVisible(_heading1($firstName+ " " + $lastName));
+}
+
+function verifySidebar(){
+	_assertVisible(_link("Agent Information", _in(_list("nav nav-list"))));
+	_assertEqual("Agent Information", _getText(_link("Agent Information", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Profile", _in(_list("nav nav-list"))));
+	_assertEqual("Profile", _getText(_link("Profile", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Certification Status", _in(_list("nav nav-list"))));
+	_assertEqual("Certification Status", _getText(_link("Certification Status", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Comments", _in(_list("nav nav-list"))));
+	_assertEqual("Comments", _getText(_link("Comments", _in(_list("nav nav-list")))));
+	_assertVisible(_link("Ticket History", _in(_list("nav nav-list"))));
+	_assertEqual("Ticket History", _getText(_link("Ticket History", _in(_list("nav nav-list")))));
+	_assertVisible(_heading4("Actions"));
+	_assertVisible(_link("View Agent Account", _near(_heading4("Actions"))));
+	_assertEqual("View Agent Account", _getText(_link("View Agent Account", _near(_heading4("Actions")))));
+}
+
+
+function verifyAgentDashboard(){
+	_assertVisible(_image("Get Covered New Jersey"));
+	_assertVisible(_link("Help & Support Dropdown Menu. Press enter to open it and tab through its options"));
+	_assertEqual("Help & Support Dropdown Menu. Press enter to open it and tab through its options", _getText(_link("Help & Support Dropdown Menu. Press enter to open it and tab through its options")));
+	_assertVisible(_link("/Inbox/"));
+	_assertVisible(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_assertEqual("My Account Dropdown Menu. Press enter to open it and tab through its options", _getText(_link("My Account Dropdown Menu. Press enter to open it and tab through its options")));
+	_assertVisible(_link("Home", _in(_div("menu"))));
+	_assertEqual("Home", _getText(_link("Home", _in(_div("menu")))));
+	_assertVisible(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options", _in(_div("menu"))));
+	_assertEqual("Individuals Dropdown Menu. Press enter to open it and tab through its options", _getText(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options", _in(_div("menu")))));
+	_assertVisible(_link("My Information Dropdown Menu. Press enter to open it and tab through its options", _in(_div("menu"))));
+	_assertEqual("My Information Dropdown Menu. Press enter to open it and tab through its options", _getText(_link("My Information Dropdown Menu. Press enter to open it and tab through its options", _in(_div("menu")))));
+	_assertVisible(_heading1("Dashboard"));
+	_assertEqual("Dashboard", _getText(_heading1("Dashboard")));
+	_assertVisible(_heading4("Quick Links"));
+	_assertEqual("Quick Links", _getText(_heading4("Quick Links")));
+	_assertVisible(_link("Pending Individuals", _near(_heading4("Quick Links"))));
+	_assertEqual("Pending Individuals", _getText(_link("Pending Individuals", _near(_heading4("Quick Links")))));
+	_assertVisible(_link("My Profile", _near(_heading4("Quick Links"))));
+	_assertEqual("My Profile", _getText(_link("My Profile", _near(_heading4("Quick Links")))));
+	_assertVisible(_link("Add New Individual", _near(_heading4("Quick Links"))));
+	_assertEqual("Add New Individual", _getText(_link("Add New Individual", _near(_heading4("Quick Links")))));
+	_assertVisible(_heading4("Enrollment History"));
+	_assertEqual("Enrollment History", _getText(_heading4("Enrollment History")));
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

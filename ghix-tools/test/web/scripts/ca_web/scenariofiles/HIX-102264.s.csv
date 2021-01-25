@@ -1,0 +1,25 @@
+"TestCase","Key Word","Argument 1","Argument 2"
+,"loadSahi","../pagemodels/HIX-102264_lib.sah"
+,"loadSahi","../pagemodels/Login.sah"
+,"loadSahi","""C:/Sahi/CA/agents.sah"""
+,"loadSahi","""C:/Sahi/CA/agencies.sah"""
+
+"[Global]","[SetUp]"
+,"maximizeWindow"
+"Verify that the first name and last name is present for both consumer as well as for agent in 
+Pending Delegations Page","[Documentation]","Prerequisite
+1.Agent A belongs to Agency AA
+STR:
+
+1.Login as agency
+2.'Agent View List' is displayed with list of agents present at the right
+3.From the Main Menu select 'Agency Delegations and then from the sub menus select  'Pending Delegations Request'
+4.From the left navigation pane verify that fields
+i) First Name and Last name is present for Consumer separately
+ii) First Name and Last name is present for Agent separately
+
+Expected - Two different fields First Name and Last Name should be present for fields Consumer Name and Agent Name
+in Pending Delegations page"
+,"loginAsAgency","$CertifiedAgencyA.email","$CertifiedAgencyA.password"
+,"goToPendingDelegationRequestsAsAgency"
+,"logOut"

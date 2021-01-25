@@ -1,0 +1,274 @@
+_includeOnce("ShowCart.sah");
+_includeOnce("HeaderFooter.sah");
+_includeOnce("Preeligibility.sah");
+_includeOnce("Preferences.sah");
+
+// Variables
+var $taxCreditValue;
+var $resultsHeader;
+var $resultsHeader2;
+var $resultsTaxCredit = _span("maxAptc ng-binding");
+var $resultsPrevious = _button("Previous");
+var $resultsNext = _button("Next");
+var $Results = true;
+function verifyElementsOfCheckSavingsResult($coverageYear, $eligibilityType) {
+		_assertVisible(_heading1("Find Out How Much Insurance May Cost In "+$coverageYear));
+		_log("Verify text on left section");
+		_assertVisible(_heading2("In this section:"));
+		_assertVisible(_listItem("The cost of health and dental insurance depends on where you live, how many people are in your household, and income."));
+		_assertVisible(_listItem("You can view your selected favorite health and dental plans for coverage year2019 from start of open enrollment."));
+		validateEligibilityResults($eligibilityType);
+		_assertVisible(_div("These results are only an estimate. You will need to complete an application."));
+		_assertVisible(_button("Next"));
+		_assertVisible(_button("Previous"));
+		
+}
+
+function validateEligibilityResults($eligibilityType){
+  if($eligibilityType == 1){
+	_assertVisible(_heading2("It looks like you may qualify for cost-savings."));
+	_assertVisible(_heading3("Lower monthly premium"));
+	_assertContainsText("Estimated Tax Credit of", _paragraph("subtitle"));
+	_assertVisible(_div("/Based on the income you entered, you may qualify for an Advanced Premium Tax Credit /"));
+	_assertVisible(_heading3("Lower out-of-pocket costs"));
+	_assertEqual("It looks like you may qualify for cost-sharing reductions. These will reduce the coinsuranceTooltip text: Coinsurance Your share of the costs of a covered health care service, calculated as a percent (for example, 20%) of the allowed amount for the service. You pay co-insurance plus any deductibles you owe. For example, if the health insurance or plan's allowed amount for an office visit is $100 and you've met your deductible, your co-insurance payment of 20% would be $20. The health insurance or plan pays the rest of the allowed amount., copaysTooltip text: Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service. and deductiblesTooltip text: Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible. you pay for services. To use cost-sharing reductions you must enroll in a Silver level plan.", _getText(_div("contents")));
+	
+  }
+  else if($eligibilityType == 2){
+  }
+}
+
+/**
+label.nmiex.resultsSection.header1 = It looks like you may qualify for financial help to pay for your healthcare coverage.
+label.nmiex.resultsSection.header2 = It looks like you and your household may qualify for financial help to pay for your healthcare coverage.
+label.nmiex.resultsSection.header3 = We're sorry, but we can't seem to calculate your savings right now.
+label.nmiex.resultsSection.header4 = You don't appear to qualify for savings.
+label.nmiex.resultsSection.header5 = Your family doesn't appear to qualify for savings.
+label.nmiex.resultsSection.header6 = Looks like you don't qualify for lower costs.
+label.nmiex.resultsSection.header7 = It looks like you do not qualify for financial help.
+label.nmiex.resultsSection.header8 = It looks like you do not qualify for financial help.
+*/
+function nvvalidateResultsTitle($headerNumber){
+	var $expectedTitle;
+	if ($headerNumber == 1) {
+		$expectedTitle = "It looks like you may qualify for financial help to pay for your healthcare coverage.";
+	} else if ($headerNumber == 2) {
+		$expectedTitle = "It looks like you and your household may qualify for financial help to pay for your healthcare coverage.";
+	} else if ($headerNumber == 3) {
+		$expectedTitle = "We're sorry, but we can't seem to calculate your savings right now.";
+	} else if ($headerNumber == 4) {
+		$expectedTitle = "You don't appear to qualify for savings.";
+	} else if ($headerNumber == 5) {
+		$expectedTitle = "Your family doesn't appear to qualify for savings.";
+	} else if ($headerNumber == 6) {
+		$expectedTitle = "Looks like you don't qualify for lower costs.";
+	} else if ($headerNumber == 7) {
+		$expectedTitle = "It looks like you do not qualify for financial help.";
+	} else if ($headerNumber == 8) {
+		$expectedTitle = "It looks like you do not qualify for financial help.";
+	} else {
+		$expectedTitle = $headerNumber;
+	}
+	//if ($isIdaho){
+	//	_assert(_isVisible(_heading4($expectedTitle)));
+	//}
+	//else
+		_assert(_isVisible(_heading2($expectedTitle)));
+	// satya@updated heading properties after ada fix
+}
+
+function getEstimatedTaxCredit(){
+
+	var $str = _getText(_paragraph("/"+"Estimated Tax Credit of"+"/"));
+	var $taxCredit = parseFloat($str.match(/\d+/)[0]).toFixed(2);//_extract($str, "Estimated Tax Credit of"+"(.*)", true);
+	_log("Estimated Tax Credit is  = "+$taxCredit);
+	return $taxCredit;
+}
+
+function verifyEstimatedTaxCredit($taxCredit){
+	_assertVisible(_paragraph("subtitle"));
+	_assertEqual("K:label.nmiex.aptcAllPlans.title" + " " + $taxCredit, _getText(_paragraph("subtitle")));
+}
+
+function goBackToPreScreenerPage(){
+	clickElement(_button("K:label.iex.result.previous"));
+}
+
+function validateSavingDetails($isLowerMonthlyPayment, $isLowerOutOfPocketCosts, $isMedicare, $isMedicaid, $isCHIP, $isStillQualify){
+	$isLowerMonthlyPayment = isTrue($isLowerMonthlyPayment);
+	$isLowerOutOfPocketCosts = isTrue($isLowerOutOfPocketCosts);
+	$isMedicare = isTrue($isMedicare);
+	$isMedicaid = isTrue($isMedicaid);
+	$isCHIP = isTrue($isCHIP);
+	$isStillQualify = isTrue($isStillQualify);
+
+	verifySavingLowerMonthlyPayment($isLowerMonthlyPayment);
+	verifySavingLowerOutOfPocketCosts($isLowerOutOfPocketCosts);
+	verifySavingMedicare($isMedicare);
+	verifySavingMedicaid($isLowerMonthlyPayment, $isMedicaid);
+	verifySavingCoverageForYourChild($isCHIP);
+	verifySavingYouStillQualifyForQualityOptions($isStillQualify);
+
+	var $shouldNextButtonBeVisible = $isLowerMonthlyPayment || $isLowerOutOfPocketCosts || $isStillQualify;
+	_assertEqual($shouldNextButtonBeVisible, _isVisible(_button("Next")));
+}
+
+function verifySavingLowerMonthlyPayment($shouldBeVisible){
+	if ($isConnecticut) {
+		var $d = "K:label.nmiex.aptcNoPlans.content1";
+		var $desc = encodeForRegEx($d);
+		if ($shouldBeVisible) {
+			_assertVisible(_heading5("Lower monthly payment (premium)"));
+			_assertVisible(_paragraph("subtitle"));
+			_assertContainsText("K:label.nmiex.aptcAllPlans.title", _paragraph("subtitle"));
+			_assertVisible(_div("/"+$desc+"/"));
+		}
+		else {
+			_assertNotVisible(_heading5("Lower monthly payment (premium)"));
+			_assertNotVisible(_paragraph("subtitle"));
+			_assertNotVisible(_div("/"+$desc+"/"));
+		}
+	}
+	//else if ($isIdaho) {
+		if ($shouldBeVisible) {
+			_assertVisible(_heading3("Lower monthly premium"));
+			_assertVisible(_paragraph("subtitle"));
+			_assertContainsText("Estimated Tax Credit of ", _paragraph("subtitle"));
+			var $desc = encodeForRegEx("Based on the income you entered, you may qualify for an Advanced Premium Tax Credit (APTC). A tax credit could lower your monthly insurance bill. Your monthly premium may be about ");
+			_assertVisible(_div("/"+$desc+"/"));
+		}
+		else {
+			_assertNotVisible(_heading5("Lower monthly premium"));
+			_assertNotVisible(_paragraph("subtitle"));
+			var $desc = encodeForRegEx("Based on the income you entered, you may qualify for an Advanced Premium Tax Credit (APTC). A tax credit could lower your monthly insurance bill. Your monthly premium may be about ");
+			_assertNotVisible(_div($desc));
+		}
+	//}
+}
+
+function verifySavingLowerOutOfPocketCosts($shouldBeVisible){
+	if ($isConnecticut) {
+		if ($shouldBeVisible) {
+			_assertVisible(_heading5("Lower out-of-pocket costs"));
+			_assertVisible(_div("It looks like you may qualify for cost-sharing reductions. These will reduce the"+" "+"copays"+" Tooltip text: "+"Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service."+" "+"K:label.nmiex.CSR.content3"+" "+"deductibles"+" Tooltip text: "+"Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible."+" "+"you pay for services. To get cost-sharing reductions you must enroll in a Silver level plan."));
+
+		}
+		else {
+			_assertNotVisible(_heading5("Lower out-of-pocket costs"));
+			_assertNotVisible(_div("It looks like you may qualify for cost-sharing reductions. These will reduce the"+" "+"copays"+" Tooltip text: "+"Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service."+" "+"K:label.nmiex.CSR.content3"+" "+"deductibles"+" Tooltip text: "+"Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible."+" "+"you pay for services. To get cost-sharing reductions you must enroll in a Silver level plan."));
+		}
+	}
+	else if($isIdaho) {
+		if ($shouldBeVisible) {
+			_assertVisible(_heading3("Lower out-of-pocket costs"));
+			_assertVisible(_div("contents", _near(_heading3("Lower out-of-pocket costs"))));
+			//_assertContainsText("It looks like you may qualify for cost-sharing reductions. These will reduce the copays Tooltip text: Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service. and deductibles Tooltip text: Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible. you pay for services. To use cost-sharing reductions you must enroll in a Silver level plan.", _div("contents", _near(_heading3("Lower out-of-pocket costs"))));
+			_assertEqual("It looks like you may qualify for cost-sharing reductions. These will reduce the coinsurance Tooltip text: Coinsurance Your share of the costs of a covered health care service, calculated as a percent (for example, 20%) of the allowed amount for the service. You pay co-insurance plus any deductibles you owe. For example, if the health insurance or plan's allowed amount for an office visit is $100 and you've met your deductible, your co-insurance payment of 20% would be $20. The health insurance or plan pays the rest of the allowed amount., copays Tooltip text: Copay A copayment, or copay, is a fixed amount you pay for a covered healthcare service, usually at the time you use the service. and deductibles Tooltip text: Deductible Your plan's deductible is the dollar amount you have to spend on your covered medical expenses before your insurance company starts to help pay. Generally, copays are not counted toward your deductible. you pay for services. To use cost-sharing reductions you must enroll in a Silver level plan.", _getText(_div("contents", _near(_heading3("Lower out-of-pocket costs")))));
+		}
+		else {
+			_assertNotVisible(_heading5("Lower out-of-pocket costs"));
+			_assertNotVisible(_div("It looks like you may qualify for cost-sharing reductions. These will reduce the copays and deductibles you pay for services. To use cost-sharing reductions you must enroll in a Silver level plan."));
+		}
+	}
+}
+
+
+function verifySavingYouStillQualifyForQualityOptions($shouldBeVisible){
+	var $desc = encodeForRegEx("While it looks like you do not qualify for the financial help (premium tax credits), you may still be able to get access to qualified health plans. In Hartford County, Connecticut, you can get plans for about ");
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("You still qualify for quality options"));
+		_assertVisible(_div("/"+$desc+"/"));
+	}
+	else {
+		_assertNotVisible(_heading5("You still qualify for quality options"));
+		_assertNotVisible(_div("/"+$desc+"/"));
+	}
+}
+
+//function verifySavingMedicaid($shouldBeVisible ){
+//	var $desc = encodeForRegEx("Based on the household income you reported, you may qualify for low-cost -- or even free -- coverage with Medicaid or the Children's Health Insurance Program (CHIP).");
+//	
+//	if ($shouldBeVisible) {
+//		_assertVisible(_heading5("Medicaid"));
+//		_assertVisible(_span("/"+$desc+"/")); //satya@ updated property after ada fix
+//	}
+//	else {
+//		_assertNotVisible(_heading5("Medicaid"));
+//		_assertNotVisible(_span("/"+$desc+"/"));
+//	}
+//}
+//@ satya added new logic if any one member eligible for medicaid
+function verifySavingMedicaid($isLowerMonthlyPayment, $isMedicaid){
+	var $desc = encodeForRegEx("It looks like a member of your household may qualify for coverage with Medicaid.");
+	var $desc1 = encodeForRegEx("Based on the household income you reported, you may qualify for low-cost -- or even free -- coverage with Medicaid or the Children's Health Insurance Program (CHIP).");
+	if ($isLowerMonthlyPayment && $isMedicaid) {
+		_assertVisible(_heading5("Medicaid"));
+		_assertVisible(_span("/"+$desc+"/"));
+		//satya@ updated property after ada fix
+	}
+	else if ($isMedicaid){
+		_assertVisible(_heading5("Medicaid"));
+		_assertVisible(_span("/"+$desc1+"/"));
+	}
+	else {
+		_assertNotVisible(_heading5("Medicaid"));
+		//_assertNotVisible(_span("/"+$desc+"/"));
+	}
+}
+
+var $noOfChildren = 1;
+function setNumberOfChildren($childrenQty){
+	$noOfChildren = $childrenQty;
+}
+
+function verifySavingCoverageForYourChild($shouldBeVisible){
+	_setStrictVisibilityCheck(true);
+	if ($shouldBeVisible) {
+		if ($noOfChildren == 1) {
+			_assertVisible(_span("Coverage for your child"));
+			_assertVisible(_span("Based on your income and location, your child may be able to get insurance at a lower cost -- or even free -- through the Children's Health Insurance Program, more commonly known as CHIP."));
+			_assertNotVisible(_span("Coverage for your children"));
+			_assertNotVisible(_span("Based on your income and location, your children may be able to get insurance at a lower cost -- or even free -- through the Children's Health Insurance Program, more commonly known as CHIP."));
+		} else {
+			_assertNotVisible(_span("Coverage for your child"));
+			_assertNotVisible(_span("Based on your income and location, your child may be able to get insurance at a lower cost -- or even free -- through the Children's Health Insurance Program, more commonly known as CHIP."));
+			_assertVisible(_span("Coverage for your children"));
+			_assertVisible(_span("Based on your income and location, your children may be able to get insurance at a lower cost -- or even free -- through the Children's Health Insurance Program, more commonly known as CHIP."));
+		}
+	}
+	else {
+		_assertNotVisible(_span("Coverage for your child"));
+		_assertNotVisible(_span("Based on your income and location, your child may be able to get insurance at a lower cost -- or even free -- through the Children's Health Insurance Program, more commonly known as CHIP."));
+		_assertNotVisible(_span("Coverage for your children"));
+		_assertNotVisible(_span("Based on your income and location, your children may be able to get insurance at a lower cost -- or even free -- through the Children's Health Insurance Program, more commonly known as CHIP."));
+	}
+	_setStrictVisibilityCheck(false);
+}
+
+function verifySavingMedicare($shouldBeVisible){
+	if ($shouldBeVisible) {
+		_assertVisible(_heading5("Medicare"));
+		_assertVisible(_div("/"+"Anyone in your household over 65 years of age is likely to qualify for Medicare. If someone qualifies for Medicare, they may not be eligible to purchase a health insurance plan through Access Health CT. To find a Medicare plan,"+" "+"click here."+"/"));
+	}
+	else {
+		_assertNotVisible(_heading5("Medicare"));
+		_assertNotVisible(_div("/"+"Anyone in your household over 65 years of age is likely to qualify for Medicare. If someone qualifies for Medicare, they may not be eligible to purchase a health insurance plan through Access Health CT. To find a Medicare plan,"+" "+"click here."+"/"));
+	}
+}
+
+function clickPreviousButtonOnSavingResults() {
+	_click($resultsPrevious);
+	verifyElementsOnPreeligibility(true);
+	verifyDataOnPreeligibility();
+}
+
+function clickNextOnCheckSavingResults() {
+	if (!$loggedIn) {
+		if (_isVisible($resultsTaxCredit)) {
+			$taxCreditValue = _getText($resultsTaxCredit);
+			$taxCreditValue = $taxCreditValue.replace(/\$/, "");
+		}
+	}
+	_click($resultsNext);
+	verifyElementsOfPreferencePage();
+}

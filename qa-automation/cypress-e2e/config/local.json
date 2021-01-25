@@ -1,0 +1,12 @@
+{
+  "baseUrl": "localhost:1234",
+  "env": {
+    "name": "local"
+  },
+  "um_url": "localhost:8083/service/UserManagementService",
+  "um_user": "exadmin@ghix.com",
+  "um_pass": "testpassword",
+  "at_url": "localhost/ghix-eligibility/endpoints/AccountTransfer",
+  "at_user": "GI.MN*.DEV.001.001",
+  "at_pass": "MYk@I30*ubFqZ7Ua"
+}

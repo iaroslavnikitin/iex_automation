@@ -1,0 +1,23 @@
+_includeOnce("FindLocalAssistance.sah");
+
+var $AgentIcon = true;
+
+var $agentIcon = _image("headset-white.png");
+
+function verifyAgentIcon() {
+	if(_isVisible(_div("view-broker pull-right")) || _isVisible(_div("navtopview"))){
+		_log("Agent / CSR View");
+	}
+	else {
+		_assertVisible($agentIcon);
+		_assertVisible(_span("FIND HELP NEAR YOU"));
+	}
+}
+
+//function clickAgentIcon() {
+//	_assertVisible(_span("FIND HELP NEAR YOU"));
+//	_click($agentIcon);
+//	_click(_submit("pop_AgentPromotion"));
+//	verifyElementsOfLocalAssistance();
+//}
+//

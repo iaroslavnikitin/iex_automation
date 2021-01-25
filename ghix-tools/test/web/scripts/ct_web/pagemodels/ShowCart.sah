@@ -1,0 +1,145 @@
+_includeOnce("PlanSelection.sah");
+_includeOnce("Utils.sah");
+
+var $ShowCart = true;
+var $now = new Date();
+var $showCartDentalCoverageStart;
+var $showCartPlanLink;
+var $showCartDentalPlanLink;
+var $showCartRemoveHealthPlanLink;
+var $showCartRemoveDentalPlanLink;
+
+var $showCartHeader = _heading1("Confirm your Plan Selection");
+var $showCartCoverageStart = _span("span5 margin0 txt-right pull-right");
+var $showCartYourPayment = _row("individual-subtotal");
+var $showCartYourDentalPayment;
+var $showCartCartTotal = _heading4("Cart Total");
+var $showCartCartTotalValue;
+var $showCartContinueShopping = _link("Continue Shopping");
+var $showCartNextRegister = _link("Next: Register");
+var $showCartNextFinal = _link("Next: Final Eligibility");
+var $showCartShopPlans = _link("Shop Plans");
+var $showCartSkipAndSignUp = _link("Skip & Sign Up");
+var $showCartSkipAndFinalize = _link("Skip & Finalize Eligibility");
+
+function verifyElementsOnShowCartPage() {
+	$clickNextCount = 0;
+	if ($loggedIn === undefined) {
+		$loggedIn = false;
+	}
+	if($loggedIn){
+		_assertVisible(_heading1("Confirm your Plan Selection"));
+	}
+	else {
+		_assertVisible(_heading1("Your Cart"));
+	}
+
+	// Remove accessors
+	if ($planName) {
+		$showCartRemoveHealthPlanLink = _link("Remove");
+		$showCartRemoveDentalPlanLink = _link("Remove[1]");
+	}
+	else {
+		$showCartRemoveDentalPlanLink = _link("Remove");
+	}
+
+	// planLink accessors change whether logged in or not
+	$showCartPlanLink = _cell("span4 plan-carrier");
+	$showCartDentalPlanLink = _table("table table-condensed carttable margin0 cart");
+	$showCartCartTotalValue=_span("numberToFormat", _in(_row("individual-cart-total")));
+	if ($planName) {
+		$showCartDentalCoverageStart = _span("span5 margin0 txt-right pull-right[1]");
+		if(_isIE()){
+			$showCartYourDentalPayment = _cell("txt-right vertical-align-middle[2]");
+		}
+		else {
+			$showCartYourDentalPayment = _row("individual-subtotal[1]");
+		}
+	}
+	else {
+		$showCartDentalCoverageStart = _span("span5 margin0 txt-right pull-right");
+		if(_isIE()){
+			$showCartYourDentalPayment = _cell("txt-right vertical-align-middle");
+		}
+		else {
+			$showCartYourDentalPayment = _row("individual-subtotal");
+		}
+	}
+
+	if ($planName) {
+		_assertTrue(new RegExp($planName).test(_getText($showCartPlanLink)));
+	}
+	if ($dentalPlanName && $onDentalPage) {
+		_log("Dental Plan"+$dentalPlanName);
+		_assertTrue(new RegExp($dentalPlanName).test(_getText($showCartDentalPlanLink)));
+		if ($dentalPlanName && $onDentalPage) {
+			$dentalPayment = $dentalPayment.replace("/month","");
+			var $cartDentalPayment = _getText($showCartYourDentalPayment);
+			var $dentalPay = $dentalPayment.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+			_log($dentalPay+"              "+ _getText($showCartYourDentalPayment));
+			_assertNotEqual($cartDentalPayment.indexOf($dentalPay), -1);
+		}
+	}
+	coverageDate("11/01/2016", "01/31/2017",$eventReported,$eventDate);
+	_assertTrue(new RegExp($coverageDate).test(_getText(_tableHeader("coverage-start-date"))));
+	var $total;
+	if( $payment != null){
+		$payment = $payment.replace(/\$/, "");
+	}
+	_log("Plan Name"+$planName);
+	_log("Dental Plan Name"+ $dentalPlanName +"Dental Page Value"+ $onDentalPage);
+	if ($planName && ($dentalPlanName && $onDentalPage)) {
+		$total = (parseFloat($payment) + parseFloat($dentalPayment)).toFixed(2).toString();
+	}
+	else if ($planName) {
+		$total = $payment;
+	}
+	else if ($dentalPlanName && $onDentalPage) {
+		$total = $dentalPayment;
+	}
+	if ($total) {
+		$total = $total.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+		$total =$total.replace("/month","");
+		_wait(5000,_isVisible(_heading4("Cart Total")));
+		_log("Total  =  "+$total);
+		_log("Cartvalue =  "+_getText($showCartCartTotalValue));
+		_assertEqual($total,_getText($showCartCartTotalValue));
+	}
+}
+
+function clickRemoveHealthPlanFromCartPage() {
+	_click($showCartRemoveHealthPlanLink);
+	$planName = undefined;
+	$payment = undefined;
+	verifyElementsOnShowCartPage();
+}
+
+function clickRemoveDentalPlanFromCartPage() {
+	_click($showCartRemoveDentalPlanLink);
+	$dentalPlanName = undefined;
+	$dentalPayment = undefined;
+	verifyElementsOnShowCartPage();
+}
+
+function clickContinueShopping() {
+	_click($showCartContinueShopping);
+	$onDentalPage = false;
+	verifyElementsOnPlanPage();
+}
+
+function clickRegisterOnCartPage() {
+	_click($showCartNextRegister);
+	$signupMode = "Individual";
+	verifyElementsOnSignUpPage();
+}
+
+function clickFinalOnCartPage() {
+	_click($showCartNextFinal);
+	verifyElementsOfIndividualDashboard();
+}
+
+function clickSkipAndSignUpOnCartPage() {
+	_click($showCartSkipAndSignUp);
+	verifyElementsOfApplyPopUp();
+	$clickNextCount++;
+}

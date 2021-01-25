@@ -1,0 +1,206 @@
+
+var $loginEmail = _textbox("Email Address");
+var $loginPassword = _password("/password/i");
+var $loginRememberMe = _checkbox("_spring_security_remember_me");
+var $logInogInButton = _submit("Log In");
+var $loginForgotPassword = _link("/Forgot password?/i");
+var $logInAccesors = [$loginEmail,$loginPassword,$loginRememberMe,$logInogInButton,$loginForgotPassword];
+var $loginSubmit =_submit("submit");
+
+
+
+var $loginIssuerLink = _link("Issuers");
+var $loginPlanLinks = _link("Plans");
+var $loginAgentLinks = _link("Agents");
+var $loginMemberlink = _link("Members");
+var $loginUsersLink = _link("Users");
+var $loginReportsLink = _link("Reports");
+var $loginTicketsLink = _link("Tickets");
+var $loginAnnouncementsLink = _link("Announcements");
+var $loginManageAnnouncementsLink = _link("Manage Announcements");
+var $loginAddNewAnnouncementbutton = _link("ADD NEW ANNOUNCEMENT");
+var $loginAddNewAnnouncementHeading1 = _heading1("ng-scope");
+var $loginAddNewAnnouncementModule = _textbox("Module");
+var $loginAddNewAnnouncementName = _textbox("Announcement Name");
+var $loginAddNewAnnouncementStartDate = _textbox("Effective Start Date");
+var $loginAddNewAnnouncementEndDate = _textbox("Effective End Date");
+var $loginAddNewAnnouncementTextHeading = _heading5("Enter Text for the Announcement");
+var $loginAnnouncementStartDateCalendarIcon = _italic("icon-calendar");
+var $loginAnnouncementEndDateCalendarIcon =_italic("icon-calendar[1]");
+var $loginAnnouncementPublishButton =  _link("PUBLISH");
+var $loginAnnouncementCancelButton = _link("CANCEL");
+var $loginAnnouncementOKbutton = _link("OK");
+var $loginAnnouncementTextBox = _paragraph(4);
+var $loginAnnouncementSubmissionHeading = _heading3("Submission Successful!");
+var $loginMembersLink = _link("Members");
+var $loginManageApplicantLink = _link("Manage Applicants");
+var $loginSearchApplicantApplicantHeading = _heading1("Applicants");
+var $loginSearchApplicantGoButton = _submit("Go");
+var $loginSearchApplicantFilterHeader = _row("graydrkbg  header");
+var $loginViewMemberAccountLink = _link("View Member Account");
+var $loginMemberViewButton = _submit("Member View");
+var $loginIndportalAnnouncementBlock = _div("announcements alert alert-block");
+var $loginIndportalMyAccountButton = _link("My Account");
+
+var $loginManageUsers = _link("Manage Users");
+var $loginUsersList = _div("rightpanel");
+var $loginManageUsersNameFilter = _textbox("User Name");
+var $loginManageUsersSaveAndSendButton = _submit("Save and Send");
+var $loginManageUsersRolesLink = _link("User Roles");
+var $loginManageUsersRolesAdminCheckBox = _checkbox("Administrator");
+var $loginManageUsersRolesSaveButton = _submit("Save");
+var $loginChageUserRoleToExadmin = _link("dropdown-toggle");
+var $loginChageUserRoleAdminLink = _link("/Administrator/");
+
+function verifyloginPage() {
+	verifyArray($logInAccesors);
+}
+
+function loginUser($email, $password) {
+	_setValue($loginEmail, $email);
+	_setValue($loginPassword, $password);
+	loginClickLoginButton($email);
+	
+}
+
+function loginAdminAndVerifyIdentity() {
+	//verifyIdentityfromDb();
+	
+	var $query ="update cmr_household set ridp_verified ='Y' where email_address = '"+$signupEmail.toLowerCase()+"'";
+	_log($query);
+	$db.update($query);
+	
+	
+	/*
+	logOut();
+	var $url;
+	_set($url, window.document.location.href);
+	_navigateTo($url);
+	_click(_link("Log In"));
+	$url = getUpdatedBaseURL("").split("/");
+
+	//if ($url[2] !="idahohix.yourhealthidaho.org"){
+	if (isProductionEnvironment()) {
+		var $ExcelPath = "../opt/sahi/useraccounts.xls";
+//		$data= getAccountDetails($ExcelPath,"L2_CS2");
+		$data= getAccountDetails("L2_CS2");
+		loginEnterEmailAddress($data["Email"]);
+		_maskLogs("Sensitive Data");
+		loginEnterPassword($data["Password"]);
+		_unmaskLogs("Information end");
+	}
+	else{
+		_setValue($loginEmail, "auto_admin@yopmail.com");
+		//_setValue($loginEmail,"autocsr_l2cs2@yopmail.com");	
+		_setValue($loginPassword, "ghix123#");
+	}
+	loginClickLoginButton();
+	_click(_link("Members Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Manage Members"));
+	_setValue(_textbox("firstName"), $firstName);
+	_setValue(_textbox("lastName"), $lastName);
+
+	_setValue(_textbox("householdEmail"), $signupEmail);
+
+	_click(_submit("Go"));
+	_click(_link(0, _in(_cell(2))));
+	_click(_button("mark_verified"));
+	_expectPrompt("Please provide reason for overriding RIDP verification", "UI testing");
+
+	// Verify that actions succeeded
+	_assertVisible(_strong("Verified Account"));
+
+	logOut();
+
+	loginEnterEmailAddress($signupEmail);
+	_maskLogs("Sensitive Data");
+	loginEnterPassword("ghix123#");
+	_unmaskLogs("Information end");
+	loginClickLoginButton();
+	*/
+}
+
+function loginEnterEmailAddress($email, $role){
+	if(!_isVisible($loginEmail))
+		loginClickloginlink();
+
+	$loginRole =$role;
+	if($loginRole == "Agent")
+		var $email = $signupEmail;
+
+	if(!$email){
+		$signedEmail = $signupEmail;
+	}
+	else{
+		$signedEmail =$email;
+	}
+	_setValue($loginEmail, $signedEmail);
+	return $signedEmail;
+}
+
+function loginEnterPassword($password){
+	_setValue($loginPassword, $password);
+}
+
+function loginCheckRememberMe() {
+	_check($loginRememberMe);
+}
+
+function loginUncheckRememberMe() {
+	_uncheck($loginRememberMe);
+}
+
+function loginClickForgotPassword() {
+	_click($loginForgotPassword);
+	forgotPasswordVerify();
+}
+
+
+
+function loginClickLoginButton($email){
+	_click($loginSubmit);
+	if(_isVisible(_heading3("Your Password has expired! Please change your password to continue"))||_isVisible(_submit("Log In"))){
+			activateUserfromDb($email);
+			loginClickloginlink();
+			loginEnterEmailAddress($email);
+			loginEnterPassword("ghix123#");
+			_click($loginSubmit);
+			//loginClickLoginButton();		
+		}
+	if(_isVisible(_submit("Log In"))){
+		_fail(["User was not able to login"]);
+	}
+	
+}
+
+function loginClickloginlink(){
+	_click(_link("Log In"));
+	verifyloginPage();
+}
+
+function logOut(){
+	_click(_link("/Logout/"));
+	_assertNotVisible(_link("/Logout/"));
+}
+
+
+function loginClickIndividualUnderPrimaryContact($firstname, $lastname){
+	if ($firstname && $lastname) {
+		_click(_link($firstname + " " + $lastname, _near(_tableHeader("Primary Contact"))));
+	} else {
+		if (isProductionEnvironment()) {
+			_fail("Firstname and Lastname not available at this step. This is production environment.");
+		}
+		_click(_link(1, _near(_tableHeader("Primary Contact"))));
+	}
+	_assertVisible($loginViewMemberAccountLink);
+}
+
+
+function clickMyAccountAndLogOut(){
+
+	_click(_span("My Account"));
+	_click(_link("Logout"));
+	_assertVisible(_label("Email Address"));
+
+}

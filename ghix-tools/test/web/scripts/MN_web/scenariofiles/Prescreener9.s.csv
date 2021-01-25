@@ -1,0 +1,17 @@
+"Tags","TestCase","Key Word","Argument 1","Argument 2"
+,,"loadSahi","../pagemodels/global_include_Mn.sah"
+,,"loadSahi","../pagemodels/Preeligibility.sah"
+
+,,"MNsurePlanComparisonTool"
+
+"TC#9","HIX-108318- Pregnancy under 19","[Documentation]","One member Pregnant scenario -->  should be MA scenario.If a member of the household is pregnant, then increment the household size by 1 for calculating the Medicaid and CHIP eligibility thresholds."
+"//",,"MNsurePlanComparisonTool"
+,,"verifyElementsOnPreeligibility"
+,,"selectCoverageYear","""Current"""
+,,"enterZipCode","""55120"""
+,,"enterPrimaryInformation","""09/02/1999""","FALSE","FALSE","TRUE","TRUE"
+,,"enterHouseholdIncome","""$46088"""
+,,"$type=","_toJSON({'LowerMonthlyPayment': true, 'LowerOutOfPocketCosts': true})"
+,,"clickCheckForSavings","$type"
+,,"verifyEligibilityOnResults","""PublicProgramPregnancy"""
+,,"clickStartApplicationOnPreeligibility"

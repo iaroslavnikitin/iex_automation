@@ -1,0 +1,163 @@
+_includeOnce("AccountSettings.sah");
+_includeOnce("FindLocalAssistance.sah");
+_includeOnce("HomePage.sah");
+_includeOnce("Indportal.sah");
+_includeOnce("Login.sah");
+
+// Variables
+var $loggedIn = false;
+var $HeaderFooter = true;
+
+var $headerFooterHome = _image("Your Health Idaho");
+var $headerFooterHomeLink = _link("Home");
+var $headerFooterInbox = _italic("icon-envelope");
+var $headerFooterLogin = _link("Log In");
+var $headerFooterPrivacyPolicy = _link("Privacy Policy");
+var $headerFooterGetAssistance = _link("dropdown-toggle");
+var $headerFooterClickFindLocalAssistance = _link("Find Local Assistance");
+var $headerFooterHelpCenter = _link("Help Center");
+var $headerFooterConsumers = _link("Consumers 1-855-944-3246 End of dropdown");
+var $headerFooterConsumersIE = _link("Consumers 1-855-944-3246End of dropdown");
+var $headerFooterMyAccount = _link("dropdown-toggle[1]");
+var $headerFooterAccountSettings = _link("Account Settings");
+var $headerFooterDashboard = _link("Dashboard");
+var $headerFooterLogout = _link("Logout");
+
+function verifyHeaderAndFooter() {
+	_assertVisible($headerFooterHome);
+	if (_isVisible($headerFooterLogin)) {
+		$loggedIn = false;
+	}
+	else {
+		$loggedIn = true;
+	}
+
+	// Certains items will be visible if and only if logged in
+	if ($loggedIn) {
+		_assertVisible($headerFooterHomeLink);
+		_assertVisible($headerFooterInbox);
+		_assertNotVisible($headerFooterLogin);
+
+		// Open the account dropdown menu to verify its elements
+		_click($headerFooterMyAccount);
+
+		// Verify dropdown menu elements
+		_assertVisible($headerFooterAccountSettings);
+		_assertVisible($headerFooterDashboard);
+		_assertVisible($headerFooterLogout);
+
+		// Close the assistance dropdown menu once done verifying its elements
+		_click($headerFooterMyAccount);
+	}
+	else {
+		_assertNotVisible($headerFooterHomeLink);
+		_assertNotVisible($headerFooterInbox);
+		_assertVisible($headerFooterLogin);
+		_assertNotVisible($headerFooterMyAccount);
+	}
+
+	_assertVisible($headerFooterPrivacyPolicy);
+	_assertVisible($headerFooterGetAssistance);
+
+	// Open the assistance dropdown menu to verify its elemenets
+	_click($headerFooterGetAssistance);
+
+	// Verify dropdown menu elements
+	_assertVisible($headerFooterClickFindLocalAssistance);
+	_assertVisible($headerFooterHelpCenter);
+	_assertTrue(_isVisible($headerFooterConsumers) || _isVisible($headerFooterConsumersIE));
+
+	// Close the assistance dropdown menu once done verifying its elements
+	_click($headerFooterGetAssistance);
+}
+
+function clickHomeIcon() {
+	_click($headerFooterHome);
+	_selectWindow(_getRecentWindow().windowTitle);
+	_focusWindow();
+	verifyElementsOfHomePage();
+}
+
+function clickLogin() {
+	_click($headerFooterLogin);
+	loginVerify();
+}
+
+function clickGetAssistance() {
+	_click($headerFooterGetAssistance);
+}
+
+function clickFindLocalAssistance() {
+	_click($headerFooterClickFindLocalAssistance);
+	verifyElementsOfLocalAssistance();
+}
+
+function clickHelpCenter() {
+	_click($headerFooterHelpCenter);
+}
+
+function clickConsumers() {
+	_click($headerFooterConsumers);
+}
+
+function clickMyAccount() {
+	_click($headerFooterMyAccount);
+}
+
+function clickAccountSettings() {
+	_click($headerFooterAccountSettings);
+	verifyElementsOnAccountSettingPage();
+}
+
+function clickDashboard() {
+	_click($headerFooterDashboard);
+	verifyElementsOfIndividualDashboard();
+}
+
+function clickLogout() {
+	_click($headerFooterLogout);
+	$loggedIn = false;
+}
+
+function clickPrivacyPolicy() {
+	_click($headerFooterPrivacyPolicy);
+}
+
+function closeBrowser(){
+	_closeBrowser();
+	$eligibityFlag ="false";
+	$displayChildPlan = "false";
+	$kids = 0;
+	$adult = 0;
+	$apllicantAge="null";
+	$spouseAge ="null";
+	$announcement = [];
+	$totalAnnouncement = 0;
+	$planName="";
+	$dentalPlanName="";
+	$removeExisitngHealthPlan = false;
+	$overrideCoverage="";
+	$coverageYear="2017";
+	$pastDate ="true";
+	$eventReported ="";
+	$eventDate = "";
+	$isGatedEvent ="";
+}
+
+function openBrowser(){
+	_wait(500);
+	_openBrowser();
+}
+
+function clickUsersHeader(){
+	_click(_link("Users"));
+}
+
+function clickManageUser(){
+	_click(_link("Manage User"));
+}
+
+function clickLogout(){
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("/Logout/"));
+}

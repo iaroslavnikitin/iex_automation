@@ -1,0 +1,47 @@
+"Comment","Tags","TestCase","Key Word","Argument1","Argument2","Argument3","Argument4"
+,,,"loadSahi","../pagemodels/global_include.sah"
+
+,,,"[Documentation]","eventType","Event Date","Event","isInOEP"
+,,,"$coverageStartDate = getCoverageStartDate","3",,,"$inOEP"
+,,,"$coverageDate = getCurrentCoverageYear"
+
+
+"Adult and 2 Kid","smoke,anonymous","Anonymous Flow with Adult and two kids","[Documentation]","- Adult and 2 kid doing anonymous flow for both health and dental plan.
+Verify that the System displays all plans available for a given zip, county code & members seeking coverage"
+
+"//",,,"openBrowser"
+,,,"verifyHeaderAndFooter"
+
+,,,"[Documentation]","eventType","Event Date","Event","isInOEP"
+,,,"clickStartShopping","$coverageDate"
+,,,"selectCoverageYear",,"$coverageDate"
+,,,"enterZipCode","""89501"""
+,,,"enterPrimaryInformation","""10/12/1988""","FALSE","FALSE","TRUE"
+,,,"clickAddChild","""02/05/2018""","FALSE","FALSE","TRUE"
+,,,"clickAddChild","""02/05/2018""","FALSE","FALSE","TRUE"
+,,,"clickBrowsePlans"
+,,,"selectDoctorVisits","3"
+,,,"clickNextPreferences"
+,,,"selectMonthlyPrescriptions","1"
+,,,"clickNextPreferences"
+,,,"selectPrescription","""Lipitor""","""Lipitor 80 Mg Tab (Oral Tablet)""","""Atorvastatin"""
+,,,"$code = getgenericRxCode"
+,,,"clickNextPreferences"
+,,,"selectChildrensDental"
+,,,"[Documentation]","isCSREnabled","aptc Amount","zipcode","Coverage Date","noOfAdults","noOfChildren","showCatastrophic"
+,,,"clickViewPlans","""N""",,"""89501""","$coverageStartDate","1","2","""NO"""
+,,,"$healthPlan=clickViewPlanDetails"
+,,,"[Documentation]","Health Plan Details","Dental Plan Details"
+,,,"addToCartOnviewDetails","$healthPlan"
+
+,,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren"
+,,,"clickContinueToDentalPlans",,,"""89501""","$coverageStartDate","1","2"
+,,,"$dentalPlan=clickAddPlanFromPlanSelection"
+,,,"closeFantasticPopup"
+,,,"clickViewPlanDetails","$dentalPlan.index"
+,,,"[Documentation]","isCSREnabled","aptc Amount","Zipcode","Coverage Date","noOfAdults","noOfChildren"
+,,,"clickBackToAllPlansOnViewDetails",,,"""89501""","$coverageStartDate","1","2"
+
+,,,"[Documentation]","Health Plan Details","Dental Plan Details","Coverage Date"
+,,,"clickCartIconOnPlanSelection","$healthPlan","$dentalPlan","$coverageStartDate"
+,,,"clickRegisterOnCartPage"

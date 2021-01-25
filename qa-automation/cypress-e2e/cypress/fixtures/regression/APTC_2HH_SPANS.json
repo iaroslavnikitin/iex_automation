@@ -1,0 +1,9 @@
+{
+    "description": "2 adults household CS4 with APTC=true",
+    "hhFamily": {"size": 2, "singleParent": false},
+    "hhLastName": true,
+    "currentEligibilitySpan": 1,
+    "totalEligibilitySpan": 4,
+    "eligibilityStartDate": "2020-01-01",
+    "eligibilityEndDate": "2020-01-31"
+}

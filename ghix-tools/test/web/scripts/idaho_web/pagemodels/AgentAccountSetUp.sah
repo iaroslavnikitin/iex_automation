@@ -1,0 +1,61 @@
+_include("User.sah");
+
+var $firstName, $lastName, $email, $phoneNumber, $county = "Boise", $zipCode= "83702", $businessName;
+
+function enterBasicInformation(){
+	$firstName = randomString($FIELD_LENGTH);
+	_setValue(_textbox("First Name  "), $firstName);
+	$lastName = randomString($FIELD_LENGTH);
+	_setValue(_textbox("Last Name  "), $lastName);
+	$email = "Sahi_" + $firstName + $lastName + "@yopmail.com";
+	_setValue(_emailbox("email"), $email);
+	_setValue(_emailbox("confirmEmail"), $email);
+	$phoneNumber = phoneGen();
+	_setValue(_textbox("phone1"), $phoneNumber[0]);
+	_setValue(_textbox("phone2"), $phoneNumber[1]);
+	_setValue(_textbox("phone3"), $phoneNumber[2]);
+	return $email;
+}
+
+function enterSecurityQuestion($question, $answer){
+	_setSelected(_select("securityQuestion1"), $question);
+	_setValue(_textbox("Security Answer"), $answer);
+}
+
+function enterPassword($password){
+	_setValue(_password("password"), $password);
+	_setValue(_password("confirmPassword"), $password);
+}
+
+function createAgent($address, $city, $state, $zip){
+	_click(_link("Health Insurance Agent/Broker"));
+	enterBasicInformation();
+	enterSecurityQuestion("What was your childhood nickname?", "1");
+	enterPassword("ghix123#");
+	_check(_checkbox("terms"));
+	_click(_button("Submit "));
+	if (_isVisible(_paragraph("/Please click CONTINUE to log in with your email address and password/"))) {
+		_click(_link("Continue"));
+		login($email, "ghix123#");
+	}
+	enterAgentInformation($address, $city, $state, $zip);
+	_click(_submit("Finish"));
+	_click(_submit("Close"));
+	_click(_link("My Account Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Logout End of dropdown"));
+}
+
+function approvePendingRequests($fullname){
+	_click(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Pending Requests"));
+	_click(_link("/"+$fullname+"/i"));
+	_click(_link("Accept", _in(_div("iframeMain"))));
+}
+
+function selectActiveIndividual($fullname){
+	_click(_link("Individuals Dropdown Menu. Press enter to open it and tab through its options"));
+	_click(_link("Active Individuals"));
+	_click(_link("/"+$fullname+"/i"));
+	_click(_submit("Individual View"));
+	
+}

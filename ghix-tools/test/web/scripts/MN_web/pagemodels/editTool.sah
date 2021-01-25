@@ -1,0 +1,149 @@
+_includeOnce("JenkinsAndDBSetUp.sah");
+
+var $enrollmentStartDate;
+function clickShowPremiumHistory($applicationType){
+	//Get all values from the enrollment page.
+	var $enrollmentStatus = _getText(_cell(0, _near(_tableHeader("Enrollment Status:"))));
+	if($enrollmentStatus =="CANCEL"){
+		var $netPremium ="";
+		var $grossPremium = "";
+	}else{
+		var $netPremium = _getText(_cell(0, _near(_tableHeader("Net Premium"))));
+		var $grossPremium = _getText(_cell(0, _near(_tableHeader("Premium Amount"))));
+	}
+	
+	var $effectiveDate = _getText(_cell(0, _near(_tableHeader("Effective Date:"))));
+	var $effectiveDate = $effectiveDate.split("-");
+	var $aptcAmount = parseInt(_getText(_cell(0, _near(_tableHeader("Elected APTC Amount")))).replace("$","")).toFixed(2);
+	var $policyId = _getText(_cell("ng-binding", _near(_tableHeader("Exchange Assigned Policy ID"))));
+	var $submittedBy = _getText(_cell(1, _near(_tableHeader("Submitted by:"))));
+	
+		
+	_click(_link("SHOW PREMIUM HISTORY"));
+	
+	_log("*******Verify Premium History page*****");
+	_assertVisible(_div("Enrollment - Premium History Back"));
+	$enrollmentStartDate = _getText(_cell(0, _near(_tableHeader("Enrollment Start Date"))));
+	var $enrollmenyEndDate = _getText(_cell("ng-scope ng-binding", _near(_tableHeader("Enrollment End Date"))));
+	_assertEqual($effectiveDate[0].trim(), $enrollmentStartDate,"Verify correct Enrollment start date is displayed");
+	_assertEqual($effectiveDate[1].trim(), $enrollmenyEndDate, "Verify correct Enrollment End date is displayed");
+	
+	var $enrollmentStartMonth =  _fetch(window.moment($enrollmentStartDate).format("MMMM"));
+	verifyEnrollmentHistoryTable();
+	verifyEnrollmentHistoryForCurrentMonth($enrollmentStartMonth,$grossPremium,$netPremium, $aptcAmount,$applicationType);
+
+}
+function verifyEnrollmentHistoryTable(){
+	var $enrollmentStartDate = _getText(_cell(0, _near(_tableHeader("Enrollment Start Date"))));
+	var $month = _fetch(window.moment($enrollmentStartDate).format("M"));
+	
+	$month = parseInt($month);
+	_log("****** Enrollment is created from month "+$month+"*****");
+	for(var $i = 1; $i< $month; $i++){
+		_assertEqual("/Not Applicable/", _getText(_row($i, _in(_table("table table-condensed premium-editable-table")))));
+	}
+
+}
+
+function verifyEnrollmentHistoryForCurrentMonth($enrollmentStartMonth,$grossPremium,$netPremium,$aptcAmount,$applicationType){
+	
+	_assertEqual($grossPremium, _getText(_cell(1,_in(_row("/"+$enrollmentStartMonth+"/")))),"Verify gross Premium in this page");
+	_assertEqual("$"+$aptcAmount, _getText(_cell(2,_in(_row("/"+$enrollmentStartMonth+"/")))), "Verify APTC amount");
+	_assertEqual($netPremium, _getText(_cell(3,_in(_row("/"+$enrollmentStartMonth+"/"))))," Verify Net Premium");
+	_assertEqual($applicationType, _getText(_cell(4,_in(_row("/"+$enrollmentStartMonth+"/")))), "Verify application type");
+}
+
+function clickActionsOnPremiumHistory($enrollmentStatus){
+	_click(_span("Actions"));
+	if($enrollmentStatus == "PENDING"){
+		_assertVisible(_submit("Cancel"), "Cancel Button should be present");
+		
+	}
+	else if($enrollmentStatus == "CANCEL"){
+		_assertVisible(_submit("Add"),"Add Button should be displayed");
+	}
+	_assertVisible(_submit("Change"), "Submit button should be present");
+}
+
+function clickCancelButtonOnEditTool(){
+	_click(_submit("Cancel"));
+	_assertVisible(_heading3("Cancel Enrollment"));
+	_setValue(_textarea(1), "Send in 834");
+	_click(_submit("Submit"));
+	_assertVisible(_span("Success"));
+	_click(_submit("Close"));
+	verifyPremiumHistoryAfterCancellation();
+	
+}
+function verifyPremiumHistoryAfterCancellation(){
+	_log("*****Verify Benefit effective Date******");
+	_assertEqual($enrollmentStartDate, _getText(_cell(0, _near(_tableHeader("Enrollment End Date")))), "Enrollment end date should get updated to enrollment start date");
+	var $numberOfMembers = _count("_row","ng-scope", _in(_table("table table-condensed ng-scope")));
+	
+	for( var $i=0; $i< $numberOfMembers; $i++){
+		var $benefitEffectiveDate = _getText(_cell(2, _under(_tableHeader("Benefit effective Date")))).split(" - ");
+		_assertEqual( $enrollmentStartDate, $benefitEffectiveDate[0] && $benefitEffectiveDate[1], "Benefit end date for member" +$i+" is same as Start date");
+	}
+	_log("*****Verify Monthly Premium Section ********");
+	var $enrollmentStartMonth =  _fetch(window.moment($enrollmentStartDate).format("MMMM"));
+	verifyEnrollmentHistoryForCurrentMonth($enrollmentStartMonth,"","","$0.00","Non-Financial");
+	
+	var $results = getEnrollmentDetailsFromCaseNumber();
+	_assertEqual("123", $result[0][enrollment_status_lkp],"The status should be 123");
+	_assertEqual($result[0][benefit_effective_date], $result[0][benefit_end_date],"Both Benefit Start and End date should be same");
+	var $enrollmentStatus = getEnrolleStatus($result[0][id]);
+	_assertEqual("123", $enrollmentStatus[0][enrollee_status_lkp],"The status should be 123");
+}
+
+function clickChangeButtonOnEditTool(){
+	_click(_submit("Change"));
+	_assertVisible(_submit("Continue"));
+	_assertVisible(_submit("Cancel"));
+	_assertVisible(_heading4("Enrollment"));
+}	
+	
+function clickBackOnPremiumHistory(){
+	_click(_submit("Back"));
+	_assertVisible(_heading4("Enrollment"));
+
+}	
+
+function clickAddButtonOnEditTool(){
+	_click(_submit("Add"));
+	_assertVisible(_span("Enrollment - Add"));
+	var $rowCount = 0;
+	_set( $rowCount, _table("table table-striped").rows.length);
+	for(var $i=0; $i< $rowCount.length-1;$i++){
+		_log("Verify checkbox of all the enrolle are checked"); 
+		_assert(_checkbox($i, _in(_table("table table-striped"))).checked);
+	}
+}
+
+function ChangeAPTCAmount($amount){
+	if(!$amount){
+		$amount = "100";
+	}
+	_setValue(_textbox("aptcAmount"), $amount);
+
+}
+
+
+function ChangeEnrollmentStartDate(){
+
+}
+
+function addReasonForChangingEnrollment(){
+	_setValue(_textarea(0), "Updating the values");
+}
+
+function clickSubmitButton(){
+	_assert(_checkbox("on", _in(_label("Send In 834"))).checked);
+	_click(_submit("Submit"));
+	_assertVisible(_span("Success"));
+	_click(_submit("Close"));
+	
+}
+
+function verifyAptc	
+
+

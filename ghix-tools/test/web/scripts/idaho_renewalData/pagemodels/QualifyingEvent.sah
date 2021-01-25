@@ -1,0 +1,76 @@
+_includeOnce("../lib/Util.sah");
+
+	var $EVENT_TYPE = ["--- Select ---",
+				"Adoption",
+				"Birth",
+				"Change in Address",
+				"Change in American Indian / Alaska Native Status",
+				"Change in Household Size",
+				"Change in Incarceration Status",
+				"Change in Legal Presence",
+				"Change in U.S. Citizenship Status",
+				"Child Aged out from old application",
+				"Divorce",
+				"Exemption Cancelled",
+				"Income Change",
+				"Legal Separation",
+				"Loss of coverage through employer",
+				"Lost other minimum essential coverage",
+				"Marriage",
+				"Moved into State",
+				"Primary Eligible for other minimum essential coverage",
+				"Primary in Another Application Died",
+				"Primary in Another Application Incarcerated",
+				"Removed as Dependent from Another Application"];
+				
+
+
+function verifyQualifyingEventPage(){
+	
+	_assertVisible(_heading1("Financial Application - Life Change Reporting"));
+	_assertVisible(_paragraph("Important: In order to qualify for Special Enrollment Period. you need to report and take action within 60 days of the event date. If you don't your request will most likely be denied."));
+		
+	_assertVisible(_heading4("You have Qualifying Events"));
+	_assertVisible(_div("Qualifying EventRequired"));
+	var $list = _getOptions(_select("qualifyEventSelected"))
+	_assertEqual($EVENT_TYPE, $list)
+	_assertVisible(_link("Back to DashBoard"));
+	_assertVisible(_submit("Continue"));
+
+}
+
+
+function selectQualifyingDate($pastDate){
+	/*
+	var $eventDate ="";
+	if($pastDate == "60days"){
+		$eventDate = _fetch(window.moment().subtract(60, 'd').format('MM/DD/YYYY'));
+	}
+	if($pastDate == "currentDate"){
+		$eventDate = _fetch(window.moment().format('MM/DD/YYYY'));
+	}
+	*/
+	var $eventDate = getQualifyingDate($pastDate,"MM/DD/YYYY");
+	_setValue(_textbox("qualifyEventDate"), $eventDate);
+	return $eventDate;
+}
+
+//$event =  "Birth"
+function selectQualifyingEvent($event){
+	
+	_setSelected(_select("qualifyEventSelected"), $event);
+	
+}
+
+//staus :In Progress
+function clickContinue($houseHold){
+	_click(_submit("Continue"));
+	verifyElementsOfIndividualDashboard($houseHold);
+
+}
+
+function clickBackToDashBoard(){
+	_click(_link("Back to DashBoard"));
+	verifyElementsOfIndividualDashboard($houseHold);
+}
+

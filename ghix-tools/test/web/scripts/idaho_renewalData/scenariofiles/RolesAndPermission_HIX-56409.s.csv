@@ -1,0 +1,16 @@
+"Tags","TestCase","[Keyword]","Argument1","Argument2","Argument3","Argument4"
+,,"loadSahi","../pagemodels/global_include.sah"
+,,"loadSahi","../pagemodels/HomePage.sah"
+,,"_resource","../opt/sahi/useraccounts.xls"
+,,"userdata=","_readCSVFile(""../resources/data.csv"")"
+"//",,"userdata=","_readCSVFile(""../resources/createTicketData.csv"")"
+
+,"[Global]","[SetUp]"
+,,"closeBrowser"
+
+,"[Global]","[TearDown]"
+,,"closeBrowser"
+"all,Security,CAP,HIX-56409","HIX-56409  Tickets","[Documentation]","Verify Ticket creation as Supervisor/L1/L2/Admin/1095"
+,,"openBrowser"
+,,"[Keyword]","CreateTicketForUser"
+,,"[Data]","[userdata:Ticket:email]","[userdata:Ticket:password]","[userdata:Ticket:role]","[userdata:Ticket:ticketType]","[userdata:Ticket:subType]","[userdata:Ticket:createdForRole]","[userdata:Ticket:user]","[userdata:Ticket:expUser]","[userdata:Ticket:priority]","[userdata:Ticket:permission]"

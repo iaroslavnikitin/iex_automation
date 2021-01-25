@@ -1,0 +1,2144 @@
+_includeOnce("DB.sah");
+
+var $raceRandomArrayOption = false;
+
+function getRandomString()
+{
+	var $string = "";
+	var $stringLength = 5;
+	var $possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+	for( var $i=0; $i < $stringLength; $i++ )
+		$string += $possible.charAt(Math.floor(Math.random() * $possible.length));
+
+	return $string;
+}
+
+function getRandomSpecialString($stringLength)
+{
+	var $string = "";
+	var $possible = "~`@#$%^&*()_-+=|\}]{[':;?/>.<,";
+
+	for( var $i=0; $i < $stringLength; $i++ )
+		$string += $possible.charAt(Math.floor(Math.random() * $possible.length));
+
+	return $string;
+}
+
+function getRandomCity(){
+	var $cityNames = ["Aberdeen", "Abilene", "Akron", "Albany", "Albuquerque", "Alexandria", "Allentown", "Amarillo", "Anaheim", "Anchorage", "Ann Arbor", "Antioch", "Apple Valley", "Appleton", "Arlington", "Arvada", "Asheville", "Athens", "Atlanta", "Atlantic City", "Augusta", "Aurora", "Austin", "Bakersfield", "Baltimore", "Barnstable", "Baton Rouge", "Beaumont", "Bel Air", "Bellevue", "Berkeley", "Bethlehem", "Billings", "Birmingham", "Bloomington", "Boise", "Boise City", "Bonita Springs", "Boston", "Boulder", "Bradenton", "Bremerton", "Bridgeport", "Brighton", "Brownsville", "Bryan", "Buffalo", "Burbank", "Burlington", "Cambridge", "Canton", "Cape Coral", "Carrollton", "Cary", "Cathedral City", "Cedar Rapids", "Champaign", "Chandler", "Charleston", "Charlotte", "Chattanooga", "Chesapeake", "Chicago", "Chula Vista", "Cincinnati", "Clarke County", "Clarksville", "Clearwater", "Cleveland", "College Station", "Colorado Springs", "Columbia", "Columbus", "Concord", "Coral Springs", "Corona", "Corpus Christi", "Costa Mesa", "Dallas", "Daly City", "Danbury", "Davenport", "Davidson County", "Dayton", "Daytona Beach", "Deltona", "Denton", "Denver", "Des Moines", "Detroit", "Downey", "Duluth", "Durham", "El Monte", "El Paso", "Elizabeth", "Elk Grove", "Elkhart", "Erie", "Escondido", "Eugene", "Evansville", "Fairfield", "Fargo", "Fayetteville", "Fitchburg", "Flint", "Fontana", "Fort Collins", "Fort Lauderdale", "Fort Smith", "Fort Walton Beach", "Fort Wayne", "Fort Worth", "Frederick", "Fremont", "Fresno", "Fullerton", "Gainesville", "Garden Grove", "Garland", "Gastonia", "Gilbert", "Glendale", "Grand Prairie", "Grand Rapids", "Grayslake", "Green Bay", "GreenBay", "Greensboro", "Greenville", "Gulfport-Biloxi", "Hagerstown", "Hampton", "Harlingen", "Harrisburg", "Hartford", "Havre de Grace", "Hayward", "Hemet", "Henderson", "Hesperia", "Hialeah", "Hickory", "High Point", "Hollywood", "Honolulu", "Houma", "Houston", "Howell", "Huntington", "Huntington Beach", "Huntsville", "Independence", "Indianapolis", "Inglewood", "Irvine", "Irving", "Jackson", "Jacksonville", "Jefferson", "Jersey City", "Johnson City", "Joliet", "Kailua", "Kalamazoo", "Kaneohe", "Kansas City", "Kennewick", "Kenosha", "Killeen", "Kissimmee", "Knoxville", "Lacey", "Lafayette", "Lake Charles", "Lakeland", "Lakewood", "Lancaster", "Lansing", "Laredo", "Las Cruces", "Las Vegas", "Layton", "Leominster", "Lewisville", "Lexington", "Lincoln", "Little Rock", "Long Beach", "Lorain", "Los Angeles", "Louisville", "Lowell", "Lubbock", "Macon", "Madison", "Manchester", "Marina", "Marysville", "McAllen", "McHenry", "Medford", "Melbourne", "Memphis", "Merced", "Mesa", "Mesquite", "Miami", "Milwaukee", "Minneapolis", "Miramar", "Mission Viejo", "Mobile", "Modesto", "Monroe", "Monterey", "Montgomery", "Moreno Valley", "Murfreesboro", "Murrieta", "Muskegon", "Myrtle Beach", "Naperville", "Naples", "Nashua", "Nashville", "New Bedford", "New Haven", "New London", "New Orleans", "New York", "New York City", "Newark", "Newburgh", "Newport News", "Norfolk", "Normal", "Norman", "North Charleston", "North Las Vegas", "North Port", "Norwalk", "Norwich", "Oakland", "Ocala", "Oceanside", "Odessa", "Ogden", "Oklahoma City", "Olathe", "Olympia", "Omaha", "Ontario", "Orange", "Orem", "Orlando", "Overland Park", "Oxnard", "Palm Bay", "Palm Springs", "Palmdale", "Panama City", "Pasadena", "Paterson", "Pembroke Pines", "Pensacola", "Peoria", "Philadelphia", "Phoenix", "Pittsburgh", "Plano", "Pomona", "Pompano Beach", "Port Arthur", "Port Orange", "Port Saint Lucie", "Port St. Lucie", "Portland", "Portsmouth", "Poughkeepsie", "Providence", "Provo", "Pueblo", "Punta Gorda", "Racine", "Raleigh", "Rancho Cucamonga", "Reading", "Redding", "Reno", "Richland", "Richmond", "Richmond County", "Riverside", "Roanoke", "Rochester", "Rockford", "Roseville", "Round Lake Beach", "Sacramento", "Saginaw", "Saint Louis", "Saint Paul", "Saint Petersburg", "Salem", "Salinas", "Salt Lake City", "San Antonio", "San Bernardino", "San Buenaventura", "San Diego", "San Francisco", "San Jose", "Santa Ana", "Santa Barbara", "Santa Clara", "Santa Clarita", "Santa Cruz", "Santa Maria", "Santa Rosa", "Sarasota", "Savannah", "Scottsdale", "Scranton", "Seaside", "Seattle", "Sebastian", "Shreveport", "Simi Valley", "Sioux City", "Sioux Falls", "South Bend", "South Lyon", "Spartanburg", "Spokane", "Springdale", "Springfield", "St. Louis", "St. Paul", "St. Petersburg", "Stamford", "Sterling Heights", "Stockton", "Sunnyvale", "Syracuse", "Tacoma", "Tallahassee", "Tampa", "Temecula", "Tempe", "Thornton", "Thousand Oaks", "Toledo", "Topeka", "Torrance", "Trenton", "Tucson", "Tulsa", "Tuscaloosa", "Tyler", "Utica", "Vallejo", "Vancouver", "Vero Beach", "Victorville", "Virginia Beach", "Visalia", "Waco", "Warren", "Washington", "Waterbury", "Waterloo", "West Covina", "West Valley City", "Westminster", "Wichita", "Wilmington", "Winston", "Winter Haven", "Worcester", "Yakima", "Yonkers", "York", "Youngstown"];
+	return $cityNames[Math.round(Math.random()*($cityNames.length-1))];
+}
+
+function getRandomState(){
+	var $usStates = ['Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut','Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa','Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan','Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada','New Hampshire','New Jersey','New Mexico','New York','North Carolina','North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island','South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont','Virginia','Washington','West Virginia','Wisconsin','Wyoming'];
+	return $usStates[Math.round(Math.random()*($usStates.length-1))];
+}
+
+
+function isTrue($value){
+	return $value == "Y";
+}
+
+/**
+* RANDOM STRING GENERATOR
+*
+* Use:       randomString(length [,"A"] [,"N"] );
+* Default:   return a random alpha-numeric string
+* Arguments: If you use the optional "A", "N" flags:
+*            "A" (Alpha flag)   return random a-Z string
+*            "N" (Numeric flag) return random 0-9 string
+*/
+function randomString(len, an){
+	an = an&&an.toLowerCase();
+	var str="", i=0, min=an=="a"?10:0, max=an=="n"?10:62;
+	for(;i++<len;){
+		var r = Math.random()*(max-min)+min <<0;
+		str += String.fromCharCode(r+=r>9?r<36?55:61:48);
+	}
+	return str;
+}
+
+function randomStringWithoutStartingZero($len, $an){
+	var $str = randomString($len, $an);
+	if ($str[0] == "0"){
+		$str = $str.replace("0", "1");
+	}
+	return $str;
+}
+
+// USAGE:
+// abbrState('ny', 'name');
+// --> 'New York'
+// abbrState('New York', 'abbr');
+// --> 'NY'
+
+function abbrState(input, to){
+    
+    var states = [
+        ['Arizona', 'AZ'],
+        ['Alabama', 'AL'],
+        ['Alaska', 'AK'],
+        ['Arizona', 'AZ'],
+        ['Arkansas', 'AR'],
+        ['California', 'CA'],
+        ['Colorado', 'CO'],
+        ['Connecticut', 'CT'],
+        ['Delaware', 'DE'],
+        ['Florida', 'FL'],
+        ['Georgia', 'GA'],
+        ['Hawaii', 'HI'],
+        ['Idaho', 'ID'],
+        ['Illinois', 'IL'],
+        ['Indiana', 'IN'],
+        ['Iowa', 'IA'],
+        ['Kansas', 'KS'],
+        ['Kentucky', 'KY'],
+        ['Kentucky', 'KY'],
+        ['Louisiana', 'LA'],
+        ['Maine', 'ME'],
+        ['Maryland', 'MD'],
+        ['Massachusetts', 'MA'],
+        ['Michigan', 'MI'],
+        ['Minnesota', 'MN'],
+        ['Mississippi', 'MS'],
+        ['Missouri', 'MO'],
+        ['Montana', 'MT'],
+        ['Nebraska', 'NE'],
+        ['Nevada', 'NV'],
+        ['New Hampshire', 'NH'],
+        ['New Jersey', 'NJ'],
+        ['New Mexico', 'NM'],
+        ['New York', 'NY'],
+        ['North Carolina', 'NC'],
+        ['North Dakota', 'ND'],
+        ['Ohio', 'OH'],
+        ['Oklahoma', 'OK'],
+        ['Oregon', 'OR'],
+        ['Pennsylvania', 'PA'],
+        ['Rhode Island', 'RI'],
+        ['South Carolina', 'SC'],
+        ['South Dakota', 'SD'],
+        ['Tennessee', 'TN'],
+        ['Texas', 'TX'],
+        ['Utah', 'UT'],
+        ['Vermont', 'VT'],
+        ['Virginia', 'VA'],
+        ['Washington', 'WA'],
+        ['West Virginia', 'WV'],
+        ['Wisconsin', 'WI'],
+        ['Wyoming', 'WY'],
+    ];
+
+    if (to == 'abbr'){
+        input = input.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+        for(i = 0; i < states.length; i++){
+            if(states[i][0] == input){
+                return(states[i][1]);
+            }
+        }    
+    } else if (to == 'name'){
+        input = input.toUpperCase();
+        for(i = 0; i < states.length; i++){
+            if(states[i][1] == input){
+                return(states[i][0]);
+            }
+        }    
+    }
+}
+
+function uniq(a) {
+	return a.sort().filter(function(item, pos, ary) {
+		return !pos || item != ary[pos - 1];
+	})
+}
+
+function getRandomInt($min, $max) {
+  $min = Math.ceil($min);
+  $max = Math.floor($max);
+  return Math.floor(Math.random() * ($max - $min)) + $min; //The maximum is exclusive and the minimum is inclusive
+}
+
+function convertMoneyToNumber($money){
+	$money = $money.replace("$", "");
+	return parseFloat($money);
+}
+
+function verifyTooltip($el, $message){
+	_lockWindow(10000);
+	_focusWindow();
+	_focus($el);
+	_wait(2000, _isVisible(_div($message)));
+	_assertVisible(_div($message));
+	_focus($el);
+	_wait(2000, _isVisible(_div($message)));
+	_assertEqual($message, _getText(_div("tooltip-inner")));
+	_blur($el);
+	_wait(2000, !_isVisible(_div($message)));
+	_unlockWindow();
+}
+
+function getTooltipText($el){
+    _lockWindow(10000);
+    _focusWindow();
+    _focus($el);
+    _wait(2000);
+    
+    var $tooltipText = _getText(_div("tooltip-inner"))
+
+    _blur($el);
+    _wait(2000);
+    _unlockWindow();
+    _log("tooltip text: "+$tooltipText);
+    return $tooltipText;
+}
+
+function calculateAgeOfInd($dob,$coverageStartDate){
+    
+    if(!$coverageStartDate){
+    	$coverageStartDate = _getText(_div("ps-eligibility__saving"));
+    	$coverageStartDate = _extract($coverageStartDate, "/as early as (.*)/", true).toString();
+    	$age =_fetch(window.moment($dob,"MM/DD/YYYY").from($coverageStartDate)).toString();
+    	$age = parseInt($age.split(" ")[0])-1;
+    	
+    }else{
+        $age = _fetch(window.moment($coverageStartDate,"MM/DD/YYYY").diff($dob, 'years')).toString();
+    }
+
+    return $age;
+    
+}
+
+function getNumberOfPlansOnPage(){
+	var $plans = _collect("_span", "cp-tile__premium-amount", _in(_div("mainSummary")));
+	return $plans.length;
+}
+
+function randomFirstName(){
+
+	var $firstNamesArray = ["Jackson", "Aiden", "Liam", "Lucas", "Noah", "Mason", "Jayden", "Ethan", "Jacob", "Jack", "Caden", "Logan", "Benjamin", "Michael", "Caleb", "Ryan", "Alexander", "Elijah", "James", "William", "Oliver", "Connor", "Matthew", "Daniel", "Luke", "Brayden", "Jayce", "Henry", "Carter", "Dylan", "Gabriel", "Joshua", "Nicholas", "Isaac", "Owen", "Nathan", "Grayson", "Elise", "Landon", "Andrew", "Maxim", "Samuel", "Gavin", "Wyatt", "Christian", "Hunter", "Cameron", "Evan", "Charlie", "David", "Sebastian", "Joseph", "Dominic", "Anthony", "Colton", "John", "Tyler", "Zachary", "Thomas", "Julian", "Levi", "Adam", "Isaiah", "Alex", "Aaron", "Parker", "Cooper", "Miles", "Chase", "Muhammad", "Christopher", "Blake", "Austin", "Jordan", "Leon", "Jonathan", "Adrian", "Colin", "Hudson", "Ianic", "Xavier", "Camden", "Tristan", "Carson", "Jason", "Nolan", "Riley", "Lincoln", "Brody", "Bentley", "Nathaniel", "Josiah", "Declan", "Jake", "Asher", "Jeremiah", "Cole", "Mateo", "Micah", "Elliot","Sophia", "Emma", "Olivia", "Isabella", "Miaa", "Avaa", "Lily", "Zoee", "Emily", "Chloe", "Layla", "Madison", "Madelyn", "Abigail", "Aubrey", "Charlotte", "Amelia", "Ella", "Kaylee", "Avery", "Aaliyah", "Hailey", "Hannah", "Addison", "Riley", "Harper", "Aria", "Ariannah", "Mackenzie", "Lila", "Evelyn", "Adalyn", "Grace", "Brooklyn", "Ellie", "Hanna", "Kaitlyn", "Isabelle", "Sophie", "Scarlett", "Natalie", "Leah", "Sarah", "Nora", "Mila", "Elizabeth", "Lillian", "Kylie", "Audrey", "Lucy", "Maya", "Annabelle", "Makayla", "Gabriella", "Elena", "Victoria", "Claire", "Savannah", "Peyton", "Maria", "Alaina", "Kennedy", "Stella", "Liliana", "Allison", "Samantha", "Keira", "Alyssa", "Reagan", "Molly", "Alexandra", "Violet", "Charlie", "Julia", "Sadie", "Ruby", "Evali", "Alice", "Eliana", "Taylor", "Callie", "Penelope", "Camilla", "Bailey", "Kaelyn", "Alexis", "Kayla", "Katherine", "Sydney", "Lauren", "Jasmine", "London", "Bella", "Adeline", "Caroline", "Vivian", "Juliana", "Gianna", "Skyler", "Jordyn"];
+	var $randomNum = _random($firstNamesArray.length);
+	if($randomNum == $firstNamesArray.length){
+		$randomNum = 0;
+	}
+	return $firstNamesArray[$randomNum];
+}
+
+
+function randomLastName(){
+
+	var $lastNameArray = ["Anderson", "Ashwoon", "Aikin", "Bateman", "Bongard", "Bowers", "Boyd", "Cannon", "Cast", "Deitz", "Dewalt", "Ebner", "Frick", "Hancock", "Haworth", "Hesch", "Hoffman", "Kassing", "Knutson", "Lawless", "Lawicki", "Mccord", "McCormack", "Miller", "Myers", "Nugent", "Ortiz", "Orwig", "Oryg", "Paiser", "Paki", "Pettigrew", "Quinn", "Quizoz", "Ramachandran", "Resnick", "Sagar", "Schickowski", "Schiebel", "Sellon", "Severson", "Shaffer", "Solberg", "Soloman", "Sonderling", "Soukup", "Soulis", "Stahl", "Sweeney", "Tandy", "Trebil", "Trusela", "Trussel", "Turco", "Uddin", "Uflan", "Ulrich", "Upson", "Vader", "Vail", "Valente", "Vanzandt", "Vanderpoel", "Ventotla", "Vogal", "Wagle", "Wagner", "Wakefield", "Weinstein", "Weiss", "Woow", "Yang", "Yates", "Yocum", "Zeaser", "Zeller", "Ziegler", "Bauer", "Baxster", "Casal", "Cataldi", "Caswell", "Celedon", "Chambers", "Chapman", "Christensen", "Darnell", "Davidson", "Davis", "DeLorenzo", "Dinkins", "Doran", "Dugelman", "Dugan", "Duffman", "Eastman", "Ferro", "Ferry", "Fletcher", "Fietzer", "Hylan", "Hydinger", "Illingsworth", "Ingram", "Irwin", "Jagtap", "Jenson", "Johnson", "Johnsen", "Jones", "Jurgenson", "Kalleg", "Kaskel", "Keller", "Leisinger", "LePage", "Lewis", "Linde", "Lulloff", "Maki", "Martin", "McGinnis", "Mills", "Moody", "Moore", "Napier", "Nelson", "Norquist", "Nuttle", "Olson", "Ostrander", "Reamer", "Reardon", "Reyes", "Rice", "Ripka", "Roberts", "Rogers", "Root", "Sandstrom", "Sawyer", "Schlicht", "Schmitt", "Schwager", "Schutz", "Schuster", "Tapia", "Thompson", "Tiernan", "Tisler" ]
+	var $randomNum = _random($lastNameArray.length);
+	if($randomNum == $lastNameArray.length){
+		$randomNum = 0;
+	}
+	return $lastNameArray[$randomNum];
+
+}
+
+function getRandomEmail($firstName){
+    var $currentTime = _fetch(window.moment().format("YYMMDDhhmmss"));
+    var $email = $firstName+"_"+$currentTime+"_"+randomString(3,"A")+"@yopmail.com";
+    $email = $email.toLowerCase();
+    _log("$email: "+$email);
+    return $email;
+}
+
+
+///////////////////////////
+
+/*
+SSN RULES: Some special numbers are never allocated:
+			Numbers with all zeros in any digit group (000-##-####, ###-00-####, ###-##-0000).
+			Numbers with 666 or 900-999 (Individual Taxpayer Identification Number) in the first digit group.
+*/
+
+function getRandomSSN(){
+// Keep generating until a valid SSN is generated
+	var $SSN;
+	var $SSNFlag;
+	do {
+		$SSN = randomString(3, "N") + randomString(2, "N")  + randomString(4, "N");
+		$SSNFlag = isSSNAlreadyPresent($SSN);
+		// Conform to SSN requirements  
+	}
+	while(($SSN.charAt(0) == '0' && $SSN.charAt(1) == '0' && $SSN.charAt(2) == '0')
+		|| ($SSN.charAt(0) == '6' && $SSN.charAt(1) == '6' && $SSN.charAt(2) == '6') 
+		|| $SSN.charAt(0) == '9'
+		|| $SSN.charAt(0) == '0'
+		|| ($SSN.charAt(3) == '0' && $SSN.charAt(4) == '0') 
+		|| ($SSN.charAt(5) == '0' && $SSN.charAt(6) == '0' && $SSN.charAt(7) == '0' && $SSN.charAt(8) == '0')
+		||($SSNFlag != "")); 
+	
+	return $SSN;
+
+}
+
+
+/*
+Find OEP period
+
+*/
+
+function inGlobalOEP(){
+    var $currentDate = getCurrentDate("MM/DD/YYYY");
+	var $startDate = getOEPStartDate()[0][0];
+	var $endDate =  getOEPEndDate()[0][0];
+		
+	var $isAfter = _fetch(window.moment($currentDate).isAfter($startDate));
+	var $isBefore = _fetch(window.moment($currentDate).isBefore($endDate));
+	
+	_log(" Start date = "+ $startDate+"   end date = "+$endDate+ $isAfter +"    "+$isBefore);
+	
+	if( $isBefore && $isAfter) {
+		$inGlobalOEP = "ON";
+	} else{
+		$inGlobalOEP = "OFF";
+	}
+	_log(" Global OEP period is   "+$inGlobalOEP);	
+	return $inGlobalOEP;
+}
+
+function isInOePeriod($startDate,$endDate){
+    var $currentDate = getCurrentDate("MM/DD/YYYY");
+    var $isAfter = _fetch(window.moment($currentDate).isAfter($startDate));
+    var $isBefore = _fetch(window.moment($currentDate).isBefore($endDate));
+    
+    _log("Start date: "+ $startDate);
+    _log("End date: "+$endDate);
+    _log("Is after: "+$isAfter);
+    _log("Is before: "+$isBefore);
+    
+    if( $isBefore && $isAfter) {
+        $inGlobalOEP = true;
+    } else{
+        $inGlobalOEP = false;
+    }
+    _log("Global OEP period is: "+$inGlobalOEP);  
+    return $inGlobalOEP;
+}
+
+function isQepWorking($eventCode){
+    var $currentDate = getCurrentDate("MM/DD/YYYY");
+    var $eventType = getEventType($eventCode);
+
+    var $startDate = getOEPStartDate()[0][0];
+    if ($eventType == "3") {
+        $startDate = "11/16/"+$startDate.substring(6,10);
+    }else if ($eventType == "2") {
+        $startDate = "12/01/"+$startDate.substring(6,10);
+    }else if($eventType == "4"){
+        $startDate = "12/31/"+$startDate.substring(6,10);
+    }
+
+    var $endDate =  getOEPEndDate()[0][0];
+    var $isAfter = _fetch(window.moment($currentDate).isAfter($startDate));
+    var $isBefore = _fetch(window.moment($currentDate).isBefore($endDate));
+    
+    _log("Start date: "+ $startDate);
+    _log("End date: "+ $endDate);
+    _log("$isAfter: "+ $isAfter);
+    _log("$isBefore: "+ $isBefore);
+    
+    if($isAfter === true && $isBefore === true) {
+        $isQepWorking = "OFF";
+    } else{
+        $isQepWorking = "ON";
+    }
+    _log("$isQepWorking: "+$isQepWorking);
+    return $isQepWorking;
+}
+
+function stopTestsIfOEClosed(){
+    var $currentDate = getCurrentDate("MM/DD/YYYY");
+    var $startDate = getOEPStartDate()[0][0];
+    var $endDate =  getOEPEndDate()[0][0];
+    var $isBefore = _fetch(window.moment($currentDate).isBefore($endDate));
+    var $isAfter = _fetch(window.moment($currentDate).isAfter($startDate));
+    _log("isBefore: "+$isBefore);
+    _log("isAfter: "+$isAfter);
+    if((!$isAfter && $isBefore) || ($isAfter && !$isBefore)){
+        _log("Stopping test case here as Open enrollment ended");
+        _stop();
+    }
+}
+
+
+function stopTestInOpenEnrollment($eventCode){
+	if(isQepWorking($eventCode) == "OFF"){
+        var $eventType = getEventType($eventCode);
+		_log("Stopping test case here as QEP for event type "+$eventType+" not working");
+		_stop();
+	}
+}
+
+/*
+In OEP,if event "" : coverage Year = 01/01/nextYear
+          event 1  : coverage Year depends on Benefit Effective date
+		  event 2  : coverage Year = 01/01/nextYear
+		  event 3  : Nov till dec 15 will be 01/01/nextYear and after Dec 15 it will follow 15 days rule 
+
+*/
+function getCoverageStartDate($eventType, $eventDate,$event, $isOEP,$isFutureDate){
+    var $household = getGlobalHousehold();
+    var $currentDateTS = getCurrentDate("MM/DD/YYYY");
+	var $currentDate = parseInt(_fetch(window.moment($currentDateTS).get('date')));
+	var $currentMonth = parseInt(_fetch(window.moment($currentDateTS).get('Month')));
+	var $currentYear = parseInt(_fetch(window.moment($currentDateTS).get('Year')));
+    var $giAppConfigDB = getGiAppConfigDB();
+	var $coverageYear = $giAppConfigDB.iex_current_coverage_year;//getOECoverageYearDB();
+	var $OEPEndDate = $giAppConfigDB.iex_current_oe_end_date;//getOEPEndDate();
+    var $globalOeEffectiveDate = $giAppConfigDB.iex_indportal_global_oe_coverage_effective_date;
+    var $isBeforeGlobalOeEffectiveDate = _fetch(window.moment($currentDateTS).isBefore($globalOeEffectiveDate));
+	var $coverageDate;
+	var $coverageMonth;
+
+	
+	if($isOEP == "YES"){
+		
+        if($globalOeEffectiveDate && $isBeforeGlobalOeEffectiveDate === true){
+            $coverageDate = _fetch(window.moment($globalOeEffectiveDate).format('MM/DD/YYYY'));
+        }else{
+
+            if($currentMonth == 11 && $currentDate > 15){
+                $coverageMonth = _fetch(window.moment($currentDateTS).add(2, 'M').format('MM'))
+                $coverageDate = $coverageMonth+"/01/"+$coverageYear;
+            }else{
+                $coverageDate = "01/01/"+getOECoverageYearDBForOE();
+            }
+            
+            if($eventType == 1){
+            //add check todays date is less than be benefit effective date
+                
+                $isBefore = _fetch(window.moment($currentDateTS).isBefore($OEPEndDate));
+                if($isBefore && $currentMonth == 01 && $currentYear == $coverageYear){
+                    $coverageMonth = _fetch(window.moment($currentDateTS).add(1, 'M').format('MM'))
+                    $coverageDate = $coverageMonth+"/01/"+$coverageYear;
+                }else{
+                    $coverageDate = "01/01/"+_fetch(window.moment($currentDateTS).add(1, 'Y').format('YYYY'));
+                }
+                
+            }else if($eventType == 2){
+                $isBefore = _fetch(window.moment($currentDateTS).isBefore($OEPEndDate));
+                
+                if($isBefore && $currentMonth == 01 && $currentYear == $coverageYear){
+                    $coverageMonth = _fetch(window.moment($currentDateTS).add(1, 'M').format('MM'))
+                    $coverageDate = $coverageMonth+"/01/"+$coverageYear;
+                }else{
+                    $coverageDate = "01/01/"+_fetch(window.moment($currentDateTS).add(1, 'Y').format('YYYY'));
+                }
+            }else if($eventType == 3 && ($currentMonth == 12 && $currentDate > 15)){
+                $coverageDate = "01/01/"+_fetch(window.moment($currentDateTS).add(2, 'M').format('YYYY'));
+            }
+
+        }
+
+	}else{
+		if($eventType == 1){
+			$coverageDate = $eventDate;
+		}
+		else if($eventType == 2){
+			if ($isFutureDate) {
+				$coverageDate = _fetch(window.moment($eventDate).add(1, 'M').format('MM/DD/YYYY'));
+				$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+			}else{
+				$coverageDate = _fetch(window.moment($currentDateTS).add(1, 'M').format('MM/DD/YYYY'));
+				$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+			}
+			
+		}
+		else if($eventType == 3){
+			if($currentDate <= 15){
+				$coverageDate = _fetch(window.moment($currentDateTS).add(1, 'M').format('MM/DD/YYYY'));
+				$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);	
+			}else{
+				$coverageDate = _fetch(window.moment($currentDateTS).add(2, 'M').format('MM/DD/YYYY'));
+				$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);
+			}
+			
+		}
+		else if($eventType == 4){
+			$coverageDate = _fetch(window.moment($eventDate).add(1, 'M').format('MM/DD/YYYY'));
+			$coverageDate = $coverageDate.substring(0,3)+"01"+ $coverageDate.substring(5,10);	
+		}
+	}
+	_log("Coverage Start Date ="+ $coverageDate);
+	return $coverageDate;
+	
+}
+
+/*
+  if event is not passed, coverage will be end of next year(OE)
+*/
+function getCoverageEndDate($eventType, $event,$isOEP,$eventDate){
+    
+    //var $coverageEndDate = "12/31/"+_fetch(window.moment().add(1, 'Y').format('YYYY'));
+    var $household = getGlobalHousehold();
+    var $currentDateTS = getCurrentDate("MM/DD/YYYY");
+    var $coverageEndDate = "12/31/";
+    if($isOEP){
+        $coverageEndDate = $coverageEndDate+$household.coverageYear;//getOECoverageYearDBForOE();
+    }else{
+        $coverageEndDate = $coverageEndDate+$household.coverageYear//getOECoverageYearDB();
+    }
+
+    if($eventType == 1){
+        if(($event =="remove") || ($event =="Death")){
+            $coverageEndDate=$eventDate;
+        }
+        else{
+            var $endDate =(_fetch(window.moment($currentDateTS).get('Year')));
+            $coverageEndDate ="12/31/"+$household.coverageYear//getOECoverageYearDB();
+        }
+    }
+    //if($eventType == 2){
+    //  var $endDate =(_fetch(window.moment().get('Year')));
+    //  $coverageEndDate ="12/31/"+getOECoverageYearDB();
+    //}
+    _log("Coverage End Date ="+ $coverageEndDate)
+    return $coverageEndDate;
+}
+
+function convertCSRLevel($value,$option){
+	var $levels = [
+        ['OpenToIndiansBelow300PercentFPL', 'CS2'],
+        ['OpenToIndiansAbove300PercentFPL', 'CS3'],
+        ['73PercentActuarialVarianceLevelSilverPlanCSR', 'CS4'],
+        ['87PercentActuarialVarianceLevelSilverPlanCSR', 'CS5'],
+        ['94PercentActuarialVarianceLevelSilverPlanCSR', 'CS6']
+		];
+	if($option == 'Short'){
+		for(var $i=0;$i<$levels.length;$i++){
+			if($value == $levels[$i][0]){
+				return $levels[$i][1];
+			}
+		}
+	}
+	
+	if($option == 'Long'){
+		for(var $i=0;$i<$levels.length;$i++){
+			if($value == $levels[$i][1]){
+				return $levels[$i][0];
+			}
+		}
+	}
+	return "null";
+}
+
+function getQualifyingDate($pastDate,$format){
+	var $eventDate ="";
+    var $currentDate = getCurrentDate($format);
+	var $currentMonth = _fetch(window.moment($currentDate).get('month')) + 1;
+	_log($currentMonth);
+	_log($format);
+	if($pastDate == "60days"){
+		if($currentMonth == 1 || ($currentMonth == 2)) {
+			//$eventDate = "01/01/"+ _fetch(window.moment($currentDate).get('year'));
+           $eventDate = "12/31/"+ _fetch(window.moment($currentDate).subtract(1, 'year').get('year'));
+
+		}else{
+			$eventDate = _call(window.moment($currentDate).subtract(60, 'd'));
+		}
+	}else if($pastDate == "currentDate"){
+		$eventDate = _call(window.moment($currentDate));
+	}else if($pastDate.indexOf("future") != -1){
+		var $daysInFuture = _extract($pastDate, "/(.*)_days_future/", true).toString();
+		$eventDate = _call(window.moment($currentDate).add(parseInt($daysInFuture), 'd'));
+	}
+	_log("log($format): "+$format);
+	var $date = _fetch(window.moment($eventDate).format($format));
+	_log($date);
+	
+	return $date;
+	
+}
+
+function showPreviousYearTab($supervisor){
+    var $currentDate = getCurrentDate("MM/DD/YYYY");
+	var $tabFrom = getIndShowCurrentYearTabFrom();
+	var $tabTill = getIndShowPreviousYearTabUntil();
+    var $isPreviousYearTab = _fetch(window.moment($currentDate).isBefore($tabTill[0][0]));
+    if($supervisor){
+        $isPreviousYearTab = true;
+    }
+    _log("isPreviousYearTab: "+$isPreviousYearTab);
+    _log("tabFrom: "+_fetch(window.moment($currentDate).isAfter($tabFrom[0][0])));
+	return ($isPreviousYearTab && _fetch(window.moment($currentDate).isAfter($tabFrom[0][0])) );
+
+}
+
+function getSubscriberNumInGroup($household,$group){
+	var $primaryPersonNum = $household.primaryTaxFiler;
+	var $primaryPersonMedId = $household.people[$primaryPersonNum].personMedicaidIdentification;
+	var $numOfMembersInGoup = $group.member.length;
+	for (var $i=0; $i<$group.member.length; $i++){
+		if($primaryPersonMedId == $group.member[$i].personMedicaidIdentification){
+			return $i;
+		}
+	}
+	
+	return 0;
+/*	
+	var $oldest1 = $group.member[0].dob;
+	var $oldestMemNum = 0;
+	var $isBefore;
+	for(var $i=0; $i<$group.member.length; $i++){
+		for(var $j=0; $j<$group.member.length; $j++){
+			var $oldest2 = $group.member[$j].dob;
+			$isBefore = _fetch(window.moment($oldest1).isBefore($oldest2));
+			if(!$isBefore){
+				$oldest1 = $oldest2;
+				$oldestMemNum = $j;
+			}
+		}
+	}
+	return $oldestMemNum;
+*/
+
+}
+
+function getEventType($event){
+	var $typeOne = ["Birth","Death"];
+	var $typeTwo = ["LossOfMec","Marriage"];
+	var $typeThree = ["IncomeChange","MovedIntoState","DobChange","OtherEligibilityChange","DemoChange"];
+	var $typeFour = ["BirthOrAdoption"];
+	if($typeOne.indexOf($event) != -1){
+		return 1;
+	}else if($typeTwo.indexOf($event) != -1){
+		return 2;
+	}else if($typeThree.indexOf($event) != -1){
+		return 3;
+	}else if($typeFour.indexOf($event) != -1){
+		return 4;
+	}
+	else{
+		return null;
+	}
+}
+
+
+
+function aptcDistribution($group,$aptc,$household,$sptc){
+
+	var $totalRatio = 0;
+	var $ratio = {0:0.765,
+		1:0.765,
+		2:0.765,
+		3:0.765,
+		4:0.765,
+		5:0.765,
+		6:0.765,
+		7:0.765,
+		8:0.765,
+		9:0.765,
+		10:0.765,
+		11:0.765,
+		12:0.765,
+		13:0.765,
+		14:0.765,
+		15:0.833,
+		16:0.859,
+		17:0.885,
+		18:0.913,
+		19:0.941,
+		20:0.97,
+		21:1,
+		22:1,
+		23:1,
+		24:1,
+		25:1.004,
+		26:1.024,
+		27:1.048,
+		30:1.135,
+		31:1.159,
+		32:1.183,
+		33:1.198,
+		34:1.214,
+		35:1.222,
+		36:1.23,
+		37:1.238,
+		38:1.246,
+		39:1.262,
+		40:1.278,
+		41:1.302,
+		42:1.325,
+		43:1.357,
+		44:1.397,
+		45:1.444,
+		46:1.5,
+		47:1.563,
+		48:1.635,
+		49:1.706,
+		50:1.786,
+		51:1.865,
+		52:1.952,
+		53:2.04,
+		54:2.135,
+		55:2.23,
+		56:2.333,
+		57:2.437,
+		58:2.548,
+		59:2.603,
+		60:2.714,
+		61:2.81,
+		62:2.873,
+		63:2.952
+	}
+
+	for (var $i = 0; $i < $household.people.length; $i++) {
+		// calculaiting age and ratio
+		var $dob = $household.people[$i].dob;
+		$dob = $dob.replace(/-/g, "/");
+		$dob = $dob.substring(5,$dob.length)+"/"+$dob.substring(0,4);
+		var $coverageStartDate = $group.coverageStartDate;
+        _log("$coverageStartDate: "+$coverageStartDate)
+
+		$household.people[$i].age = calculateAgeOfInd($dob,$coverageStartDate);
+		$household.people[$i].ratio = $ratio[parseInt($household.people[$i].age)];
+
+		// calculaiting total ratio
+		$totalRatio = parseFloat($totalRatio) + parseFloat($household.people[$i].ratio);
+		
+	}
+
+	$household.totalRatio = $totalRatio;
+
+
+
+    if($aptc){
+    	// calculaiting APTC for each member in HH
+    	for (var $i = 0; $i < $household.people.length; $i++) {
+    			
+    		$household.people[$i].memberAPTC = parseFloat($household.people[$i].ratio)/parseFloat($household.totalRatio);
+    		$household.people[$i].memberAPTC = parseFloat($household.people[$i].memberAPTC) * parseFloat($household.people[0].maxAPTC);
+    		$household.people[$i].memberAPTC = parseFloat($household.people[$i].memberAPTC).toFixed(2);
+    	//	$household.people[$i].memberAPTC = parseFloat($household.people[$i].memberAPTC);
+
+    		_log("$household.people["+$i+"].ratio = " + $household.people[$i].ratio);
+    		_log("$household.people["+$i+"].memberAPTC = " + $household.people[$i].memberAPTC);
+    		_log("$household.people["+$i+"].age = "+$household.people[$i].age);
+    	}
+    	_log("$household.totalRatio = " + $household.totalRatio);
+    	_log("$household.maxAPTC = " + $household.people[0].maxAPTC);
+    }    
+
+    if($sptc){
+        // calculaiting SPTC for each member in HH
+        for (var $i = 0; $i < $household.people.length; $i++) {
+                
+            $household.people[$i].memberStateSubsidy = parseFloat($household.people[$i].ratio)/parseFloat($household.totalRatio);
+            $household.people[$i].memberStateSubsidy = parseFloat($household.people[$i].memberStateSubsidy) * parseFloat($household.people[0].maxStateSubsidy);
+            $household.people[$i].memberStateSubsidy = parseFloat($household.people[$i].memberStateSubsidy).toFixed(2);
+        //  $household.people[$i].memberAPTC = parseFloat($household.people[$i].memberAPTC);
+
+            _log("$household.people["+$i+"].ratio = " + $household.people[$i].ratio);
+            _log("$household.people["+$i+"].memberStateSubsidy = " + $household.people[$i].memberStateSubsidy);
+            _log("$household.people["+$i+"].age = "+$household.people[$i].age);
+        }
+        _log("$household.totalRatio = " + $household.totalRatio);
+        _log("$household.maxStateSubsidy = " + $household.people[0].maxStateSubsidy);
+    } 
+
+
+
+
+	// searching for member in group by SSN and saving member APTC in group object
+	for (var $j = 0; $j < $group.member.length; $j++) {
+		for (var $z = 0; $z < $household.people.length; $z++) {
+				
+			if($group.member[$j].SSN == $household.people[$z].SSN){
+				$group.member[$j].age = $household.people[$z].age;
+				$group.member[$j].ratio = $household.people[$z].ratio;
+                if($aptc){
+                    $group.member[$j].memberAPTC = $household.people[$z].memberAPTC;    
+                }
+                if($sptc){
+                    $group.member[$j].memberStateSubsidy = $household.people[$z].memberStateSubsidy;    
+                }
+				
+			}
+
+		}	
+	}
+
+
+    if($aptc){
+    	// calculaiting group APTC and saving in group object
+    	var $newGroupAPTC = 0;
+    	for (var $i = 0; $i < $group.member.length; $i++) {
+    		$newGroupAPTC = parseFloat($newGroupAPTC) + parseFloat($group.member[$i].memberAPTC);
+    	}
+
+    	$newGroupAPTC = parseFloat($newGroupAPTC).toFixed(2);
+    	 _log("$newGroupAPTC = "+$newGroupAPTC);
+    	 $group.aptc = "$"+$newGroupAPTC;
+
+    	// temporary calculation for new member
+    	var $aptcLeft = (parseFloat($household.people[0].maxAPTC) - parseFloat($newGroupAPTC)).toFixed(2);
+    	$household.people[$household.people.length-1].memberAPTC = $aptcLeft;
+    	_log("$aptcLeft = "+$aptcLeft);
+    }
+
+    if($sptc){
+        // calculaiting group APTC and saving in group object
+        var $newGroupSPTC = 0;
+        for (var $i = 0; $i < $group.member.length; $i++) {
+            $newGroupSPTC = parseFloat($newGroupSPTC) + parseFloat($group.member[$i].memberStateSubsidy);
+        }
+
+        $newGroupSPTC = parseFloat($newGroupSPTC).toFixed(2);
+         _log("$newGroupSPTC = "+$newGroupSPTC);
+         $group.stateSubsidy = "$"+$newGroupSPTC;
+
+        // temporary calculation for new member
+        var $sptcLeft = (parseFloat($household.people[0].maxStateSubsidy) - parseFloat($newGroupSPTC)).toFixed(2);
+        $household.people[$household.people.length-1].memberStateSubsidy = $sptcLeft;
+        _log("$sptcLeft = "+$sptcLeft);
+    }
+
+
+	var $updatedHouseholdAndGroup = {
+		household:$household,
+		group:$group
+	};
+
+	return $updatedHouseholdAndGroup;
+}
+
+function refreshWindow($retryNum){
+	for (var $i = 0; $i < $retryNum; $i++) {
+		_call(location.reload());
+	}
+}
+
+// function updateXML($updatedXMLObject,$xmlStr){
+// 	$xmlStr = $xmlStr.replace(/<\?xml[^>]*\?>/, ""); // needed in some cases
+// 	$xmlStr = $xmlStr.replace(/(\r\n|\n|\r)/gm,"");
+
+// 	default xml namespace = "http://at.dsh.cms.gov/exchange/1.0";  //ns 9	
+// 	var $newXML = $updatedXMLObject..AccountTransferRequest.toString();
+
+// 	$newXML = $newXML.replace(/<\?xml[^>]*\?>/, ""); // needed in some cases
+// 	$newXML = $newXML.replace(/(\r\n|\n|\r)/gm,"");
+
+// 	var $extracted = _extract($xmlStr, '/<ns9:AccountTransferRequest(.*)ns9:AccountTransferRequest>/',true);
+// 	$extracted = "<ns9:AccountTransferRequest"+$extracted+"ns9:AccountTransferRequest>";
+// 	_writeFile($extracted, "XMLhousehold.txt", true);
+// 	$xmlStr = $xmlStr.replace($extracted,"AccountTransferRequestString");
+	
+// 	$xmlStr = $xmlStr.replace("AccountTransferRequestString",$newXML);
+
+// 	return $xmlStr;
+// }
+
+// function converting updated xml object to string
+
+function updateXML($updatedXMLObject,$xmlStr){
+	var $newXmlString = '<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"> <header></header> <soap:Body> AccountTransferRequestString </soap:Body> </soap:Envelope>';
+	default xml namespace = "http://at.dsh.cms.gov/exchange/1.0";  //ns 9	
+ 	var $newXML = $updatedXMLObject..AccountTransferRequest.toString();
+
+  	$newXML = $newXML.replace(/<\?xml[^>]*\?>/, ""); // needed in some cases
+ 	$newXML = $newXML.replace(/(\r\n|\n|\r)/gm,"");
+
+ 	$newXmlString = $newXmlString.replace("AccountTransferRequestString",$newXML);
+
+ 	//_writeFile($newXmlString, "XMLhousehold.txt", true);
+
+	return $newXmlString;
+}
+
+function getNonQHPEventTag($event,$eventDate,$personMedId){
+	var $tag = '<ns5:ExtendedApplicant xmlns:ns1="http://niem.gov/niem/structures/2.0" xmlns:ns10="http://niem.gov/niem/appinfo/2.1" xmlns:ns2="http://niem.gov/niem/niem-core/2.0" xmlns:ns3="http://at.dsh.cms.gov/extension/1.0" xmlns:ns4="http://hix.cms.gov/0.1/hix-core" xmlns:ns5="http://hix.cms.gov/0.1/hix-ee" xmlns:ns6="http://niem.gov/niem/domains/screening/2.1" xmlns:ns7="http://hix.cms.gov/0.1/hix-pm" xmlns:ns8="http://niem.gov/niem/appinfo/2.0" xmlns:ns9="http://at.dsh.cms.gov/exchange/1.0" xmlns:soap="http://www.w3.org/2003/05/soap-envelope">	<ns5:ExtendedApplicantMemberIdentification>	<ns2:IdentificationID>'+$personMedId+'</ns2:IdentificationID>	</ns5:ExtendedApplicantMemberIdentification>	<ns5:ExtendedApplicantNonQHP>	<ns5:ExtendedApplicantNonQHPCode>'+$event+'</ns5:ExtendedApplicantNonQHPCode>	<ns5:ExtendedApplicantNonQHPDate>	<ns2:Date>'+$eventDate+'</ns2:Date>	</ns5:ExtendedApplicantNonQHPDate></ns5:ExtendedApplicantNonQHP></ns5:ExtendedApplicant>';
+	_log("$tag: "+$tag);
+	return $tag;
+}
+
+function getQHPEventTag($event,$eventDate,$personMedId){
+	var $reportDate = getCurrentDate('YYYY-MM-DD');
+	var $tag = '<ns5:ExtendedApplicant xmlns:ns1="http://niem.gov/niem/structures/2.0" xmlns:ns10="http://niem.gov/niem/appinfo/2.1" xmlns:ns2="http://niem.gov/niem/niem-core/2.0" xmlns:ns3="http://at.dsh.cms.gov/extension/1.0" xmlns:ns4="http://hix.cms.gov/0.1/hix-core" xmlns:ns5="http://hix.cms.gov/0.1/hix-ee" xmlns:ns6="http://niem.gov/niem/domains/screening/2.1" xmlns:ns7="http://hix.cms.gov/0.1/hix-pm" xmlns:ns8="http://niem.gov/niem/appinfo/2.0" xmlns:ns9="http://at.dsh.cms.gov/exchange/1.0" xmlns:soap="http://www.w3.org/2003/05/soap-envelope"> <ns5:ExtendedApplicantMemberIdentification>	<ns2:IdentificationID>'+$personMedId+'</ns2:IdentificationID>	</ns5:ExtendedApplicantMemberIdentification>	<ns5:ExtendedApplicantEvent>	<ns5:ExtendedApplicantEventCode>'+$event+'</ns5:ExtendedApplicantEventCode>	<ns5:ExtendedApplicantEventDate>	<ns2:Date>'+$eventDate+'</ns2:Date>	</ns5:ExtendedApplicantEventDate>	<ns5:ExtendedApplicantReportDate>	<ns2:Date>'+$reportDate+'</ns2:Date>	</ns5:ExtendedApplicantReportDate>	</ns5:ExtendedApplicantEvent>	</ns5:ExtendedApplicant>';
+	_log("$tag: "+$tag);
+	return $tag;
+}
+
+function waitTillApplicationStatusEN($externalAppId,$appCount,$appStatus){
+	
+	for (var $i = 0; $i < 6; $i++) {
+		var $SSAPApplicationsCount = getSSAPApplicationsCountByExtAppId($externalAppId)[0][0];
+		_log("$SSAPApplicationsCount: "+ $SSAPApplicationsCount);
+		if (($SSAPApplicationsCount == $appCount) && (getSSAPApplicationStatusDB($externalAppId) == $appStatus)) {
+			
+			_wait(10000);
+			refreshWindow(1);
+			break;
+		}else{
+			_wait(10000);
+		}	
+	}
+}
+
+function timeshiftAccountOld($indUsername,$action,$date){
+		// Access enchanter
+	var ssh = new Packages.org.twdata.enchanter.impl.DefaultStreamConnection();
+	// Connect to your server. change the host, port, username and password
+	//_wait(6000);
+	ssh.connect("http://ca2auto.eng.vimo.com",22, "weblogic", "ghix123#");
+	_log("connected")
+	// Wait for the prompt as seen when you connect via putty.
+	// Here we have used "$", it may be different for your server
+	var $prompt = "$";
+	ssh.waitFor($prompt);
+	_log("wait for prompt")
+	// Send the command to be executed
+	if($action == "add"){
+        ssh.sendLine("cd /opt/ms-timeshifter/");
+        var $line = ssh.getLine();
+        _log("$line: "+$line);
+		//ssh.sendLine("curl -v http://localhost:8095/timeshift/add/"+$indUsername+"/"+$date);	
+	}
+
+	//refreshWindow(1);
+	
+}
+
+function timeshiftAccount($indUsername,$action,$date){
+    var $timeshiftedDate = _fetch(window.moment($date).format("DD-MM-YYYY"));
+    var $time = _fetch(window.moment().format("hh:mm:ss"));
+
+    var $urlToGo = "http://"+getBaseDomain();
+    var $originalUrlToGo = "http://"+getBaseDomain();
+    $indUsername = $indUsername.toLowerCase();
+    var $timeshiftURL;
+
+    if ($urlToGo.indexOf("caupgrade4qa.ghixqa") != -1) {
+        $urlToGo = "http://caupgrade4qa.eng.vimo.com";
+    }
+
+    if($action == "add"){
+        $timeshiftURL = $urlToGo+":8095/timeshift/add/"+$indUsername+"/"+$timeshiftedDate+"&"+$time;
+    }
+
+    if($action == "delete"){
+        $timeshiftURL = $urlToGo+":8095/timeshift/delete/"+$indUsername;
+    }
+
+    _log("url: "+$timeshiftURL);
+    _navigateTo($timeshiftURL,true);
+    _wait(5000);
+
+    $urlToGo = $originalUrlToGo;//"https://"+getBaseDomain();
+    _navigateTo($urlToGo,true);
+    _wait(5000);
+    
+}
+
+
+function sshServer(){
+	// Access enchanter
+var ssh = new Packages.org.twdata.enchanter.impl.DefaultStreamConnection();
+// Connect to your server. change the host, port, username and password
+ssh.connect( "ca2auto.eng.vimo.com",22, "weblogic", "ghix123#");
+_log("connected")
+// Wait for the prompt as seen when you connect via putty.
+// Here we have used "$", it may be different for your server
+var $prompt = "$";
+ssh.waitFor($prompt);
+_log("wait for prompt")
+// Send the command to be executed
+ssh.sendLine("cd /opt/tibco/data/fromGHIX/X220A1");
+//ssh.sendLine("ls -al");
+ssh.waitFor($prompt);
+_log("wait for prompt")
+ssh.sendLine("cat to_27603_CA_834_INDV_20190306142159.xml");
+
+java.lang.System.out.println("Done sending");
+// Collect the out put till it shows the prompt again
+var $i=0;
+var $outputAr = [];
+var $xmlString = "";
+
+while (true) {
+  var $line = ssh.getLine();
+
+	var $endOfComand = $line.split("X220A1]")[1];
+	if(typeof $endOfComand != "undefined"){
+		$endOfComand = $endOfComand.trim();
+	}
+	if ($endOfComand == "$") break;
+	$xmlString = $xmlString+$line;
+  $outputAr.push($line);
+}
+var $output = $outputAr.join("\r\n");
+// disconnect from the ssh session
+ssh.disconnect();
+_writeFile($xmlString, "household.sah");
+// Use $output
+//_alert($output);
+}
+
+function getHomeAddress($isPlanAvailable,$numInList){
+	$numInList = parseInt($numInList);
+	var $address = {};
+	if($isPlanAvailable){
+		$addressArr = ["268 E Santa Clara St,San Jose,95113,CA,085"];
+	}else{
+		//some address where plan is not available
+	}
+	$address.street = $addressArr[$numInList].split(',')[0];
+	$address.city = $addressArr[$numInList].split(',')[1];
+	$address.zipcode = $addressArr[$numInList].split(',')[2];
+	$address.state = $addressArr[$numInList].split(',')[3];
+	$address.county = $addressArr[$numInList].split(',')[4];
+
+
+	return $address;
+}
+
+
+function getTestCaseId(){
+	var $tcs = _testcasesInfo();
+    _log("$tcs = "+$tcs.toString());
+	var $tcsId = $tcs[0].id;
+	_log("tcsId = "+$tcsId);
+	if ($tcsId.indexOf("id=") == -1) {
+		$tcsId = "01"
+	}else{
+		$tcsId = _extract($tcsId,'id=(..)',true);	
+	}
+	
+	return $tcsId;
+}
+
+function waitTillCmrHouseholdCreated($email){
+    var $cmrHouseholdId;
+
+	for (var $i = 0; $i < 9; $i++) {
+		var $CMRHouseholdCount = getCMRHouseholdCount($email);
+		_log("$CMRHouseholdCount: "+$CMRHouseholdCount[0][0]);
+		$CMRHouseholdCount[0][0] = $CMRHouseholdCount[0][0].toString();
+		
+		if($CMRHouseholdCount[0][0] == "0"){
+			_wait(15000);
+			_log("waiting..."+$i);
+		}else{
+			var $CMRHouseholdDataRecord = getCMRHouseholdDataRecord($email)
+			_log("$CMRHouseholdData: "+$CMRHouseholdDataRecord.toString());
+			var $cmrHouseholdId = $CMRHouseholdDataRecord[0][12];
+
+			var $SSAPApplicationsCount = getSSAPApplicationsCount($cmrHouseholdId,"ER");
+			$SSAPApplicationsCount[0][0] = $SSAPApplicationsCount[0][0].toString();
+			_log("$SSAPApplicationsCount: "+$SSAPApplicationsCount[0][0]);
+			if($SSAPApplicationsCount != "0"){
+				_wait(10000);
+				_log("created: "+$i);
+				break;
+			}
+		}
+	}
+
+    return $cmrHouseholdId;
+}
+
+
+function getPersonEthnicityTag($ethnicity){
+	var $ethnicityArr = ["Other",
+            		  "Salvadoran",
+            		  "Puerto Rican",
+            		  "Mexican, Mexican American or Chicano/a",
+            		  "Guatemalan",
+            		  "Cuban"];
+
+	if($ethnicity != "all"){
+    	return "<ns2:PersonEthnicityText>"+$ethnicityArr[$ethnicity]+"</ns2:PersonEthnicityText>";            		  
+    }else{
+    	var $allEthnicity = "<ns2:PersonEthnicityText>"+$ethnicityArr[0]+"</ns2:PersonEthnicityText>";
+    	for (var $i = 1; $i < $ethnicityArr.length; $i++) {
+    		$allEthnicity = $allEthnicity+"<ns2:PersonEthnicityText>"+$ethnicityArr[$i]+"</ns2:PersonEthnicityText>"
+    	}
+    	return $allEthnicity;	
+    }
+    
+}
+
+function getSpokenLanguage($option){
+	var $languageArr = ["English",
+            		  "Arabic",
+            		  "Armenian",
+            		  "Farsi",
+            		  "Cambodian",
+            		  "Cantonese",
+            		  "Mandarin",
+            		  "Hmong",
+            		  "Korean",
+            		  "Russian",
+            		  "Spanish",
+            		  "Tagalog",
+            		  "Vietnamese"];
+
+				/*	eng – English
+					ara – Arabic
+					hye – Armenian
+					fas – Farsi
+					khmr – Cambodian
+					cesm – Cantonese
+					cmn – Mandarin
+					hmn – Hmong
+					kor – Korean
+					rus – Russian
+					spa – Spanish
+					tgl – Tagalog
+					vie – Vietnamese	*/
+
+    return $languageArr[$option];
+}
+
+function getWrittenLanguage($option){
+	var $languageArr = ["English",
+            		  "Arabic",
+            		  "Armenian",
+            		  "Farsi",
+            		  "Cambodian",
+            		  "Traditional Chinese character",
+            		  "Hmong",
+            		  "Korean",
+            		  "Russian",
+            		  "Spanish",
+            		  "Tagalog",
+            		  "Vietnamese"];
+
+				/*	eng -  English
+					ara – Arabic
+					hye  - Armenian
+					fas – Farsi
+					khmr – Cambodian
+					zho – Traditional Chinese character
+					hmn – Hmong
+					kor – Korean
+					rus – Russian
+					spa – Spanish
+					tgl – Tagalog
+					vie – Vietnamese	*/
+
+    return $languageArr[$option];
+}
+
+
+function getPersonRaceText($race){
+	var $raceArr = [
+	//"Cambodian" - not present in enrolee table
+			["Black or African American","Asian Indian","American Indian or Alaskan Native","Other Asian"],
+			["White","Vietnamese","Samoan","Native Hawaiian"],	
+			["Laotian","Korean","Japanese","Hmong"],
+			["Guamanian or Chamorro","Filipino","Chinese","Other Pacific Islander"]
+	];
+
+	if($race != "all"){
+		var $allRaceArr = [
+		//	"Cambodian",
+			"Black or African American",
+			"Asian Indian",
+			"American Indian or Alaskan Native",
+			"White",
+			"Vietnamese",
+			"Samoan",
+			"Native Hawaiian",	
+			"Laotian",
+			"Korean",
+			"Japanese",
+			"Hmong",
+			"Guamanian or Chamorro",
+			"Filipino",
+			"Chinese",
+			"Other Asian", 
+			"Other Pacific Islander"
+		];
+
+    	return "<ns2:PersonRaceText>"+$allRaceArr[$race]+"</ns2:PersonRaceText>";            		  
+    }else{
+    	if($raceRandomArrayOption === false){
+    		$raceRandomArrayOption = getRndInteger(0, 3);
+    	}
+    	
+    	_log("$raceRandomArrayOption: "+$raceRandomArrayOption);
+    	var $allRace = "<ns2:PersonRaceText>"+$raceArr[$raceRandomArrayOption][0]+"</ns2:PersonRaceText>";
+    	for (var $i = 1; $i < $raceArr[$raceRandomArrayOption].length; $i++) {
+    		$allRace = $allRace+"<ns2:PersonRaceText>"+$raceArr[$raceRandomArrayOption][$i]+"</ns2:PersonRaceText>"
+    	}
+    	return $allRace;	
+    }
+    
+}
+
+function getRndInteger(min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
+
+function verifyArray($arr1,$arr2){
+	_assertEqual($arr1.length, $arr2.length,"Size of array should match");
+	for (var $i = 0; $i < $arr1.length; $i++) {
+		_assertEqual($arr1[$i], $arr2[$i]);
+	}
+
+	
+}
+
+function getEligibilityCase($case,$aptcAmount,$sptcAmount,$csrLevel){
+	$case = parseInt($case);
+	var $eligibility = {};
+	switch ($case) {
+	  case 1:
+	  	//QHP
+	    $eligibility = {qhp:true, csr:false,aptc:false,sptc:false,medicaid:false,chip:false};
+	    break;
+	  case 2:
+	  	//QHP,APTC
+	    $eligibility = {qhp:true,csr:false,aptc:true,sptc:false,medicaid:false,chip:false};
+	    break;
+	  case 3:
+	  	//QHP,SPTC
+	   	$eligibility = {qhp:true,csr:false,aptc:false,sptc:true,medicaid:false,chip:false};
+	    break;
+	  case 4:
+	   	//QHP,APTC,SPTC
+	   	$eligibility = {qhp:true,csr:false,aptc:true,sptc:true,medicaid:false,chip:false};
+	    break;
+	  case 5:
+	  	//QHP,APTC,SPTC,CSR
+	   	$eligibility = {qhp:true,csr:true,aptc:true,sptc:true,medicaid:false,chip:false};
+	    break;
+	  case 6:
+	    //QHP,SPTC,CSR
+	   	$eligibility = {qhp:true,csr:true,aptc:false,sptc:true,medicaid:false,chip:false};
+	    break;
+	  case  7:
+	   	//QHP,APTC,CSR
+	   	$eligibility = {qhp:true,csr:true,aptc:true,sptc:false,medicaid:false,chip:false};
+	    break;
+	  case  8:
+	    //QHP,CSR
+	   	$eligibility = {qhp:true,csr:true,aptc:false,sptc:false,medicaid:false,chip:false};
+	   	break;
+	  case  9:
+	    //medicade
+	   	$eligibility = {qhp:false,csr:false,aptc:false,sptc:false,medicaid:true,chip:false};
+	   	break;
+	  case  10:
+	    //chip
+	   	$eligibility = {qhp:false,csr:false,aptc:false,sptc:false,medicaid:false,chip:true};
+	   	break;
+	  case  11:
+	    //not eligible
+	   	$eligibility = {qhp:false,csr:false,aptc:false,sptc:false,medicaid:false,chip:false};
+	}
+
+	$eligibility.csrLevel = $csrLevel;
+	$eligibility.aptcAmount = $aptcAmount;
+	$eligibility.sptcAmount = $sptcAmount;
+	
+	return $eligibility;
+}
+
+function addToReport($customFieldName,$customFieldValue){
+	_addToSuiteInfo($customFieldName, $customFieldValue)
+}
+
+function isHmsMockEnabled(){
+	var $servers = ['ca6dev','caupgrade5qa'];
+	var $url = getBaseDomain();
+	var $isHmsMockEnabled = false;
+	for (var $i = 0; $i < $servers.length; $i++) {
+		if ($url.indexOf($servers[$i]) != -1) {
+			$isHmsMockEnabled = true;
+		}
+	}
+	return $isHmsMockEnabled;
+}
+
+function callGetEnrollmentApi($externalCaseIdList,$isPremiunDataRequired,$coverageYear,$isSepDataRequired){
+    var $requestBody = {};
+    var $externalCaseIdListArr = [];
+
+    $externalCaseIdListArr = $externalCaseIdList.split(",");
+    $requestBody.externalCaseIdList = $externalCaseIdListArr;
+    $requestBody.isPremiumDataRequired = $isPremiunDataRequired;
+    $requestBody.coverageYear = $coverageYear;
+    $requestBody.isSepDataRequired = $isSepDataRequired;
+
+    var $str = JSON.stringify($requestBody);
+    _log("JSON: "+$str);
+    
+    var $request = new RESTRequest();
+    $request.setHeader("Content-Type", "application/json");
+    $request.setURL("https://"+getBaseDomain()+"/ghix-enrollment/enrollment/getenrollmentdatabyexternalcaseid");
+    $request.setBody($str);
+
+    var $response = $request.submit("post");
+    var $statusCode = $response.getResponseCode();
+    var $responseBody = $response.getBodyAsString();
+    _log("response code: "+$statusCode);
+    _log("response body: "+$responseBody);
+    //_writeFile($responseBody, "getResponse.txt", true);
+    var $responseBodyObj = JSON.parse($responseBody);
+    return $responseBodyObj;
+}
+
+function verifySlcspHistoryDB($household,$slcspHistoryDB){
+    var $slcspHistoryRecordCount = 0;
+
+    _log("---------------verify slcsp History DB-------------------");
+
+    for (var $i = 1; $i < $household.monthlyBmpAmt.length; $i++) {
+        if($household.monthlyBmpAmt[$i] != null){
+            _log("---------------verify month "+$i+"-------------------");
+            _assertEqual($household.monthlyBmpAmt[$i][0], $slcspHistoryDB[$slcspHistoryRecordCount].YEAR);
+            _assertEqual($household.monthlyBmpAmt[$i][1], $slcspHistoryDB[$slcspHistoryRecordCount].MONTH);
+            _assertEqual($household.monthlyBmpAmt[$i][2], $slcspHistoryDB[$slcspHistoryRecordCount].SLCSP_PREMIUM);
+            $slcspHistoryRecordCount++;
+        }
+        
+    }
+}
+
+function verifySlcspInGetEnrollment($household,$group,$slcspHistoryDB,$responseBodyObj){
+    var $externalCaseIdList = $household.externalHouseholdCaseId;
+    var $enrollmentsArrLength = $responseBodyObj.enrollmentDataDtoListMap[$externalCaseIdList].length;
+    var $arrNum;
+
+    for (var $i = 0; $i < $enrollmentsArrLength; $i++) {
+        var $planId = $responseBodyObj.enrollmentDataDtoListMap[$externalCaseIdList][$i].planId;
+        if($group.healthPlan.planId.replace(/\D+/g, "") == $planId){
+            $arrNum = $i;
+            break;
+        }
+    }
+
+    var $enrollment = $responseBodyObj.enrollmentDataDtoListMap[$externalCaseIdList][$arrNum];
+    var $benchmarkPremiumInGetIpa = parseFloat($enrollment.ehbSlcspAmt);
+    var $expectedBenchmarkPremium = parseFloat($group.benchmarkPremium);
+    //var $expectedBenchmarkPremium = parseFloat($household.benchmarkPremium);
+
+    //_assertEqual($expectedBenchmarkPremium, $benchmarkPremiumInGetIpa);
+
+    var $enrollmentPremiumDtoCount = 0;
+
+    _log("---------------verify slcsp in get enrollmet API-------------------");
+
+    for (var $i = 1; $i < $household.monthlyBmpAmt.length; $i++) {
+
+        if ($household.coverageYear != "2020") {
+            _log("$household.monthlyBmpAmt[$i]: "+$household.monthlyBmpAmt[$i]);
+            if($household.monthlyBmpAmt[$i] != null){
+                var $count = $i-1;
+                _log("$count: "+$count);
+                _log("---------------hh level verify slcsp for month "+$i+"-------------------");
+                _assertEqual($slcspHistoryDB[$enrollmentPremiumDtoCount].SLCSP_PREMIUM, $enrollment.enrollmentPremiumDtoList[$count].slcspPremiumAmount);
+                _assertEqual($slcspHistoryDB[$enrollmentPremiumDtoCount].YEAR, $enrollment.enrollmentPremiumDtoList[$count].year);
+                _assertEqual($slcspHistoryDB[$enrollmentPremiumDtoCount].MONTH, $enrollment.enrollmentPremiumDtoList[$count].month);
+                $enrollmentPremiumDtoCount++;
+
+                var $str = JSON.stringify($enrollment.enrollmentPremiumDtoList[$enrollmentPremiumDtoCount]);
+                _log("$enrollment.enrollmentPremiumDtoList[$enrollmentPremiumDtoCount]: "+$str);
+            }
+        }else{
+            _log("$group.monthlyBmpAmt[$i]: "+$group.monthlyBmpAmt[$i]);
+            if($group.monthlyBmpAmt[$i] != null){
+                var $count = $i-1;
+                _log("$count: "+$count);
+                _log("---------------group level verify slcsp for month "+$i+"-------------------");
+                _assertEqual($group.monthlyBmpAmt[$i][2], $enrollment.enrollmentPremiumDtoList[$count].slcspPremiumAmount);
+                _assertEqual($group.monthlyBmpAmt[$i][0], $enrollment.enrollmentPremiumDtoList[$count].year);
+                _assertEqual($group.monthlyBmpAmt[$i][1], $enrollment.enrollmentPremiumDtoList[$count].month);
+                $enrollmentPremiumDtoCount++;
+
+                var $str = JSON.stringify($enrollment.enrollmentPremiumDtoList[$count]);
+                _log("$enrollment.enrollmentPremiumDtoList[$count]: "+$str);
+            }
+        }
+    }
+
+
+
+    var $str = JSON.stringify($enrollment);
+    _log("JSON: "+$str);
+}
+
+function verifyBenchmarkPremium($externalCaseIdList,$isPremiunDataRequired,$coverageYear,$isSepDataRequired,$household,$group){
+    var $slcspHistoryDB = getSlcspHistoryDB($household);
+    verifySlcspHistoryDB($household,$slcspHistoryDB);
+
+    var $responseBodyObj = callGetEnrollmentApi($externalCaseIdList,$isPremiunDataRequired,$coverageYear,$isSepDataRequired);
+    verifySlcspInGetEnrollment($household,$group,$slcspHistoryDB,$responseBodyObj);
+}
+
+function calculateMonthlyBmpAmount($group,$household,$case){
+    var $data = {};
+    var $bmpAmount; 
+    var $effectiveMonth = _fetch(window.moment($household.coverageStartDate).format("M"));
+    _log("$effectiveMonth: "+$effectiveMonth);
+
+    if ($case == "initial") {
+        $bmpAmount = getBenchmarkPremiumCall($group);
+        //$household.currentBmpAmt = parseFloat($household.currentBmpAmt) + parseFloat($bmpAmount);
+        $group.benchmarkPremium = parseFloat($bmpAmount);
+        $household.currentBmpAmt = parseFloat($household.currentBmpAmt)+parseFloat($group.benchmarkPremium);
+    }
+
+    if ($case == "addToSame") {
+        $household.currentBmpAmt = parseFloat($household.currentBmpAmt)-parseFloat($group.benchmarkPremium);
+        $bmpAmount = getBenchmarkPremiumCall($group);
+        $group.benchmarkPremium = parseFloat($bmpAmount);
+        $household.currentBmpAmt = parseFloat($household.currentBmpAmt)+parseFloat($group.benchmarkPremium);
+    }
+
+    if ($case == "addToDifferent") {
+        _log("addToDifferent");
+        $bmpAmount = getBenchmarkPremiumCall($group);
+        $group.benchmarkPremium = parseFloat($bmpAmount);
+        $household.currentBmpAmt = parseFloat($household.currentBmpAmt)+parseFloat($group.benchmarkPremium);
+    }
+
+    if ($case == "remove") {
+        _log("remove");
+        var $previousGroupAmount = $group.benchmarkPremium;
+        _log("$previousGroupAmount: "+$previousGroupAmount);
+
+        $bmpAmount = getBenchmarkPremiumCall($group);
+        _log("$bmpAmount: "+$bmpAmount);
+        $group.benchmarkPremium = parseFloat($bmpAmount);
+        var $decreasedAmount = parseFloat($previousGroupAmount)-parseFloat($bmpAmount);
+        _log("$decreasedAmount: "+$decreasedAmount);
+        $household.currentBmpAmt = parseFloat($household.currentBmpAmt)-parseFloat($decreasedAmount);
+        _log("$household.currentBmpAmt: "+$household.currentBmpAmt);
+    }
+
+    if ($case == "to_non_fn") {
+        _log("to_non_fn");
+        
+        $bmpAmount = getBenchmarkPremiumCall($group);
+        _log("$bmpAmount: "+$bmpAmount);
+        //$group.benchmarkPremium = parseFloat($bmpAmount);
+        $household.currentBmpAmt = parseFloat($bmpAmount);
+        _log("$household.currentBmpAmt: "+$household.currentBmpAmt);
+    }
+
+    //calclate/update BMP premium table
+    var $bmpPremiumTableHousehold = [];
+    var $bmpPremiumTableGroup = [];
+    var $bmpPremiumColumns = ["YEAR","MONTH","SLCSP_PREMIUM"];
+
+    
+    if($household.monthlyBmpAmt[0] == null){
+        _log("no monthlyBmpAmt");
+        $bmpPremiumTableHousehold[0] = $bmpPremiumColumns;
+    }else{
+        _log("monthlyBmpAmt exist");
+        $bmpPremiumTableHousehold = $household.monthlyBmpAmt;
+    }
+    
+    if($group.monthlyBmpAmt[0] == null){
+        $bmpPremiumTableGroup[0] = $bmpPremiumColumns;
+    }else{
+        $bmpPremiumTableGroup = $group.monthlyBmpAmt;
+    }
+
+    for (var $i = 1; $i < 13; $i++) {
+        if ($effectiveMonth <= $i) {
+            $bmpPremiumTableHousehold[$i] = [$household.coverageYear,$i,$household.currentBmpAmt];
+            $bmpPremiumTableGroup[$i] = [$household.coverageYear,$i,$group.benchmarkPremium];
+        }
+    }
+    
+    _log("calculaiting on household level");
+    $household.monthlyBmpAmt = $bmpPremiumTableHousehold;
+    var $str = JSON.stringify($household.monthlyBmpAmt);
+    _log("JSON: "+$str);
+    _log("$household.currentBmpAmt: "+$household.currentBmpAmt);
+    
+    _log("calculaiting on group level");
+    $group.monthlyBmpAmt = $bmpPremiumTableGroup;
+    var $str = JSON.stringify($group.monthlyBmpAmt);
+    _log("JSON: "+$str);
+    _log("$group.benchmarkPremium: "+$group.benchmarkPremium);
+    
+    $data.household = $household;
+    $data.group = $group;
+    return $data;
+}
+
+function getBenchmarkPremiumCall($group){
+
+    var $bmpAmount = 0;
+
+    var $requestBody = {
+      "requestParameters": {
+        "coverageStartDate": "01/01/2021",
+        "censusData": [
+          {
+            "zip": "94043",
+            "countycode": "06085",
+            "dob": "07/01/2015",
+            "tobacco": "n",
+            "id": "820055203",
+            "age": "5",
+            "relation": "19"
+          }
+        ]
+      },
+      "prescriptionRequestList": []
+    };
+
+    for (var $i = 0; $i < $group.member.length; $i++) {
+        _log("$group.member["+$i+"].exchangeEligibility: "+$group.member[$i].exchangeEligibility);
+        if ($group.member[$i].exchangeEligibility == "false") {
+            _log("$group.member["+$i+"].exchangeEligibility -- not eligible");
+            continue;
+        }
+
+        if ($group.member[$i].aptcEligibility == "false" && $group.member[$i].stateSubsidyEligibility == "false") {
+            _log("$group.member["+$i+"].aptcEligibility: "+$group.member[$i].aptcEligibility);
+            _log("$group.member["+$i+"].stateSubsidyEligibility: "+$group.member[$i].stateSubsidyEligibility);
+            continue;
+        }
+
+        $requestBody.requestParameters.coverageStartDate = $group.member[$i].coverageStartDate;
+        $requestBody.requestParameters.censusData[0].zip = $group.member[$i].homeAddress.zipcode;
+        $requestBody.requestParameters.censusData[0].countycode = "06"+$group.member[$i].homeAddress.county;
+        $requestBody.requestParameters.censusData[0].dob = $group.member[$i].dob;
+        $requestBody.requestParameters.censusData[0].id = $group.member[$i].personMedicaidIdentification;
+
+        var $dob = $group.member[$i].dob;
+        $dob = _fetch(window.moment($dob).format('MM/DD/YYYY'));
+
+        $requestBody.requestParameters.censusData[0].age = calculateAgeOfInd($dob,$group.member[$i].coverageStartDate);
+        $requestBody.requestParameters.censusData[0].relation = $group.member[$i].relationshipCode[$i];
+
+        var $str = JSON.stringify($requestBody);
+        _log("JSON: "+$str);
+        
+        var $request = new RESTRequest();
+        var $serverUrl = (getBaseDomain().indexOf("ghixqa") != -1) ? getBaseDomain().replace("ghixqa","eng.vimo"):getBaseDomain();
+        $request.setHeader("Content-Type", "application/json");
+        $request.setURL("http://"+$serverUrl+":7003/ghix-planmgmt/planratebenefit/rate/benchmark");
+        $request.setBody($str);
+
+        var $response = $request.submit("post");
+        var $statusCode = $response.getResponseCode();
+        var $responseBody = $response.getBodyAsString();
+        _log("response code: "+$statusCode);
+        _log("response body: "+$responseBody);
+        //_writeFile($responseBody, "getResponse.txt", true);
+        var $responseBodyObj = JSON.parse($responseBody);
+        $bmpAmount = parseFloat($bmpAmount)+parseFloat($responseBodyObj.responseData.benchMarkPre);
+        _log("$bmpAmount: "+$bmpAmount);
+        $bmpAmount = roundTo($bmpAmount, 2);
+        _log("$bmpAmount: "+$bmpAmount);
+    }
+
+    return $bmpAmount;
+
+}
+
+function getBenchmarkPremium(){
+    _click(_checkbox("filter_silver"));
+    _click(_radio("premiumAfterCredit"));
+
+    var $plansArr = _collect("_span", "cp-tile__premium-amount", _in(_div("mainSummary")));
+    var $planId;
+    var $case;
+
+    if($plansArr.length == 1){
+        $planId = _getAttribute (_link("ADD[0]"),"id").replace(/\D+/g, "");
+        $case = 0;
+    }else if($plansArr.length > 1){
+        $planId = _getAttribute (_link("ADD[1]"),"id").replace(/\D+/g, "");
+        $case = 1;
+    }
+
+    var $premium = parseFloat(_getText(_span("", _in(_div("cp-tile__premium["+$case+"]")))).replace("$",""));
+    var $savings = _getText(_div("cp-tile__tax-credit["+$case+"]"));
+    $savings = parseFloat(_extract($savings, "/after (.*) monthly savings/", true).toString().replace("$",""));
+
+    $premium = $premium+$savings;
+    _log("$premium: "+$premium);
+    var $ehbPremiumFraction = parseFloat(getPlanEhbPremiumByIdDB($planId));
+
+    var $benchmarkPremium = parseFloat($ehbPremiumFraction*$premium).toFixed(2);
+
+    _click(_checkbox("filter_silver"));
+    _click(_radio("estimatedTotalHealthCareCost"));
+    _log("benchmark premium: "+$benchmarkPremium);
+
+    return $benchmarkPremium;
+}
+
+function getCurrentDate($format){
+    var $currentDate;
+    if (getGlobalDate() !== null) {
+        $currentDate = getGlobalDate();
+        $currentDate = _fetch(window.moment($currentDate).format($format));
+    }else{
+        var $environment = getEnvironmentCall();
+        var $date = $environment.responseHeader.date;
+        $date = $date+"+08:00";
+        var $dateobj =  new Date($date); 
+        $currentDate = _fetch(window.moment($dateobj).format($format));
+    }
+    _log("$currentDate: "+$currentDate);
+    return $currentDate;
+}
+
+function getRelationshipForNewChild($numOfMembers){
+   
+    var $relationship = {};
+    
+    for (var $i = 0; $i < $numOfMembers; $i++) {
+        var $key = "Person";
+        $key = $key + ($i+1);
+        if($i<2){
+            $relationship[$key] = "03";
+        }else{
+            $relationship[$key] = "14";
+        }   
+    }
+    var $str = JSON.stringify($relationship);
+    _log("$relationship: "+$str);
+    
+    return $relationship;
+}
+
+function getApplicantByMedId($data, $medId) {
+      return $data.filter(
+        function($data) {
+          return $data.MEMBER_ID == $medId
+        }
+      );
+}
+
+function waitForDelayPopup($refreshWindow){
+    if ($refreshWindow == "Y") {
+        refreshWindow(1);
+    }
+    _wait(10000);
+    for(var $i=0;$i<10;$i++){
+        if(_isVisible (_heading3("Application is in progress..."))){
+            _wait(10000);
+            _log("waiting for application processing...")
+        }else{
+            break;
+        }
+    
+    }   
+}
+
+function waitUntilElementVisible($element,$seconds){
+    
+    for(var $i=0;$i<$seconds;$i++){
+        if(!_isVisible ($element)){
+            _wait(1000);
+            _log("waiting...")
+            // if ($i == $seconds-1) {
+            //     refreshWindow(1);
+            // }
+        }else{
+            break;
+        }
+    }   
+}
+
+function waitUntilElementInvisible($element,$seconds){
+    
+    for(var $i=0;$i<$seconds;$i++){
+        if(_isVisible ($element)){
+            _wait(1000);
+            _log("waiting...")
+        }else{
+            break;
+        }
+    }   
+}
+
+/*Relationship Codes: 
+01 - Spouse, 
+03 - Parent (father or mother), 
+04 - Grandparent (grandfather or grandmother), 
+05 - Grandchild (grandson or granddaughter), 
+06 - Uncle or aunt, 
+07 - Nephew or niece, 
+08 - First cousin, 
+09 - Adopted son or daughter, 
+10 - Foster child (foster son or foster daughter), 
+11 - Son-in-law or daughter-in-law, 
+12 - Brother-in-law or sister-in-law, 
+13 - Mother-in-law or father-in law, 
+14 - Sibling (brother or sister), 
+15 - Ward, 
+16 - Stepparent (stepfather or stepmother), 
+17 - Stepchild (stepson or stepdaughter), 
+18 - Self, 
+19 - Child (son or daughter), 
+23 - Sponsored dependent, 
+24 - Dependent of a minor dependent, 
+25 - Former spouse, 
+26 - Guardian, 
+31 - Court-appointed guardian, 
+38 - Collateral dependent, 
+53 - Domestic partner, 
+60 - Annuitant, 
+D2 - Trustee, 
+G8 - Unspecified relationship, 
+G9 - Unspecified relative, 
+03-53 = Parent's domestic partner, 
+53-19 = Child of domestic partner*/
+
+function getRelationshipConfiguration($case){
+    var $configuration = [];
+    var $person1 = [];
+    var $person2 = [];
+    var $person3 = [];
+    var $person4 = [];
+    $case = parseInt($case);
+    
+    switch ($case) {
+      case 1: 
+        $person1.push(["53","Person2"],["19","Person3"],["53-19","Person4"]);
+        $person2.push(["53","Person1"],["53-19","Person3"],["19","Person4"]);
+        $person3.push(["03","Person1"],["03-53","Person2"],["14","Person4"]);
+        $person4.push(["03-53","Person1"],["03","Person2"],["14","Person3"]);
+
+        $configuration.push($person1);
+        $configuration.push($person2);
+        $configuration.push($person3);
+        $configuration.push($person4);
+
+        break;
+
+      case 2:
+        //pending
+    }
+    var $str = JSON.stringify($configuration);
+    _log("JSON: "+$str);
+
+    return $configuration;
+
+}
+
+
+function copyObject($object){
+    var $newObject = JSON.parse(JSON.stringify($object));
+    return $newObject;
+}
+
+function isInQepDuringOePeriod($qepDuringOEStartDate,$qepDuringOEEndDate){
+    var $currentDate = getCurrentDate("MM/DD/YYYY");
+    var $isAfter = _fetch(window.moment($currentDate).isAfter($qepDuringOEStartDate));
+    var $isAfterSameDay = _fetch(window.moment($currentDate).isSame($qepDuringOEStartDate));
+
+    if($isAfterSameDay === true){
+        $isAfter = true;
+    }
+
+    var $isBefore = _fetch(window.moment($currentDate).isBefore($qepDuringOEEndDate));
+    var $isInQepDuringOE = false;
+
+    _log("$isAfter: "+$isAfter);
+    _log("$isBefore: "+$isBefore);
+
+    if($isAfter === true && $isBefore === true){
+        $isInQepDuringOE = true;
+    }
+    return $isInQepDuringOE;
+}
+
+
+function getPlanRateFromDB($updatedDataObject,$numOfMembers,$eventType,$eventDate,$CS,$planLevel,$eligibility,$case){
+    var $xmlStr = $updatedDataObject.updatedXmlFile;
+    var $householdInfo = getHouseholdInfo($xmlStr, $numOfMembers);
+
+    var $zipCode = $householdInfo.people[0].homeAddress.zipcode;
+    var $county = "06"+$householdInfo.people[0].homeAddress.county;
+    var $coverageStartDate = getCoverageStartDate($eventType,$eventDate,null,null);
+    var $toDate = _fetch(window.moment($coverageStartDate).format('YYYY-MM-DD'));
+    var $applicableYear = $householdInfo.coverageYear;
+    var $age;
+    var $planToEnrollDB;
+    var $insuranceType="HEALTH";
+    var $planRate = 0;
+    var $planRateDB;
+    var $planToEnrollInfo = {};
+    var $planLevelForDB = $planLevel.toUpperCase();
+
+    for (var $i = 0; $i < $numOfMembers; $i++) {
+        var $dob = $householdInfo.people[$i].dob;
+        $dob = _fetch(window.moment($dob).format('MM/DD/YYYY'));
+        $age = calculateAgeOfInd($dob,$coverageStartDate);
+        _log("$age: "+$age);
+
+        if ($i === 0) {
+            $planToEnrollDB = getPlanToEnrollFromDB($zipCode,$county,$toDate,$applicableYear,$age,$CS,$planLevelForDB);
+            var $str = JSON.stringify($planToEnrollDB);
+            _log("planToEnrollDB: "+$str);
+        }
+        
+        $planRateDB = getPlanRateDB($planToEnrollDB[0][0],$zipCode,$county,$toDate,$applicableYear,$age,$insuranceType)[0][0];
+        _log("$planRateDB: "+$planRateDB);
+        $planRate = Number($planRate)+Number($planRateDB);
+        $planRate = parseFloat($planRate).toFixed(2);
+        _log("$planRate: "+$planRate);
+    }
+
+    var $memberEligibility = $eligibility.split(';');
+    var $memberOneEligibility = $memberEligibility[0].split(',');
+    var $aptcAmount= $memberOneEligibility[2];
+    var $sptcAmount= $memberOneEligibility[3];
+
+    if ($case == 'aptc>premium') {
+        $memberOneEligibility[2] = parseFloat(Number($planRate) + Number(50.25)).toFixed(2);
+    }
+    if ($case == 'sptc>premium') {
+        $memberOneEligibility[3] = parseFloat(Number($planRate) + Number(50.25)).toFixed(2);
+    }
+    if ($case == 'aptc+sptc>premium') {
+        $memberOneEligibility[2] = parseFloat(Number($planRate) - Number(50.25)).toFixed(2);
+        $memberOneEligibility[3] = parseFloat(Number(100.25)).toFixed(2);
+    }
+    if ($case == 'sptc<premium') {
+        $memberOneEligibility[3] = parseFloat(Number($planRate) - Number(20.25)).toFixed(2);
+    }
+
+    $memberEligibility[0] = $memberOneEligibility;
+    $eligibility = $memberEligibility.join(';');
+
+    $planToEnrollInfo.eligibility = $eligibility;
+    $planToEnrollInfo.planRate = $planRate;
+    $planToEnrollInfo.planId = $planToEnrollDB[0][0];
+    $planToEnrollInfo.planName = $planToEnrollDB[0][1];
+    $planToEnrollInfo.planNetwork = $planToEnrollDB[0][2];
+    $planToEnrollInfo.planLevel = $planLevel;
+    $planToEnrollInfo.planCSLevel = $planToEnrollDB[0][4];
+    $planToEnrollInfo.planIssuer = $planToEnrollDB[0][5];
+    $planToEnrollInfo.newAptc = $memberOneEligibility[2];
+    $planToEnrollInfo.newSptc = $memberOneEligibility[3];
+
+    return $planToEnrollInfo;
+}
+
+function saveDataInFile($data,$variableName,$testId,$clearFile){
+
+    var $output;
+    var $fileName = "householdData"+$testId+".sah";
+    var $filePath = "C:\\Sahi\\CA\\"+$fileName;
+
+    if($clearFile === 'Y'){
+        if (_fileExists($filePath)) {
+            _deleteFile($filePath)
+        }
+    }
+
+    if (typeof($data) === 'string') {
+        $output = "var "+$variableName+' = "'+$data+'";\n';
+    }else if(typeof($data) === 'number'){
+        $output = "var "+$variableName+" = "+$data+';\n';
+    }else{
+        $output = "var "+$variableName+" = "+JSON.stringify($data)+";\n";
+    }
+
+    _writeFile($output,$filePath);
+}
+
+function getCountOfActiveMembers($group){
+    var $count = 0;
+    var $coverageEndDate = "12/31/"+$group.coverageYear;
+
+    for (var $i = 0; $i < $group.member.length; $i++) {
+        _log("$group.member["+$i+"].coverageEndDate: "+$group.member[$i].coverageEndDate);
+        _log("$coverageEndDate: "+$coverageEndDate);
+        if ($group.member[$i].coverageEndDate == $coverageEndDate) {
+            $count = $count+1;
+        }
+    }
+    _log("$count: "+$count);
+    return $count;
+}
+
+function calculateMonthlyPremium($group,$case){
+    
+    var $coverageStartDate;
+
+    
+    if (!$group.coverageChangeEffectiveDate) {
+        $coverageStartDate = $group.coverageStartDate;  
+    }else{
+        var $effDateMonth = _fetch(window.moment($group.coverageChangeEffectiveDate).format("M"));
+        var $endDateMonth = _fetch(window.moment($group.coverageEndDate).format("M"));
+
+        if ($effDateMonth == $endDateMonth) {
+            $coverageStartDate = $group.coverageStartDate;
+        }else{
+            $coverageStartDate = $group.coverageChangeEffectiveDate;
+        }  
+    }
+    
+    var $coverageEndDate = $group.coverageEndDate;
+
+    var $isDisenroll = false;
+    var $isPastMonth = false;
+
+    var $isRemoveDependent = false;
+    var $dependentCoverageEndMonth;
+    var $dependentCoverageEndDay;
+    var $dependentCoverageEndYearAndMonth;
+    var $dependentDaysInLastMonth;
+    var $totalDependentProratedGrossPremium;
+    
+
+    if ($case) {
+        if ($case.indexOf("disenroll") != -1) {
+            $isDisenroll = true;
+        }
+
+        if ($case.indexOf("pastMonth") != -1) {
+            $isPastMonth = true;
+        }
+
+        if ($case.indexOf("removeDependent") != -1) {
+            var $memberToRemove = $case.split("-")[1];
+            var $dependentEffectiveEndDate = $group.member[$memberToRemove].coverageEndDate;
+            $isRemoveDependent = true;
+            $dependentCoverageEndMonth = _fetch(window.moment($dependentEffectiveEndDate).format("M"));
+            $dependentCoverageEndDay = _fetch(window.moment($dependentEffectiveEndDate).format("D"));
+            $dependentCoverageEndYearAndMonth = _fetch(window.moment($dependentEffectiveEndDate).format("YYYY-MM"));
+            $dependentDaysInLastMonth = Number(_fetch(window.moment($dependentEffectiveEndDate).daysInMonth()));
+            _log("$dependentDaysInLastMonth: "+$dependentDaysInLastMonth);
+
+            var $dependentGrossPremium = parseFloat($group.enrolleesDB[$memberToRemove].TOTAL_INDV_RESPONSIBILITY_AMT).toFixed(2);
+           _log("$dependentGrossPremium: "+$dependentGrossPremium);
+            $totalDependentProratedGrossPremium = $group.healthPlan.premiumTable[$dependentCoverageEndMonth][7];
+           _log("$totalDependentProratedGrossPremium: "+$totalDependentProratedGrossPremium);
+
+           $totalDependentProratedGrossPremium = (parseFloat($totalDependentProratedGrossPremium).toFixed(2)-parseFloat($dependentGrossPremium).toFixed(2)).toFixed(2);
+            _log("$totalDependentProratedGrossPremium: "+$totalDependentProratedGrossPremium);
+
+            var $dependentProratedGrossPremium = parseFloat($dependentGrossPremium).toFixed(2) / parseInt($dependentDaysInLastMonth);
+            _log("$dependentProratedGrossPremium: "+$dependentProratedGrossPremium);
+            $dependentProratedGrossPremium = parseFloat(parseFloat($dependentProratedGrossPremium) * parseInt($dependentCoverageEndDay));
+            $dependentProratedGrossPremium = roundTo($dependentProratedGrossPremium,2).toFixed(2);
+            _log("$dependentProratedGrossPremium: "+$dependentProratedGrossPremium);
+
+            $totalDependentProratedGrossPremium = parseFloat((Number($totalDependentProratedGrossPremium)+Number($dependentProratedGrossPremium))).toFixed(2);
+            _log("$totalDependentProratedGrossPremium: "+$totalDependentProratedGrossPremium);
+        }
+        
+    }   
+
+    _log("$coverageStartDate: "+$coverageStartDate);
+    var $coverageStartMonth = _fetch(window.moment($coverageStartDate).format("M"));
+    _log("$coverageStartMonth: "+$coverageStartMonth);
+    var $coverageStartDay = _fetch(window.moment($coverageStartDate).format("D"));
+    var $coverageStartYearAndMonth = _fetch(window.moment($coverageStartDate).format("YYYY-MM"));
+    var $daysInMonth = _fetch(window.moment($coverageStartYearAndMonth, "YYYY-MM").daysInMonth());
+
+    _log("$coverageEndDate: "+$coverageEndDate);
+    var $coverageEndMonth = _fetch(window.moment($coverageEndDate).format("M"));
+    _log("$coverageEndMonth: "+$coverageEndMonth);
+    var $coverageEndDay = _fetch(window.moment($coverageEndDate).format("D"));
+    var $coverageEndYearAndMonth = _fetch(window.moment($coverageEndDate).format("YYYY-MM"));
+    var $daysInLastMonth = _fetch(window.moment($coverageEndYearAndMonth, "YYYY-MM").daysInMonth());
+
+
+    var $months = ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"];
+    
+    var $grossPremium;
+    var $netPremium;
+    var $groupMaxAptc = "";
+    var $electedAptc = "";
+    var $groupMaxCaps = "";
+    var $electedCaps = "";
+    //if $case === "disenroll" then using all amounts from premiumTable with effective month
+    if ($isDisenroll === true) {
+        _log("disenroll case");
+        var $monthToGetAmount = null;
+        if ($coverageStartMonth == $coverageEndMonth) {
+            $monthToGetAmount = parseInt($coverageEndMonth)+1;
+        }else{
+            $monthToGetAmount = $coverageEndMonth;
+        }
+
+        $grossPremium = $group.healthPlan.premiumTable[$monthToGetAmount][1];
+        $netPremium = $group.healthPlan.premiumTable[$monthToGetAmount][6];
+        if ($group.aptc) {
+            $groupMaxAptc = $group.healthPlan.premiumTable[$monthToGetAmount][2];
+            $electedAptc = $group.healthPlan.premiumTable[$monthToGetAmount][3];
+        }
+        if ($group.stateSubsidy) {
+            $groupMaxCaps = $group.healthPlan.premiumTable[$monthToGetAmount][4];
+            $electedCaps = $group.healthPlan.premiumTable[$monthToGetAmount][5];
+        }
+    }else{
+        _log("not disenroll case");
+        //using all amounts from $group.healthPlan
+        $grossPremium = $group.healthPlan.totalPayment;//no $
+        $netPremium = $group.healthPlan.premium.replace("$","");//$
+        if ($group.aptc) {
+            $groupMaxAptc = $group.healthPlan.aptc;//$group.aptc.replace("$","");//$
+            $electedAptc = $group.healthPlan.aptc;//no $
+        }
+        if ($group.stateSubsidy) {
+            $groupMaxCaps = $group.healthPlan.stateSubsidy;//$group.stateSubsidy.replace("$","");
+            $electedCaps = $group.healthPlan.stateSubsidy;//no $
+        }
+    }
+    _log("electedCaps 1: "+$electedCaps);
+    
+    //calculating prorated values
+    var $proratedGrossPremium;
+    var $proratedAptc = "";
+    var $proratedCaps = "";
+    var $proratedNetPremium;
+
+    if(($coverageStartDay !== "1" && $isDisenroll === false) || ($isDisenroll === true)){
+        _log("calculating prorated values");
+        var $countOfApplicableDays;
+        if ($isDisenroll === false) {
+            $countOfApplicableDays = parseInt($daysInMonth) - parseInt($coverageStartDay) + 1;  
+        }else{
+            if ($coverageStartMonth == $coverageEndMonth) {
+                $countOfApplicableDays = _fetch(window.moment($coverageEndDate).diff($coverageStartDate,'d'))+1;
+            }else{
+                $countOfApplicableDays = parseInt($coverageEndDay);
+            }
+            //$countOfApplicableDays = parseInt($coverageEndDay);
+            $daysInMonth = $daysInLastMonth;
+        }
+
+        _log("$countOfApplicableDays: "+$countOfApplicableDays);
+
+        $proratedGrossPremium = parseFloat($grossPremium).toFixed(2) / parseInt($daysInMonth);
+        $proratedGrossPremium = parseFloat(parseFloat($proratedGrossPremium) * parseInt($countOfApplicableDays)).toFixed(2);
+        $proratedNetPremium = $proratedGrossPremium;
+        _log("proratedNetPremium 1: "+$proratedNetPremium);
+        if ($group.aptc) {
+            $proratedAptc = parseFloat($electedAptc).toFixed(2) / parseInt($daysInMonth);
+            _log("proratedAptc 1: "+$proratedAptc);
+            $proratedAptc = parseFloat(parseFloat($proratedAptc) * parseInt($countOfApplicableDays));
+            $proratedAptc = roundTo($proratedAptc,2).toFixed(2);
+            //$proratedAptc = parseFloat($proratedAptc).toFixed(2);
+            _log("proratedAptc 2: "+$proratedAptc);
+            $proratedNetPremium =  parseFloat(parseFloat($proratedNetPremium).toFixed(2) - parseFloat($proratedAptc).toFixed(2)).toFixed(2);
+            _log("proratedNetPremium aptc 2: "+$proratedNetPremium);
+        }
+
+        if ($group.stateSubsidy) {
+            $proratedCaps = parseFloat($electedCaps).toFixed(2) / parseInt($daysInMonth);
+            _log("proratedCaps 1: "+$proratedCaps);
+            $proratedCaps = parseFloat(parseFloat($proratedCaps) * parseInt($countOfApplicableDays));
+            $proratedCaps = roundTo($proratedCaps,2).toFixed(2);
+            _log("proratedCaps 2: "+$proratedCaps);
+            $proratedNetPremium =  parseFloat(parseFloat($proratedNetPremium).toFixed(2) - parseFloat($proratedCaps).toFixed(2)).toFixed(2);
+            _log("proratedNetPremium ss 2: "+$proratedNetPremium);
+        }
+    }
+
+    //updating premium table
+    var $premiumTable = [];
+    var $premiumColumns = ["Month","Gross Premium","Group Max APTC","Elected APTC","Group Max CAPS","CA Premium Subsidy","Net Premium"];
+    if($group.healthPlan.premiumTable[0] == null){
+        $premiumTable[0] = $premiumColumns;
+    }else{
+        $premiumTable = $group.healthPlan.premiumTable;
+    }
+
+    var $monthToChange;
+    if ($isDisenroll === false){
+        $monthToChange = $coverageStartMonth;
+    }else{
+        $monthToChange = $coverageEndMonth;
+    }
+
+    
+     for(var $i=1;$i<13;$i++){
+        if($i >= $monthToChange){
+            _log("checking for month: "+"$i="+$i+", $monthToChange="+$monthToChange);
+            if ((($coverageStartDay !== "1" && $isDisenroll === false) && $i==$monthToChange) || ($isDisenroll === true && $i==$monthToChange)) {
+                _log("changing value for prorated month");
+                $premiumTable[$i] =  [ $months[$i-1],$proratedGrossPremium,$groupMaxAptc,$proratedAptc,$groupMaxCaps,$proratedCaps,$proratedNetPremium,$grossPremium,$electedAptc,$electedCaps];    
+            }else{
+                _log("other months");
+                if ($isDisenroll === true && $i > $monthToChange) {
+                    _log("Not Applicable");
+                    $premiumTable[$i] =  [ $months[$i-1],"Not Applicable",0,0,0,0,0];
+                }else{
+                    _log("updating value for not prorated months");
+                    $premiumTable[$i] =  [ $months[$i-1],$grossPremium,$groupMaxAptc,$electedAptc,$groupMaxCaps,$electedCaps,$netPremium,$grossPremium,$electedAptc,$electedCaps];      
+                }
+                
+            }
+            
+        }else{
+            _log("Not Applicable 2-1");
+            if($group.healthPlan.premiumTable[0] == null){
+                _log("Not Applicable 2-2");
+                $premiumTable[$i] =  [ $months[$i-1],"Not Applicable",0,0,0,0,0];
+            }   
+        }
+        
+    }
+
+    if ($isRemoveDependent === true) {
+        var $electedDependentAptc = $group.healthPlan.premiumTable[$dependentCoverageEndMonth][3];
+        var $electedDependentSS = $group.healthPlan.premiumTable[$dependentCoverageEndMonth][5];
+
+        $group.healthPlan.premiumTable[$dependentCoverageEndMonth][1] = $totalDependentProratedGrossPremium;
+        var $totalDependentProratedNetPremium = parseFloat((Number($totalDependentProratedGrossPremium) - Number($electedDependentAptc) - Number($electedDependentSS))).toFixed(2);
+        $group.healthPlan.premiumTable[$dependentCoverageEndMonth][6] = $totalDependentProratedNetPremium;
+    }
+
+    var $str = JSON.stringify($premiumTable);
+    _log("$premiumTable: "+$str);
+    return $premiumTable;
+}
+
+function roundTo(n, digits) {
+    if (digits === undefined) {
+       digits = 0;
+    }
+
+    var multiplicator = Math.pow(10, digits);
+    n = parseFloat((n * multiplicator).toFixed(11));
+    return Math.round(n) / multiplicator;
+}
+
+function getEnvironmentCall(){
+
+        var $request = new RESTRequest();
+        var $serverUrl = (getBaseDomain().indexOf("ghixqa") != -1) ? getBaseDomain().replace("ghixqa","eng.vimo"):getBaseDomain();
+        $request.setHeader("Content-Type", "application/json");
+        $request.setURL("https://"+$serverUrl+"/hix/ui/environment");
+
+        var $response = $request.submit("get");
+        var $statusCode = $response.getResponseCode();
+        var $responseBody = $response.getBodyAsString();
+        var $responseHeader = $response.getHeader("Date");
+        _log("response code: "+$statusCode);
+        _log("response body: "+$responseBody);
+        _log("response Header: "+$responseHeader);
+
+        //_writeFile($responseBody, "getResponse.txt", true);
+        var $responseBodyObj = JSON.parse($responseBody);
+        $responseBodyObj.responseHeader = {};
+        $responseBodyObj.responseHeader.date = $responseHeader;
+        _log("$responseBodyObj.responseHeader.date: "+$responseBodyObj.responseHeader.date);
+        
+    return $responseBodyObj;
+
+}
+
+function getIsoDate(){
+    var $environment = getEnvironmentCall();
+    //var $date = $environment.localDates.serverDate;
+    var $date = $environment.responseHeader.date;
+
+    var $dateobj =  new Date($date); 
+    var $isoDate = $dateobj.toISOString(); 
+
+    return $isoDate;
+}
