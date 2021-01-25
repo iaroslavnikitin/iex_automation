@@ -25,6 +25,6 @@ Feature: RIDP Flow
        
          Examples:
         | fileName | role| privilegedUser |
-        | ssap.json | CSR| RIDPFlow |
+        | ssap.json | CSR| RIDPFlow       |
 
        
