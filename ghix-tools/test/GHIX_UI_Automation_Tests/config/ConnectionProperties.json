@@ -1,18 +1,18 @@
 {
-    "nj2qa": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "nj2qa",
-        "password": "PTE1YTEDYjEsee3522TT"
-    },
-    "nj1auto": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "nj1auto",
-        "password": "PTE1YTEDYjEs6yhTT4"
-    },
+    // "nj2qa": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "nj2qa",
+    //     "password": "PTE1YTEDYjEsee3522TT"
+    // },
+    // "nj1auto": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "nj1auto",
+    //     "password": "PTE1YTEDYjEs6yhTT4"
+    // },
     "https://nv3qa.ghixqa.com/hix/": {
         "database": "postgres",
         "server": "sjc-pgqa1.eng.vimo.com",
@@ -27,111 +27,111 @@
         "username": "nv1qa",
         "password": "OTdmZjFkZDg3MDAy"
     },
-    "caupgrade5qa": {
-        "database": "oracle",
-        "server": "sjc-orc1.eng.vimo.com",
-        "port": "1521",
-        "username": "caupgrade5qa",
-        "password": "MjE0Mjk0ZjRhMDY0"
-    },
-    "https://pa1qa.ghixqa.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "pa1qa",
-        "password": "ZDRmMjZiMU2YdsW3"
-    },
-    "https://pa4qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "pa4qa",
-        "password": "ZDRmMjZiMsdw33fvs"
-    },
-    "https://pa1auto.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "pa1auto",
-        "password": "ZDRmMjZiMsddiOe44Y"
-    },
-    "https://pa7qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "pa7qa",
-        "password": "ZDRmMjZiMsdw33fttE"
-    },
-    "https://nj1qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "nj1qa",
-        "password": "PTE1YTEDYjEsd322he"
-    },
-    "https://nj1auto.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "nj1auto",
-        "password": "PTE1YTEDYjEs6yhTT4"
-    },
-    "https://pa1qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "pa1qa",
-        "password": "ZDRmMjZiMU2YdsW3"
-    },
-    "https://ca3dev.ghixqa.com/hix/": {
-        "database": "oracle",
-        "server": "sjc-orc1.eng.vimo.com",
-        "port": "1521",
-        "username": "ca3dev",
-        "password": "MJkQ3yzg6#JPgu"
-    },
-    "https://ca2auto.eng.vimo.com/hix/": {
-        "database": "oracle",
-        "server": "sjc-orc1.eng.vimo.com",
-        "port": "1521",
-        "username": "ca2auto",
-        "password": "ZmJkODgxNzY2ZGE1"
-    },
-    "https://ide2e.ghixqa.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-edbqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "ide2e",
-        "password": "N2U2NzY0NjZkZmFm"
-    },
-    "https://idmainqa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-edbqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "idmainqa",
-        "password": "MGFkZjFiYjk0Yzdh"
-    },
-    "https://mn8qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "mn8qa",
-        "password": "ZWY5MzcxY2Ydsee54"
-    },
-    "https://mn4qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "mn4qa",
-        "password": "P9gHj3X5mkeP7iSL"
-    },
-    "https://mn6qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "mn6qa",
-        "password": "Bm7LDTy6NKb7pGaX"
-    },
+    // "caupgrade5qa": {
+    //     "database": "oracle",
+    //     "server": "sjc-orc1.eng.vimo.com",
+    //     "port": "1521",
+    //     "username": "caupgrade5qa",
+    //     "password": "MjE0Mjk0ZjRhMDY0"
+    // },
+    // "https://pa1qa.ghixqa.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa2.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "pa1qa",
+    //     "password": "ZDRmMjZiMU2YdsW3"
+    // },
+    // "https://pa4qa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "pa4qa",
+    //     "password": "ZDRmMjZiMsdw33fvs"
+    // },
+    // "https://pa1auto.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "pa1auto",
+    //     "password": "ZDRmMjZiMsddiOe44Y"
+    // },
+    // "https://pa7qa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa2.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "pa7qa",
+    //     "password": "ZDRmMjZiMsdw33fttE"
+    // },
+    // "https://nj1qa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "nj1qa",
+    //     "password": "PTE1YTEDYjEsd322he"
+    // },
+    // "https://nj1auto.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "nj1auto",
+    //     "password": "PTE1YTEDYjEs6yhTT4"
+    // },
+    // "https://pa1qa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa2.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "pa1qa",
+    //     "password": "ZDRmMjZiMU2YdsW3"
+    // },
+    // "https://ca3dev.ghixqa.com/hix/": {
+    //     "database": "oracle",
+    //     "server": "sjc-orc1.eng.vimo.com",
+    //     "port": "1521",
+    //     "username": "ca3dev",
+    //     "password": "MJkQ3yzg6#JPgu"
+    // },
+    // "https://ca2auto.eng.vimo.com/hix/": {
+    //     "database": "oracle",
+    //     "server": "sjc-orc1.eng.vimo.com",
+    //     "port": "1521",
+    //     "username": "ca2auto",
+    //     "password": "ZmJkODgxNzY2ZGE1"
+    // },
+    // "https://ide2e.ghixqa.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-edbqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "ide2e",
+    //     "password": "N2U2NzY0NjZkZmFm"
+    // },
+    // "https://idmainqa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-edbqa1.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "idmainqa",
+    //     "password": "MGFkZjFiYjk0Yzdh"
+    // },
+    // "https://mn8qa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa2.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "mn8qa",
+    //     "password": "ZWY5MzcxY2Ydsee54"
+    // },
+    // "https://mn4qa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa2.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "mn4qa",
+    //     "password": "P9gHj3X5mkeP7iSL"
+    // },
+    // "https://mn6qa.eng.vimo.com/hix/": {
+    //     "database": "postgres",
+    //     "server": "sjc-pgqa2.eng.vimo.com",
+    //     "port": "5444",
+    //     "username": "mn6qa",
+    //     "password": "Bm7LDTy6NKb7pGaX"
+    // },
     "https://nv1auto.eng.vimo.com/hix/": {
         "database": "postgres",
         "server": "sjc-pgqa1.eng.vimo.com",
@@ -146,137 +146,137 @@
         "username": "nv4qa",
         "password": "7ySL4tOeHvE7/zSr"
     },
-    "https://caupgrade5qa.eng.vimo.com/hix/": {
-        "database": "oracle",
-        "server": "sjc-orc1.eng.vimo.com",
-        "port": "1521",
-        "username": "caupgrade5qa",
-        "password": "MjE0Mjk0ZjRhMDY0"
-    },
+    // "https://caupgrade5qa.eng.vimo.com/hix/": {
+    //     "database": "oracle",
+    //     "server": "sjc-orc1.eng.vimo.com",
+    //     "port": "1521",
+    //     "username": "caupgrade5qa",
+    //     "password": "MjE0Mjk0ZjRhMDY0"
+    // },
     "https://nv2auto.eng.vimo.com/hix/": {
         "database": "postgres",
         "server": "sjc-pgqa1.eng.vimo.com",
         "port": "5444",
         "username": "nv2auto",
         "password": "OTdmZjFkZTg3MEAz"
-    },
-    "https://mn2auto.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "mn2auto",
-        "password": "Cze0aVe5V4.4D3cX"
-    },
-    "https://mn7qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "mn7qa",
-        "password": "oaRp3Gry9UCKQXiG"
-    },
-
-    "https://mn2qa.ghixqa.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "mn2qa",
-        "password": "ZWY5MzcxY2YxMGYx"},
-    "https://pa2qa.ghixqa.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "pa2qa",
-        "password": "ZDRmMjZiMD322dsW"
-    },
-    "https://mn5qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "mn5qa",
-        "password": "Am7LDTy6NKb7pGax"
-    },
-    "https://mnauto.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "mnauto",
-        "password": "Cze0aVe5V4.4BTcC"
-    },
-    "https://pa6qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "pa6qa",
-        "password": "ZDRmMjZiMsd3367te"
-    },
-    "https://caupgrade4qa.ghixqa.com/hix/": {
-        "database": "ORACLE",
-        "server": "sjc-orc1.eng.vimo.com",
-        "port": "1521",
-        "username": "caupgrade4qa",
-        "password": "YzQ3OWQ4YzA5YzJl"
-    },
-    "https://nj5qa.ghixqa.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa2.eng.vimo.com",
-        "port": "5444",
-        "username": "nj5qa",
-        "password": "PTE1YTEDYjEse3lsekT55"
-    },
-    "https://iddemopgqa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-edbqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "iddemopgqa",
-        "password": "NzkxMzViM2FhOGMz"
-    },
-    "https://id2auto.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-edbqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "id2auto",
-        "password": "NTgwNWJlNDZjMTI3"
-    },
-    "https://iddemo.ghixqa.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-edbqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "iddemo",
-        "password": "ODkxMmE2M2UyMj1h"
-    },
-    "https://ca2autob.eng.vimo.com/hix/": {
-        "database": "ORACLE",
-        "server": "sjc-orc1.eng.vimo.com",
-        "port": "1521",
-        "username": "ca2auto",
-        "password": "ZmJkODgxNzY2ZGE1"
-    },
-       "https://nj2auto.eng.vimo.com/hix/": {
-         "database": "postgres",
-          "server": "sjc-pgqa2.eng.vimo.com",
-           "port": "5444",
-           "username": "nj2auto",
-           "password": "PTE1YTEDYjEsRTE35Gn"
-         },
-    "https://pa2uat.ghixqa.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "pa2uat",
-        "password": "PTE1YWYyYjE5D22dT"
-    },
-    "https://ca5dev.eng.vimo.com/hix/": {
-        "database": "oracle",
-        "server": "sjc-orc1.eng.vimo.com",
-        "port": "1521",
-        "username": "ca5dev",
-        "password": "ZmJkODgxNzY2ZGE1"
-    },
-    "https://nj2qa.eng.vimo.com/hix/": {
-        "database": "postgres",
-        "server": "sjc-pgqa1.eng.vimo.com",
-        "port": "5444",
-        "username": "nj2qa",
-        "password": "PTE1YTEDYjEsee3522TT"
     }
+//     "https://mn2auto.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "mn2auto",
+//         "password": "Cze0aVe5V4.4D3cX"
+//     },
+//     "https://mn7qa.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa2.eng.vimo.com",
+//         "port": "5444",
+//         "username": "mn7qa",
+//         "password": "oaRp3Gry9UCKQXiG"
+//     },
+
+//     "https://mn2qa.ghixqa.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "mn2qa",
+//         "password": "ZWY5MzcxY2YxMGYx"},
+//     "https://pa2qa.ghixqa.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "pa2qa",
+//         "password": "ZDRmMjZiMD322dsW"
+//     },
+//     "https://mn5qa.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa2.eng.vimo.com",
+//         "port": "5444",
+//         "username": "mn5qa",
+//         "password": "Am7LDTy6NKb7pGax"
+//     },
+//     "https://mnauto.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "mnauto",
+//         "password": "Cze0aVe5V4.4BTcC"
+//     },
+//     "https://pa6qa.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "pa6qa",
+//         "password": "ZDRmMjZiMsd3367te"
+//     },
+//     "https://caupgrade4qa.ghixqa.com/hix/": {
+//         "database": "ORACLE",
+//         "server": "sjc-orc1.eng.vimo.com",
+//         "port": "1521",
+//         "username": "caupgrade4qa",
+//         "password": "YzQ3OWQ4YzA5YzJl"
+//     },
+//     "https://nj5qa.ghixqa.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa2.eng.vimo.com",
+//         "port": "5444",
+//         "username": "nj5qa",
+//         "password": "PTE1YTEDYjEse3lsekT55"
+//     },
+//     "https://iddemopgqa.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-edbqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "iddemopgqa",
+//         "password": "NzkxMzViM2FhOGMz"
+//     },
+//     "https://id2auto.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-edbqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "id2auto",
+//         "password": "NTgwNWJlNDZjMTI3"
+//     },
+//     "https://iddemo.ghixqa.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-edbqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "iddemo",
+//         "password": "ODkxMmE2M2UyMj1h"
+//     },
+//     "https://ca2autob.eng.vimo.com/hix/": {
+//         "database": "ORACLE",
+//         "server": "sjc-orc1.eng.vimo.com",
+//         "port": "1521",
+//         "username": "ca2auto",
+//         "password": "ZmJkODgxNzY2ZGE1"
+//     },
+//        "https://nj2auto.eng.vimo.com/hix/": {
+//          "database": "postgres",
+//           "server": "sjc-pgqa2.eng.vimo.com",
+//            "port": "5444",
+//            "username": "nj2auto",
+//            "password": "PTE1YTEDYjEsRTE35Gn"
+//          },
+//     "https://pa2uat.ghixqa.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "pa2uat",
+//         "password": "PTE1YWYyYjE5D22dT"
+//     },
+//     "https://ca5dev.eng.vimo.com/hix/": {
+//         "database": "oracle",
+//         "server": "sjc-orc1.eng.vimo.com",
+//         "port": "1521",
+//         "username": "ca5dev",
+//         "password": "ZmJkODgxNzY2ZGE1"
+//     },
+//     "https://nj2qa.eng.vimo.com/hix/": {
+//         "database": "postgres",
+//         "server": "sjc-pgqa1.eng.vimo.com",
+//         "port": "5444",
+//         "username": "nj2qa",
+//         "password": "PTE1YTEDYjEsee3522TT"
+//     }
 }
